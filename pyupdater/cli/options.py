@@ -147,6 +147,11 @@ def add_package_parser(subparsers):
     package_parser.add_argument('-s', '-S', '--sign', help='Sign version file',
                                 action='store_true', dest='sign')
 
+def add_plugin_parser(subparsers):
+    plugin_parser = subparsers.add_parser('plugins', help='Shows installed '
+                                          'plugins')
+    plugin_parser.add_argument('--dummy', help=argparse.SUPPRESS)
+
 
 def add_settings_parser(subparsers):
     settings_parser = subparsers.add_parser('settings', help='Updated '
@@ -158,16 +163,14 @@ def add_settings_parser(subparsers):
                                  action='store_true')
     settings_parser.add_argument('--patches', help='Changed patch support',
                                  action='store_true')
-    settings_parser.add_argument('--scp', help='Changed scp settings',
-                                 action='store_true')
-    settings_parser.add_argument('--s3', help='Changed s3 settings',
-                                 action='store_true')
+    settings_parser.add_argument('--plugin', help='Change named plugin\'s '
+                                 'settings', dest='plugin')
 
 
 def add_upload_parser(subparsers):
     upload_parser = subparsers.add_parser('upload', help='Uploads files')
-    upload_parser.add_argument('-s', '--service', help='Where '
-                               'updates are stored', dest='service')
+    upload_parser.add_argument('-s', '--service', help='The plugin for '
+                               'uploads', dest='service')
 
 
 def add_version_parser(subparsers):
@@ -186,6 +189,7 @@ def get_parser():
     add_keys_parser(subparsers)
     add_make_spec_parser(subparsers)
     add_package_parser(subparsers)
+    add_plugin_parser(subparsers)
     add_settings_parser(subparsers)
     add_upload_parser(subparsers)
     add_version_parser(subparsers)

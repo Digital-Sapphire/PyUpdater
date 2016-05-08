@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # --------------------------------------------------------------------------
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 from abc import ABCMeta, abstractmethod
 import logging
@@ -22,131 +22,12 @@ import time
 
 from jms_utils.terminal import get_correct_answer
 import six
-from straight.plugin import load
 
 from pyupdater import settings
-from pyupdater.utils import remove_dot_files
+from pyupdater.utils import remove_dot_files, PluginManager
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
 log = logging.getLogger(__name__)
-
-class PluginManager(object):
-
-    PLUGIN_NAMESPACE = 'pyupdater.plugins'
-
-    def __init__(self, config):
-        plugins_namespace = load(self.PLUGIN_NAMESPACE, subclass=BaseUploader)
-        plugins = plugins_namespace.produce()
-        # Used as a counter when creating names to plugin
-        # User may have multiple plugins with the same
-        # name installed
-        self.unique_names = {}
-        # A list of dicts of all installed plugins.
-        # Keys: name author plugin
-        self.plugins = []
-        self.configs = self._get_config(config)
-        self._load(plugins)
-
-    # Created a function here since we are doing
-    # this in two locations in this class
-    def _get_config(self, config):
-        return config.get('PLUGIN_CONFIGS')
-
-
-    def _name_check(self, name):
-        # We don't use the number 1 when adding the first
-        # name in the case where there are only one name
-        # it'll look better when displayed on the cli
-        if name not in self.unique_names.keys():
-            self.unique_names[name] = ''
-
-        # Create the output before we update the name count
-        out = '{}{}'.format(name, str(self.unique_names[name]))
-
-        # Setup the counter for the next exact name match
-        # Since we already created the output up above
-        # we are just getting ready for the next call
-        # to name check
-        if self.unique_names[name] == '':
-            self.unique_names[name] = 2
-        else:
-            self.unique_names[name] += 1
-
-        return out
-
-    def _load(self, plugins):
-        # p is the initialized plugin
-        for p in plugins:
-            # Checking for required information from
-            # plugin author. If not found plugin won't be loaded
-            if not hasattr(p, 'name') or p.name is None:
-                log.error('Plugin does not have required name attribute')
-                continue
-            if not hasattr(p, 'author') or p.author is None:
-                log.error('Plugin does not have required author attribute')
-                continue
-
-            if not isinstance(p.name, six.string_types):
-                log.error('Plugin name attribute is not a string')
-                continue
-            if not isinstance(p.author, six.string_types):
-                log.error('Plugin author attribute is not a string')
-                continue
-            # We are ensuring a unique name for users
-            # to select when uploading.
-            # Todo: This could break build scripts since the
-            #       load order of the plugins could be
-            #       different. Maybe sort by original name
-            #       and author before the above for loop
-            name = self._name_check(p.name)
-            self.plugins.append({'name': name,
-                                'author': p.author,
-                                'plugin': p})
-
-    def config_plugin(self, name, config):
-        # Load all available plugin configs from
-        # app_config['PLUGIN_CONFIGS']
-        configs = self._get_config(config)
-        # Get the requested plugin
-        plugin = self.get_plugin(name)
-        # Create the key to retrieve this plugins config
-        config_key = '{}-{}'.format(plugin.name, plugin.author)
-        # Get the config for this plugin
-        plugin_config = configs.get(config_key, {})
-        # Get the plugin its config dict for updating
-        try:
-            plugin.set_config(plugin_config)
-        except Exception as err:
-            log.error('There was an error during configuration '
-                      'of {} crated by {}'.format(plugin.name, plugin.author))
-            log.error(err)
-            log.debug(err, exc_info=True)
-
-    def get_plugin_names(self):
-        """Returns the name & author of all installed
-        plugins
-        """
-        plugin_info = []
-        for p in self.plugins:
-            plugin_info.append({'name': p['name'],
-                               'author': p['author']})
-        return plugin_info
-
-    def get_plugin(self, name):
-        "Returns the named plugin"
-        plugin = None
-        for k, v in self.plugins.items():
-            # We match the given name to the names
-            # we generate for uniqueness
-            if name == v['name']:
-                plugin = v['plugin']
-                break
-        if plugin is not None:
-            config_key = '{}-{}'.format(v['name'], v['author'])
-            config = self.configs.get(config_key, {})
-            plugin.init_config(config)
-
-        return plugin
 
 
 class Uploader(object):
@@ -200,7 +81,7 @@ class Uploader(object):
             raise UploaderError('Must pass str to set_uploader',
                                 expected=True)
 
-        self.uploader = self.mgr.get_plugin(requested_uploader)
+        self.uploader = self.mgr.get_plugin(requested_uploader, init=True)
         if self.uploader is None:
             log.debug('PLUGIN_NAMESPACE: %s', self.mgr.PLUGIN_NAMESPACE)
             raise UploaderPluginError('Requested uploader is not installed',
@@ -227,12 +108,13 @@ class Uploader(object):
         log.info('Plugin: %s', self.uploader.name)
         log.info('Author: %s', self.uploader.author)
         for f in self.files:
-            msg = '\n\nUploading: {}' .format(f)
+            basename = os.path.basename(f)
+            msg = '\n\nUploading: {}' .format(basename)
             msg2 = ' - File {} of {}\n'.format(self.files_completed,
                                                self.file_count)
             print(msg + msg2)
             complete = self.uploader.upload_file(f)
-            basename = os.path.basename(f)
+
             if complete:
                 log.debug('%s uploaded successfully', basename)
                 os.remove(f)
@@ -263,7 +145,7 @@ class Uploader(object):
             msg = '\n\nRetyring: {} - File {} of {}\n'.format(f, count,
                                                               failed_count)
             print(msg)
-            complete = self.plugin.upload_file(f)
+            complete = self.uploader.upload_file(f)
             if complete:
                 log.debug('%s uploaded on retry', f)
                 count += 1
@@ -273,14 +155,28 @@ class Uploader(object):
         return failed_uploads
 
 
+class AbstractBaseUploaderMeta(type):
+
+    def __call__(cls, *args, **kwargs):
+        obj = type.__call__(cls, *args, **kwargs)
+        obj.check_attributes()
+        return obj
+
 
 @six.add_metaclass(ABCMeta)
 class BaseUploader(object):
+    __metaclass__ = AbstractBaseUploaderMeta
+    name = None
+    author = None
     """Base Uploader.  All uploaders should subclass
     this base class
     """
-    def get_answer(self, question):
-        return get_correct_answer(question, required=True)
+    def check_attributes(self):
+        if self.name is None or self.author is None:
+            raise NotImplementedError
+
+    def get_answer(self, question, default=None):
+        return get_correct_answer(question, default=default)
 
     @abstractmethod
     def init_config(self, config):

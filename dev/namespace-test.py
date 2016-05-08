@@ -9,7 +9,7 @@ sh = logging.StreamHandler()
 sh.setLevel(logging.DEBUG)
 log.addHandler(sh)
 
-namespace = 'pyu.uploaders'
+namespace = 'pyupdater.plugins'
 
 
 def upgrade_pip():
