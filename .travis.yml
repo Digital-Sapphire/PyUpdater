@@ -33,7 +33,7 @@ matrix:
       # Just tests how PyInstaller performs with upcoming Python 3.6
       - python: "nightly"
       # Ignore failures from OS X.
-      # - os: osx
+      - os: osx
 
 
 install:

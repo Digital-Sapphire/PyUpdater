@@ -2,8 +2,8 @@ appdirs == 1.4.0
 certifi
 ed25519 == 1.4
 jms-utils >= 0.6.2
-pyinstaller == 3.1.1
-requests[security] == 2.9.1
+pyinstaller == 3.2
+requests[security] == 2.10.0
 six == 1.10.0
 straight.plugin == 1.4.1
 urllib3 == 1.15.1

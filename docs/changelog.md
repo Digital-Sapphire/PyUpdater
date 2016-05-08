@@ -1,7 +1,12 @@
 # Changelog
 
-## v1.1.16 - Master
+## v2.0 - Master
 ##### This version is not yet released and is under active development.
+Updated
+
+  - Libs
+    - PyInstaller 3.2
+    - requests 2.10.0
 
 
 ## v1.1.15 - 2016/4/17
