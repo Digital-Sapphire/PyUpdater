@@ -1,0 +1,6 @@
+[report]
+omit =
+    pyupdater/_version.py
+    pyupdater/hooks/*
+    pyupdater/__init__.py
+    pyupdater/settings.py

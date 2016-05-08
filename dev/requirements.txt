@@ -1,0 +1,18 @@
+asciinema
+coverage
+line_profiler == 1.0
+memory_profiler
+mkdocs == 0.15.3
+pytest
+pytest-circleci
+pytest-cov
+pytest-httpbin
+pytest-remove-stale-bytecode
+pytest-xdist
+pyupdater-s3-plugin
+tox
+tox_globinterpreter
+tox-pyenv
+twine
+versioneer == 0.16
+wheel

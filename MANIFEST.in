@@ -1,0 +1,3 @@
+include requirements.txt
+include versioneer.py
+include pyupdater/_version.py

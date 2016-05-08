@@ -1,0 +1,60 @@
+language: python
+
+# Use the new container-based Travis infrastructure.
+sudo: false
+
+# Cache pip packages. Explicitly name the pip-cache directory since we
+# use a custom `install` step which annuls `cache: pip`.
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.pip-accel
+
+# Try OS X.
+os:
+  - linux
+  # - osx
+
+env:
+   # shorten logging of pip-accel
+   - PIP_ACCEL_LOG_FORMAT="%(name)-18s %(levelname)s %(message)s"
+#  - PYCRYPTO_VERSION=2.4.1
+#  - PYCRYPTO_VERSION=2.6.1
+
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "nightly"
+
+matrix:
+  allow_failures:
+      # Just tests how PyInstaller performs with upcoming Python 3.6
+      - python: "nightly"
+      # Ignore failures from OS X.
+      # - os: osx
+
+
+install:
+  # Install PyEnv
+  - export PATH="/home/travis/.pyenv/bin:$PATH"
+  - eval "$(pyenv init -)"
+  - eval "$(pyenv virtualenv-init -)"
+  - curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+
+  - pip install tox-travis
+
+  # Install dependencies for tests. Use pip-accel to cache compiled
+  # packages and safe recompiling each time.
+  # Download-progress bars break Travis's log view. Disable them by
+  # piping output through another program (if output is not a tty, no
+  # progress bars)
+  - pip install pip-accel | cat
+  - pip-accel install -r dev/requirements.txt | cat
+  - pip-accel install -r requirements.txt | cat
+
+script:
+  # Run tests and speed them up by sending them to multiple CPUs.
+  # Run unitttest first.
+  - tox
