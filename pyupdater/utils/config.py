@@ -39,6 +39,8 @@ class ConfigDict(dict):
             # Company/Your name
             'COMPANY_NAME': settings.GENERIC_APP_NAME,
 
+            'PLUGIN_CONFIGS': {},
+
             # Support for patch updates
             'UPDATE_PATCHES': True
             }

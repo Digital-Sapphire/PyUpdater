@@ -82,6 +82,9 @@ class PyUpdater(object):
         "Uploads files in deploy folder"
         self.up.upload()
 
+    def get_plugin_names(self):
+        return self.up.get_plugin_names()
+
     def import_keypack(self):
         "Creates signing keys"
         self.key_importer.start()

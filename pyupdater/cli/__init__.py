@@ -27,7 +27,6 @@ from jms_utils.logger import log_formatter
 from jms_utils.paths import ChDir
 from jms_utils.terminal import ask_yes_no, get_correct_answer
 import requests
-import stevedore
 
 
 from pyupdater import PyUpdater, __version__
@@ -292,7 +291,7 @@ def upload_debug_info():  # pragma: no cover
         log.error('Could not upload debug info to github')
     else:
         log.info('Log export complete')
-        log.info('Logs uploaded to {}'.fomrat(url))
+        log.info('Logs uploaded to {}'.format(url))
 
 
 def upload(args):  # pragma: no cover
@@ -318,9 +317,12 @@ def upload(args):  # pragma: no cover
             log.debug(err)
             error = True
             # Do not need. Will delete once implementation is done.
-            # mgr = stevedore.ExtensionManager(settings.UPLOAD_PLUGIN_NAMESPACE)
-            plugin_names = mgr.names()
-            log.debug('Plugin names: %s', plugin_names)
+            _plugin_names = pyu.get_plugin_names()
+            plugin_names = []
+            for p in _plugin_names:
+                out = '{} - Author: {}'.format(p['name'], p['author'])
+                plugin_names.append(out)
+            log.debug('Plugins: %s', plugin_names)
             if len(plugin_names) == 0:
                 msg = ('*** No upload plugins instaled! ***\nYou can install '
                        'the aws s3 plugin with\n$ pip install PyUpdater'
@@ -328,7 +330,7 @@ def upload(args):  # pragma: no cover
                        'PyUpdater[scp]')
             else:
                 msg = ('Invalid Uploader\n\nAvailable options:\n'
-                       '%s', ' '.join(plugin_names))
+                       '%s', '\n'.join(plugin_names))
             log.error(msg)
     if error is False:
         try:

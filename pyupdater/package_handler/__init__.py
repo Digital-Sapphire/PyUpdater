@@ -61,11 +61,11 @@ class PackageHandler(object):
 
     data_dir = None
 
-    def __init__(self, app=None):
+    def __init__(self, config=None):
         self.config_loaded = False
         self.db = Storage()
-        if app is not None:
-            self.init_app(app)
+        if config is not None:
+            self.init_app(config)
 
     def init_app(self, obj):
         """Sets up client with config values from obj
