@@ -152,6 +152,27 @@ $ pyupdater pkg -p
 $ pyupdater pkg -S
 ```
 
+###Plugins
+```
+usage: pyupdater plugins [-h]
+
+optional arguments:
+
+  -h, --help        shows this help message and exit
+```
+
+#####Description
+######The plugins command shows a list of installed plugins & authors name.
+
+#####Example
+```
+$ pyupdater plugins
+
+s3 by Digital Sapphire
+scp by Digital Sapphire
+
+```
+
 ###Upload
 ```
 usage: pyupdater upload [-h] [-s SERVICE]
@@ -183,8 +204,7 @@ optional arguments:
   --company   Change company name
   --urls      Change update urls
   --patches   Changed patch support
-  --scp       Changed scp settings
-  --s3        Changed s3 settings
+  --plugin    Set/Change settings for named plugin
 ```
 
 #####Description

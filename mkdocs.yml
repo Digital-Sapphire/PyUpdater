@@ -4,6 +4,7 @@ pages:
 - User Guide:
     - Installation: installation.md
     - Usage: usage.md
+    - Create Upload Plugins: create_plugin.md
 
 - More Info:
     - Folder Layout: folder_structure.md
