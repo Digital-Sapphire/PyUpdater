@@ -3,7 +3,6 @@ certifi
 ed25519 == 1.4
 jms-utils >= 0.6.2
 pyinstaller == 3.2
-setuptools == 19.2
 six == 1.10.0
 stevedore
 urllib3 == 1.15.1

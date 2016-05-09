@@ -3,7 +3,8 @@ pages:
 - Home: index.md
 - User Guide:
     - Installation: installation.md
-    - Usage: usage.md
+    - Commands: commands.md
+    - Example Workflow: workflow.md
     - Create Upload Plugins: create_plugin.md
 
 - More Info:
@@ -15,4 +16,4 @@ pages:
 
 theme: journal
 
-dev_addr: 0.0.0.0:80
+dev_addr: 0.0.0.0:8080

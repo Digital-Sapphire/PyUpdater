@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright 2014 Digital Sapphire Development Team
+# Copyright 2014-2016 Digital Sapphire Development Team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 from __future__ import unicode_literals
 import os
 
-import ed25519
 import pytest
-import six
 
 from pyupdater.key_handler.keys import Keys
 

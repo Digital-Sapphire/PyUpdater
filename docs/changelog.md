@@ -4,8 +4,21 @@
 ##### This version is not yet released and is under active development.
 Updated
 
+  - Plugin System
+    - Simplified plugin interface
+    - Enables saving of plugin configuration
   - Libs
     - PyInstaller 3.2
+  - Docs
+    - Renamed sub menus
+    - Work flow
+    - Plugin Creation
+    - Plugin command
+  - License
+
+Fixed
+
+  - Status Badges
 
 Removed
 

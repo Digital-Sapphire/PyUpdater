@@ -1,8 +1,8 @@
 [![](https://badge.fury.io/py/PyUpdater.svg)](http://badge.fury.io/py/PyUpdater)
 [![Build Status](https://travis-ci.org/JMSwag/PyUpdater.svg?branch=master)](https://travis-ci.org/JMSwag/PyUpdater)
-[![Build status](https://ci.appveyor.com/api/projects/status/6kex9r8i2625pw9u?svg=true)](https://ci.appveyor.com/project/JMSwag/pyupdater/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/6kex9r8i2625pw9u?svg=true)](https://ci.appveyor.com/project/JMSwag/pyupdater)
 [![](https://requires.io/github/JMSwag/PyUpdater/requirements.svg?branch=master)](https://requires.io/github/JMSwag/PyUpdater/requirements/?branch=master)
-[![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master)
+<!-- [![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master) -->
 
 # PyUpdater
 #####An update framework that enables simple, secure & efficient shipment of app updates.

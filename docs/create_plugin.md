@@ -21,7 +21,7 @@ class MyUploader(BaseUploader):
 
     def upload_file(self, filename):
         "PyUpdater will call this function on every file that needs to be uploaded."
-        # filename (str): Absolute path to file to be uploaded
+        # filename (str): Absolute path to the file
 ```
 
 
