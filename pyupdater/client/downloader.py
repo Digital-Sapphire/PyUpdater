@@ -19,21 +19,11 @@ from io import BytesIO
 import logging
 import time
 
-from pyupdater.utils import get_hash, lazy_import
+import urllib3
+
+from pyupdater.utils import get_hash, get_http_pool
 
 log = logging.getLogger(__name__)
-
-
-@lazy_import
-def certifi():
-    import certifi
-    return certifi
-
-
-@lazy_import
-def urllib3():
-    import urllib3
-    return urllib3
 
 
 class FileDownloader(object):
@@ -74,11 +64,9 @@ class FileDownloader(object):
             progress_hooks = []
         self.progress_hooks = progress_hooks
         if self.verify is True:
-            self.http_pool = urllib3.PoolManager(cert_reqs=str('CERT_'
-                                                 'REQUIRED'),
-                                                 ca_certs=certifi.where())
+            self.http_pool = get_http_pool()
         else:
-            self.http_pool = urllib3.PoolManager()
+            self.http_pool = get_http_pool(secure=False)
 
     def download_verify_write(self):
         """Downloads file then verifies against provided hash

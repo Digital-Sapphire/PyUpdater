@@ -6,7 +6,11 @@ Updated
 
   - Libs
     - PyInstaller 3.2
-    - requests 2.10.0
+
+Removed
+
+  - Lib
+    - requests
 
 
 ## v1.1.15 - 2016/4/17

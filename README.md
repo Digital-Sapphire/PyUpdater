@@ -7,8 +7,9 @@
 # PyUpdater
 #####An update framework that enables simple, secure & efficient shipment of app updates.
 
+####[Docs](http://docs.pyupdater.com)
+####[Changelog](https://github.com/JMSwag/PyUpdater/blob/master/docs/changelog.md)
 ####[License](https://github.com/JMSwag/PyUpdater/blob/master/docs/license.md)
-####[Full changelog](https://github.com/JMSwag/PyUpdater/blob/master/docs/changelog.md)
 
 
 ##To Install
@@ -37,66 +38,6 @@
 
     $ pip install -U PyUpdater[patch]
 
-
-##Simple Usage:
-
-######To add PyUpdater to your applications all you need are a couple of imports & constants. Below is a snippet of code that'll better explan.
-
-```
-# Imports
-from client_config import ClientConfig
-from pyupdater.client import Client
-
-# Constants
-APP_NAME = 'Acme'
-APP_VERSION = 1.0
-
-client = Client(ClientConfig(), refresh=True)
-
-# Returns an update object
-update = client.update_check(APP_NAME, APP_VERSION)
-
-# Optionally you can use release channels
-# Channel options are stable, beta & alpha
-# Note: Patches are only created & applied on the stable channel
-app_update = client.update_check(APP_NAME, APP_VERSION, channel='stable')
-
-# Use the update object to download an update & restart the app
-if app_update is not None:
-    downloaded = app_update.download()
-    if downloaded is True:
-        app_update.extract_restart()
-
-```
-
-
-
-
-#####To compile & package your script
-
-    $ pyupdater build -F --app-version=0.1.0 example_app.py
-
-
-#####To update & sign your version file.
-
-    $ pyupdater pkg --process
-
-    $ pyupdater pkg --sign
-
-#####Upload your updates to Amazon S3
-
-    $ pyupdater upload --service s3
-
-
-#####For help & extra commands
-
-    $ pyupdater -h
-    $ pyupdater command -h
-
-
-###[Complete Docs](http://docs.pyupdater.com)
-
-
 ##Write your own upload plugin
 #####Its up to Plugin authors to get credentials from users. Best practice would be to instruct users to set env vars.
 
@@ -105,40 +46,34 @@ if app_update is not None:
 
     class MyUploader(BaseUploader):
 
-        def __init__(self):
-            super(MyUplaoder, self).__init__()
+        name = 'my uploader'
+        author = 'JM'
 
-        def init(**kwargs):
-            # files (list): List of files to upload
-            #
-            # The following items are not guaranteed & may be None
-            #
-            # object_bucket (str): AWS S3/Dream Objects/Google Storage Bucket
-            #
-            # ssh_remote_dir (str): Full path on remote machine to place updates
-            #
-            # ssh_username (str): user account on remote server for uploads
-            #
-            # ssh_host (str): Remote host to connect to for server uploads
+        def init_config(config):
+            "Pyupdater will call this function when setting the uploader"
+            # config (dict): a dict with settings specific to this plugin
 
-
-        def connect(self):
-            # Connect to service here
+        def set_config(config):
+            # config (dict): a dict with settings specific to this plugin
 
         def upload_file(self, filename):
-            # Upload file here
-            # PyUpdater will call this function on every file that needs to be uploaded
+            "PyUpdater will call this function on every file that needs to be uploaded."
+            # filename (str): Absolute path to file to be uploaded
+
 
 
 #####In your setup.py
 
 ######Example from s3 upload plugin
-
+```
+setup(
+    provides=['pyupdater.plugins',],
     entry_points={
-        'pyupdater.plugins.uploaders': [
+        'pyupdater.plugins': [
             's3 = s3_plugin:S3Uploader',
-        ]
-
+            ]
+        },
+```
 
 ####Examples plugins here available
 #####[S3 Plugin](https://github.com/JMSwag/PyUpdater-S3-Plugin "S3 Plugin")

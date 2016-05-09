@@ -8,8 +8,8 @@ import versioneer
 with open(u'requirements.txt', u'r') as f:
     required = f.read().splitlines()
 
-extra_s3 = 'PyUpdater-s3-Plugin == 2.5'
-extra_scp = 'PyUpdater-scp-Plugin == 2.3'
+extra_s3 = 'PyUpdater-s3-Plugin == 3.0.5'
+extra_scp = 'PyUpdater-scp-Plugin == 3.0.2'
 extra_patch = 'bsdiff4 == 1.1.4'
 
 setup(
@@ -26,7 +26,7 @@ setup(
         's3': extra_s3,
         'scp': extra_scp,
         'patch': extra_patch,
-        'all': [extra_s3, extra_scp, extra_patch]
+        'all': [extra_s3, extra_patch]
         },
     zip_safe=False,
     include_package_data=True,

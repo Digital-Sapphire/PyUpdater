@@ -13,25 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # --------------------------------------------------------------------------
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 from abc import ABCMeta, abstractmethod
 import logging
 import os
 import time
 
+from jms_utils.terminal import get_correct_answer
 import six
-from straight.plugin import load
 
 from pyupdater import settings
-from pyupdater.utils import remove_dot_files
+from pyupdater.utils import remove_dot_files, PluginManager
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
 log = logging.getLogger(__name__)
-
-
-
-PLUGIN_NAMESPACE = 'pyupdater.plugins'
 
 
 class Uploader(object):
@@ -45,9 +41,9 @@ class Uploader(object):
 
             obj (instance): config object
     """
-    def __init__(self, app=None):
-        if app:
-            self.init(app)
+    def __init__(self, config=None):
+        if config:
+            self.init(config)
 
     def init(self, obj):
         """Sets up client with config values from obj
@@ -56,18 +52,18 @@ class Uploader(object):
 
             obj (instance): config object
         """
-        data_dir = os.getcwd()
-        self.data_dir = os.path.join(data_dir, settings.USER_DATA_FOLDER)
-        self.deploy_dir = os.path.join(self.data_dir, 'deploy')
-        self.ssh_remote_dir = obj.get('SSH_REMOTE_DIR')
-        self.ssh_host = obj.get('SSH_HOST')
-        self.ssh_username = obj.get('SSH_USERNAME')
-        self.object_bucket = obj.get('OBJECT_BUCKET')
+        data_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER)
+        self.deploy_dir = os.path.join(data_dir, 'deploy')
         self.uploader = None
+        # Files to be uploaded
+        self.files = []
         self.test = False
 
         # Extension Manager
-        self.mgr = load(PLUGIN_NAMESPACE, subclass=BaseUploader)
+        self.mgr = PluginManager(obj)
+
+    def get_plugin_names(self):
+        return self.mgr.get_plugin_names()
 
     def set_uploader(self, requested_uploader):
         """Returns an uploader object. 1 of S3, SCP, SFTP.
@@ -85,98 +81,46 @@ class Uploader(object):
             raise UploaderError('Must pass str to set_uploader',
                                 expected=True)
 
-        try:
-            plugin = self.mgr[requested_uploader]
-        except KeyError:
-            log.debug('EP CACHE: %s', self.mgr.ENTRY_POINT_CACHE)
+        self.uploader = self.mgr.get_plugin(requested_uploader, init=True)
+        if self.uploader is None:
+            log.debug('PLUGIN_NAMESPACE: %s', self.mgr.PLUGIN_NAMESPACE)
             raise UploaderPluginError('Requested uploader is not installed',
                                       expected=True)
-        except Exception as err:  # pragma: no cover
-            log.debug('EP CACHE: %s', self.mgr.ENTRY_POINT_CACHE)
-            log.error(err)
-            log.debug(err, exc_info=True)
-            raise UploaderError('Requested uploader is not installed',
-                                expected=True)
 
-        self.uploader = plugin.plugin()
         msg = 'Requested uploader: {}'.format(requested_uploader)
         log.debug(msg)
         try:
-            files = os.listdir(self.deploy_dir)
+            _files = os.listdir(self.deploy_dir)
         except OSError:
-            files = []
-        files = remove_dot_files(files)
-        self.uploader.init(object_bucket=self.object_bucket,
-                           ssh_username=self.ssh_username,
-                           ssh_remote_dir=self.ssh_remote_dir,
-                           ssh_host=self.ssh_host,
-                           files=files)
+            _files = []
 
-    def upload(self):
-        """Proxy function that calls the upload method on the received
-        uploader. Only calls the upload method if an uploader is set.
-        """
-        if self.uploader is not None:
-            self.uploader.deploy_dir = self.deploy_dir
-            try:
-                self.uploader.upload()
-            except Exception as err:  # pragma: no cover
-                log.error('Failed to upload: %s', err)
-                log.debug(err, exc_info=True)
-        else:
-            raise UploaderError('Must call set_uploader first', expected=True)
+        files = []
+        for f in _files:
+            files.append(os.path.join(self.deploy_dir, f))
 
-
-@six.add_metaclass(ABCMeta)
-class BaseUploader(object):
-    """Base Uploader.  All uploaders should subclass
-    this base class
-    """
-    def __init__(self):
-        self.deploy_dir = None
-
-    @abstractmethod
-    def init(self, **kwargs):
-        """Used to pass file list & any other config options set during
-        repo setup.
-
-        Kwargs:
-
-            files (list): List of files to upload
-
-            object_bucket (str): AWS/Dream Objects/Google Storage Bucket
-
-            ssh_remote_dir (str): Full path on remote machine
-                                 to place updates
-
-            ssh_username (str): user account of remote server uploads
-
-            ssh_host (str): Remote host to connect to for server uploads
-        """
-        raise NotImplementedError('Must be implemented in subclass.')
-
-    @abstractmethod
-    def config_check(self):
-        """Used to check if the plugin offers a configuration method
-
-        """
+        self.files = remove_dot_files(files)
 
     def upload(self):
         """Uploads all files in file_list"""
         failed_uploads = []
         self.files_completed = 1
-        self.file_count = self._get_filelist_count()
-        for f in self.file_list:
-            msg = '\n\nUploading: {}' .format(f)
+        self.file_count = len(self.files)
+        log.info('Plugin: %s', self.uploader.name)
+        log.info('Author: %s', self.uploader.author)
+        for f in self.files:
+            basename = os.path.basename(f)
+            msg = '\n\nUploading: {}' .format(basename)
             msg2 = ' - File {} of {}\n'.format(self.files_completed,
                                                self.file_count)
             print(msg + msg2)
-            complete = self.upload_file(f)
+            complete = self.uploader.upload_file(f)
+
             if complete:
-                log.debug('%s uploaded successfully', f)
+                log.debug('%s uploaded successfully', basename)
+                os.remove(f)
                 self.files_completed += 1
             else:
-                log.debug('%s failed to upload.  will retry', f)
+                log.debug('%s failed to upload.  will retry', basename)
                 failed_uploads.append(f)
         if len(failed_uploads) > 0:
             failed_uploads = self._retry_upload(failed_uploads)
@@ -187,7 +131,7 @@ class BaseUploader(object):
         else:
             print('The following files were not uploaded')
             for i in failed_uploads:
-                log.error('%s failed to upload', i)
+                log.error('%s failed to upload', os.path.basename(i))
                 print(i)
             return False
 
@@ -201,7 +145,7 @@ class BaseUploader(object):
             msg = '\n\nRetyring: {} - File {} of {}\n'.format(f, count,
                                                               failed_count)
             print(msg)
-            complete = self.upload_file(f)
+            complete = self.uploader.upload_file(f)
             if complete:
                 log.debug('%s uploaded on retry', f)
                 count += 1
@@ -209,6 +153,53 @@ class BaseUploader(object):
                 failed_uploads.append(f)
 
         return failed_uploads
+
+
+class AbstractBaseUploaderMeta(type):
+
+    def __call__(cls, *args, **kwargs):
+        obj = type.__call__(cls, *args, **kwargs)
+        obj.check_attributes()
+        return obj
+
+
+@six.add_metaclass(ABCMeta)
+class BaseUploader(object):
+    __metaclass__ = AbstractBaseUploaderMeta
+    name = None
+    author = None
+    """Base Uploader.  All uploaders should subclass
+    this base class
+    """
+    def check_attributes(self):
+        if self.name is None or self.author is None:
+            raise NotImplementedError
+
+    def get_answer(self, question, default=None):
+        return get_correct_answer(question, default=default)
+
+    @abstractmethod
+    def init_config(self, config):
+        """Used to initialize plugin with saved config.
+
+        Args:
+
+            config (dict): config dict for plugin
+        """
+        raise NotImplementedError('Must be implemented in subclass.')
+
+    @abstractmethod
+    def set_config(self, config):
+        """Used to ask user questions and return config
+        for saving
+
+        Args:
+
+            config (dict): config dict that can be used to query
+                            already set values
+
+        """
+        raise NotImplementedError('Must be implemented in a subclass.')
 
     @abstractmethod
     def upload_file(self, filename):
@@ -225,6 +216,3 @@ class BaseUploader(object):
                 False - Upload Failed
         """
         raise NotImplementedError('Must be implemented in subclass.')
-
-    def _get_filelist_count(self):
-        return len(self.file_list)

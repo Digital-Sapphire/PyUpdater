@@ -26,8 +26,6 @@ from appdirs import user_log_dir
 from jms_utils.logger import log_formatter
 from jms_utils.paths import ChDir
 from jms_utils.terminal import ask_yes_no, get_correct_answer
-import requests
-import stevedore
 
 
 from pyupdater import PyUpdater, __version__
@@ -37,12 +35,13 @@ from pyupdater.cli.options import get_parser
 from pyupdater.key_handler.keys import Keys, KeyImporter
 from pyupdater.utils import (check_repo,
                              initial_setup,
+                             get_http_pool,
+                             PluginManager,
                              remove_any,
                              setup_company,
                              setup_urls,
                              setup_patches,
-                             setup_scp,
-                             setup_object_bucket)
+                             setup_plugin)
 from pyupdater.utils.config import ConfigDict, Loader
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
@@ -246,10 +245,8 @@ def _setting(args):  # pragma: no cover
         setup_urls(config)
     if args.patches is True:
         setup_patches(config)
-    if args.scp is True:
-        setup_scp(config)
-    if args.s3 is True:
-        setup_object_bucket(config)
+    if args.plugin is not None:
+        setup_plugin(args.plugin, config)
     loader.save_config(config)
     log.info('Settings update complete')
 
@@ -265,10 +262,14 @@ def upload_debug_info():  # pragma: no cover
     def _upload(data):
         api = 'https://api.github.com/'
         gist_url = api + 'gists'
+        http = get_http_pool()
         headers = {"Accept": "application/vnd.github.v3+json"}
-        r = requests.post(gist_url, headers=headers, data=json.dumps(data))
+        r = http.request('POST', gist_url, headers=headers,
+                         data=json.dumps(data))
         try:
-            url = r.json()['html_url']
+            r_string = r.read()
+            data = json.loads(r_string)
+            url = data['html_url']
         except Exception as err:
             log.debug(err, exc_info=True)
             log.debug(json.dumps(r.json(), indent=2))
@@ -292,7 +293,17 @@ def upload_debug_info():  # pragma: no cover
         log.error('Could not upload debug info to github')
     else:
         log.info('Log export complete')
-        log.info('Logs uploaded to {}'.fomrat(url))
+        log.info('Logs uploaded to {}'.format(url))
+
+
+def plugins(args):
+    plug_mgr = PluginManager({})
+    names = ['\n']
+    for n in plug_mgr.get_plugin_names():
+        out = '{} by {}\n'.format(n['name'], n['author'])
+        names.append(out)
+    output = ''.join(names)
+    print(output)
 
 
 def upload(args):  # pragma: no cover
@@ -317,19 +328,9 @@ def upload(args):  # pragma: no cover
         except UploaderPluginError as err:
             log.debug(err)
             error = True
-            # Do not need. Will delete once implementation is done.
-            # mgr = stevedore.ExtensionManager(settings.UPLOAD_PLUGIN_NAMESPACE)
-            plugin_names = mgr.names()
-            log.debug('Plugin names: %s', plugin_names)
-            if len(plugin_names) == 0:
-                msg = ('*** No upload plugins instaled! ***\nYou can install '
-                       'the aws s3 plugin with\n$ pip install PyUpdater'
-                       '[s3]\n\nOr the scp plugin with\n$ pip install '
-                       'PyUpdater[scp]')
-            else:
-                msg = ('Invalid Uploader\n\nAvailable options:\n'
-                       '%s', ' '.join(plugin_names))
-            log.error(msg)
+            log.error('Invalid upload plugin')
+            log.error('Use "pyupdater plugins" to get a '
+                      'list of installed plugins')
     if error is False:
         try:
             pyu.upload()
@@ -368,6 +369,8 @@ def _real_main(args):  # pragma: no cover
         _make_spec(args, pyi_args)
     elif cmd == 'pkg':
         pkg(args)
+    elif cmd == 'plugins':
+        plugins(args)
     elif cmd == 'settings':
         _setting(args)
     elif cmd == 'upload':

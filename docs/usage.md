@@ -13,7 +13,9 @@ APP_VERSION = 1.0
 LIB_NAME = 'My external library'
 LIB_VERSON = '2.4.1'
 
-
+# This could potentially cause slow app start up time.
+# You could use client = Client(ClientConfig()) and call
+# client.refresh() before you check for updates
 client = Client(ClientConfig(), refresh=True)
 
 # Returns an update object

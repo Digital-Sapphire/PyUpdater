@@ -9,7 +9,6 @@ pytest-cov
 pytest-httpbin
 pytest-remove-stale-bytecode
 pytest-xdist
-pyupdater-s3-plugin
 tox
 tox_globinterpreter
 tox-pyenv

@@ -23,12 +23,155 @@ try:
 except ImportError:
     from collections import MutableMapping as dictmixin
 
+import certifi
 from six.moves import range
+from stevedore.extension import ExtensionManager
+import urllib3
 
 from pyupdater import settings
 from pyupdater.utils.exceptions import UtilsError, VersionError
 
 log = logging.getLogger(__name__)
+
+
+class PluginManager(object):
+
+    PLUGIN_NAMESPACE = 'pyupdater.plugins'
+
+    def __init__(self, config):
+        plugins_namespace = ExtensionManager(self.PLUGIN_NAMESPACE,
+                                             invoke_on_load=True)
+        plugins = []
+        for p in plugins_namespace.extensions:
+            plugins.append(p.obj)
+        # Sorting by name then author
+        plugins = sorted(plugins, key=lambda x: (x.name, x.author))
+
+        # Used as a counter when creating names to plugin
+        # User may have multiple plugins with the same
+        # name installed
+        self.unique_names = {}
+
+        # A list of dicts of all installed plugins.
+        # Keys: name author plugin
+        self.plugins = []
+        self.configs = self._get_config(config)
+        self._load(plugins)
+
+    # Created a function here since we are doing
+    # this in two locations in this class
+    def _get_config(self, config):
+        return config.get('PLUGIN_CONFIGS')
+
+    def _name_check(self, name):
+        # We don't use the number 1 when adding the first
+        # name in the case where there are only one name
+        # it'll look better when displayed on the cli
+        name = name.lower()
+        if name not in self.unique_names.keys():
+            self.unique_names[name] = ''
+
+        # Create the output before we update the name count
+        out = '{}{}'.format(name, str(self.unique_names[name]))
+
+        # Setup the counter for the next exact name match
+        # Since we already created the output up above
+        # we are just getting ready for the next call
+        # to name check
+        if self.unique_names[name] == '':
+            self.unique_names[name] = 2
+        else:
+            self.unique_names[name] += 1
+
+        return out
+
+    def _load(self, plugins):
+        # p is the initialized plugin
+        for p in plugins:
+            # Checking for required information from
+            # plugin author. If not found plugin won't be loaded
+            if not hasattr(p, 'name') or p.name is None:
+                log.error('Plugin does not have required name attribute')
+                continue
+            if not hasattr(p, 'author') or p.author is None:
+                log.error('Plugin does not have required author attribute')
+                continue
+
+            if not isinstance(p.name, six.string_types):
+                log.error('Plugin name attribute is not a string')
+                continue
+            if not isinstance(p.author, six.string_types):
+                log.error('Plugin author attribute is not a string')
+                continue
+            # We are ensuring a unique name for users
+            # to select when uploading.
+            # Todo: This could break build scripts since the
+            #       load order of the plugins could be
+            #       different. Maybe sort by original name
+            #       and author before the above for loop
+            name = self._name_check(p.name)
+            self.plugins.append({'name': name,
+                                'author': p.author,
+                                'plugin': p})
+
+    def config_plugin(self, name, config):
+        # Load all available plugin configs from
+        # app_config['PLUGIN_CONFIGS']
+        configs = self._get_config(config)
+        # Get the requested plugin
+        plugin = self.get_plugin(name)
+        # Create the key to retrieve this plugins config
+        config_key = '{}-{}'.format(plugin.name.lower(), plugin.author)
+        # Get the config for this plugin
+        plugin_config = configs.get(config_key)
+        if plugin_config is None:
+            plugin_config = {}
+            configs[config_key] = plugin_config
+        # Get the plugin its config dict for updating
+        try:
+            plugin.set_config(plugin_config)
+        except Exception as err:
+            log.error('There was an error during configuration '
+                      'of {} crated by {}'.format(plugin.name, plugin.author))
+            log.error(err)
+            log.debug(err, exc_info=True)
+
+    def get_plugin_names(self):
+        """Returns the name & author of all installed
+        plugins
+        """
+        plugin_info = []
+        for p in self.plugins:
+            plugin_info.append({'name': p['name'],
+                               'author': p['author']})
+        return plugin_info
+
+    # Init is false by default. Used when you want
+    # to get a plugin with initialization
+    def get_plugin(self, name, init=False):
+        "Returns the named plugin"
+        plugin = None
+        name = name.lower()
+        for p in self.plugins:
+            # We match the given name to the names
+            # we generate for uniqueness
+            if name == p['name'].lower():
+                plugin = p['plugin']
+                break
+        if plugin is not None and init is True:
+            config_key = '{}-{}'.format(p['name'].lower(), p['author'])
+            config = self.configs.get(config_key, {})
+            plugin.init_config(config)
+
+        return plugin
+
+
+def get_http_pool(secure=True):
+    if secure is True:
+        return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
+                                   ca_certs=certifi.where())
+    else:
+        return urllib3.PoolManager()
 
 
 def lazy_import(func):
@@ -418,6 +561,14 @@ def setup_patches(config):  # pragma: no cover
                                                           'tes?',
                                                           default='yes')
 
+def setup_plugin(name, config):
+    pgm = PluginManager(config)
+    plugin = pgm.get_plugin(name)
+    if plugin is None:
+        sys.exit('Invalid plugin name...')
+
+    pgm.config_plugin(name, config)
+
 
 def setup_scp(config):  # pragma: no cover
     _temp = jms_utils.terminal.get_correct_answer('Enter remote dir',
@@ -431,32 +582,11 @@ def setup_scp(config):  # pragma: no cover
                                                                 required=True)
 
 
-def setup_object_bucket(config):  # pragma: no cover
-    _temp = jms_utils.terminal.get_correct_answer('Enter bucket name',
-                                                  required=True)
-    config.OBJECT_BUCKET = _temp
-
-
-def setup_uploader(config):  # pragma: no cover
-    answer1 = jms_utils.terminal.ask_yes_no('Would you like to add scp '
-                                            'settings?', default='no')
-
-    answer2 = jms_utils.terminal.ask_yes_no('Would you like to add a '
-                                            'bucket?', default='no')
-
-    if answer1:
-        setup_scp(config)
-
-    if answer2:
-        setup_object_bucket(config)
-
-
 def initial_setup(config):  # pragma: no cover
     setup_appname(config)
     setup_company(config)
     setup_urls(config)
     setup_patches(config)
-    setup_uploader(config)
     return config
 
 
