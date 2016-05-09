@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright 2015 Digital Sapphire Development Team
+# Copyright 2014-2016 Digital Sapphire Development Team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -116,19 +116,16 @@ class Client(object):
 
         call_back (func): Used for download progress
     """
-    # ToDo: Remove callback in v2.0
     def __init__(self, obj=None, refresh=False,
-                 callback=None, progress_hook=None, test=False):
+                 progress_hooks=None, test=False):
         self.name = None
         self.version = None
         self.json_data = None
         self.verified = False
         self.ready = False
         self.progress_hooks = []
-        if callback is not None:
-            self.progress_hooks.append(callback)
-        if progress_hook is not None:
-            self.progress_hooks.append(progress_hook)
+        if progress_hooks is not None:
+            self.progress_hooks += progress_hooks
         if obj is not None:
             self.init_app(obj, refresh, test)
 
@@ -290,13 +287,6 @@ class Client(object):
     # Adding callbacks to be passed to client.downloader.FileDownloader
     def add_progress_hook(self, cb):
         self.progress_hooks.append(cb)
-
-    # ToDo: Remove in v2.0
-    def add_call_back(self, cb):
-        warnings.warn('add_call_back will be deprecated in v2.0. '
-                      'Use add_progress_hook instead.')
-        self.progress_hooks.append(cb)
-    # End ToDo
 
     def _get_signing_key(self):
         key_data_str = self._download_key()
