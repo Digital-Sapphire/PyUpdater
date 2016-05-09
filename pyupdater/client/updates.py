@@ -14,8 +14,9 @@
 # limitations under the License.
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
-
 import threading
+
+from jms_utils.paths import get_mac_dot_app_dir, remove_any
 
 from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader
@@ -24,9 +25,7 @@ from pyupdater.package_handler.package import cleanup_old_archives
 from pyupdater.utils import (get_filename,
                              get_hash,
                              get_highest_version,
-                             get_mac_dot_app_dir,
                              lazy_import,
-                             remove_any,
                              Restarter)
 from pyupdater.utils.exceptions import ClientError
 
@@ -128,7 +127,7 @@ class LibUpdate(object):
         # Get full filename of latest update archive
         self.filename = get_filename(self.name, latest, self.platform,
                                      self.easy_data)
-        #
+        assert self.filename is not None
         self.abspath = os.path.join(self.update_folder, self.filename)
         # Removes old versions, of update being checked, from
         # updates folder.  Since we only start patching from

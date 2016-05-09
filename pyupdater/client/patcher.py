@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # --------------------------------------------------------------------------
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 import logging
 import os
@@ -22,13 +22,12 @@ try:
     import bsdiff4
 except ImportError:  # pragma: no cover
     bsdiff4 = None
+from jms_utils.crypto import get_package_hashes
+from jms_utils.helpers import EasyAccessDict, lazy_import, Version
+from jms_utils.paths import remove_any
 
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
-from pyupdater.utils import (get_package_hashes,
-                             EasyAccessDict,
-                             lazy_import,
-                             Version)
 from pyupdater.utils.exceptions import PatcherError
 
 if bsdiff4 is None:  # pragma: no cover
@@ -59,7 +58,7 @@ class Patcher(object):
 
         current_version (str): Version number of currently installed binary
 
-        highest_version (str): Newest version available
+        latest_version (str): Newest version available
 
         update_folder (str): Path to update folder to place updated binary in
 
@@ -94,7 +93,7 @@ class Patcher(object):
         file_info = self._get_info(self.name, self.current_version,
                                    option='file')
         if self.current_filename is None:
-            self.current_filename = file_info['file_name']
+            self.current_filename = file_info['filename']
         if self.current_file_hash is None:
             self.current_file_hash = file_info['file_hash']
 
@@ -105,28 +104,31 @@ class Patcher(object):
         # Check hash on installed binary to begin patching
         binary_check = self._verify_installed_binary()
         if not binary_check:
-            log.debug('Binary check failed...')
+            log.error('Binary check failed...')
             return False
         # Getting all required patch meta-data
         all_patches = self._get_patch_info()
         if all_patches is False:
-            log.debug('Cannot find all patches...')
+            log.error('Cannot find all patches...')
             return False
 
         # Download and verify patches in 1 go
         download_check = self._download_verify_patches()
         if download_check is False:
-            log.debug('Patch check failed...')
+            log.error('Patch check failed...')
             return False
 
         try:
             self._apply_patches_in_memory()
         except PatcherError:
+            log.error('Failed to apply patches in memory')
             return False
         else:
             try:
                 self._write_update_to_disk()
-            except PatcherError:
+            except PatcherError as err:
+                log.error(err, exc_info=True)
+                log.error('Failed to write patched binary to disk')
                 return False
         # Looks like all is well
         return True
@@ -235,14 +237,17 @@ class Patcher(object):
 
         # Only stable packages have patch info
         versions = [v for v in versions if v.channel == 'stable']
-        # Ensuring we apply patches in correct order
-        versions = sorted(versions)
+
         log.debug('Getting required patches')
         for i in versions:
             if i > self.current_version:
                 needed_patches.append(i)
+
         # Used to guarantee patches are only added once
-        return list(set(needed_patches))
+        needed_patches = list(set(needed_patches))
+
+        # Ensuring we apply patches in correct order
+        return sorted(needed_patches)
 
     def _download_verify_patches(self):
         # Downloads & verifies all patches
@@ -288,10 +293,9 @@ class Patcher(object):
     def _apply_patches_in_memory(self):
         # Applies a sequence of patches in memory
         log.debug('Applying patches')
-        self.new_binary = self.og_binary
         for i in self.patch_binary_data:
             try:
-                self.new_binary = bsdiff4.patch(self.new_binary, i)
+                self.og_binary = bsdiff4.patch(self.og_binary, i)
                 log.debug('Applied patch successfully')
             except Exception as err:
                 log.debug(err, exc_info=True)
@@ -301,21 +305,12 @@ class Patcher(object):
     def _write_update_to_disk(self):  # pragma: no cover
         # Writes updated binary to disk
         log.debug('Writing update to disk')
-        filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, self.name,
+        filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY,
+                                               self.name,
                                                self.latest_version,
                                                self.platform,
-                                               'file_name')
+                                               'filename')
         filename = self.star_access_update_data.get(filename_key)
-
-        # ToDo: Remove in version 2.0
-        if filename is None:
-            filename_key_old = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY,
-                                                       self.name,
-                                                       self.latest_version,
-                                                       self.platform,
-                                                       'file_name')
-            filename = self.star_access_update_data.get(filename_key_old)
-        # End ToDo
 
         if filename is None:
             raise PatcherError('Filename missing in version file')
@@ -323,12 +318,12 @@ class Patcher(object):
         with jms_utils.paths.ChDir(self.update_folder):
             try:
                 with open(filename, 'wb') as f:
-                    f.write(self.new_binary)
+                    f.write(self.og_binary)
                 log.debug('Wrote update file')
             except IOError:
                 # Removes file if it got created
                 if os.path.exists(filename):
-                    os.remove(filename)
+                    remove_any(filename)
                 log.error('Failed to open file for writing')
                 raise PatcherError('Failed to open file for writing')
             else:
@@ -338,13 +333,17 @@ class Patcher(object):
                 new_file_hash = file_info['file_hash']
                 log.debug('checking file hash match')
                 if new_file_hash != get_package_hashes(filename):
+                    log.error('Version file hash: %s', new_file_hash)
+                    log.error('Actual file hash: %s',
+                              get_package_hashes(filename))
                     log.error('File hash does not match')
-                    os.remove(filename)
-                    raise PatcherError('Bad hash on patched file')
+                    remove_any(filename)
+                    raise PatcherError('Bad hash on patched file',
+                                       expected=True)
 
     def _get_info(self, name, version, option='file'):
         if option == 'file':
-            _name = 'file_name'
+            _name = 'filename'
             _hash = 'file_hash'
             _size = 'file_size'
         else:
@@ -359,19 +358,15 @@ class Patcher(object):
 
         info = {}
         if platform_info is not None:
-            file_name = platform_info.get(_name)
-            # ToDo: Remove in version 2.0
-            if file_name is None:
-                file_name = platform_info.get('filename')
-            # End ToDo
-            log.debug('Current Info - Filename: %s', file_name)
+            filename = platform_info.get(_name)
+            log.debug('Current Info - Filename: %s', filename)
 
             file_hash = platform_info.get(_hash, '')
             log.debug('Current Info - File hash: %s', file_hash)
 
             file_size = platform_info.get(_size)
             log.debug('Current Info - File size: %s', file_size)
-            _info = dict(file_name=file_name, file_hash=file_hash,
+            _info = dict(filename=filename, file_hash=file_hash,
                          file_size=file_size)
             info.update(_info)
         return info

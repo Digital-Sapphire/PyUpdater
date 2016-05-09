@@ -15,11 +15,11 @@
 # --------------------------------------------------------------------------
 from __future__ import print_function, unicode_literals
 
-from abc import ABCMeta, abstractmethod
 import logging
 import os
 import time
 
+from jms_utils.paths import remove_any
 from jms_utils.terminal import get_correct_answer
 import six
 
@@ -57,7 +57,6 @@ class Uploader(object):
         self.uploader = None
         # Files to be uploaded
         self.files = []
-        self.test = False
 
         # Extension Manager
         self.mgr = PluginManager(obj)
@@ -117,7 +116,7 @@ class Uploader(object):
 
             if complete:
                 log.debug('%s uploaded successfully', basename)
-                os.remove(f)
+                remove_any(f)
                 self.files_completed += 1
             else:
                 log.debug('%s failed to upload.  will retry', basename)
@@ -163,9 +162,8 @@ class AbstractBaseUploaderMeta(type):
         return obj
 
 
-@six.add_metaclass(ABCMeta)
+@six.add_metaclass(AbstractBaseUploaderMeta)
 class BaseUploader(object):
-    __metaclass__ = AbstractBaseUploaderMeta
     name = None
     author = None
     """Base Uploader.  All uploaders should subclass
@@ -178,7 +176,6 @@ class BaseUploader(object):
     def get_answer(self, question, default=None):
         return get_correct_answer(question, default=default)
 
-    @abstractmethod
     def init_config(self, config):
         """Used to initialize plugin with saved config.
 
@@ -188,7 +185,6 @@ class BaseUploader(object):
         """
         raise NotImplementedError('Must be implemented in subclass.')
 
-    @abstractmethod
     def set_config(self, config):
         """Used to ask user questions and return config
         for saving
@@ -201,7 +197,6 @@ class BaseUploader(object):
         """
         raise NotImplementedError('Must be implemented in a subclass.')
 
-    @abstractmethod
     def upload_file(self, filename):
         """Uploads file to remote repository
 

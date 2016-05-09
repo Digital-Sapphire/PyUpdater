@@ -24,220 +24,15 @@ except ImportError:
     from collections import MutableMapping as dictmixin
 
 import certifi
-from six.moves import range
+from jms_utils.helpers import lazy_import, Version
+from jms_utils.paths import remove_any
 from stevedore.extension import ExtensionManager
 import urllib3
 
 from pyupdater import settings
-from pyupdater.utils.exceptions import UtilsError, VersionError
+from pyupdater.utils.exceptions import UtilsError
 
 log = logging.getLogger(__name__)
-
-
-class PluginManager(object):
-
-    PLUGIN_NAMESPACE = 'pyupdater.plugins'
-
-    def __init__(self, config):
-        plugins_namespace = ExtensionManager(self.PLUGIN_NAMESPACE,
-                                             invoke_on_load=True)
-        plugins = []
-        for p in plugins_namespace.extensions:
-            plugins.append(p.obj)
-        # Sorting by name then author
-        plugins = sorted(plugins, key=lambda x: (x.name, x.author))
-
-        # Used as a counter when creating names to plugin
-        # User may have multiple plugins with the same
-        # name installed
-        self.unique_names = {}
-
-        # A list of dicts of all installed plugins.
-        # Keys: name author plugin
-        self.plugins = []
-        self.configs = self._get_config(config)
-        self._load(plugins)
-
-    # Created a function here since we are doing
-    # this in two locations in this class
-    def _get_config(self, config):
-        return config.get('PLUGIN_CONFIGS')
-
-    def _name_check(self, name):
-        # We don't use the number 1 when adding the first
-        # name in the case where there are only one name
-        # it'll look better when displayed on the cli
-        name = name.lower()
-        if name not in self.unique_names.keys():
-            self.unique_names[name] = ''
-
-        # Create the output before we update the name count
-        out = '{}{}'.format(name, str(self.unique_names[name]))
-
-        # Setup the counter for the next exact name match
-        # Since we already created the output up above
-        # we are just getting ready for the next call
-        # to name check
-        if self.unique_names[name] == '':
-            self.unique_names[name] = 2
-        else:
-            self.unique_names[name] += 1
-
-        return out
-
-    def _load(self, plugins):
-        # p is the initialized plugin
-        for p in plugins:
-            # Checking for required information from
-            # plugin author. If not found plugin won't be loaded
-            if not hasattr(p, 'name') or p.name is None:
-                log.error('Plugin does not have required name attribute')
-                continue
-            if not hasattr(p, 'author') or p.author is None:
-                log.error('Plugin does not have required author attribute')
-                continue
-
-            if not isinstance(p.name, six.string_types):
-                log.error('Plugin name attribute is not a string')
-                continue
-            if not isinstance(p.author, six.string_types):
-                log.error('Plugin author attribute is not a string')
-                continue
-            # We are ensuring a unique name for users
-            # to select when uploading.
-            # Todo: This could break build scripts since the
-            #       load order of the plugins could be
-            #       different. Maybe sort by original name
-            #       and author before the above for loop
-            name = self._name_check(p.name)
-            self.plugins.append({'name': name,
-                                'author': p.author,
-                                'plugin': p})
-
-    def config_plugin(self, name, config):
-        # Load all available plugin configs from
-        # app_config['PLUGIN_CONFIGS']
-        configs = self._get_config(config)
-        # Get the requested plugin
-        plugin = self.get_plugin(name)
-        # Create the key to retrieve this plugins config
-        config_key = '{}-{}'.format(plugin.name.lower(), plugin.author)
-        # Get the config for this plugin
-        plugin_config = configs.get(config_key)
-        if plugin_config is None:
-            plugin_config = {}
-            configs[config_key] = plugin_config
-        # Get the plugin its config dict for updating
-        try:
-            plugin.set_config(plugin_config)
-        except Exception as err:
-            log.error('There was an error during configuration '
-                      'of {} crated by {}'.format(plugin.name, plugin.author))
-            log.error(err)
-            log.debug(err, exc_info=True)
-
-    def get_plugin_names(self):
-        """Returns the name & author of all installed
-        plugins
-        """
-        plugin_info = []
-        for p in self.plugins:
-            plugin_info.append({'name': p['name'],
-                               'author': p['author']})
-        return plugin_info
-
-    # Init is false by default. Used when you want
-    # to get a plugin with initialization
-    def get_plugin(self, name, init=False):
-        "Returns the named plugin"
-        plugin = None
-        name = name.lower()
-        for p in self.plugins:
-            # We match the given name to the names
-            # we generate for uniqueness
-            if name == p['name'].lower():
-                plugin = p['plugin']
-                break
-        if plugin is not None and init is True:
-            config_key = '{}-{}'.format(p['name'].lower(), p['author'])
-            config = self.configs.get(config_key, {})
-            plugin.init_config(config)
-
-        return plugin
-
-
-def get_http_pool(secure=True):
-    if secure is True:
-        return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
-                                   ca_certs=certifi.where())
-    else:
-        return urllib3.PoolManager()
-
-
-def lazy_import(func):
-    """Decorator for declaring a lazy import.
-
-    This decorator turns a function into an object that will act as a lazy
-    importer.  Whenever the object's attributes are accessed, the function
-    is called and its return value used in place of the object.  So you
-    can declare lazy imports like this:
-
-        @lazy_import
-        def socket():
-            import socket
-            return socket
-
-    The name "socket" will then be bound to a transparent object proxy which
-    will import the socket module upon first use.
-
-    The syntax here is slightly more verbose than other lazy import recipes,
-    but it's designed not to hide the actual "import" statements from tools
-    like pyinstaller or grep.
-    """
-    try:
-        f = sys._getframe(1)
-    except Exception:  # pragma: no cover
-        namespace = None
-    else:
-        namespace = f.f_locals
-    return _LazyImport(func.__name__, func, namespace)
-
-
-class _LazyImport(object):
-    """Class representing a lazy import."""
-
-    def __init__(self, name, loader, namespace=None):
-        self._pyu_lazy_target = _LazyImport
-        self._pyu_lazy_name = name
-        self._pyu_lazy_loader = loader
-        self._pyu_lazy_namespace = namespace
-
-    def _pyu_lazy_load(self):
-        if self._pyu_lazy_target is _LazyImport:
-            self._pyu_lazy_target = self._pyu_lazy_loader()
-            ns = self._pyu_lazy_namespace
-            if ns is not None:
-                try:
-                    if ns[self._pyu_lazy_name] is self:
-                        ns[self._pyu_lazy_name] = self._pyu_lazy_target
-                except KeyError:  # pragma: no cover
-                    pass
-
-    def __getattribute__(self, attr):  # pragma: no cover
-        try:
-            return object.__getattribute__(self, attr)
-        except AttributeError:
-            if self._pyu_lazy_target is _LazyImport:
-                self._pyu_lazy_load()
-            return getattr(self._pyu_lazy_target, attr)
-
-    def __nonzero__(self):  # pragma: no cover
-        if self._pyu_lazy_target is _LazyImport:
-            self._pyu_lazy_load()
-        return bool(self._pyu_lazy_target)
-
-    def __str__(self):  # pragma: no cover
-        return '_LazyImport: {}'.format(self._pyu_lazy_name)
 
 
 @lazy_import
@@ -330,6 +125,172 @@ def six():
     return six
 
 
+def setup_client_config_path(config): # pragma: no cover
+    _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
+    _default_filename = 'appstat_config.py'
+
+    if config.CLIENT_CONFIG_PATH is not None:
+        default = config.CLIENT_CONFIG_PATH
+        if default == _default_filename:
+            default = _default_dir
+    else:
+        default = _default_dir
+
+    question = ("Please enter the path to where appstat "
+                "will write the appstat_config.py file. "
+                "You'll need to import this file to "
+                "initialize the update process. \nExamples:\n\n"
+                "lib/utils, src/lib, src. Leave blank to use "
+                "the current directory")
+    answer = jms_utils.terminal.get_correct_answer(question, default=default)
+
+    if answer == _default_dir:
+        answer = _default_filename
+    else:
+        answer = answer.split(os.sep)
+        answer.append(_default_filename)
+
+
+    config.CLIENT_CONFIG_PATH = answer
+
+
+
+class PluginManager(object):
+
+    PLUGIN_NAMESPACE = 'pyupdater.plugins'
+
+    def __init__(self, config):
+        plugins_namespace = ExtensionManager(self.PLUGIN_NAMESPACE,
+                                             invoke_on_load=True)
+        plugins = []
+        for p in plugins_namespace.extensions:
+            plugins.append(p.obj)
+        # Sorting by name then author
+        plugins = sorted(plugins, key=lambda x: (x.name, x.author))
+
+        # Used as a counter when creating names to plugin
+        # User may have multiple plugins with the same
+        # name installed
+        self.unique_names = {}
+
+        # A list of dicts of all installed plugins.
+        # Keys: name author plugin
+        self.plugins = []
+        self.configs = self._get_config(config)
+        self._load(plugins)
+
+    # Created a function here since we are doing
+    # this in two locations in this class
+    def _get_config(self, config):
+        return config.get('PLUGIN_CONFIGS')
+
+    def _name_check(self, name):
+        # We don't use the number 1 when adding the first
+        # name in the case where there are only one name
+        # it'll look better when displayed on the cli
+        name = name.lower()
+        if name not in self.unique_names.keys():
+            self.unique_names[name] = ''
+
+        # Create the output before we update the name count
+        out = '{}{}'.format(name, str(self.unique_names[name]))
+
+        # Setup the counter for the next exact name match
+        # Since we already created the output up above
+        # we are just getting ready for the next call
+        # to name check
+        if self.unique_names[name] == '':
+            self.unique_names[name] = 2
+        else:
+            self.unique_names[name] += 1
+
+        return out
+
+    def _load(self, plugins):
+        # p is the initialized plugin
+        for p in plugins:
+            # Checking for required information from
+            # plugin author. If not found plugin won't be loaded
+            if not hasattr(p, 'name') or p.name is None:
+                log.error('Plugin does not have required name attribute')
+                continue
+            if not hasattr(p, 'author') or p.author is None:
+                log.error('Plugin does not have required author attribute')
+                continue
+
+            if not isinstance(p.name, six.string_types):
+                log.error('Plugin name attribute is not a string')
+                continue
+            if not isinstance(p.author, six.string_types):
+                log.error('Plugin author attribute is not a string')
+                continue
+            # We are ensuring a unique name for users
+            # to select when uploading.
+            name = self._name_check(p.name)
+            self.plugins.append({'name': name,
+                                'author': p.author,
+                                'plugin': p})
+
+    def config_plugin(self, name, config):
+        # Load all available plugin configs from
+        # app_config['PLUGIN_CONFIGS']
+        configs = self._get_config(config)
+        # Get the requested plugin
+        plugin = self.get_plugin(name)
+        # Create the key to retrieve this plugins config
+        config_key = '{}-{}'.format(plugin.name.lower(), plugin.author)
+        # Get the config for this plugin
+        plugin_config = configs.get(config_key)
+        if plugin_config is None:
+            plugin_config = {}
+            configs[config_key] = plugin_config
+        # Get the plugin its config dict for updating
+        try:
+            plugin.set_config(plugin_config)
+        except Exception as err:
+            log.error('There was an error during configuration '
+                      'of {} crated by {}'.format(plugin.name, plugin.author))
+            log.error(err)
+            log.debug(err, exc_info=True)
+
+    def get_plugin_names(self):
+        """Returns the name & author of all installed
+        plugins
+        """
+        plugin_info = []
+        for p in self.plugins:
+            plugin_info.append({'name': p['name'],
+                               'author': p['author']})
+        return plugin_info
+
+    # Init is false by default. Used when you want
+    # to get a plugin with initialization
+    def get_plugin(self, name, init=False):
+        "Returns the named plugin"
+        plugin = None
+        name = name.lower()
+        for p in self.plugins:
+            # We match the given name to the names
+            # we generate for uniqueness
+            if name == p['name'].lower():
+                plugin = p['plugin']
+                break
+        if plugin is not None and init is True:
+            config_key = '{}-{}'.format(p['name'].lower(), p['author'])
+            config = self.configs.get(config_key, {})
+            plugin.init_config(config)
+
+        return plugin
+
+
+def get_http_pool(secure=True):
+    if secure is True:
+        return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
+                                   ca_certs=certifi.where())
+    else:
+        return urllib3.PoolManager()
+
+
 def check_repo():
     "Checks if current directory is a pyupdater repository"
     repo = True
@@ -354,16 +315,9 @@ def get_filename(name, version, platform, easy_data):
 
        (str) Filename with extension
     """
-    filename_key = '{}*{}*{}*{}*{}'.format('updates', name, version,
-                                           platform, 'file_name')
+    filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, name,
+                                           version, platform, 'filename')
     filename = easy_data.get(filename_key)
-
-    # ToDo: Remove in version 2.0
-    if filename is None:
-        filename_key_old = '{}*{}*{}*{}*{}'.format('updates', name, version,
-                                                   platform, 'filename')
-        filename = easy_data.get(filename_key_old)
-    # End ToDo
 
     log.debug("Filename for %s-%s: %s", name, version, filename)
     return filename
@@ -434,86 +388,15 @@ def get_highest_version(name, plat, channel, easy_data):
     if version is not None:
         log.debug('Highest version: %s', version)
     else:
-        # ToDo: Remove in version 2.0
-        old_key = '{}*{}*{}'.format('latest', name, plat)
-        version = easy_data.get(old_key)
-        if version is not None:
-            log.debug('*** Backwards compat *** Highest version: %s', version)
-            # End Todo
-        else:
-            log.error('No updates for "%s" on %s exists', name, plat)
+        log.error('No updates for "%s" on %s exists', name, plat)
 
     return version
-
-
-def get_mac_dot_app_dir(directory):
-    """Returns parent directory of mac .app
-
-    Args:
-
-       directory (str): Current directory
-
-    Returns:
-
-       (str): Parent directory of mac .app
-    """
-    return os.path.dirname(os.path.dirname(os.path.dirname(directory)))
-
-
-def get_package_hashes(filename):
-    """Provides hash of given filename.
-
-    Args:
-
-        filename (str): Name of file to hash
-
-    Returns:
-
-        (str): sha256 hash
-    """
-    log.debug('Getting package hashes')
-    filename = os.path.abspath(filename)
-    with open(filename, 'rb') as f:
-        data = f.read()
-
-    _hash = hashlib.sha256(data).hexdigest()
-    log.debug('Hash for file %s: %s', filename, _hash)
-    return _hash
 
 
 def get_size_in_bytes(filename):
     size = os.path.getsize(os.path.abspath(filename))
     log.debug('File size: %s bytes', size)
     return size
-
-
-def gzip_decompress(data):
-    """Decompress gzip data
-
-    Args:
-
-        data (str): Gzip data
-
-
-    Returns:
-
-        (data): Decompressed data
-    """
-    # if isinstance(data, six.binary_type):
-    #     data = data.decode()
-    compressed_file = io.BytesIO()
-    compressed_file.write(data)
-    #
-    # Set the file's current position to the beginning
-    # of the file so that gzip.GzipFile can read
-    # its contents from the top.
-    #
-    compressed_file.seek(0)
-    decompressed_file = gzip.GzipFile(fileobj=compressed_file, mode='rb')
-    data = decompressed_file.read()
-    compressed_file.close()
-    decompressed_file.close()
-    return data
 
 
 def setup_appname(config):  # pragma: no cover
@@ -588,32 +471,6 @@ def initial_setup(config):  # pragma: no cover
     setup_urls(config)
     setup_patches(config)
     return config
-
-
-def remove_any(path):
-
-    def _remove_any(x):
-        if os.path.isdir(x):
-            shutil.rmtree(x, ignore_errors=True)
-        else:
-            os.remove(path)
-
-    if sys.platform != 'win32':
-        _remove_any(path)
-    else:
-        for _ in range(100):
-            try:
-                _remove_any(path)
-            except Exception as err:
-                log.debug(err, exc_info=True)
-                time.sleep(0.01)
-            else:
-                break
-        else:
-            try:
-                _remove_any(path)
-            except Exception as err:
-                log.debug(err, exc_info=True)
 
 
 def make_archive(name, target, version, external=False):
@@ -822,186 +679,6 @@ class bsdiff4_py(object):
             result.write(bextra.read(y))
             source.seek(z, os.SEEK_CUR)
         return result.getvalue()
-
-
-class EasyAccessDict(object):
-    """Provides access to dict by pass a specially made key to
-    the get method. Default key sep is "*". Example key would be
-    updates*mac*1.7.0 would access {"updates":{"mac":{"1.7.0": "hi there"}}}
-    and return "hi there"
-
-    Kwargs:
-
-        dict_ (dict): Dict you would like easy asses to.
-
-        sep (str): Used as a delimiter between keys
-    """
-
-    def __init__(self, dict_=None, sep='*'):
-        self.sep = sep
-        if not isinstance(dict_, dict):
-            log.debug('Did not pass dict')
-            self.dict = dict()
-            log.debug('Loading empty dict')
-        else:
-            self.dict = dict_
-
-    def get(self, key):
-        """Retrive value from internal dict.
-
-        args:
-
-            key (str): Key to access value
-
-        Returns:
-
-            (object): Value of key if found or None
-        """
-        try:
-            layers = key.split(self.sep)
-            value = self.dict
-            for key in layers:
-                value = value[key]
-            log.debug('Found Key')
-            return value
-        except KeyError:
-            log.debug('Key Not Found')
-            return None
-        except Exception as err:  # pragma: no cover
-            log.error(err, exc_info=True)
-            return None
-
-    # Because I always forget call the get method
-    def __call__(self, key):
-        return self.get(key)
-
-    def __str__(self):
-        return str(self.dict)
-
-
-class Version(object):
-    """Normalizes version strings of different types. Examples
-    include 1.2, 1.2.1, 1.2b and 1.1.1b
-
-    Args:
-
-        version (str): Version number to normalizes
-    """
-    v_re = re.compile('(?P<major>\d+)\.(?P<minor>\d+)\.?(?P'
-                      '<patch>\d+)?-?(?P<release>[a,b,e,h,l'
-                      ',p,t]+)?(?P<releaseversion>\d+)?')
-
-    v_re_big = re.compile('(?P<major>\d+)\.(?P<minor>\d+)\.'
-                          '(?P<patch>\d+)\.(?P<release>\d+)'
-                          '\.(?P<releaseversion>\d+)')
-
-    def __init__(self, version):
-        self._parse_version_str(version)
-        self.version_str = None
-
-    def _parse_version_str(self, version):
-        count = self._quick_sanatize(version)
-        try:
-            # version in the form of 1.1, 1.1.1, 1.1.1-b1, 1.1.1a2
-            if count == 4:
-                version_data = self._parse_parsed_version(version)
-            else:
-                version_data = self._parse_version(version)
-        except AssertionError:
-            raise VersionError('Cannot parse version')
-
-        self.major = int(version_data.get('major', 0))
-        self.minor = int(version_data.get('minor', 0))
-        patch = version_data.get('patch')
-        if patch is None:
-            self.patch = 0
-        else:
-            self.patch = int(patch)
-        release = version_data.get('release')
-        self.channel = 'stable'
-        if release is None:
-            self.release = 2
-        # Convert to number for easy comparison and sorting
-        elif release == 'b' or release == 'beta':
-            self.release = 1
-            self.channel = 'beta'
-        elif release == 'a' or release == 'alpha':
-            self.release = 0
-            self.channel = 'alpha'
-        else:
-            log.warning('Setting release as stable. '
-                        'Disregard if not prerelease')
-            # Marking release as stable
-            self.release = 2
-
-        release_version = version_data.get('releaseversion')
-        if release_version is None:
-            self.release_version = 0
-        else:
-            self.release_version = int(release_version)
-        self.version_tuple = (self.major, self.minor, self.patch,
-                              self.release, self.release_version)
-        self.version_str = str(self.version_tuple)
-
-    def _parse_version(self, version):
-        r = self.v_re.search(version)
-        assert r is not None
-        return r.groupdict()
-
-    def _parse_parsed_version(self, version):
-        r = self.v_re_big.search(version)
-        assert r is not None
-        return r.groupdict()
-
-    def _quick_sanatize(self, version):
-        log.debug('Version str: %s', version)
-        ext = os.path.splitext(version)[1]
-        # Removing file extensions, to ensure count isn't
-        # contaminated
-        if ext == '.zip':
-            log.debug('Removed ".zip"')
-            version = version[:-4]
-        elif ext == '.gz':
-            log.debug('Removed ".tar.gz"')
-            version = version[:-7]
-        count = version.count('.')
-        # There will be 4 dots when version is passed
-        # That was created with Version object.
-        # 1.1 once parsed will be 1.1.0.0.0
-        if count not in [1, 2, 4]:
-            msg = ('Incorrect version format. 1 or 2 dots '
-                   'You have {} dots'.format(count))
-            log.error(msg)
-            raise VersionError(msg)
-        return count
-
-    def __str__(self):
-        return '.'.join(map(str, self.version_tuple))
-
-    def __repr__(self):
-        return '{}: {}'.format(self.__class__.__name__,
-                               self.version_str)
-
-    def __hash__(self):
-        return hash(self.version_tuple)
-
-    def __eq__(self, obj):
-        return self.version_tuple == obj.version_tuple
-
-    def __ne__(self, obj):
-        return self.version_tuple != obj.version_tuple
-
-    def __lt__(self, obj):
-        return self.version_tuple < obj.version_tuple
-
-    def __gt__(self, obj):
-        return self.version_tuple > obj.version_tuple
-
-    def __le__(self, obj):
-        return self.version_tuple <= obj.version_tuple
-
-    def __ge__(self, obj):
-        return self.version_tuple >= obj.version_tuple
 
 
 class JSONStore(dictmixin):

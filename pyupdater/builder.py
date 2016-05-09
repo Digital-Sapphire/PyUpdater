@@ -25,15 +25,13 @@ from pyupdater import settings
 from pyupdater.hooks import get_hook_dir
 from pyupdater.utils import (check_repo,
                              lazy_import,
-                             make_archive,
-                             remove_any,
-                             Version)
+                             make_archive)
 from pyupdater.utils.config import Loader
 
-
+from jms_utils.helpers import Version
+from jms_utils.paths import remove_any
 from PyInstaller.__main__ import run as pyi_build
 from PyInstaller.building import makespec as _pyi_makespec
-from PyInstaller.building import build_main as _pyi_build
 from PyInstaller import compat as _pyi_compat
 from PyInstaller import log as _pyi_log
 
@@ -223,7 +221,6 @@ class Builder(object):  # pragma: no cover
         bin_dir = os.path.join(temp_name, 'Contents', 'MacOS')
         plist = os.path.join(temp_name, 'Contents', 'Info.plist')
         with jms_utils.paths.ChDir(bin_dir):
-            # ToDo: Shouldn't be hard coded. Better solution needed
             os.rename('mac', app_name)
 
         # We also have to update to ensure app launches correctly
@@ -263,8 +260,8 @@ class Builder(object):  # pragma: no cover
             log.debug('Version: %s', version)
 
             # Time for some archive creation!
-            file_name = make_archive(name, app_name, version)
-            log.debug('Archive name: %s', file_name)
+            filename = make_archive(name, app_name, version)
+            log.debug('Archive name: %s', filename)
             if args.keep is False:
                 if os.path.exists(temp_name):
                     log.debug('Removing: %s', temp_name)
@@ -272,7 +269,7 @@ class Builder(object):  # pragma: no cover
                 if os.path.exists(app_name):
                     log.debug('Removing: %s', temp_name)
                     remove_any(app_name)
-        log.info('%s has been placed in your new folder\n', file_name)
+        log.info('%s has been placed in your new folder\n', filename)
 
 
 class ExternalLib(object):

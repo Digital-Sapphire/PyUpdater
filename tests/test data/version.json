@@ -1,48 +1,51 @@
 {
-  "latest": {
-    "Not So TUF": {
-      "arm": "0.5.3", 
-      "mac": "0.5.3", 
-      "win": "0.5.3"
-    }
-  }, 
-  "sig": "KpLUVtDveYWoyuKWqEJxg61J+tFYARPtw4YES7zRMW3Wt9tbxh9ucrzFBoYVt4yW+1QcR9X/icX9IHnN7oPJCg", 
-  "updates": {
-    "Not So TUF": {
-      "0.5.0": {
-        "arm": {
-          "file_hash": "b03c11a3bff89a0c9b64caebc244432c8d8dfb2d881b8e20a703a3f3563ffe81", 
-          "filename": "Not So TUF-arm-0.5.0.zip"
-        }, 
-        "mac": {
-          "file_hash": "54cf2513802bedd96aab9edfbd361f4c9b9988ab62785486d4582f7fb1903641", 
-          "filename": "Not So TUF-mac-0.5.0.zip"
-        }, 
-        "win": {
-          "file_hash": "b03c11a3bff89a0c9b64caebc244432c8d8dfb2d881b8e20a703a3f3563ffe81", 
-          "filename": "Not So TUF-win-0.5.0.gz"
+    "latest": {
+        "Acme": {
+            "stable": {
+                "mac": "4.4.0.2.0"
+            }
         }
-      }, 
-      "0.5.3": {
-        "arm": {
-          "file_hash": "b00b963ff908288adebd53230c038ed439c0f8c63d5a717e87c9ead16adb0c9e", 
-          "filename": "Not So TUF-arm-0.5.3.zip", 
-          "patch_hash": "85f260dd3892e20db481fd8b3a3589a0beab56376288a7429ad709110aaaf35e", 
-          "patch_name": "Not So TUF-arm-2"
-        }, 
-        "mac": {
-          "file_hash": "fd7f2304498cf2fdd62ded38c500bec580a9f88a2497b4a0b581222a30da50ec", 
-          "filename": "Not So TUF-mac-0.5.3.zip", 
-          "patch_hash": "70003db1cc239db25f9af91802662bafd49a9cb95aa3dd977b83ce11317bcce1", 
-          "patch_name": "Not So TUF-mac-2"
-        }, 
-        "win": {
-          "file_hash": "fd7f2304498cf2fdd62ded38c500bec580a9f88a2497b4a0b581222a30da50ec", 
-          "filename": "Not So TUF-win-0.5.3.gz", 
-          "patch_hash": "eea8b9d3a053b64338c41ea63d1b52dc21b17f32e0ad69468042d0bf84a97de5", 
-          "patch_name": "Not So TUF-win-2"
+    },
+    "signature": "xyRZyduSdlLS+9eCmfU/NJeCk9Ybr/bmKQ5GareDbf9/BIajHZevErcRsZi0oTKqKos4b/6fjcNbO9W112T+Ag",
+    "updates": {
+        "Acme": {
+            "4.1.0.2.0": {
+                "mac": {
+                    "file_hash": "7ade54611f1b632e8df7b6eb0a59f4eb5f4eaaf6d4d806a9b3b7cb7129214e6a",
+                    "file_size": 4997814,
+                    "filename": "Acme-mac-4.1.tar.gz"
+                }
+            },
+            "4.2.0.2.0": {
+                "mac": {
+                    "file_hash": "7872d3b61026048e6b114a15819742ad00afb2395bcd35106d1b8dc42df00b14",
+                    "file_size": 4997728,
+                    "filename": "Acme-mac-4.2.tar.gz",
+                    "patch_hash": "70f3529a891af3145782722a6f5d39f8ea3d87b5ffebbc9d2110d230a49f840d",
+                    "patch_name": "Acme-mac-2",
+                    "patch_size": 1276614
+                }
+            },
+            "4.3.0.2.0": {
+                "mac": {
+                    "file_hash": "7d3d3b110be99648d70e10ea63f6520e54071f241fb712d23b8f7abc3494c600",
+                    "file_size": 4997724,
+                    "filename": "Acme-mac-4.3.tar.gz",
+                    "patch_hash": "b74269e7433535aa0884eb69937c19bed133fdd7a112a853f66f5815a1bea803",
+                    "patch_name": "Acme-mac-3",
+                    "patch_size": 824443
+                }
+            },
+            "4.4.0.2.0": {
+                "mac": {
+                    "file_hash": "4f583cdc3ef72f6a4876bdaae690aa634a3d6507211dea7b9e9f771563c1d8d4",
+                    "file_size": 4997724,
+                    "filename": "Acme-mac-4.4.tar.gz",
+                    "patch_hash": "025f443c98b58714e56d7aa9dbb174a28d0d5926942f1005c1a7ae7c5d2cde08",
+                    "patch_name": "Acme-mac-4",
+                    "patch_size": 612937
+                }
+            }
         }
-      }
     }
-  }
 }

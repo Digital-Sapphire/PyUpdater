@@ -39,16 +39,17 @@ class TestSetup(object):
     def test_new_init(self, client):
         assert client.app_name == 'Acme'
         assert client.update_urls[0] == ('https://s3-us-west-1.amazon'
-                                         'aws.com/pyupdater-test/')
+                                         'aws.com/pyu-tester/')
 
     def test_no_cert(self, client):
         client.verify = False
         assert client.app_name == 'Acme'
         assert client.update_urls[0] == ('https://s3-us-west-1.amazon'
-                                         'aws.com/pyupdater-test/')
+                                         'aws.com/pyu-tester/')
 
     def test_bad_pub_key(self):
         t_config = TConfig()
+        # If changed ensure it's a valid key format
         t_config.PUBLIC_KEY = '25RSdhJ+xCsxxTjY5jffilatipp29tnKp/D5BelSMJM'
         t_config.DATA_DIR = os.getcwd()
         client = Client(t_config, refresh=True, test=True)
@@ -56,7 +57,7 @@ class TestSetup(object):
 
     def test_check_version(self, client):
         assert client.update_check(client.app_name, '6.0.0') is None
-        assert client.update_check(client.app_name, '4.0') is not None
+        assert client.update_check(client.app_name, '3.0') is not None
         client.ready = False
         assert client.update_check(client.app_name, '0.0.2') is None
 
@@ -70,7 +71,7 @@ class TestSetup(object):
         t_config = TConfig()
         t_config.PUBLIC_KEY = '25RSdhJ+xCsxxTjY5jffilatipp29tnKp/D5BelSMJM'
         t_config.DATA_DIR = os.getcwd()
-        client = Client(t_config, refresh=True, test=True, progress_hook=cb)
+        client = Client(t_config, refresh=True, test=True, progress_hooks=[cb])
         client.add_progress_hook(cb2)
         assert client.update_check(client.app_name, '0.0.0') is None
 
@@ -89,43 +90,43 @@ class TestSetup(object):
     def test_url_str_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
-        t_config.UPDATE_URL = 'http://acme.com/update'
-        client = Client(t_config, refresh=True, test=True)
+        t_config.UPDATE_URLS = 'http://acme.com/update'
+        client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
     def test_url_list_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
-        t_config.UPDATE_URL = ['http://acme.com/update']
-        client = Client(t_config, refresh=True, test=True)
+        t_config.UPDATE_URLS = ['http://acme.com/update']
+        client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
     def test_url_tuple_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
-        t_config.UPDATE_URL = ('http://acme.com/update')
-        client = Client(t_config, refresh=True, test=True)
+        t_config.UPDATE_URLS = ('http://acme.com/update')
+        client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
     def test_urls_str_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
         t_config.UPDATE_URLS = 'http://acme.com/update'
-        client = Client(t_config, refresh=True, test=True)
+        client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
     def test_urls_list_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
         t_config.UPDATE_URLS = ['http://acme.com/update']
-        client = Client(t_config, refresh=True, test=True)
+        client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
     def test_urls_tuple_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
         t_config.UPDATE_URLS = ('http://acme.com/update')
-        client = Client(t_config, refresh=True, test=True)
+        client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
 

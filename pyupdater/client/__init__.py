@@ -14,17 +14,15 @@
 # limitations under the License.
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
-
 import warnings
+
+from jms_utils.helpers import EasyAccessDict, gzip_decompress, Version
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.updates import AppUpdate, LibUpdate
-from pyupdater.utils import (EasyAccessDict,
-                             get_highest_version,
-                             gzip_decompress,
-                             lazy_import,
-                             Version)
+from pyupdater.utils import (get_highest_version,
+                             lazy_import)
 from pyupdater.utils.config import ConfigDict
 
 
@@ -96,7 +94,7 @@ if os.path.exists(log_path):  # pragma: no cover
     ch = logging.FileHandler(os.path.join(jms_utils.paths.app_cwd,
                              'pyu.log'))
     ch.setLevel(logging.DEBUG)
-    ch.setFormatter(jms_utils.logger.log_format_string())
+    ch.setFormatter(jms_utils.logger.logging_formatter)
     log.addHandler(ch)
 log.debug('PyUpdater Version %s', __version__)
 
@@ -125,6 +123,7 @@ class Client(object):
         self.ready = False
         self.progress_hooks = []
         if progress_hooks is not None:
+            assert isinstance(progress_hooks, list) is True
             self.progress_hooks += progress_hooks
         if obj is not None:
             self.init_app(obj, refresh, test)

@@ -45,7 +45,7 @@ client.refresh()
 
 # Or initialize & refresh in one step
 client = Client(ClientConfig(), refresh=True,
-                progress_hook=print_status_info)
+                progress_hooks=[print_status_info])
 
 
 # Add as many callbacks as you like

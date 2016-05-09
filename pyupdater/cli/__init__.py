@@ -20,11 +20,10 @@ import json
 import logging
 import os
 import sys
-import warnings
 
 from appdirs import user_log_dir
-from jms_utils.logger import log_formatter
-from jms_utils.paths import ChDir
+from jms_utils.logger import logging_formatter
+from jms_utils.paths import ChDir, remove_any
 from jms_utils.terminal import ask_yes_no, get_correct_answer
 
 
@@ -37,7 +36,6 @@ from pyupdater.utils import (check_repo,
                              initial_setup,
                              get_http_pool,
                              PluginManager,
-                             remove_any,
                              setup_company,
                              setup_urls,
                              setup_patches,
@@ -51,7 +49,7 @@ log = logging.getLogger()
 if os.path.exists(os.path.join(CWD, 'pyu.log')):  # pragma: no cover
     fh = logging.FileHandler(os.path.join(CWD, 'pyu.log'))
     fh.setLevel(logging.DEBUG)
-    fh.setFormatter(log_formatter())
+    fh.setFormatter(logging_formatter)
     log.addHandler(fh)
 
 fmt = logging.Formatter('[%(levelname)s] %(message)s')
@@ -68,7 +66,7 @@ LOG_DIR = user_log_dir(settings.APP_NAME, settings.APP_AUTHOR)
 log_file = os.path.join(LOG_DIR, settings.LOG_FILENAME_DEBUG)
 rfh = logging.handlers.RotatingFileHandler(log_file, maxBytes=9445269,
                                            backupCount=2)
-rfh.setFormatter(log_formatter())
+rfh.setFormatter(logging_formatter)
 rfh.setLevel(logging.DEBUG)
 log.addHandler(rfh)
 
@@ -224,7 +222,7 @@ def pkg(args):
 
     if args.process is True:
         log.info('Processing packages...')
-        pyu.process_packages()
+        pyu.process_packages(args.verbose)
         log.info('Processing packages complete')
     if args.sign is True:
         log.info('Signing packages...')
@@ -357,12 +355,6 @@ def _real_main(args):  # pragma: no cover
         init()
     elif cmd == 'keys':
         keys(args)
-    # ToDo: Remove in v1.0
-    elif cmd == 'log':
-        warnings.simplefilter('always', DeprecationWarning)
-        warnings.warn('Use "collect-debug-info" ', DeprecationWarning)
-        upload_debug_info()
-    # End to do
     elif cmd == 'collect-debug-info':
         upload_debug_info()
     elif cmd == 'make-spec':

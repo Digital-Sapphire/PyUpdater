@@ -22,15 +22,15 @@ from pyupdater.client.downloader import FileDownloader
 
 FILENAME = 'dont+delete+pyu+test.txt'
 FILENAME_WITH_SPACES = 'dont delete pyu test.txt'
-FILE_HASH = '9da856b0b8b77c838d6945e0bfbc62fff978a9dd5256eed231fc499b5d4b183c'
-URL = 'https://s3-us-west-1.amazonaws.com/pyupdater-test/'
+FILE_HASH = '82719546b992ef81f4544fb2690c6a05b300a0216eeaa8f3616b3b107a311629'
+URL = 'https://pyu-tester.s3.amazonaws.com/'
 
 
 @pytest.mark.usefixtue("cleandir")
 class TestData(object):
 
     def test_return(self):
-        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=False)
+        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
@@ -38,13 +38,13 @@ class TestData(object):
         def cb(status):
             pass
         fd = FileDownloader(FILENAME, URL, FILE_HASH,
-                            progress_hooks=[cb], verify=False)
+                            progress_hooks=[cb], verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
     def test_return_fail(self):
         fd = FileDownloader(FILENAME, URL,
-                            'JKFEIFJILEFJ983NKFNKL', verify=False)
+                            'JKFEIFJILEFJ983NKFNKL', verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is None
 
@@ -53,12 +53,12 @@ class TestData(object):
 class TestUrl(object):
     def test_url_with_spaces(self):
         fd = FileDownloader(FILENAME_WITH_SPACES, URL,
-                            FILE_HASH, verify=False)
+                            FILE_HASH, verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
     def test_bad_url(self):
-        fd = FileDownloader(FILENAME, 'bad url', 'bad hash', verify=False)
+        fd = FileDownloader(FILENAME, 'bad url', 'bad hash', verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is None
 
@@ -68,11 +68,11 @@ class TestContentLength(object):
     def test_bad_content_length(self):
         class FakeHeaders(object):
             headers = {}
-        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=False)
+        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=True)
         data = FakeHeaders()
         assert fd._get_content_length(data) == 100001
 
     def test_good_conent_length(self):
-        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=False)
+        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=True)
         fd.download_verify_return()
-        assert fd.content_length == 60000
+        assert fd.content_length == 2387

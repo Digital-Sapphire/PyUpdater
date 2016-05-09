@@ -32,17 +32,12 @@ class TConfig(object):
     # Online repository where you host your packages
     # and version file
     # REQUIRED
-    UPDATE_URLS = ['https://s3-us-west-1.amazonaws.com/pyupdater-test/',
-                   'https://s3-us-west-1.amazonaws.com/pyupdater-test']
+    UPDATE_URLS = ['https://s3-us-west-1.amazonaws.com/pyu-tester/']
     UPDATE_PATCHES = True
 
     # Upload Setup
     REMOTE_DIR = None
     HOST = None
 
-    # server user name/access key id
-    USERNAME = None
-    # Path to ssh key of server / password / secret access key
-    PASSWORD = '/path/to/ssh/key file'
-
-    VERIFY_SERVER_CERT = False
+    # Tests seem to fail when this is True
+    VERIFY_SERVER_CERT = True

@@ -87,9 +87,3 @@ class UtilsError(STDError):
     """Raised for Utils exceptions"""
     def __init__(self, *args, **kwargs):
         super(UtilsError, self).__init__(*args, **kwargs)
-
-
-class VersionError(STDError):
-    """Raised for Utils exceptions"""
-    def __init__(self, *args, **kwargs):
-        super(VersionError, self).__init__(*args, **kwargs)

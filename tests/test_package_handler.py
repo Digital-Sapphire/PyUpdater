@@ -30,7 +30,7 @@ from tconfig import TConfig
 
 s_dir = settings.USER_DATA_FOLDER
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test data',
-                             'patcher-test-data')
+                             'package-handler')
 
 
 @pytest.mark.usefixtures('cleandir', 'pyu')
@@ -80,12 +80,12 @@ class TestExecution(object):
 class TestPackage(object):
 
     def test_package_1(self):
-        test_file = 'jms-mac-0.0.1.zip'
+        test_file = 'Acme-mac-4.1.tar.gz'
         with ChDir(TEST_DATA_DIR):
             p1 = Package(test_file)
 
-        assert p1.name == 'jms'
-        assert p1.version == '0.0.1.2.0'
+        assert p1.name == 'Acme'
+        assert p1.version == '4.1.0.2.0'
         assert p1.filename == test_file
         assert p1.platform == 'mac'
         assert p1.channel == 'stable'

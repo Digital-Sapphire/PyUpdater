@@ -14,15 +14,16 @@
 # limitations under the License.
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
-
-from jms_utils.paths import ChDir
-
 import logging
 import os
 import re
 
-from pyupdater.utils import parse_platform, remove_any, Version
-from pyupdater.utils.exceptions import UtilsError, VersionError
+from jms_utils.exceptions import VersionError
+from jms_utils.helpers import Version
+from jms_utils.paths import ChDir, remove_any
+
+from pyupdater.utils import parse_platform
+from pyupdater.utils.exceptions import UtilsError
 
 log = logging.getLogger(__name__)
 
@@ -199,7 +200,7 @@ class Package(object):
     def _parse_package_name(self, package):
         # Returns package name from update archive name
         # Changes appname-platform-version to appname
-        # ToDo: May need to update if support for app names with
+        # ToDo: May need to update regex if support for app names with
         #       hyphens in them are requested. Example "My-App"
         log.debug('Package name: %s', package)
         basename = os.path.basename(package)
