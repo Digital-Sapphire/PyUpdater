@@ -27,14 +27,14 @@ try:  # pragma: no cover
     import bsdiff4
 except ImportError:  # pragma: no cover
     bsdiff4 = None
+from jms_utils.crypto import get_package_hashes as gph
+from jms_utils.helpers import EasyAccessDict
 
 from pyupdater import settings
 from pyupdater.package_handler.package import (cleanup_old_archives,
                                                Package,
                                                Patch)
-from pyupdater.utils import (EasyAccessDict,
-                             get_package_hashes as gph,
-                             get_size_in_bytes as in_bytes,
+from pyupdater.utils import (get_size_in_bytes as in_bytes,
                              lazy_import,
                              remove_dot_files
                              )
@@ -106,7 +106,7 @@ class PackageHandler(object):
             self.config = self._load_config()
             self.config_loaded = True
 
-    def process_packages(self):
+    def process_packages(self, report_errors=False):
         """Gets a list of updates to process.  Adds the name of an
         update to the version file if not already present.  Processes
         all packages.  Updates the version file meta-data. Then writes
@@ -114,16 +114,16 @@ class PackageHandler(object):
         """
         if self.data_dir is None:
             raise PackageHandlerError('Must init first.', expected=True)
-        package_manifest, patch_manifest = self._get_package_list()
+        pkg_manifest, patch_manifest = self._get_package_list(report_errors)
         patches = self._make_patches(patch_manifest)
         self._cleanup(patch_manifest)
-        package_manifest = self._add_patches_to_packages(package_manifest,
+        pkg_manifest = self._add_patches_to_packages(pkg_manifest,
                                                          patches)
         self.json_data = self._update_version_file(self.json_data,
-                                                   package_manifest)
+                                                   pkg_manifest)
         self._write_json_to_file(self.json_data)
         self._write_config_to_file(self.config)
-        self._move_packages(package_manifest)
+        self._move_packages(pkg_manifest)
 
     def _setup_work_dirs(self):
         # Sets up work dirs on dev machine.  Creates the following folder
@@ -163,7 +163,7 @@ class PackageHandler(object):
                 }
         return config
 
-    def _get_package_list(self, ignore_errors=True):
+    def _get_package_list(self, report_errors):
         # Adds compatible packages to internal package manifest
         # for futher processing
         # Process all packages in new folder and gets
@@ -171,9 +171,9 @@ class PackageHandler(object):
         log.info('Getting package list')
         # Clears manifest if sign updates runs more the once without
         # app being restarted
-        package_manifest = list()
-        patch_manifest = list()
-        bad_packages = list()
+        package_manifest = []
+        patch_manifest = []
+        bad_packages = []
         with jms_utils.paths.ChDir(self.new_dir):
             # Getting a list of all files in the new dir
             packages = os.listdir(os.getcwd())
@@ -230,7 +230,7 @@ class PackageHandler(object):
                         log.warning('No source file to patch from')
 
         # ToDo: Expose this & remove "pragma: no cover" once done
-        if ignore_errors is False:  # pragma: no cover
+        if report_errors is True:  # pragma: no cover
             log.warning('Bad package & reason for being naughty:')
             for b in bad_packages:
                 log.warning(b.name, b.info['reason'])
@@ -293,8 +293,6 @@ class PackageHandler(object):
         return pool_output
 
     def _add_patches_to_packages(self, package_manifest, patches):
-        # ToDo: Increase the efficiency of this double for
-        #       loop. Not sure if it can be done though
         if patches is not None and len(patches) >= 1:
             log.info('Adding patches to package list')
             for p in patches:
@@ -333,8 +331,8 @@ class PackageHandler(object):
         latest = json_data.get('latest')
         if latest is None:
             json_data['latest'] = {}
-        file_name = files.get(package_info.name)
-        if file_name is None:
+        filename = files.get(package_info.name)
+        if filename is None:
             log.debug('Adding %s to file list', package_info.name)
             json_data[settings.UPDATES_KEY][package_info.name] = {}
 
@@ -358,10 +356,8 @@ class PackageHandler(object):
             patch_size = p.patch_info.get('patch_size')
 
             # Converting info to format compatible for version file
-            # ToDo: Remove filename in version 2.0
             info = {'file_hash': p.file_hash,
                     'file_size': p.file_size,
-                    'file_name': p.filename,
                     'filename': p.filename}
             if patch_name and patch_hash:
                 info['patch_name'] = patch_name
@@ -394,12 +390,6 @@ class PackageHandler(object):
                 n = p.name
                 v = p.version
                 json_data[settings.UPDATES_KEY][n][v][p.platform] = info
-
-            # ToDo: Remove in future version. Maybe 2.0
-            #       Backwards compat when implementing release channels
-            if p.channel == 'stable':
-                json_data['latest'][p.name][p.platform] = p.version
-            # End ToDo
 
             # Add each package to latests section separated by release channel
             json_data['latest'][p.name][p.channel][p.platform] = p.version
@@ -468,13 +458,13 @@ class PackageHandler(object):
                 latest_platform = json_data[settings.UPDATES_KEY][name][latest]
                 log.debug('Found latest platform for patches')
                 try:
-                    filename = latest_platform[platform]['file_name']
-                    log.debug('Found file_name for patches')
-                except KeyError:
-                    # ToDo: Remove in version 2.0
                     filename = latest_platform[platform]['filename']
-                    log.debug('Found old type filename for patches')
-                    # End ToDo
+                    log.debug('Found filename for patches')
+                except KeyError:
+                    log.error('Found old version file. Please read '
+                              'the upgrade section in the docs.')
+                    log.debug('Found old verison file')
+                    return None
             except Exception as err:
                 log.debug(err, exc_info=True)
                 return None

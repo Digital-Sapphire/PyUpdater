@@ -36,8 +36,8 @@ class TestVersionFile(object):
         with io.open(version_file, 'r', encoding='utf-8') as f:
             version_data = json.loads(f.read())
 
-        sig = version_data['sig']
-        del version_data['sig']
+        sig = version_data['signature']
+        del version_data['signature']
         data = json.dumps(version_data, sort_keys=True)
         if six.PY3:
             version_data = bytes(data, 'utf-8')

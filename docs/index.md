@@ -24,18 +24,19 @@ Consists of the KeyHandler, PackageHandler & Uploader. Use at your own risk. It'
 #####CLI:
 Uses core as execution engine. More then likely what you'll be interacting with.
 
-#### Features
+####Features
 
 - Easy Setup
 - Secured with EdDSA
+- Secure off line update
 - Release channels
 - Automatic Binary creation/patching
-- Async downloads
+- Asynchronous downloads
 - Update your application's artifacts
 - Dual key verification
-    - If the repo key is compromised it is very easy to create a new one.
+    - If the repository key is compromised it is very easy to create a new one.
 - Get download progress with progress hooks a.k.a. callbacks
-    - Great for GUI apps.
+    - Great for GUI applications.
     - Super easy setup
 - Upload system based on a plugin architecture
     - Anyone can create a plugin

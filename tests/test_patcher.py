@@ -13,30 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # --------------------------------------------------------------------------
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
+import io
 import json
 import os
 import shutil
-try:
-    from urllib2 import urlopen
-except ImportError:
-    from urllib.request import urlopen
 
 import pytest
-import six
 
 from pyupdater.client.patcher import Patcher
 
 TEST_DATA_DIR = os.path.join(os.getcwd(), 'tests', 'test data',
-                             'patcher-test-data')
+                             'patcher')
 
-version_file_url = ('https://s3-us-west-1.amazonaws.com/pyupdater-test'
-                    '/version.json')
-
-version_data_str = urlopen(version_file_url).read()
-if six.PY3:
-    version_data_str = version_data_str.decode()
+VERSION_DATA_DIR = os.path.dirname(TEST_DATA_DIR)
+with io.open(os.path.join(VERSION_DATA_DIR, 'version.json'), encoding='utf-8') as f:
+    version_data_str = f.read()
 
 json_data = json.loads(version_data_str)
 
@@ -49,12 +42,13 @@ def cb2(status):
     raise IndexError
 
 update_data = {
-    'name': 'jms',
+    'name': 'Acme',
     'json_data': json_data,
-    'current_version': '0.0.1',
-    'highest_version': '0.0.3',
+    'current_filename': 'Acme-mac-4.1.tar.gz',
+    'current_version': '4.1.0.2.0',
+    'latest_version': '4.4.0.2.0',
     'update_folder': None,
-    'update_urls': ['https://s3-us-west-1.amazonaws.com/pyupdater-test/'],
+    'update_urls': ['https://pyu-tester.s3.amazonaws.com/'],
     'platform': 'mac',
     'progress_hooks': [cb, cb2]
     }
@@ -66,7 +60,7 @@ class TestPatcher(object):
     @pytest.fixture
     def setup(self):
         directory = os.getcwd()
-        base_binary = os.path.join(TEST_DATA_DIR, 'jms-mac-0.0.1.zip')
+        base_binary = os.path.join(TEST_DATA_DIR, 'Acme-mac-4.1.tar.gz')
         shutil.copy(base_binary, directory)
         return directory
 
@@ -87,12 +81,12 @@ class TestPatcher(object):
     def test_missing_version(self, setup):
         data = update_data.copy()
         data['update_folder'] = setup
-        data['highest_version'] = '0.0.4'
+        data['latest_version'] = '0.0.4.2.0'
         p = Patcher(**data)
         assert p.start() is False
 
-    # def test_execution(self, setup):
-    #     data = update_data.copy()
-    #     data['update_folder'] = setup
-    #     p = Patcher(**data)
-    #     assert p.start() is True
+    def test_execution(self, setup):
+        data = update_data.copy()
+        data['update_folder'] = setup
+        p = Patcher(**data)
+        assert p.start() is True

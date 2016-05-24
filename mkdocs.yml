@@ -5,6 +5,7 @@ pages:
     - Installation: installation.md
     - Commands: commands.md
     - Example Workflow: workflow.md
+    - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create_plugin.md
 
 - More Info:

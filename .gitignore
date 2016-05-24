@@ -25,3 +25,5 @@ site
 .tox
 
 .cache/v/cache/lastfailed
+
+tests/dev

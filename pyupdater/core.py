@@ -63,11 +63,11 @@ class PyUpdater(object):
         "Sets up root dir with required PyUpdater folders"
         self.ph.setup()
 
-    def process_packages(self):
+    def process_packages(self, report_errors=False):
         """Creates hash for updates & adds information about update to
         version file
         """
-        self.ph.process_packages()
+        self.ph.process_packages(report_errors)
 
     def set_uploader(self, requested_uploader):
         """Sets upload destination
