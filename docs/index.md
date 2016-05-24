@@ -31,6 +31,8 @@ Uses core as execution engine. More then likely what you'll be interacting with.
 - Secure off line update
 - Release channels
 - Automatic Binary creation/patching
+- Smart patch updates
+    - This method is only applied if the total size of patches are less than a full update and the user is less than 4 patches behind.
 - Asynchronous downloads
 - Update your application's artifacts
 - Dual key verification

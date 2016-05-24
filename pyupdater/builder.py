@@ -14,7 +14,6 @@
 # limitations under the License.
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
-import argparse
 import io
 import logging
 import os
@@ -22,6 +21,7 @@ import sys
 import time
 
 from pyupdater import settings
+from pyupdater.compat import pyi_makespec
 from pyupdater.hooks import get_hook_dir
 from pyupdater.utils import (check_repo,
                              lazy_import,
@@ -31,9 +31,7 @@ from pyupdater.utils.config import Loader
 from jms_utils.helpers import Version
 from jms_utils.paths import remove_any
 from PyInstaller.__main__ import run as pyi_build
-from PyInstaller.building import makespec as _pyi_makespec
-from PyInstaller import compat as _pyi_compat
-from PyInstaller import log as _pyi_log
+
 
 
 log = logging.getLogger(__name__)
@@ -45,36 +43,6 @@ def jms_utils():
     import jms_utils.paths
     import jms_utils.system
     return jms_utils
-
-
-def pyi_makespec(pyi_args):  # pragma: no cover
-
-    def run_makespec(args):
-        # Split pathex by using the path separator
-        temppaths = args.pathex[:]
-        args.pathex = []
-        for p in temppaths:
-            args.pathex.extend(p.split(os.pathsep))
-
-        spec_file = _pyi_makespec.main(args.scriptname, **vars(args))
-        log.info('wrote %s', spec_file)
-
-    parser = argparse.ArgumentParser()
-
-    _pyi_makespec.__add_options(parser)
-    _pyi_log.__add_options(parser)
-    _pyi_compat.__add_obsolete_options(parser)
-    parser.add_argument('scriptname', nargs='+')
-
-    args = parser.parse_args(pyi_args)
-
-    # We call init because it loads logger into the global
-    # namespace of the Pyinstaller.log module. logger is used
-    # in the Pyinstaller.log.__process_options call
-    _pyi_log.init()
-    _pyi_log.__process_options(parser, args)
-
-    run_makespec(args)
 
 
 class Builder(object):  # pragma: no cover

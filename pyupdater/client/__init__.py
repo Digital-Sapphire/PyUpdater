@@ -23,7 +23,7 @@ from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.updates import AppUpdate, LibUpdate
 from pyupdater.utils import (get_highest_version,
                              lazy_import)
-from pyupdater.utils.config import ConfigDict
+from pyupdater.utils.config import Config
 
 
 warnings.simplefilter('always', DeprecationWarning)
@@ -146,7 +146,7 @@ class Client(object):
         """
         # Used to add missing required information
         # i.e. APP_NAME
-        config = ConfigDict()
+        config = Config()
         config.from_object(obj)
 
         self.FROZEN = jms_utils.app.FROZEN

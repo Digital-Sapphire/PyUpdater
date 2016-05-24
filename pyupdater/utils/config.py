@@ -24,17 +24,19 @@ from pyupdater.utils.storage import Storage
 log = logging.getLogger(__name__)
 
 
-# Used to transition from pickle data to plain json
-class ConfigDict(dict):
+class Config(dict):
     def __init__(self, *args, **kwargs):
-        super(ConfigDict, self).__init__(*args, **kwargs)
+        super(Config, self).__init__(*args, **kwargs)
         self.__dict__ = self
         self.__postinit__()
 
     def __postinit__(self):
         config_template = {
-            # If left None "Not_So_TUF" will be used
+            # If left None "PyUpdater App" will be used
             'APP_NAME': settings.GENERIC_APP_NAME,
+
+            # path to place client config
+            'CLIENT_CONFIG_PATH': ['client_config.py'],
 
             # Company/Your name
             'COMPANY_NAME': settings.GENERIC_APP_NAME,
@@ -81,18 +83,18 @@ class Loader(object):
         self.config_key = settings.CONFIG_DB_KEY_APP_CONFIG
 
     def load_config(self):
-        """Loads config from database
+        """Loads config from database (json file)
 
             Returns (obj): Config object
         """
         config_data = self.db.load(self.config_key)
         if config_data is None:
             config_data = {}
-        backwards_compat_config = ConfigDict()
+        config = Config()
         for k, v in config_data.items():
-            backwards_compat_config[k] = v
-        backwards_compat_config.DATA_DIR = os.getcwd()
-        return backwards_compat_config
+            config[k] = v
+        config.DATA_DIR = os.getcwd()
+        return config
 
     def get_app_name(self):
         config = self.load_config()
@@ -124,7 +126,7 @@ class Loader(object):
         else:
             public_key = keypack_data['client']['offline_public']
 
-        filename = os.path.join(self.cwd, settings.USER_CLIENT_CONFIG_FILENAME)
+        filename = os.path.join(self.cwd, *obj.CLIENT_CONFIG_PATH)
         attr_str_format = "    {} = '{}'\n"
         attr_format = "    {} = {}\n"
         with open(filename, 'w') as f:

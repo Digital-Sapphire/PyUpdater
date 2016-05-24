@@ -125,36 +125,6 @@ def six():
     return six
 
 
-def setup_client_config_path(config): # pragma: no cover
-    _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
-    _default_filename = 'appstat_config.py'
-
-    if config.CLIENT_CONFIG_PATH is not None:
-        default = config.CLIENT_CONFIG_PATH
-        if default == _default_filename:
-            default = _default_dir
-    else:
-        default = _default_dir
-
-    question = ("Please enter the path to where appstat "
-                "will write the appstat_config.py file. "
-                "You'll need to import this file to "
-                "initialize the update process. \nExamples:\n\n"
-                "lib/utils, src/lib, src. Leave blank to use "
-                "the current directory")
-    answer = jms_utils.terminal.get_correct_answer(question, default=default)
-
-    if answer == _default_dir:
-        answer = _default_filename
-    else:
-        answer = answer.split(os.sep)
-        answer.append(_default_filename)
-
-
-    config.CLIENT_CONFIG_PATH = answer
-
-
-
 class PluginManager(object):
 
     PLUGIN_NAMESPACE = 'pyupdater.plugins'
@@ -422,6 +392,28 @@ def setup_company(config):  # pragma: no cover
     config.COMPANY_NAME = temp
 
 
+def setup_client_config_path(config): # pragma: no cover
+    _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
+
+    question = ("Please enter the path to where pyupdater "
+                "will write the client_config.py file. "
+                "You'll need to import this file to "
+                "initialize the update process. \nExamples:\n\n"
+                "lib/utils, src/lib, src. Leave blank to use "
+                "the current directory")
+    answer = jms_utils.terminal.get_correct_answer(question,
+                                                   default=_default_dir)
+
+    if answer == _default_dir:
+        answer = config.CLIENT_CONFIG_PATH
+    else:
+        answer = answer.split(os.sep)
+        answer.append(config.CLIENT_CONFIG_PATH)
+
+
+    config.CLIENT_CONFIG_PATH = answer
+
+
 def setup_urls(config):  # pragma: no cover
     url = jms_utils.terminal.get_correct_answer('Enter a url to ping for '
                                                 'updates.', required=True)
@@ -470,6 +462,7 @@ def initial_setup(config):  # pragma: no cover
     setup_company(config)
     setup_urls(config)
     setup_patches(config)
+    setup_client_config_path(config)
     return config
 
 

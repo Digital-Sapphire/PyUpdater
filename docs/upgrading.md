@@ -2,6 +2,13 @@
 #####Note: Major version will maintain compatibility.
 
 ##To Version 2.0
+###Coming from PyUpdater >= 1.1
+1. Run the command below
+
+```
+    $ pyupdater settings --config-path
+```
+
 ###Coming from PyUpdater < 1.1
 1. You'll need to update to PyUpdater 1.1.15
 2. If using progress hooks note that progress_hook changed to progress_hooks and only accepts lists

@@ -24,6 +24,8 @@ from pyupdater.utils import JSONStore
 log = logging.getLogger(__name__)
 
 
+# Used by KeyHandler, PackageHandler & Config to
+# store data in a json file
 class Storage(object):
 
     def __init__(self):
