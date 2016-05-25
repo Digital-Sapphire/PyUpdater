@@ -29,6 +29,8 @@ CONFIG_DB_KEY_KEYPACK = 'keypack'
 CONFIG_DB_KEY_VERSION_META = 'version_meta'
 CONFIG_DB_KEY_PY_REPO_CONFIG = 'py_repo_config'
 
+DEFAULT_CLIENT_CONFIG = ['client_config.py']
+
 GENERIC_APP_NAME = 'PyUpdater App'
 GENERIC_COMPANY_NAME = 'PyUpdater'
 
@@ -38,9 +40,6 @@ LOG_FILENAME_DEBUG = 'pyu-debug.log'
 
 # KeyFile
 KEYPACK_FILENAME = 'keypack.pyu'
-
-# Name of client config file
-USER_CLIENT_CONFIG_FILENAME = 'client_config.py'
 
 # Main user visible data folder
 USER_DATA_FOLDER = 'pyu-data'

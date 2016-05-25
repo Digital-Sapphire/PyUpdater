@@ -36,7 +36,7 @@ class Config(dict):
             'APP_NAME': settings.GENERIC_APP_NAME,
 
             # path to place client config
-            'CLIENT_CONFIG_PATH': ['client_config.py'],
+            'CLIENT_CONFIG_PATH': settings.DEFAULT_CLIENT_CONFIG,
 
             # Company/Your name
             'COMPANY_NAME': settings.GENERIC_APP_NAME,
@@ -66,10 +66,6 @@ class Config(dict):
         for key in dir(obj):
             if key.isupper():
                 self[key] = getattr(obj, key)
-        if self.get('APP_NAME') is None:
-            self['APP_NAME'] = settings.GENERIC_APP_NAME
-        if self.get('COMPANY_NAME') is None:
-            self['COMPANY_NAME'] = settings.GENERIC_COMPANY_NAME
 
 
 class Loader(object):
