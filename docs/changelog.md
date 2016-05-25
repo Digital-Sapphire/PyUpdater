@@ -9,6 +9,7 @@
 #####Added
 
   - CLI
+    - Configure where client_config.py is written
     - list plugins
     - update plugin settings
     - Verbose: Show why packages were not processed
@@ -19,8 +20,6 @@
     - Simplified plugin interface
     - Enables saving of plugin configuration
     - Automatic loading of plugin configuration before use
-  - Libs
-    - PyInstaller 3.2
   - Docs
     - Renamed sub menus
     - Work flow
@@ -29,13 +28,19 @@
     - Upgrade how to
   - License
   - File deletion on windows when uploading
+  - Supports PyInstaller 3.0 - 3.2
+  - Updated tests
+  - Some overall clean up of the code base
 
 #####Fixed
 
   - Status Badges
+  - Patch updates
 
 #####Removed
 
+  - Compatibility code for older versions of PyUpdater
+  - Need for specific version of PyInstaller
   - Lib
     - requests
 

@@ -21,8 +21,7 @@ from pyupdater.key_handler import KeyHandler
 from pyupdater.key_handler.keys import KeyImporter
 from pyupdater.package_handler import PackageHandler
 from pyupdater.uploader import Uploader
-from pyupdater.utils.config import ConfigDict
-from pyupdater.utils.storage import Storage
+from pyupdater.utils.config import Config
 
 
 class PyUpdater(object):
@@ -33,8 +32,7 @@ class PyUpdater(object):
             config (obj): config object
     """
     def __init__(self, config=None):
-        self.config = ConfigDict()
-        self.db = Storage()
+        self.config = Config()
         # Important to keep this before updating config
         if config is not None:
             self.update_config(config)

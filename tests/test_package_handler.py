@@ -24,7 +24,7 @@ import pytest
 from pyupdater import settings
 from pyupdater.package_handler import PackageHandler
 from pyupdater.package_handler.package import Patch, Package
-from pyupdater.utils.config import ConfigDict
+from pyupdater.utils.config import Config
 from pyupdater.utils.exceptions import PackageHandlerError
 from tconfig import TConfig
 
@@ -40,7 +40,7 @@ class TestUtils(object):
         data_dir = os.getcwd()
         t_config = TConfig()
         t_config.DATA_DIR = data_dir
-        config = ConfigDict()
+        config = Config()
         config.from_object(t_config)
         p = PackageHandler(config)
         assert p.files_dir == os.path.join(data_dir, s_dir, 'files')
@@ -51,7 +51,7 @@ class TestUtils(object):
         t_config = TConfig()
         t_config.DATA_DIR = data_dir
         t_config.UPDATE_PATCHES = False
-        config = ConfigDict()
+        config = Config()
         config.from_object(t_config)
         p = PackageHandler(config)
         p.process_packages()
@@ -65,7 +65,7 @@ class TestExecution(object):
         t_config = TConfig()
         t_config.DATA_DIR = data_dir
         t_config.UPDATE_PATCHES = False
-        config = ConfigDict()
+        config = Config()
         config.from_object(t_config)
         p = PackageHandler(config)
         p.process_packages()

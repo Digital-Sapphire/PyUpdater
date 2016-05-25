@@ -19,7 +19,7 @@ import pytest
 from jms_utils.system import get_system
 
 from pyupdater import PyUpdater
-from pyupdater.utils.config import ConfigDict
+from pyupdater.utils.config import Config
 from tconfig import TConfig
 
 
@@ -40,7 +40,7 @@ class TestUtils(object):
     def test_dev_dir_none(self):
         myconfig = TConfig()
         myconfig.APP_NAME = None
-        updater = ConfigDict()
+        updater = Config()
         updater.from_object(myconfig)
         assert updater['APP_NAME'] == 'PyUpdater App'
 

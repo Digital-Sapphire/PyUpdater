@@ -36,11 +36,12 @@ from pyupdater.utils import (check_repo,
                              initial_setup,
                              get_http_pool,
                              PluginManager,
+                             setup_client_config_path,
                              setup_company,
                              setup_urls,
                              setup_patches,
                              setup_plugin)
-from pyupdater.utils.config import ConfigDict, Loader
+from pyupdater.utils.config import Config, Loader
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
 
@@ -142,7 +143,7 @@ def _clean():
 def init():  # pragma: no cover
     if not os.path.exists(os.path.join(settings.CONFIG_DATA_FOLDER,
                           settings.CONFIG_FILE_USER)):
-        config = ConfigDict()
+        config = Config()
         config = initial_setup(config)
         log.info('Creating pyu-data dir...')
         pyu = PyUpdater(config)
@@ -237,6 +238,8 @@ def _setting(args):  # pragma: no cover
 
     loader = Loader()
     config = loader.load_config()
+    if args.config_path is True:
+        setup_client_config_path(config)
     if args.company is True:
         setup_company(config)
     if args.urls is True:

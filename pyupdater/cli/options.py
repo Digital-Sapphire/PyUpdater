@@ -159,6 +159,10 @@ def add_plugin_parser(subparsers):
 def add_settings_parser(subparsers):
     settings_parser = subparsers.add_parser('settings', help='Updated '
                                             'config settings')
+    settings_parser.add_argument('--config-path',
+                                 help='Path to place your client config. '
+                                 'You\'ll need to import this file to ini'
+                                 'tialize the update process.')
     settings_parser.add_argument('--company',
                                  help='Change company name',
                                  action='store_true')
