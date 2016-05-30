@@ -159,6 +159,7 @@ usage: pyupdater settings [-h] [--company] [--urls] [--patches] [--scp] [--s3]
 
 optional arguments:
   -h, --help  show this help message and exit
+  --config-path Path to place your client
   --company   Change company name
   --urls      Change update urls
   --patches   Changed patch support

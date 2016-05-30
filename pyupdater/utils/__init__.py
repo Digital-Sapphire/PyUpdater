@@ -394,7 +394,6 @@ def setup_company(config):  # pragma: no cover
 
 def setup_client_config_path(config): # pragma: no cover
     _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
-
     question = ("Please enter the path to where pyupdater "
                 "will write the client_config.py file. "
                 "You'll need to import this file to "
@@ -405,13 +404,12 @@ def setup_client_config_path(config): # pragma: no cover
                                                    default=_default_dir)
 
     if answer == _default_dir:
-        answer = config.CLIENT_CONFIG_PATH
+        config.CLIENT_CONFIG_PATH = settings.DEFAULT_CLIENT_CONFIG
     else:
         answer = answer.split(os.sep)
-        answer.append(config.CLIENT_CONFIG_PATH)
+        answer.append(settings.DEFAULT_CLIENT_CONFIG[0])
 
-
-    config.CLIENT_CONFIG_PATH = answer
+        config.CLIENT_CONFIG_PATH = answer
 
 
 def setup_urls(config):  # pragma: no cover
