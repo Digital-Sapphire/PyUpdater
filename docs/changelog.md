@@ -4,15 +4,18 @@
 ####* This version is not yet released and is under active development.
 ####Breaking changes
 * Upload plugin system
-* Version file the client downloads during update checks.
+* Version manifest file the client downloads during update checks.
 
 #####Added
 
   - CLI
     - Configure where client_config.py is written
-    - list plugins
-    - update plugin settings
+    - Plugins
+      -list plugins
+      - update plugin settings
+      - show plugin settings
     - Verbose: Show why packages were not processed
+    - Keep files after upload
 
 #####Updated
 

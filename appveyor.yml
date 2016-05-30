@@ -17,7 +17,7 @@ environment:
     - JOB: "2.7 32-bit"
       TOXENV: "py27"
       PYTHON: "C:\\Python27.10"
-      PYTHON_VERSION: "2.7.10"
+      PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
 
     - JOB: "3.3 32-bit"
@@ -30,6 +30,12 @@ environment:
       TOXENV: "py34"
       PYTHON: "C:\\Python34"
       PYTHON_VERSION: "3.4"
+      PYTHON_ARCH: "32"
+
+    - JOB: "3.5 32-bit"
+      TOXENV: "py35"
+      PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
 
 cache:

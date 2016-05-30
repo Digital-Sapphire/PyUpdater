@@ -2,13 +2,15 @@
 CLS
 ECHO 1. Clean
 ECHO 2. Install Dev Dependencies
-ECHO 3. Make Docs
+ECHO 3. Run Tests
+ECHO 4. Generate docs
 ECHO.
 
-CHOICE /C 123 /M "Enter your choice:"
+CHOICE /C 1234 /M "Enter your choice:"
 
 :: Note - list ERRORLEVELS in decreasing order
-IF ERRORLEVEL 3 GOTO Docs
+IF ERRORLEVEL 4 GOTO Docs
+IF ERRORLEVEL 3 GOTO TEST
 IF ERRORLEVEL 2 GOTO Install
 IF ERRORLEVEL 1 GOTO Clean
 

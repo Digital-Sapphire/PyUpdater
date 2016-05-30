@@ -118,13 +118,13 @@ class FileDownloader(object):
             return None
 
     @staticmethod
-    def _best_block_size(elapsed_time, bytes):
+    def _best_block_size(elapsed_time, _bytes):
         # Returns best block size for current Internet connection speed
-        new_min = max(bytes / 2.0, 1.0)
-        new_max = min(max(bytes * 2.0, 1.0), 4194304)  # Do not surpass 4 MB
+        new_min = max(_bytes / 2.0, 1.0)
+        new_max = min(max(_bytes * 2.0, 1.0), 4194304)  # Do not surpass 4 MB
         if elapsed_time < 0.001:
             return int(new_max)
-        rate = bytes / elapsed_time
+        rate = _bytes / elapsed_time
         if rate > new_max:
             return int(new_max)
         if rate < new_min:
@@ -210,14 +210,14 @@ class FileDownloader(object):
                 # Have to catch url with spaces
                 if data.status == 505:
                     raise urllib3.exceptions.HTTPError
+            except urllib3.exceptions.SSLError:
+                log.error('SSL cert not verified')
+                data = ''
             except urllib3.exceptions.HTTPError:
                 log.debug('There may be spaces in an S3 url...')
                 file_url = file_url.replace(' ', '+')
                 log.debug('S3 updated url %s', file_url)
                 data = None
-            except urllib3.exceptions.SSLError:
-                log.error('SSL cert not verified')
-                data = ''
             except Exception as e:
                 # Catch whatever else comes up and log it
                 # to help fix other http related issues

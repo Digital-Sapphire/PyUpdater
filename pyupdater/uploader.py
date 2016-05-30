@@ -42,6 +42,8 @@ class Uploader(object):
             obj (instance): config object
     """
     def __init__(self, config=None):
+        # Specifies whether to keep a file after uploading
+        self.keep = False
         if config:
             self.init(config)
 
@@ -64,7 +66,7 @@ class Uploader(object):
     def get_plugin_names(self):
         return self.mgr.get_plugin_names()
 
-    def set_uploader(self, requested_uploader):
+    def set_uploader(self, requested_uploader, keep=False):
         """Returns an uploader object. 1 of S3, SCP, SFTP.
         SFTP uploaders not supported at this time.
 
@@ -76,6 +78,7 @@ class Uploader(object):
 
             object (instance): Uploader object
         """
+        self.keep = keep
         if isinstance(requested_uploader, six.string_types) is False:
             raise UploaderError('Must pass str to set_uploader',
                                 expected=True)
@@ -116,7 +119,8 @@ class Uploader(object):
 
             if complete:
                 log.debug('%s uploaded successfully', basename)
-                remove_any(f)
+                if self.keep is False:
+                    remove_any(f)
                 self.files_completed += 1
             else:
                 log.debug('%s failed to upload.  will retry', basename)
@@ -147,6 +151,8 @@ class Uploader(object):
             complete = self.uploader.upload_file(f)
             if complete:
                 log.debug('%s uploaded on retry', f)
+                if self.keep is False:
+                    remove_any(f)
                 count += 1
             else:
                 failed_uploads.append(f)
@@ -158,7 +164,7 @@ class AbstractBaseUploaderMeta(type):
 
     def __call__(cls, *args, **kwargs):
         obj = type.__call__(cls, *args, **kwargs)
-        obj.check_attributes()
+        obj._check_attributes()
         return obj
 
 
@@ -169,7 +175,7 @@ class BaseUploader(object):
     """Base Uploader.  All uploaders should subclass
     this base class
     """
-    def check_attributes(self):
+    def _check_attributes(self):
         if self.name is None or self.author is None:
             raise NotImplementedError
 
@@ -183,7 +189,8 @@ class BaseUploader(object):
 
             config (dict): config dict for plugin
         """
-        raise NotImplementedError('Must be implemented in subclass.')
+        raise NotImplementedError('{} by {} must implemented in '
+                                  'subclass.'.format(self.name, self.author))
 
     def set_config(self, config):
         """Used to ask user questions and return config
@@ -195,7 +202,8 @@ class BaseUploader(object):
                             already set values
 
         """
-        raise NotImplementedError('Must be implemented in a subclass.')
+        raise NotImplementedError('{} by {} must implemented in '
+                                  'subclass.'.format(self.name, self.author))
 
     def upload_file(self, filename):
         """Uploads file to remote repository
@@ -210,4 +218,5 @@ class BaseUploader(object):
 
                 False - Upload Failed
         """
-        raise NotImplementedError('Must be implemented in subclass.')
+        raise NotImplementedError('{} by {} must implemented in '
+                                  'subclass.'.format(self.name, self.author))

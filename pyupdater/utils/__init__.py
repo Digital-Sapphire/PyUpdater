@@ -234,9 +234,27 @@ class PluginManager(object):
         return plugin_info
 
     # Init is false by default. Used when you want
-    # to get a plugin with initialization
+    # to get a plugin without initialization
     def get_plugin(self, name, init=False):
         "Returns the named plugin"
+        plugin = self._get_plugin(name)
+        if plugin is not None and init is True:
+            config = self._get_plugin_config(plugin)
+            plugin.init_config(config)
+
+        return plugin
+
+    def get_plugin_settings(self, name):
+        plugin = self._get_plugin(name)
+        config = self._get_plugin_config(plugin)
+        return config
+
+    def _get_plugin_config(self, plugin):
+        config_key = '{}-{}'.format(plugin.name.lower(),
+                                    plugin.author)
+        return self.configs.get(config_key, {})
+
+    def _get_plugin(self, name):
         plugin = None
         name = name.lower()
         for p in self.plugins:
@@ -245,12 +263,17 @@ class PluginManager(object):
             if name == p['name'].lower():
                 plugin = p['plugin']
                 break
-        if plugin is not None and init is True:
-            config_key = '{}-{}'.format(p['name'].lower(), p['author'])
-            config = self.configs.get(config_key, {})
-            plugin.init_config(config)
-
         return plugin
+
+
+def print_plugin_settings(plugin_name, config):
+    pm = PluginManager(config)
+    config = pm.get_plugin_settings(plugin_name)
+    if len(config.keys()) == 0:
+        print('No config found for {}'.format(plugin_name))
+    else:
+        print(plugin_name)
+        print(config)
 
 
 def get_http_pool(secure=True):
