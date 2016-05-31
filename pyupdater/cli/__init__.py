@@ -36,6 +36,7 @@ from pyupdater.utils import (check_repo,
                              initial_setup,
                              get_http_pool,
                              PluginManager,
+                             print_plugin_settings,
                              setup_client_config_path,
                              setup_company,
                              setup_urls,
@@ -235,21 +236,30 @@ def _setting(args):  # pragma: no cover
     check = check_repo()
     if check is False:
         _repo_error()
-
+    # Used to specifiy if config needs to be saved
+    save_config = False
     loader = Loader()
     config = loader.load_config()
     if args.config_path is True:
+        save_config = True
         setup_client_config_path(config)
     if args.company is True:
+        save_config = True
         setup_company(config)
     if args.urls is True:
+        save_config = True
         setup_urls(config)
     if args.patches is True:
+        save_config = True
         setup_patches(config)
     if args.plugin is not None:
+        save_config = True
         setup_plugin(args.plugin, config)
-    loader.save_config(config)
-    log.info('Settings update complete')
+    if args.show_plugin is not None:
+        print_plugin_settings(args.show_plugin, config)
+    if save_config is True:
+        loader.save_config(config)
+        log.info('Settings update complete')
 
 
 def upload_debug_info():  # pragma: no cover
@@ -294,7 +304,7 @@ def upload_debug_info():  # pragma: no cover
         log.error('Could not upload debug info to github')
     else:
         log.info('Log export complete')
-        log.info('Logs uploaded to {}'.format(url))
+        log.info('Logs uploaded to %s', url)
 
 
 def plugins(args):
@@ -322,7 +332,7 @@ def upload(args):  # pragma: no cover
     if error is False:
         pyu = PyUpdater(loader.load_config())
         try:
-            pyu.set_uploader(upload_service)
+            pyu.set_uploader(upload_service, args.keep)
         except UploaderError as err:
             log.error(err)
             error = True

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # --------------------------------------------------------------------------
+from __future__ import unicode_literals
 import os
 
 import pytest
@@ -36,13 +37,6 @@ else:
 
 @pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
 class TestUtils(object):
-
-    def test_dev_dir_none(self):
-        myconfig = TConfig()
-        myconfig.APP_NAME = None
-        updater = Config()
-        updater.from_object(myconfig)
-        assert updater['APP_NAME'] == 'PyUpdater App'
 
     def test_setup(self):
         data_dir = os.getcwd()

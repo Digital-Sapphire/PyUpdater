@@ -52,7 +52,7 @@ def cleanup_old_archives(filename=None, directory=None):
         log.warning('Cleanup Failed - Cannot parse package info.')
         return
 
-    if package_info.info['status'] == False:
+    if package_info.info['status'] is False:
         log.debug('Not an archive format: %s', package_info.name)
         return
 

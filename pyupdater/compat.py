@@ -18,8 +18,9 @@ is_pyi30 = pyi_version == '3.0'
 
 
 def pyi_makespec(pyi_args):  # pragma: no cover
-
+    """Wrapper to configure make_spec for multipule pyinstaller versions"""
     def run_makespec(args, opts=None):
+        """Setup args & run make_spec command"""
         if is_pyi30:
             # Split pathex by using the path separator
             temppaths = opts.pathex[:]

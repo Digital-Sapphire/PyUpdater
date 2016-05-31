@@ -10,10 +10,6 @@ certifi
 https://github.com/certifi/python-certifi/blob/master/LICENSE
 
 
-crytpograhpy
-https://github.com/pyca/cryptography/blob/master/LICENSE
-
-
 ed25519
 https://github.com/warner/python-ed25519/blob/master/LICENSE
 
@@ -24,11 +20,6 @@ https://github.com/cloudmatrix/esky/blob/master/LICENSE.txt
 
 Pyinstaller
 https://github.com/pyinstaller/pyinstaller/blob/develop/COPYING.txt
-
-
-requests
-https://github.com/kennethreitz/requests/blob/master/LICENSE
-
 
 six
 https://bitbucket.org/gutworth/six/src/986089f3d04e468458cc9f5b9b3be26fb3d75ade/LICENSE?at=default

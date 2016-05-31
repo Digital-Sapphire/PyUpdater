@@ -164,7 +164,7 @@ class Builder(object):  # pragma: no cover
             Version(args.app_version)
         except Exception as err:
             log.debug(err, exc_info=True)
-            log.error('Version format incorrect: {}'.format(args.app_version))
+            log.error('Version format incorrect: %s', args.app_version)
             log.error("""Valid version numbers: 0.10.0, 1.1b, 1.2.1a3
 
         Visit url for more info:

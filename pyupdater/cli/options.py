@@ -171,12 +171,16 @@ def add_settings_parser(subparsers):
                                  action='store_true')
     settings_parser.add_argument('--patches', help='Changed patch support',
                                  action='store_true')
-    settings_parser.add_argument('--plugin', help='Change named plugin\'s '
+    settings_parser.add_argument('--plugin', help='Change the named plugin\'s '
                                  'settings', dest='plugin')
+    settings_parser.add_argument('--show-plugin', help='Show the name '
+                                 'plugin\'s settings', dest='show_plugin')
 
 
 def add_upload_parser(subparsers):
     upload_parser = subparsers.add_parser('upload', help='Uploads files')
+    upload_parser.add_argument('--keep', help='Keep files after upload',
+                               action='store_true')
     upload_parser.add_argument('-s', '--service', help='The plugin for '
                                'uploads', dest='service')
 
