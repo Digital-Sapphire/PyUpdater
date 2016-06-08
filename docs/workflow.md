@@ -58,9 +58,9 @@ if app_update is not None:
 # It's also possible to update an external library, file or anything else needed by your application.
 if lib_update is not None:
     downloaded = lib_update.download()
-        if downloaded is True:
-            # The path to the archive.
-            lib_update.abspath
+    if downloaded is True:
+        # The path to the archive.
+        lib_update.abspath
 
 ```
 
