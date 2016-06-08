@@ -67,14 +67,14 @@ class PyUpdater(object):
         """
         self.ph.process_packages(report_errors)
 
-    def set_uploader(self, requested_uploader):
+    def set_uploader(self, requested_uploader, keep=False):
         """Sets upload destination
 
         Args:
 
             requested_uploader (str): upload service. i.e. s3, scp
         """
-        self.up.set_uploader(requested_uploader)
+        self.up.set_uploader(requested_uploader, keep)
 
     def upload(self):
         "Uploads files in deploy folder"
