@@ -41,7 +41,7 @@ def pyi_makespec(pyi_args):  # pragma: no cover
                 args.pathex.extend(p.split(os.pathsep))
 
             # Fix for issue #4 - Not searching cwd for modules
-            opts.pathex.insert(0, os.getcwd())
+            args.pathex.insert(0, os.getcwd())
 
             spec_file = _pyi_makespec.main(args.scriptname, **vars(args))
         log.info('wrote %s', spec_file)
