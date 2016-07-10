@@ -2,13 +2,10 @@ clean:
 	python dev/clean.py
 
 deps:
-	pip install -r requirements.txt
+	pip install -r requirements.txt --upgrade
 
 deps-dev: deps-upgrade
 	pip install -r dev/requirements.txt --upgrade
-
-deps-upgrade:
-	pip install -r requirements.txt --upgrade
 
 deploy: clean docs-deploy pypi
 	git push --tags

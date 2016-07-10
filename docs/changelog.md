@@ -39,6 +39,7 @@
 
   - Status Badges
   - Patch updates
+  - Including libraries in current directory
 
 #####Removed
 
