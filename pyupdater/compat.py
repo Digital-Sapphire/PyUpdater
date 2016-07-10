@@ -1,7 +1,11 @@
 import argparse
 import logging
 import os
-import optparse
+# Optpare is deprecated
+try:
+    import optparse
+except ImportError:
+    optparse = None
 
 try:
     from PyInstaller import __version__ as pyi_version
@@ -48,6 +52,10 @@ def pyi_makespec(pyi_args):  # pragma: no cover
 
 
     if is_pyi30:
+        # We will exit with an error message in builder.py
+        if optparse is None:
+            log.debug('optparse is not available in this python distribution')
+            return False
         parser = optparse.OptionParser(usage=('%prog [opts] <scriptname> [ '
                                               '<scriptname> ...] | <specfil'
                                               'e>'))
@@ -75,3 +83,5 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         _pyi_log.__process_options(parser, args)
 
         run_makespec(args)
+
+    return True
