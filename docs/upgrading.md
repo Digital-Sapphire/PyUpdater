@@ -1,7 +1,14 @@
 #Upgrading
 #####Note: Major version will maintain compatibility.
 
-##To Version 2.0
+##To PyUpdater >= 2.0.3
+Deprecated since bsdiff4 is installed by default.
+
+```
+    $ pip install pyupdater[patch]
+```
+
+##To PyUpdater >= 2.0
 ###Coming from PyUpdater >= 1.1
 1. Run the command below
 

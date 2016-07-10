@@ -1,10 +1,27 @@
 # Changelog
 
-## v2.0.3
+## v2.0.4 - Master
 ####* This version is not yet released and is under active development.
 
 
-## v2.0.2
+## v2.0.3 - 2016/07/09
+
+####Added
+
+  - PyUpdater-SCP-plugin to pyupdater[all] install
+
+####Updated
+
+  - Install bsdiff by default
+  - Lib
+    - PyUpdater-SCP-plugin >= 3.0.5
+
+####Fixed
+
+  - User message when setting config directory
+
+
+## v2.0.2 - 2016/07/09
 
 ####Updated
 

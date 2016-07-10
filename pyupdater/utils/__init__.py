@@ -421,7 +421,7 @@ def setup_client_config_path(config): # pragma: no cover
                 "will write the client_config.py file. "
                 "You'll need to import this file to "
                 "initialize the update process. \nExamples:\n\n"
-                "lib/utils, src/lib, src. Leave blank to use "
+                "lib/utils, src/lib, src. \n\nLeave blank to use "
                 "the current directory")
     answer = jms_utils.terminal.get_correct_answer(question,
                                                    default=_default_dir)
