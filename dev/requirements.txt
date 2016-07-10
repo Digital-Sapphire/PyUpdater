@@ -3,6 +3,7 @@ coverage
 line_profiler == 1.0
 memory_profiler
 mkdocs == 0.15.3
+mkdocs-material
 pytest
 pytest-circleci
 pytest-cov
