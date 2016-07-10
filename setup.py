@@ -21,9 +21,11 @@ import versioneer
 with open(u'requirements.txt', u'r') as f:
     required = f.read().splitlines()
 
-extra_s3 = 'PyUpdater-s3-Plugin >= 3.0.6'
-extra_scp = 'PyUpdater-scp-Plugin >= 3.0.2'
+# ToDo: Remove in PyUpdater 3.0
 extra_patch = 'bsdiff4 == 1.1.4'
+# End ToDo
+extra_s3 = 'PyUpdater-s3-Plugin >= 3.0.6'
+extra_scp = 'PyUpdater-scp-Plugin >= 3.0.5'
 
 setup(
     name='PyUpdater',
@@ -38,12 +40,14 @@ setup(
     extras_require={
         's3': extra_s3,
         'scp': extra_scp,
+        # ToDo: Remove in PyUpdater 3.0
         'patch': extra_patch,
-        'all': [extra_s3, extra_patch]
+        # End ToDo
+        'all': [extra_s3, extra_scp]
         },
     zip_safe=False,
     include_package_data=True,
-    tests_require=['pytest', extra_patch],
+    tests_require=['pytest'],
     cmdclass=versioneer.get_cmdclass(),
     install_requires=required,
     packages=find_packages(),
