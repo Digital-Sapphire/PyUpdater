@@ -14,6 +14,7 @@ from PyInstaller import log as _pyi_log
 
 log = logging.getLogger(__name__)
 
+# PyInstaller versions 3.0 & prior used optparse
 is_pyi30 = pyi_version == '3.0'
 
 
@@ -27,6 +28,10 @@ def pyi_makespec(pyi_args):  # pragma: no cover
             opts.pathex = []
             for p in temppaths:
                 opts.pathex.extend(p.split(os.pathsep))
+
+            # Fix for issue #4 - Not searching cwd for modules
+            opts.pathex.insert(0, os.getcwd())
+
             spec_file = _pyi_makespec.main(args, **opts.__dict__)
         else:
             # Split pathex by using the path separator
@@ -34,6 +39,9 @@ def pyi_makespec(pyi_args):  # pragma: no cover
             args.pathex = []
             for p in temppaths:
                 args.pathex.extend(p.split(os.pathsep))
+
+            # Fix for issue #4 - Not searching cwd for modules
+            opts.pathex.insert(0, os.getcwd())
 
             spec_file = _pyi_makespec.main(args.scriptname, **vars(args))
         log.info('wrote %s', spec_file)
