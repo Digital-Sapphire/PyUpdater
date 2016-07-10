@@ -31,7 +31,7 @@ setup(
     description='Simple App update framwork',
     author='Johny Mo Swag',
     author_email='johnymoswag@gmail.com',
-    url='docs.pyupdater.org',
+    url='http://www.pyupdater.org',
     download_url=('https://github.com/JMSwag/Py'
                   'Updater/archive/master.zip'),
     license='Apache License 2.0',

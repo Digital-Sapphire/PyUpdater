@@ -1,7 +1,14 @@
 # Changelog
 
-## v2.0.1 - Master
+## v2.0.2
 ####* This version is not yet released and is under active development.
+
+
+## v2.0.1 - 2016/07/09
+
+## Fixed
+
+  - Deploy to pypi
 
 
 ## v2.0 - 2016/07/09
