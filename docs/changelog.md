@@ -1,12 +1,24 @@
 # Changelog
 
-## v2.0.2
+## v2.0.3
 ####* This version is not yet released and is under active development.
+
+
+## v2.0.2
+
+####Updated
+
+  - Graceful exit when attempting to import a module removed from the stdlib
+
+####Fixed
+
+  - Website
+    - Changelog submenu
 
 
 ## v2.0.1 - 2016/07/09
 
-## Fixed
+####Fixed
 
   - Deploy to pypi
 

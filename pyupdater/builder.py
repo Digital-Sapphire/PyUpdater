@@ -156,7 +156,10 @@ class Builder(object):  # pragma: no cover
         spec_args.append(app_info['name'])
 
         log.debug('Make spec cmd: %s', ' '.join([c for c in spec_args]))
-        pyi_makespec(spec_args)
+        success = pyi_makespec(spec_args)
+        if success is False:
+            log.error('PyInstaller > 3.0 needed for this python installation.')
+            sys.exit(1)
 
     # Actually creates executable from spec file
     def _build(self, args, spec_file_path):
