@@ -1,10 +1,16 @@
 # Changelog
 
-## v2.0 - Master
+## v2.0.1 - Master
 ####* This version is not yet released and is under active development.
-####Breaking changes
-* Upload plugin system
-* Version manifest file the client downloads during update checks.
+
+
+## v2.0 - 2016/07/09
+####Backwards incompatible changes
+
+  - Upload plugin system
+    - See "Create Upload Plugins" in docs
+  - Version manifest file the client downloads during update checks.
+    - See "Upgrading PyUpdater" in docs
 
 #####Added
 
