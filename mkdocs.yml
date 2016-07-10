@@ -15,6 +15,12 @@ pages:
     - License: license.md
 - Change Log: changelog.md
 
-theme: journal
+theme: 'material'
+repo_name: 'GitHub'
+repo_url: 'https://github.com/JMSwag/PyUpdater'
+extra:
+  palette:
+    primary: 'blue'
+    accent: 'light blue'
 
 dev_addr: 0.0.0.0:8080
