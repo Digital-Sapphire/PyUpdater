@@ -9,7 +9,7 @@ deps-dev: deps-upgrade
 
 deploy: clean docs-deploy pypi
 	git push --tags
-	twine upload dist/*
+	twine upload -r pypi dist/*
 	python dev/clean.py
 
 docs-deploy:
