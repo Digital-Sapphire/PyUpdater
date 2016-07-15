@@ -2,9 +2,11 @@
 doc-warnings: yes
 max-line-length: 80
 ignore-paths:
-    - demos
-    - dev
-    - docs
+    - demos/
+    - dev/
+    - docs/
+    - pyupdater/_version.py
+    - versioneer.py
 python-targets:
     - 2
     - 3

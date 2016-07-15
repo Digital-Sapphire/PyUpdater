@@ -324,7 +324,8 @@ class LibUpdate(object):
         with jms_utils.paths.ChDir(self.update_folder):
             log.info('Downloading update...')
             fd = FileDownloader(filename, self.update_urls,
-                                file_hash, self.verify, self.progress_hooks)
+                                hexdigest=file_hash, verify=self.verify,
+                                progress_hooks=self.progress_hooks)
             result = fd.download_verify_write()
             if result:
                 log.info('Download Complete')

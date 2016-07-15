@@ -164,7 +164,10 @@ class AbstractBaseUploaderMeta(type):
 
     def __call__(cls, *args, **kwargs):
         obj = type.__call__(cls, *args, **kwargs)
-        obj._check_attributes()
+        # We are using this meta class to ensure plugin authors have
+        # a plugin name & author name as class attributes.
+        obj._check_attributes()  # noqa
+        # End ignore
         return obj
 
 

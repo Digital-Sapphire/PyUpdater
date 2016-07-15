@@ -18,32 +18,33 @@ from __future__ import unicode_literals
 import pytest
 
 from pyupdater.client.downloader import FileDownloader
+from pyupdater.utils.exceptions import FileDownloaderError
 
 
 FILENAME = 'dont+delete+pyu+test.txt'
 FILENAME_WITH_SPACES = 'dont delete pyu test.txt'
 FILE_HASH = '82719546b992ef81f4544fb2690c6a05b300a0216eeaa8f3616b3b107a311629'
-URL = 'https://pyu-tester.s3.amazonaws.com/'
+URLS = ['https://pyu-tester.s3.amazonaws.com/']
 
 
 @pytest.mark.usefixtue("cleandir")
 class TestData(object):
 
     def test_return(self):
-        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=True)
+        fd = FileDownloader(FILENAME, URLS, FILE_HASH, verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
     def test_cb(self):
         def cb(status):
             pass
-        fd = FileDownloader(FILENAME, URL, FILE_HASH,
+        fd = FileDownloader(FILENAME, URLS, hexdigest=FILE_HASH,
                             progress_hooks=[cb], verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
     def test_return_fail(self):
-        fd = FileDownloader(FILENAME, URL,
+        fd = FileDownloader(FILENAME, URLS,
                             'JKFEIFJILEFJ983NKFNKL', verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is None
@@ -52,15 +53,20 @@ class TestData(object):
 @pytest.mark.usefixtue("cleandir")
 class TestUrl(object):
     def test_url_with_spaces(self):
-        fd = FileDownloader(FILENAME_WITH_SPACES, URL,
-                            FILE_HASH, verify=True)
+        fd = FileDownloader(FILENAME_WITH_SPACES, URLS,
+                            hexdigest=FILE_HASH, verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
     def test_bad_url(self):
-        fd = FileDownloader(FILENAME, 'bad url', 'bad hash', verify=True)
+        fd = FileDownloader(FILENAME, ['bad url'], hexdigest='bad hash',
+                            verify=True)
         binary_data = fd.download_verify_return()
         assert binary_data is None
+
+    def test_url_as_string(self):
+        with pytest.raises(FileDownloaderError):
+            fd = FileDownloader(FILENAME, URLS[0])
 
 
 @pytest.mark.usefixtue("cleandir")
@@ -68,11 +74,11 @@ class TestContentLength(object):
     def test_bad_content_length(self):
         class FakeHeaders(object):
             headers = {}
-        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=True)
+        fd = FileDownloader(FILENAME, URLS, hexdigest=FILE_HASH, verify=True)
         data = FakeHeaders()
         assert fd._get_content_length(data) == 100001
 
     def test_good_conent_length(self):
-        fd = FileDownloader(FILENAME, URL, FILE_HASH, verify=True)
+        fd = FileDownloader(FILENAME, URLS, hexdigest=FILE_HASH, verify=True)
         fd.download_verify_return()
         assert fd.content_length == 2387

@@ -4,7 +4,7 @@ clean:
 deps:
 	pip install -r requirements.txt --upgrade
 
-deps-dev: deps-upgrade
+deps-dev:
 	pip install -r dev/requirements.txt --upgrade
 
 deploy: clean docs-deploy pypi

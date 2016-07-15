@@ -307,7 +307,7 @@ def upload_debug_info():  # pragma: no cover
         log.info('Logs uploaded to %s', url)
 
 
-def plugins(args):
+def plugins():
     plug_mgr = PluginManager({})
     names = ['\n']
     for n in plug_mgr.get_plugin_names():
@@ -375,7 +375,7 @@ def _real_main(args):  # pragma: no cover
     elif cmd == 'pkg':
         pkg(args)
     elif cmd == 'plugins':
-        plugins(args)
+        plugins()
     elif cmd == 'settings':
         _setting(args)
     elif cmd == 'upload':
