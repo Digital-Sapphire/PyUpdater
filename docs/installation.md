@@ -11,10 +11,6 @@ So how do you get all that on your computer quickly?
 
     $ pip install PyUpdater
 
-####For patch support
-
-    $ pip install PyUpdater[patch]
-
 
 ####For complete install with aws s3 & scp upload plugins
 

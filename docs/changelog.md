@@ -7,6 +7,10 @@
 
   - FileDownloaderError
 
+####Updated
+
+  - Re-factored PackageHandler
+
 ####Fixed
 
   - Using format string while logging

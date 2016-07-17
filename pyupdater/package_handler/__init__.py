@@ -31,7 +31,7 @@ from jms_utils.crypto import get_package_hashes as gph
 from jms_utils.helpers import EasyAccessDict
 
 from pyupdater import settings
-from pyupdater.package_handler.package import (cleanup_old_archives,
+from pyupdater.package_handler.package import (remove_previous_versions,
                                                Package,
                                                Patch)
 from pyupdater.utils import (get_size_in_bytes as in_bytes,
@@ -114,6 +114,9 @@ class PackageHandler(object):
         """
         if self.data_dir is None:
             raise PackageHandlerError('Must init first.', expected=True)
+        # Getting a list of meta data from all packages in the
+        # pyu-data/new directory. Also create a patch manifest
+        # to create patches.
         pkg_manifest, patch_manifest = self._get_package_list(report_errors)
         patches = self._make_patches(patch_manifest)
         self._cleanup(patch_manifest)
@@ -261,18 +264,17 @@ class PackageHandler(object):
         return data
 
     def _cleanup(self, patch_manifest):
-        # Remove old archives
-        # were previously used to create patches
+        # Remove old archives that were previously used to create patches
         if len(patch_manifest) < 1:
             return
         log.info('Cleaning up files directory')
         for p in patch_manifest:
             filename = os.path.basename(p['src'])
             directory = os.path.dirname(p['src'])
-            cleanup_old_archives(filename, directory)
+            remove_previous_versions(directory, filename)
 
     def _make_patches(self, patch_manifest):
-        pool_output = list()
+        pool_output = []
         if len(patch_manifest) < 1:
             return pool_output
         log.info('Starting patch creation')
@@ -285,21 +287,21 @@ class PackageHandler(object):
                 cpu_count = 2
 
             pool = multiprocessing.Pool(processes=cpu_count)
-            pool_output = pool.map(_make_patch, patch_manifest)
+            pool_output = pool.map(PackageHandler._make_patch,
+                                                        patch_manifest)
         else:
             pool_output = []
             for p in patch_manifest:
-                pool_output.append(_make_patch(p))
+                pool_output.append(PackageHandler._make_patch(p))
         return pool_output
 
     def _add_patches_to_packages(self, package_manifest, patches):
         if patches is not None and len(patches) >= 1:
             log.info('Adding patches to package list')
             for p in patches:
-                # Not adding patch that are not complete
+                # We'll skip if patch meta data is incomplete
                 if hasattr(p, 'ready') is False:
                     continue
-                # Not adding patch that are not complete
                 if hasattr(p, 'ready') and p.ready is False:
                     continue
                 for pm in package_manifest:
@@ -346,33 +348,44 @@ class PackageHandler(object):
             json_data['latest'][package_info.name][package_info.channel] = {}
         return json_data
 
+    def _manifest_to_version_file_compat(self,  package_info):
+        # Checking for patch info. Patch info maybe be none
+        patch_name = package_info.patch_info.get('patch_name')
+        patch_hash = package_info.patch_info.get('patch_hash')
+        patch_size = package_info.patch_info.get('patch_size')
+
+        # Converting info to format compatible for version file
+        info = {'file_hash': package_info.file_hash,
+                    'file_size': package_info.file_size,
+                    'filename': package_info.filename}
+
+        # Adding patch info if available
+        if patch_name and patch_hash:
+            info['patch_name'] = patch_name
+            info['patch_hash'] = patch_hash
+            info['patch_size'] = patch_size
+
+        return info
+
     def _update_version_file(self, json_data, package_manifest):
-        # Updates version file with package meta-data
+        # Adding version metadata from scanned packages to our
+        # version manifest
         log.info('Adding package meta-data to version manifest')
         easy_dict = EasyAccessDict(json_data)
         for p in package_manifest:
-            patch_name = p.patch_info.get('patch_name')
-            patch_hash = p.patch_info.get('patch_hash')
-            patch_size = p.patch_info.get('patch_size')
-
-            # Converting info to format compatible for version file
-            info = {'file_hash': p.file_hash,
-                    'file_size': p.file_size,
-                    'filename': p.filename}
-            if patch_name and patch_hash:
-                info['patch_name'] = patch_name
-                info['patch_hash'] = patch_hash
-                info['patch_size'] = patch_size
+            info = self._manifest_to_version_file_compat(p)
 
             version_key = '{}*{}*{}'.format(settings.UPDATES_KEY,
                                             p.name, p.version)
             version = easy_dict.get(version_key)
             log.debug('Package Info: %s', version)
 
+            # If we cannot get a version number this must be the first version
+            # of its kind.
             if version is None:
                 log.debug('Adding new version to file')
 
-                # First version this package name
+                # First version with this package name
                 json_data[settings.UPDATES_KEY][p.name][p.version] = {}
                 platform_key = '{}*{}*{}*{}'.format(settings.UPDATES_KEY,
                                                     p.name, p.version,
@@ -380,16 +393,14 @@ class PackageHandler(object):
 
                 platform = easy_dict.get(platform_key)
                 if platform is None:
-                    name_ = json_data[settings.UPDATES_KEY][p.name]
-                    name_[p.version][p.platform] = info
+                    _name = json_data[settings.UPDATES_KEY][p.name]
+                    _name[p.version][p.platform] = info
 
             else:
                 # package already present, adding another version to it
                 log.debug('Appending info data to version file')
-                # Used to keep within 80 characters
-                n = p.name
-                v = p.version
-                json_data[settings.UPDATES_KEY][n][v][p.platform] = info
+                _updates = json_data[settings.UPDATES_KEY]
+                _updates[p.name][p.version][p.platform] = info
 
             # Add each package to latests section separated by release channel
             json_data['latest'][p.name][p.channel][p.platform] = p.version
@@ -428,8 +439,7 @@ class PackageHandler(object):
 
     def _check_make_patch(self, json_data, name, platform):
         # Check to see if previous version is available to
-        # make patch updates
-        # Also calculates patch number
+        # make patch updates. Also calculates patch number
         log.debug(json.dumps(json_data['latest'], indent=2))
         log.info('Checking if patch creation is possible')
         if bsdiff4 is None:
@@ -444,7 +454,7 @@ class PackageHandler(object):
             files = remove_dot_files(files)
             # No src files to patch from. Exit quickly
             if len(files) == 0:
-                log.debug('No files in files directory')
+                log.debug('No src file to patch from')
                 return None
             # If latest not available in version file. Exit
             try:
@@ -490,28 +500,28 @@ class PackageHandler(object):
             return src_file_path, num
         return None
 
+    @staticmethod
+    def _make_patch(patch_info):
+        # Does with the name implies. Used with multiprocessing
+        patch = Patch(patch_info)
+        patch_name = patch_info['patch_name']
+        dst_path = patch_info['dst']
+        patch_number = patch_info['patch_num']
+        src_path = patch_info['src']
+        patch_name += '-' + str(patch_number)
+        # Updating with full name - number included
+        patch.patch_name = patch_name
+        if not os.path.exists(src_path):
+            log.warning('Src file does not exist to create patch')
 
-def _make_patch(patch_info):
-    # Does with the name implies. Used with multiprocessing
-    patch = Patch(patch_info)
-    patch_name = patch_info['patch_name']
-    dst_path = patch_info['dst']
-    patch_number = patch_info['patch_num']
-    src_path = patch_info['src']
-    patch_name += '-' + str(patch_number)
-    # Updating with full name - number included
-    patch.patch_name = patch_name
-    if not os.path.exists(src_path):
-        log.warning('Src file does not exist to create patch')
-
-    else:
-        log.debug('Patch source path: %s', src_path)
-        log.debug('Patch destination path: %s', dst_path)
-        if patch.ready is True:
-            log.info('Creating patch... %s', os.path.basename(patch_name))
-            bsdiff4.file_diff(src_path, patch.dst_path, patch.patch_name)
-            base_name = os.path.basename(patch_name)
-            log.info('Done creating patch... %s', base_name)
         else:
-            log.error('Missing patch attr')
-    return patch
+            log.debug('Patch source path: %s', src_path)
+            log.debug('Patch destination path: %s', dst_path)
+            if patch.ready is True:
+                log.info('Creating patch... %s', os.path.basename(patch_name))
+                bsdiff4.file_diff(src_path, patch.dst_path, patch.patch_name)
+                base_name = os.path.basename(patch_name)
+                log.info('Done creating patch... %s', base_name)
+            else:
+                log.error('Missing patch attr')
+        return patch
