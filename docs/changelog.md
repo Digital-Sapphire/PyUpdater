@@ -3,6 +3,13 @@
 ## v2.0.4 - Master
 ####* This version is not yet released and is under active development.
 
+####Added
+
+  - FileDownloaderError
+
+####Fixed
+
+  - Using format string while logging
 
 ## v2.0.3 - 2016/07/09
 

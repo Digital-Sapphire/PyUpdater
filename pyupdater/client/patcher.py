@@ -257,7 +257,7 @@ class Patcher(object):
         for p in self.patch_data:
             # Initialize downloader
             fd = FileDownloader(p['patch_name'], p['patch_urls'],
-                                p['patch_hash'], self.verify)
+                                hexdigest=p['patch_hash'], verify=self.verify)
 
             # Attempt to download resource
             data = fd.download_verify_return()

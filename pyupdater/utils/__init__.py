@@ -219,7 +219,7 @@ class PluginManager(object):
             plugin.set_config(plugin_config)
         except Exception as err:
             log.error('There was an error during configuration '
-                      'of {} crated by {}'.format(plugin.name, plugin.author))
+                      'of %s crated by %s', plugin.name, plugin.author)
             log.error(err)
             log.debug(err, exc_info=True)
 
@@ -632,18 +632,18 @@ def dict_to_str_sanatize(data):
     return new_data
 
 
-def _decode_offt(bytes):
+def _decode_offt(_bytes):
     """Decode an off_t value from a string.
 
     This decodes a signed integer into 8 bytes.  I'd prefer some sort of
     signed vint representation, but this is the format used by bsdiff4.
     """
     if sys.version_info[0] < 3:
-        bytes = map(ord, bytes)
-    x = bytes[7] & 0x7F
+        _bytes = map(ord, _bytes)
+    x = _bytes[7] & 0x7F
     for b in xrange(6, -1, -1):
-        x = x * 256 + bytes[b]
-    if bytes[7] & 0x80:
+        x = x * 256 + _bytes[b]
+    if _bytes[7] & 0x80:
         x = -x
     return x
 

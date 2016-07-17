@@ -22,7 +22,7 @@ import time
 import urllib3
 
 from pyupdater.utils import get_hash, get_http_pool
-
+from pyupdater.utils.exceptions import FileDownloaderError
 log = logging.getLogger(__name__)
 
 
@@ -47,22 +47,36 @@ class FileDownloader(object):
 
             False: Don't verify https connection
     """
-    def __init__(self, filename, urls, hexdigest=None, verify=True,
-                 progress_hooks=None):
-        self.filename = filename
-        if isinstance(urls, list) is False:
-            self.urls = [urls]
-        else:
-            self.urls = urls
-        self.hexdigest = hexdigest
-        self.verify = verify
+    def __init__(self, *args, **kwargs):
+        # We'll append the filename to one of the provided urls
+        # to create the download link
+        try:
+            self.filename = args[0]
+        except IndexError:
+            raise FileDownloaderError('No filename provided', expected=True)
+
+        try:
+            self.urls = args[1]
+        except IndexError:
+            raise FileDownloaderError('No urls provided', expected=True)
+        # User may have accidently passed a string to
+        # the urls para
+        if isinstance(self.urls, list) is False:
+            raise FileDownloaderError('Must pass list of urls', expected=True)
+
+        try:
+            self.hexdigest = args[2]
+        except IndexError:
+            self.hexdigest = kwargs.get('hexdigest')
+
+        self.verify = kwargs.get('verify', True)
+        self.progress_hooks = kwargs.get('progress_hooks', [])
+        # End of user configurable options
         self.b_size = 4096 * 4
         self.file_binary_data = None
         self.my_file = BytesIO()
         self.content_length = None
-        if progress_hooks is None:
-            progress_hooks = []
-        self.progress_hooks = progress_hooks
+
         if self.verify is True:
             self.http_pool = get_http_pool()
         else:
@@ -159,9 +173,6 @@ class FileDownloader(object):
             self.b_size = self._best_block_size(end_block - start_block,
                                                 len(block))
             log.debug('Block size: %s', self.b_size)
-            # Saving data to memory
-            # ToDo: Consider writing file to cache to enable resumable
-            #       downloads
             self.my_file.write(block)
             recieved_data += len(block)
             percent = self._calc_progress_percent(recieved_data,

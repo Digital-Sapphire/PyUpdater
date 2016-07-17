@@ -1,4 +1,3 @@
-asciinema
 coverage
 line_profiler == 1.0
 memory_profiler

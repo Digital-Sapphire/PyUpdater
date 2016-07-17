@@ -1,9 +1,11 @@
 import argparse
 import logging
 import os
-# Optpare is deprecated
+# Optpare is deprecated. This will results in an error for the user.
+# Users have to user PyInstaller > 3.0  or Python version lower
+# then the version which removed optparse from the stdlib.
 try:
-    import optparse
+    import optparse  # noqa
 except ImportError:
     optparse = None
 
@@ -50,7 +52,6 @@ def pyi_makespec(pyi_args):  # pragma: no cover
             spec_file = _pyi_makespec.main(args.scriptname, **vars(args))
         log.info('wrote %s', spec_file)
 
-
     if is_pyi30:
         # We will exit with an error message in builder.py
         if optparse is None:
@@ -59,19 +60,27 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         parser = optparse.OptionParser(usage=('%prog [opts] <scriptname> [ '
                                               '<scriptname> ...] | <specfil'
                                               'e>'))
-        _pyi_makespec.__add_options(parser)
-        _pyi_log.__add_options(parser)
-        _pyi_compat.__add_obsolete_options(parser)
-
+        # We are hacking into pyinstaller here & are aware of the risks
+        # using noqa below so landscape.io will ignore it
+        _pyi_makespec.__add_options(parser)  # noqa
+        _pyi_log.__add_options(parser)  # noqa
+        _pyi_compat.__add_obsolete_options(parser)  # noqa
+        # End hacking
         opts, args = parser.parse_args(pyi_args)
-        _pyi_log.__process_options(parser, opts)
+        # We are hacking into pyinstaller here & are aware of the risks
+        # using noqa below so landscape.io will ignore it
+        _pyi_log.__process_options(parser, opts)  # noqa
+        # End hacking
 
         run_makespec(args, opts)
     else:
         parser = argparse.ArgumentParser()
-        _pyi_makespec.__add_options(parser)
-        _pyi_log.__add_options(parser)
-        _pyi_compat.__add_obsolete_options(parser)
+        # We are hacking into pyinstaller here & are aware of the risks
+        # using noqa below so landscape.io will ignore it
+        _pyi_makespec.__add_options(parser)  # noqa
+        _pyi_log.__add_options(parser)  # noqa
+        _pyi_compat.__add_obsolete_options(parser)  # noqa
+        # End hacking
         parser.add_argument('scriptname', nargs='+')
 
         args = parser.parse_args(pyi_args)
@@ -80,7 +89,10 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         # namespace of the Pyinstaller.log module. logger is used
         # in the Pyinstaller.log.__process_options call
         _pyi_log.init()
-        _pyi_log.__process_options(parser, args)
+        # We are hacking into pyinstaller here & are aware of the risks
+        # using noqa below so landscape.io will ignore it
+        _pyi_log.__process_options(parser, args) # noqa
+        # End hacking
 
         run_makespec(args)
 
