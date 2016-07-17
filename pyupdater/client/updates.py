@@ -21,7 +21,7 @@ from jms_utils.paths import get_mac_dot_app_dir, remove_any
 from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.patcher import Patcher
-from pyupdater.package_handler.package import cleanup_old_archives
+from pyupdater.package_handler.package import remove_previous_versions
 from pyupdater.utils import (get_filename,
                              get_hash,
                              get_highest_version,
@@ -340,7 +340,7 @@ class LibUpdate(object):
         filename = get_filename(self.name, self.version,
                                 self.platform, self.easy_data)
 
-        cleanup_old_archives(filename, self.update_folder)
+        remove_previous_versions(self.update_folder, filename)
 
 
 class AppUpdate(LibUpdate):

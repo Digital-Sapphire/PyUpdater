@@ -28,7 +28,8 @@ from pyupdater.utils.exceptions import UtilsError
 log = logging.getLogger(__name__)
 
 
-def cleanup_old_archives(filename=None, directory=None):
+def remove_previous_versions(directory, filename):
+    "Removes previous version of named file"
     if filename is None:
         log.debug('Cleanup Failed - Filename is None')
         return
@@ -89,6 +90,11 @@ def cleanup_old_archives(filename=None, directory=None):
                 log.debug('Old version: %s', old_version)
                 log.debug('Current version: %s', current_version)
 
+# ToDo: Remove in version 3.0
+def cleanup_old_archives(filename=None, directory=None):
+    "Removes previous version of named file"
+    remove_previous_versions(directory, filename)
+# End Todo
 
 class Patch(object):
     """Holds information for patch file.

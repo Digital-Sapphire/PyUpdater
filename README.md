@@ -33,7 +33,3 @@
 #####or
 
     $ pip install -U PyUpdater[scp]
-
-#####Patch support (for creating diffs of app updates):
-
-    $ pip install -U PyUpdater[patch]
