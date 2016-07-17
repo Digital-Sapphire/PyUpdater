@@ -3,7 +3,7 @@
 
 ##What is PyUpdater?
 
-An update framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
+An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
 
 ## Status
 
