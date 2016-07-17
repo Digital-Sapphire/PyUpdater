@@ -3,7 +3,7 @@
 
 ##What is PyUpdater?
 
-In its simplest form PyUpdater is a collection of utilities, when used together, makes its super simple to add auto-update functionality to your app. Support for patch updates are included out of the box :)
+An update framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
 
 ## Status
 
