@@ -5,11 +5,9 @@
 [![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master)
 
 # PyUpdater
-#####An update framework that enables simple, secure & efficient shipment of app updates.
+#####An update framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
 
-####[Docs](http://docs.pyupdater.com)
-####[Changelog](https://github.com/JMSwag/PyUpdater/blob/master/docs/changelog.md)
-####[License](https://github.com/JMSwag/PyUpdater/blob/master/docs/license.md)
+####[Docs](http://docs.pyupdater.com) - [Changelog](https://github.com/JMSwag/PyUpdater/blob/master/docs/changelog.md) - [License](https://github.com/JMSwag/PyUpdater/blob/master/docs/license.md)
 
 
 ##To Install
