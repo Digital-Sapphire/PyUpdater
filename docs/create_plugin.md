@@ -9,7 +9,7 @@ from pyupdater.uploader import BaseUploader
 class MyUploader(BaseUploader):
 
     name = 'my uploader'
-    author = 'JM'
+    author = 'Jane Doe'
 
     def init_config(config):
         "Pyupdater will call this function when setting the uploader"
@@ -37,7 +37,7 @@ setup(
 ```
 
 ####Plugin Settings
-Plugin authors have 2 ways of getting config information from users. Both ways can be used in tandem. The first would be env var. The second would be requesting information from users by calling self.get_answer('Question'). See the example plugins below.
+Plugin authors have 2 ways of getting config information from users.  The first would be env var. The second would be requesting information from users by calling self.get_answer('Question'). Repo settings override env vars. See the example plugins below.
 
 ####Examples plugins
 #####[S3 Plugin](https://github.com/JMSwag/PyUpdater-S3-Plugin "S3 Plugin")
