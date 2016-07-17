@@ -9,6 +9,7 @@
 
 ####Updated
 
+  - Docs
   - Re-factored PackageHandler
 
 ####Fixed
@@ -197,7 +198,7 @@
   - Creating second keypack for specific app
 
 
-## v1.1.5 - 2015/11/8
+## v1.1.5 - 2015/11/08
 
 #####Updated
 
@@ -206,14 +207,14 @@
     - SCP 2.3
 
 
-## v1.1.4 - 2015/11/5
+## v1.1.4 - 2015/11/05
 
 #####Fixed
 
   - Issue restarting application when located in directories beginning with a period.
 
 
-## v1.1.3 - 2015/11/4
+## v1.1.3 - 2015/11/04
 
 #####Fixed
 

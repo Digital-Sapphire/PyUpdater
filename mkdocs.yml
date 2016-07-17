@@ -1,19 +1,22 @@
 site_name: PyUpdater
+site_url: http://www.pyupdater.org
+site_description: Pyinstaller Auto-Update Framework
+google_analytics: ['UA-80917804-1', 'pyupdater.org']
 pages:
 - Home: index.md
 - User Guide:
     - Installation: installation.md
     - Commands: commands.md
-    - Example Workflow: workflow.md
+    - Workflow: workflow.md
     - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create_plugin.md
-
-- More Info:
+    - Important Notes: important_notes.md
+- Change Log: changelog.md
+- Extras:
     - Folder Layout: folder_structure.md
     - Contributing: contributing.md
     - Downloads: downloads.md
     - License: license.md
-- Change Log: changelog.md
 
 theme: 'material'
 repo_name: 'GitHub'

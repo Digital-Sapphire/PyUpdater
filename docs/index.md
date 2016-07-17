@@ -1,7 +1,7 @@
 #Welcome to PyUpdater
 
 
-####What is PyUpdater?
+##What is PyUpdater?
 
 In its simplest form PyUpdater is a collection of utilities, when used together, makes its super simple to add auto-update functionality to your app. Support for patch updates are included out of the box :)
 
@@ -13,18 +13,7 @@ In its simplest form PyUpdater is a collection of utilities, when used together,
 [![](https://requires.io/github/JMSwag/PyUpdater/requirements.svg?branch=master)](https://requires.io/github/JMSwag/PyUpdater/requirements/?branch=master)
 [![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master)
 
-####A high level break down of the framework consists of 3 parts.
-
-#####Client:
-Is the module you import into your app that provides the update functionality.
-
-#####Core:
-Consists of the KeyHandler, PackageHandler & Uploader. Use at your own risk. It's really not that bad though.
-
-#####CLI:
-Uses core as execution engine. More then likely what you'll be interacting with.
-
-####Features
+##Features
 
 - Easy Setup
 - Secured with EdDSA
@@ -48,3 +37,12 @@ Uses core as execution engine. More then likely what you'll be interacting with.
     - Configs are separated from each other by namespace.
     - Plugins will have config info auto loaded before upload
 - I really feel like I'm missing something else
+
+
+##Demos
+
+Example of using the client within your app can be found in the demos folder.
+
+##Limitations
+
+* No Pyinstaller onedir support

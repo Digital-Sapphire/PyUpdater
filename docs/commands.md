@@ -1,6 +1,6 @@
 #Commands
 
-######* Note: All commands must be ran from root or repository.
+* Note: All commands must be ran from root or repository.
 ###Keys
 ```
 usage: pyupdater keys [-h] [-i] [-c] [-y]
@@ -12,10 +12,11 @@ optional arguments:
   -y, --yes     Will run command without conformation prompt
 ```
 
-#####Description
-######The keys command is used to create & import keypack files. It's advised to create keypacks on an off-line computer. Keypack files contains keys to cryptographically sign meta-data files used by pyupdater. Keys can be created and imported as many times as needed. Usually only needed when dev machine has been compromised.
+Description:
 
-#####Example
+The keys command is used to create & import keypack files. It's advised to create keypacks on an off-line computer. Keypack files contains keys to cryptographically sign meta-data files used by pyupdater. Keys can be created and imported as many times as needed. Usually only needed when dev machine has been compromised.
+
+Example:
 ```
 # Create
 $ pyupdater keys --create
@@ -32,10 +33,11 @@ optional arguments:
   -h, --help            show this help message and exit
 ```
 
-#####Description
-######Initialize a repo for use with PyUpdater. You'll be asked a few question about your application. Once complete a config directory, a data directory & a client_config.py file will be created. It's safe to delete files in the pyu-data directory as needed. Anytime you update your settings a new client_config.py file will be created.
+Description:
 
-#####Example
+Initialize a repo for use with PyUpdater. You'll be asked a few question about your application. Once complete a config directory, a data directory & a client_config.py file will be created. It's safe to delete files in the pyu-data directory as needed. Anytime you update your settings a new client_config.py file will be created.
+
+Example:
 ```
 $ pyupdater init
 ```
@@ -52,10 +54,11 @@ optional arguments:
   -k, --keep            Will not delete executable after archiving
 ```
 
-#####Description
-######The build command wraps pyinstaller to create the final executable. All options are passed to pyinstaller. Once built the executable is archived, in a pyupdater compatible formate, and place in the pyu-data/new directory. If you supply a version number with an alpha or beta tag, when processed this binary will be placed on the respective release channel. Example: 1.0.1beta2
+Description:
 
-#####Example
+The build command wraps pyinstaller to create the final executable. All options are passed to pyinstaller. Once built the executable is archived, in a pyupdater compatible formate, and place in the pyu-data/new directory. If you supply a version number with an alpha or beta tag, when processed this binary will be placed on the respective release channel. Example: 1.0.1beta2
+
+Example:
 ```
 # Build from python script
 $ pyupdater build -F --app-version 1.0 app.py
@@ -77,10 +80,11 @@ optional arguments:
   -k, --keep            Will not delete source file after archiving
 ```
 
-#####Description
-######The archive command archives the file to be updated in a PyUpdater compatible format. The file must be in the new directory.
+Description:
 
-#####Example
+The archive command archives the file to be updated in a PyUpdater compatible format. The file must be in the new directory.
+
+Example:
 ```
 # When you have multiple binaries with the same name even on different platforms.
 $ pyupdater archive --name 'ffmpgeg' --target 'ffmpeg-nix64' --version 2.2.4
@@ -98,10 +102,11 @@ optional arguments:
   -s, -S, --sign     Sign version file
 ```
 
-#####Description
-######The package command is used to process packages, creates patches if possible and process them & update package meta-data. During processing we collect hashes, file size, version & platform info. Once done archives and patches if any are placed in the deploy directory. The sign command, signs the package meta-data, archives the meta-data & places the meta-data archive in the deploy directory.
+Description:
 
-#####Example
+The package command is used to process packages, creates patches if possible and process them & update package meta-data. During processing we collect hashes, file size, version & platform info. Once done archives and patches if any are placed in the deploy directory. The sign command, signs the package meta-data, archives the meta-data & places the meta-data archive in the deploy directory.
+
+Example:
 ```
 # Used to process packages. Usually ran after build or archive command
 $ pyupdater pkg -p
@@ -119,10 +124,11 @@ optional arguments:
   -h, --help        shows this help message and exit
 ```
 
-#####Description
-######The plugins command shows a list of installed plugins & authors name.
+Description:
 
-#####Example
+The plugins command shows a list of installed plugins & authors name.
+
+Example:
 ```
 $ pyupdater plugins
 
@@ -141,10 +147,11 @@ optional arguments:
                         Where updates are stored
 ```
 
-#####Description
-######Will upload all data in the deploy folder to the desired remote location. The uploader has a plugin interface. Check the installation page for links to core plugins. Plugins are activated by installation.
+Description:
 
-#####Example
+Will upload all data in the deploy folder to the desired remote location. The uploader has a plugin interface. Check the installation page for links to core plugins. Plugins are activated by installation.
+
+Example:
 ```
 # Upload to Amazon S3
 $ pyupdater upload --service s3
@@ -166,10 +173,11 @@ optional arguments:
   --plugin    Set/Change settings for named plugin
 ```
 
-#####Description
-######To update repo settings pass each flag you'd like to update.
+Description:
 
-#####Example
+To update repo settings pass each flag you'd like to update.
+
+Example:
 ```
 $ pyupdater settings --company
 ```
@@ -199,10 +207,13 @@ optional arguments:
   -h, --help            show this help message and exit
 ```
 
+Description:
 
-###Demos
-#####Example of using the client within your app can be found in the demos folder.
+Show help information
 
-###Limitations
+Example:
+```
+$ pyupdater -h
 
-#####* No onedir support
+$ pyupdater {command} -h
+```

@@ -1,27 +1,27 @@
 #Work Flow
 
-###Step 1.
+###Step 1 - Create Keypack
 ####Create a keypack on an air-gapped computer for best security. You'll be asked for your applications name. It's important that you use the same name when creating a new keypack for the same application. If you don't your updates will fail.
 ```
 $ pyupdater keys -c
 ```
 
-###Step 2.
+###Step 2 - Copy Keypack
 ####Copy the keypack to the development computer & place in the root of the code repository.
 
-###Step 3.
+###Step 3 - Init Repo
 ####Now we need to initialize the code repository. You'll be asked a few questions about your application then 2 directories & a config file will be created. The first directory is pyu-data which is used when creating archives, creating patches & housing files before upload. The other is a hidden directory for repo configuration.
 ```
 $ pyupdater init
 ```
 
-###Step 4.
+###Step 4 - Import Keypack
 ####It's time to import our keypack. Make sure it's in the root or the code repository. After you've successfully imported the keypack it's safe to delete.
 ```
 $ pyupdater keys -i
 ```
 
-###Step 5.
+###Step 5 - Integrate PyUpdater
 ####Now we need to add a couple of imports & constants to our main script. You'll also see an example of using the client to update the application & it's artifacts. In simple apps I develop I usually place all client initializing, update checking, downloading & restarting in a function named upgrade(). I then call upgrade before the main function.
 ```
 # Imports
@@ -64,7 +64,7 @@ if lib_update is not None:
 
 ```
 
-###Step 6.
+###Step 6 - Build
 ####Now let's build our app. You have two options when building. You can specify a spec file or you main script. PyUpdater will use the name set during repo initialization as the final application name.
 
 #####If you go the spec file route:
@@ -81,19 +81,19 @@ $ pyupdater build --app-version=1.0.0 main.spec
 $ pyupdater build --app-version=1.0.0 main.py
 ```
 
-###Step 7.
+###Step 7 - Create patches
 ####Time to create binary patches if enabled, add sha256 hashes to version manifest & copy files to deploy folder. You can combine --process with --sign.
 ```
 $ pyupdater pkg --process
 ```
 
-###Step 8.
+###Step 8 - Cryptographically Sign
 ####Now lets sign our version manifest file, gzip our version manifest, gzip keyfile & place in the deploy directory. You can combine --sign with --process
 ```
 $ pyupdater pkg --sign
 ```
 
-###Step 9.
+###Step 9 - List Installed Plugins
 ####Get a list of the plugins you have installed. You probably wont have to run this many times :)
 ```
 # You can install the official plugins with
@@ -105,81 +105,14 @@ scp by Digital Sapphire
 
 ```
 
-###Step 10.
+###Step 10 - Configure Plugin
 ####Your plugin may or may not need configuration. If you are not sure then go ahead and check. It won't hurt anything. If nothing happens then the coast is clear. Plugin authors may ask you to set env vars. Please consult their docs. Now off we go.
 ```
 $ pyupdater settings --plugin s3
 ```
 
-###Step 11.
+###Step 11 - Upload
 ####We've made it. Time to upload our updates, patches & metadata. On the first run you will not have any patches. There's no src files yet. It'll happen on the next build.
 ```
 $ pyupdater upload --service s3
-```
-
-###Important Notes & Examples
-#####PyUpdater supports 3 release channels. When creating a build you specifiy the channel with the --app-version flag. Patches are only created for the stable channel. Examples below.
-#####Stable:
-```
-$ pyupdater build --app-version=3.30.1
-$ pyupdater build --app-version=2.1
-$ pyupdater build --app-version=1.0
-```
-
-#####Beta:
-```
-$ pyupdater build --app-version=1.0.1b
-$ pyupdater build --app-version=3.1b2
-$ pyupdater build --app-version=11.3.1beta2
-```
-
-#####Alpha:
-```
-$ pyupdater build --app-version=1.0.1a
-$ pyupdater build --app-version=5.0alpha
-$ pyupdater build --app-version=1.1.1alpha1
-```
-
-####Examples below of specifying channels when checking for updates
-```
-# Requesting updates from the beta channel
-app_update = client.update_check(APP_NAME, APP_VERSION, channel='beta')
-
-# If no channel is specified, stable will be used
-app_update = client.update_check(APP_NAME, APP_VERSION)
-```
-
-####Example of async download
-```
-app_update = client.update_check(APP_NAME, APP_VERSION)
-if app_update:
-    app_update.download(async=True)
-
-# To check the status of the download
-# Returns a boolean
-app_update.is_downloaded()
-```
-
-####Examples of setting one or more callbacks. PyUpdater calls set() on the list of plugins to ensure duplicates are not added.
-```
-# progress hooks get pass a dict with the below keys.
-# total: total file size
-# downloaded: data received so far
-# status: will show either downloading or finished
-# percent_complete: Percentage of file downloaded so far
-# time: Time left to complete download
-def progress(data):
-    print('Time remaining'.format(data['time']))
-
-def log_progress(data):
-    log.debug('Total file size %s', data['total'])
-
-
-# You can initialize the client with a callbacks
-client = Client(ClientConfig(), progress_hooks=[progress, log_progress])
-
-# Or you can add them later.
-client = Client(ClientConfig())
-client.add_progress_hook(log_progress)
-client.add_progress_hook(progress)
 ```
