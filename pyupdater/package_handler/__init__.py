@@ -287,12 +287,12 @@ class PackageHandler(object):
                 cpu_count = 2
 
             pool = multiprocessing.Pool(processes=cpu_count)
-            pool_output = pool.map(PackageHandler._make_patch,
+            pool_output = pool.map(_make_patch,
                                                         patch_manifest)
         else:
             pool_output = []
             for p in patch_manifest:
-                pool_output.append(PackageHandler._make_patch(p))
+                pool_output.append(_make_patch(p))
         return pool_output
 
     def _add_patches_to_packages(self, package_manifest, patches):
@@ -500,28 +500,28 @@ class PackageHandler(object):
             return src_file_path, num
         return None
 
-    @staticmethod
-    def _make_patch(patch_info):
-        # Does with the name implies. Used with multiprocessing
-        patch = Patch(patch_info)
-        patch_name = patch_info['patch_name']
-        dst_path = patch_info['dst']
-        patch_number = patch_info['patch_num']
-        src_path = patch_info['src']
-        patch_name += '-' + str(patch_number)
-        # Updating with full name - number included
-        patch.patch_name = patch_name
-        if not os.path.exists(src_path):
-            log.warning('Src file does not exist to create patch')
 
+def _make_patch(patch_info):
+    # Does with the name implies. Used with multiprocessing
+    patch = Patch(patch_info)
+    patch_name = patch_info['patch_name']
+    dst_path = patch_info['dst']
+    patch_number = patch_info['patch_num']
+    src_path = patch_info['src']
+    patch_name += '-' + str(patch_number)
+    # Updating with full name - number included
+    patch.patch_name = patch_name
+    if not os.path.exists(src_path):
+        log.warning('Src file does not exist to create patch')
+
+    else:
+        log.debug('Patch source path: %s', src_path)
+        log.debug('Patch destination path: %s', dst_path)
+        if patch.ready is True:
+            log.info('Creating patch... %s', os.path.basename(patch_name))
+            bsdiff4.file_diff(src_path, patch.dst_path, patch.patch_name)
+            base_name = os.path.basename(patch_name)
+            log.info('Done creating patch... %s', base_name)
         else:
-            log.debug('Patch source path: %s', src_path)
-            log.debug('Patch destination path: %s', dst_path)
-            if patch.ready is True:
-                log.info('Creating patch... %s', os.path.basename(patch_name))
-                bsdiff4.file_diff(src_path, patch.dst_path, patch.patch_name)
-                base_name = os.path.basename(patch_name)
-                log.info('Done creating patch... %s', base_name)
-            else:
-                log.error('Missing patch attr')
-        return patch
+            log.error('Missing patch attr')
+    return patch
