@@ -5,6 +5,7 @@
 
 ####Added
 
+  - Ability for windows apps to be extracted & overwritten but not restarted
   - FileDownloaderError
 
 ####Updated
