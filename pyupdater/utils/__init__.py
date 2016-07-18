@@ -801,16 +801,41 @@ class Restarter(object):
             log.debug('Restart script dir: %s', self.data_dir)
             log.debug('Update path: %s', self.updated_app)
 
-    def restart(self):
+    def process(self, win_restart=True):
         if self.is_win:
-            self._win_restart()
+            if win_restart is True:
+                self._win_overwrite_restart()
+            else:
+                self._win_overwrite()
         else:
             self._restart()
 
     def _restart(self):
         subprocess.Popen(self.current_app).wait()
 
-    def _win_restart(self):
+    def _win_overwrite(self):
+        bat_file = os.path.join(self.data_dir, 'update.bat')
+        vbs_file = os.path.join(self.data_dir, 'invis.vbs')
+        with io.open(bat_file, 'w', encoding='utf-8') as bat:
+            bat.write("""
+@echo off
+echo Updating to latest version...
+ping 127.0.0.1 -n 5 -w 1000 > NUL
+move /Y "{}" "{}" > NUL
+DEL invis.vbs
+DEL "%~f0"
+""".format(self.updated_app, self.current_app))
+        with io.open(vbs_file, 'w', encoding='utf-8') as vbs:
+            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
+            vbs.write('CreateObject("Wscript.Shell").Run """" '
+                      '& WScript.Arguments(0) & """", 0, False')
+        log.info('Starting update batch file')
+        # os.startfile(bat)
+        args = ['wscript.exe', vbs_file, bat_file]
+        subprocess.Popen(args)
+        sys.exit(0)
+
+    def _win_overwrite_restart(self):
         bat_file = os.path.join(self.data_dir, 'update.bat')
         vbs_file = os.path.join(self.data_dir, 'invis.vbs')
         with io.open(bat_file, 'w', encoding='utf-8') as bat:

@@ -22,11 +22,9 @@ from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.patcher import Patcher
 from pyupdater.package_handler.package import remove_previous_versions
-from pyupdater.utils import (get_filename,
-                             get_hash,
-                             get_highest_version,
-                             lazy_import,
-                             Restarter)
+from pyupdater.utils import (get_filename, get_hash,
+                                                  get_highest_version, lazy_import,
+                                                  Restarter)
 from pyupdater.utils.exceptions import ClientError
 
 
@@ -369,6 +367,18 @@ class AppUpdate(LibUpdate):
             log.error(err)
             log.debug(err, exc_info=True)
 
+    def win_extract_overwrite(self):  # pragma: no cover
+        # Windows: Moves update to current directory of running
+        #          application then restarts application using
+        #          new update.
+        exe_name = self.name + '.exe'
+        current_app = os.path.join(self.current_app_dir, exe_name)
+        updated_app = os.path.join(self.update_folder, exe_name)
+
+        update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
+        r = Restarter(current_app, **update_info)
+        r.process(win_restart=False)
+
     def restart(self):  # pragma: no cover
         """Will overwrite old binary with updated binary and
         restart using the updated binary. Not supported on windows.
@@ -447,4 +457,4 @@ class AppUpdate(LibUpdate):
 
         update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
         r = Restarter(current_app, **update_info)
-        r.restart()
+        r.process()
