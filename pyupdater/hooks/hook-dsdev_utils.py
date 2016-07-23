@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # --------------------------------------------------------------------------
-hiddenimports = [u'jms_utils.app',
-                 u'jms_utils.logger',
-                 u'jms_utils.paths',
-                 u'jms_utils.system',
-                 u'jms_utils.terminal',
+hiddenimports = [u'dsdev_utils.app',
+                 u'dsdev_utils.logger',
+                 u'dsdev_utils.paths',
+                 u'dsdev_utils.system',
+                 u'dsdev_utils.terminal',
                  ]  # pragma: no cover

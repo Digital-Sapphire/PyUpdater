@@ -28,8 +28,8 @@ from pyupdater.utils import (check_repo,
                              make_archive)
 from pyupdater.utils.config import Loader
 
-from jms_utils.helpers import Version
-from jms_utils.paths import remove_any
+from dsdev_utils.helpers import Version
+from dsdev_utils.paths import remove_any
 from PyInstaller.__main__ import run as pyi_build
 
 
@@ -38,11 +38,11 @@ log = logging.getLogger(__name__)
 
 
 @lazy_import
-def jms_utils():
-    import jms_utils
-    import jms_utils.paths
-    import jms_utils.system
-    return jms_utils
+def dsdev_utils():
+    import dsdev_utils
+    import dsdev_utils.paths
+    import dsdev_utils.system
+    return dsdev_utils
 
 
 class Builder(object):  # pragma: no cover
@@ -68,7 +68,7 @@ class Builder(object):  # pragma: no cover
     # Creates & archives executable
     def build(self):
         start = time.time()
-        temp_name = jms_utils.system.get_system()
+        temp_name = dsdev_utils.system.get_system()
         # Check for spec file or python script
         self._setup()
         spec_file_path = os.path.join(self.spec_dir, temp_name + '.spec')
@@ -89,7 +89,7 @@ class Builder(object):  # pragma: no cover
         log.info(msg)
 
     def make_spec(self):
-        temp_name = jms_utils.system.get_system()
+        temp_name = dsdev_utils.system.get_system()
         self._make_spec(self.pyi_args, temp_name,
                         self.app_info, spec_only=True)
 
@@ -165,8 +165,7 @@ class Builder(object):  # pragma: no cover
     def _build(self, args, spec_file_path):
         try:
             Version(args.app_version)
-        except Exception as err:
-            log.debug(err, exc_info=True)
+        except:
             log.error('Version format incorrect: %s', args.app_version)
             log.error("""Valid version numbers: 0.10.0, 1.1b, 1.2.1a3
 
@@ -191,7 +190,7 @@ class Builder(object):  # pragma: no cover
     def _mac_binary_rename(self, temp_name, app_name):
         bin_dir = os.path.join(temp_name, 'Contents', 'MacOS')
         plist = os.path.join(temp_name, 'Contents', 'Info.plist')
-        with jms_utils.paths.ChDir(bin_dir):
+        with dsdev_utils.paths.ChDir(bin_dir):
             os.rename('mac', app_name)
 
         # We also have to update to ensure app launches correctly
@@ -212,7 +211,7 @@ class Builder(object):  # pragma: no cover
     # Creates zip on windows and gzip on other platforms
     def _archive(self, args, temp_name):
         # Now archive the file
-        with jms_utils.paths.ChDir(self.new_dir):
+        with dsdev_utils.paths.ChDir(self.new_dir):
             if os.path.exists(temp_name + '.app'):
                 log.debug('Got mac .app')
                 app_name = temp_name + '.app'

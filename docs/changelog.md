@@ -3,6 +3,22 @@
 ## v2.0.6 - Master
 ####* This version is not yet released and is under active development.
 
+####Added
+
+  - dsdev-utils >= 0.9.0
+
+####Updated
+
+  - Client
+    - Only log debug messages
+
+  - Windows tests setup scripts
+
+####Removed
+  - jms-utils
+  - Duplicate logging calls
+  - Duplicate listing of dependencies
+
 ## v2.0.5 - 2016/07/17
 
 ####Fixed

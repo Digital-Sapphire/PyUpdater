@@ -3,7 +3,7 @@ from __future__ import print_function
 import os
 import shutil
 
-from jms_utils.paths import ChDir
+from dsdev_utils.paths import ChDir
 
 HTML_DIR = os.path.join(os.getcwd(), 'site')
 DEST_DIR = os.path.join(os.path.expanduser(u'~'), u'BTSync',

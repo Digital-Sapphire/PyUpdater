@@ -27,8 +27,8 @@ try:  # pragma: no cover
     import bsdiff4
 except ImportError:  # pragma: no cover
     bsdiff4 = None
-from jms_utils.crypto import get_package_hashes as gph
-from jms_utils.helpers import EasyAccessDict
+from dsdev_utils.crypto import get_package_hashes as gph
+from dsdev_utils.helpers import EasyAccessDict
 
 from pyupdater import settings
 from pyupdater.package_handler.package import (remove_previous_versions,
@@ -45,10 +45,10 @@ log = logging.getLogger(__name__)
 
 
 @lazy_import
-def jms_utils():
-    import jms_utils
-    import jms_utils.paths
-    return jms_utils
+def dsdev_utils():
+    import dsdev_utils
+    import dsdev_utils.paths
+    return dsdev_utils
 
 
 class PackageHandler(object):
@@ -177,7 +177,7 @@ class PackageHandler(object):
         package_manifest = []
         patch_manifest = []
         bad_packages = []
-        with jms_utils.paths.ChDir(self.new_dir):
+        with dsdev_utils.paths.ChDir(self.new_dir):
             # Getting a list of all files in the new dir
             packages = os.listdir(os.getcwd())
             for p in packages:
@@ -421,7 +421,7 @@ class PackageHandler(object):
         log.info('Moving packages to deploy folder')
         for p in package_manifest:
             patch = p.patch_info.get('patch_name')
-            with jms_utils.paths.ChDir(self.new_dir):
+            with dsdev_utils.paths.ChDir(self.new_dir):
                 if patch:
                     if os.path.exists(os.path.join(self.deploy_dir, patch)):
                         os.remove(os.path.join(self.deploy_dir, patch))
@@ -447,7 +447,7 @@ class PackageHandler(object):
             return None
         src_file_path = None
         if os.path.exists(self.files_dir):
-            with jms_utils.paths.ChDir(self.files_dir):
+            with dsdev_utils.paths.ChDir(self.files_dir):
                 files = os.listdir(os.getcwd())
                 log.debug('Found %s files in files dir', len(files))
 

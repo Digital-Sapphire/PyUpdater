@@ -18,9 +18,9 @@ import logging
 import os
 import re
 
-from jms_utils.exceptions import VersionError
-from jms_utils.helpers import Version
-from jms_utils.paths import ChDir, remove_any
+from dsdev_utils.exceptions import VersionError
+from dsdev_utils.helpers import Version
+from dsdev_utils.paths import ChDir, remove_any
 
 from pyupdater.utils import parse_platform
 from pyupdater.utils.exceptions import UtilsError

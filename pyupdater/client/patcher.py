@@ -22,9 +22,9 @@ try:
     import bsdiff4
 except ImportError:  # pragma: no cover
     bsdiff4 = None
-from jms_utils.crypto import get_package_hashes
-from jms_utils.helpers import EasyAccessDict, lazy_import, Version
-from jms_utils.paths import remove_any
+from dsdev_utils.crypto import get_package_hashes
+from dsdev_utils.helpers import EasyAccessDict, lazy_import, Version
+from dsdev_utils.paths import remove_any
 
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
@@ -37,14 +37,14 @@ log = logging.getLogger(__name__)
 
 
 @lazy_import
-def jms_utils():
-    import jms_utils
-    import jms_utils.paths
-    import jms_utils.system
-    return jms_utils
+def dsdev_utils():
+    import dsdev_utils
+    import dsdev_utils.paths
+    import dsdev_utils.system
+    return dsdev_utils
 
 
-_platform = jms_utils.system.get_system()
+_platform = dsdev_utils.system.get_system()
 
 
 class Patcher(object):
@@ -104,31 +104,30 @@ class Patcher(object):
         # Check hash on installed binary to begin patching
         binary_check = self._verify_installed_binary()
         if not binary_check:
-            log.error('Binary check failed...')
+            log.debug('Binary check failed...')
             return False
         # Getting all required patch meta-data
         all_patches = self._get_patch_info()
         if all_patches is False:
-            log.error('Cannot find all patches...')
+            log.debug('Cannot find all patches...')
             return False
 
         # Download and verify patches in 1 go
         download_check = self._download_verify_patches()
         if download_check is False:
-            log.error('Patch check failed...')
+            log.debug('Patch check failed...')
             return False
 
         try:
             self._apply_patches_in_memory()
         except PatcherError:
-            log.error('Failed to apply patches in memory')
+            log.debug('Failed to apply patches in memory')
             return False
         else:
             try:
                 self._write_update_to_disk()
             except PatcherError as err:
-                log.error(err, exc_info=True)
-                log.error('Failed to write patched binary to disk')
+                log.debug(err, exc_info=True)
                 return False
         # Looks like all is well
         return True
@@ -137,7 +136,7 @@ class Patcher(object):
         # Verifies latest downloaded archive against known hash
         log.debug('Checking for current installed binary to patch')
 
-        with jms_utils.paths.ChDir(self.update_folder):
+        with dsdev_utils.paths.ChDir(self.update_folder):
             if not os.path.exists(self.current_filename):
                 log.debug('Cannot find archive to patch')
                 return False
@@ -196,8 +195,8 @@ class Patcher(object):
                         fall_back = True
                 self.patch_data.append(info)
             except Exception as err:  # pragma: no cover
+                # Missing some required patch data
                 log.debug(err, exc_info=True)
-                log.error('Missing required patch meta-data')
                 return False
 
         latest_info = self._get_info(self.name, self.latest_version,
@@ -287,8 +286,8 @@ class Patcher(object):
             try:
                 ph(data)
             except Exception as err:
+                log.debug('Exception in callback: %s', ph.__name__)
                 log.debug(err, exc_info=True)
-                log.error('Exception in callback: %s', ph.__name__)
 
     def _apply_patches_in_memory(self):
         # Applies a sequence of patches in memory
@@ -299,7 +298,6 @@ class Patcher(object):
                 log.debug('Applied patch successfully')
             except Exception as err:
                 log.debug(err, exc_info=True)
-                log.error(err)
                 raise PatcherError('Patch failed to apply')
 
     def _write_update_to_disk(self):  # pragma: no cover
@@ -315,7 +313,7 @@ class Patcher(object):
         if filename is None:
             raise PatcherError('Filename missing in version file')
 
-        with jms_utils.paths.ChDir(self.update_folder):
+        with dsdev_utils.paths.ChDir(self.update_folder):
             try:
                 with open(filename, 'wb') as f:
                     f.write(self.og_binary)
@@ -324,7 +322,7 @@ class Patcher(object):
                 # Removes file if it got created
                 if os.path.exists(filename):
                     remove_any(filename)
-                log.error('Failed to open file for writing')
+                log.debug('Failed to open file for writing')
                 raise PatcherError('Failed to open file for writing')
             else:
                 file_info = self._get_info(self.name,
@@ -333,10 +331,10 @@ class Patcher(object):
                 new_file_hash = file_info['file_hash']
                 log.debug('checking file hash match')
                 if new_file_hash != get_package_hashes(filename):
-                    log.error('Version file hash: %s', new_file_hash)
-                    log.error('Actual file hash: %s',
+                    log.debug('Version file hash: %s', new_file_hash)
+                    log.debug('Actual file hash: %s',
                               get_package_hashes(filename))
-                    log.error('File hash does not match')
+                    log.debug('File hash does not match')
                     remove_any(filename)
                     raise PatcherError('Bad hash on patched file',
                                        expected=True)

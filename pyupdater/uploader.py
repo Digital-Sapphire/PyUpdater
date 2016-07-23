@@ -19,8 +19,8 @@ import logging
 import os
 import time
 
-from jms_utils.paths import remove_any
-from jms_utils.terminal import get_correct_answer
+from dsdev_utils.paths import remove_any
+from dsdev_utils.terminal import get_correct_answer
 import six
 
 from pyupdater import settings

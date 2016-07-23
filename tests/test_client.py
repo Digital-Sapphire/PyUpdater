@@ -20,8 +20,8 @@ import json
 import os
 import time
 
-from jms_utils.system import get_system
-from jms_utils.paths import ChDir
+from dsdev_utils.system import get_system
+from dsdev_utils.paths import ChDir
 import pytest
 import six
 

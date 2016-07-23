@@ -18,7 +18,7 @@ import io
 import os
 import sys
 
-from jms_utils.system import get_system
+from dsdev_utils.system import get_system
 import pytest
 
 from pyupdater.builder import ExternalLib
