@@ -5,7 +5,7 @@ mkdocs == 0.15.3
 mkdocs-material
 pytest
 pytest-circleci
-pytest-cov
+pytest-cov==2.2.1
 pytest-httpbin
 pytest-remove-stale-bytecode
 pytest-xdist
