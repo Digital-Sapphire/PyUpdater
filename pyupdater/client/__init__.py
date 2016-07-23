@@ -16,7 +16,7 @@
 from __future__ import unicode_literals
 import warnings
 
-from jms_utils.helpers import EasyAccessDict, gzip_decompress, Version
+from dsdev_utils.helpers import EasyAccessDict, gzip_decompress, Version
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
@@ -72,13 +72,13 @@ def ed25519():
 
 
 @lazy_import
-def jms_utils():
-    import jms_utils
-    import jms_utils.app
-    import jms_utils.logger
-    import jms_utils.paths
-    import jms_utils.system
-    return jms_utils
+def dsdev_utils():
+    import dsdev_utils
+    import dsdev_utils.app
+    import dsdev_utils.logger
+    import dsdev_utils.paths
+    import dsdev_utils.system
+    return dsdev_utils
 
 
 @lazy_import
@@ -89,12 +89,12 @@ def six():
 
 log = logging.getLogger(__name__)
 
-log_path = os.path.join(jms_utils.paths.app_cwd, 'pyu.log')
+log_path = os.path.join(dsdev_utils.paths.app_cwd, 'pyu.log')
 if os.path.exists(log_path):  # pragma: no cover
-    ch = logging.FileHandler(os.path.join(jms_utils.paths.app_cwd,
+    ch = logging.FileHandler(os.path.join(dsdev_utils.paths.app_cwd,
                              'pyu.log'))
     ch.setLevel(logging.DEBUG)
-    ch.setFormatter(jms_utils.logger.logging_formatter)
+    ch.setFormatter(dsdev_utils.logger.logging_formatter)
     log.addHandler(ch)
 log.debug('PyUpdater Version %s', __version__)
 
@@ -149,7 +149,7 @@ class Client(object):
         config = Config()
         config.from_object(obj)
 
-        self.FROZEN = jms_utils.app.FROZEN
+        self.FROZEN = dsdev_utils.app.FROZEN
         # Grabbing config information
         update_urls = config.get('UPDATE_URLS')
         # Here we combine all urls & add trailing / if one isn't present
@@ -167,7 +167,7 @@ class Client(object):
                                                   self.company_name,
                                                   roaming=True)
             # Setting the platform to pass when requesting updates
-            self.platform = jms_utils.system.get_system()
+            self.platform = dsdev_utils.system.get_system()
         # Creating update folder. Using settings to ease change in future
         self.update_folder = os.path.join(self.data_dir,
                                           settings.UPDATE_FOLDER)
@@ -216,7 +216,7 @@ class Client(object):
     def _update_check(self, name, version, channel):
         valid_channels = ['alpha', 'beta', 'stable']
         if channel not in valid_channels:
-            log.error('Invalid channel. May need to check spelling')
+            log.debug('Invalid channel. May need to check spelling')
             channel = 'stable'
         self.name = name
         version = Version(version)
@@ -228,7 +228,7 @@ class Client(object):
         # No json data is loaded.
         # User may need to call refresh
         if self.ready is False:
-            log.warning('No update manifest found')
+            log.debug('No update manifest found')
             return None
 
         # If we are an app we will need restart functionality.
@@ -239,9 +239,9 @@ class Client(object):
         # processing data contained in the version file.
         # This was done by self._get_update_manifest()
         if self.verified is False:
-            log.error('Failed version file verification')
+            log.debug('Failed version file verification')
             return None
-        log.info('Checking for %s updates...', name)
+        log.debug('Checking for %s updates...', name)
 
         # If None is returned get_highest_version could
         # not find the supplied name in the version file
@@ -256,7 +256,7 @@ class Client(object):
         needed = latest > version
         log.debug('Update Needed: %s', needed)
         if latest <= version:
-            log.info('%s already updated to the latest version', name)
+            log.debug('%s already updated to the latest version', name)
             return None
         # Hey, finally made it to the bottom!
         # Looks like its time to do some updating
@@ -306,11 +306,10 @@ class Client(object):
         try:
             signing_key.verify(sig, pub_key, encoding='base64')
         except Exception as err:
-            log.warning('Key file not verified')
-            log.error(err)
+            log.debug('Key file not verified')
             log.debug(err, exc_info=True)
         else:
-            log.info('Key file verified')
+            log.debug('Key file verified')
             self.app_key = pub_key
 
     # Here we attempt to read the manifest from the filesystem
@@ -318,19 +317,19 @@ class Client(object):
     # needs to be installed without an network connection
     def _get_manifest_filesystem(self):
         data = None
-        with jms_utils.paths.ChDir(self.data_dir):
+        with dsdev_utils.paths.ChDir(self.data_dir):
             if not os.path.exists(self.version_file):
-                log.warning('No version file on file system')
+                log.debug('No version file on file system')
                 return data
             else:
-                log.info('Found version file on file system')
+                log.debug('Found version file on file system')
                 try:
                     with open(self.version_file, 'rb') as f:
                         data = f.read()
-                    log.info('Loaded version file from file system')
+                    log.debug('Loaded version file from file system')
                 except Exception as err:
                     # Whatever the error data is already set to None
-                    log.error('Failed to load version file from file '
+                    log.debug('Failed to load version file from file '
                               'system')
                     log.debug(err, exc_info=True)
                 # In case we don't have any data to pass
@@ -344,7 +343,7 @@ class Client(object):
 
     # Downloading the manifest. If successful also writes it to file-system
     def _download_manifest(self):
-        log.info('Downloading online version file')
+        log.debug('Downloading online version file')
         try:
             fd = FileDownloader(self.version_file, self.update_urls,
                                 verify=self.verify)
@@ -352,22 +351,22 @@ class Client(object):
             try:
                 decompressed_data = gzip_decompress(data)
             except IOError:
-                log.error('Failed to decompress gzip file')
+                log.debug('Failed to decompress gzip file')
                 # Will be caught down below.
                 # Just logging the error
                 raise
-            log.info('Version file download successful')
+            log.debug('Version file download successful')
             # Writing version file to application data directory
             self._write_manifest_2_filesystem(decompressed_data)
             return decompressed_data
         except Exception as err:
-            log.error('Version file download failed')
+            log.debug('Version file download failed')
             log.debug(err, exc_info=True)
             return None
 
     # Downloading the key file.
     def _download_key(self):
-        log.info('Downloading key file')
+        log.debug('Downloading key file')
         try:
             fd = FileDownloader(self.key_file, self.update_urls,
                                 verify=self.verify)
@@ -375,27 +374,27 @@ class Client(object):
             try:
                 decompressed_data = gzip_decompress(data)
             except IOError:
-                log.error('Failed to decompress gzip file')
+                log.debug('Failed to decompress gzip file')
                 # Will be caught down below. Just logging the error
                 raise
-            log.info('Key file download successful')
+            log.debug('Key file download successful')
             # Writing version file to application data directory
             self._write_manifest_2_filesystem(decompressed_data)
             return decompressed_data
         except Exception as err:
-            log.error('Version file download failed')
+            log.debug('Version file download failed')
             log.debug(err, exc_info=True)
             return None
 
     def _write_manifest_2_filesystem(self, data):
-        with jms_utils.paths.ChDir(self.data_dir):
+        with dsdev_utils.paths.ChDir(self.data_dir):
             log.debug('Writing version file to disk')
             with gzip.open(self.version_file, 'wb') as f:
                 f.write(data)
 
     def _get_update_manifest(self):
         #  Downloads & Verifies version file signature.
-        log.info('Loading version file...')
+        log.debug('Loading version file...')
 
         data = self._download_manifest()
         if data is None:
@@ -415,12 +414,12 @@ class Client(object):
             except ValueError as err:
                 # Malformed json???
                 log.debug(err, exc_info=True)
-                log.error('Json failed to load: ValueError')
+                log.debug('Json failed to load: ValueError')
             except Exception as err:
                 # Catch all for debugging purposes.
                 # If seeing this line come up a lot in debug logs
                 # please open an issue on github or submit a pull request
-                log.error(err)
+                log.debug(err)
                 log.debug(err, exc_info=True)
         else:
             # Setting to default dict to not raise any errors
@@ -458,11 +457,10 @@ class Client(object):
             try:
                 pub_key.verify(signature, update_data, encoding='base64')
             except Exception as err:
-                log.warning('Version file not verified')
-                log.error(err)
+                log.debug('Version file not verified')
                 log.debug(err, exc_info=True)
             else:
-                log.info('Version file verified')
+                log.debug('Version file verified')
                 self.verified = True
         else:
             log.debug('Signature not in update data')
@@ -471,11 +469,11 @@ class Client(object):
         # Sets up required directories on end-users computer
         # to place verified update data
         # Very safe director maker :)
-        log.info('Setting up directories...')
+        log.debug('Setting up directories...')
         dirs = [self.data_dir, self.update_folder]
         for d in dirs:
             if not os.path.exists(d):
-                log.info('Creating directory: %s', d)
+                log.debug('Creating directory: %s', d)
                 os.makedirs(d)
 
     # Legacy code used when migrating from single urls to
@@ -486,7 +484,7 @@ class Client(object):
         if isinstance(urls, list):
             _urls += urls
         elif isinstance(urls, six.string_types):
-            log.warning('UPDATE_URLS value should only be a list.')
+            log.debug('UPDATE_URLS value should only be a list.')
             _urls.append(urls)
         elif isinstance(urls, tuple):
             _urls += list(urls)

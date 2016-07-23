@@ -24,8 +24,8 @@ except ImportError:
     from collections import MutableMapping as dictmixin
 
 import certifi
-from jms_utils.helpers import lazy_import, Version
-from jms_utils.paths import remove_any
+from dsdev_utils.helpers import lazy_import, Version
+from dsdev_utils.paths import remove_any
 from stevedore.extension import ExtensionManager
 import urllib3
 
@@ -111,11 +111,11 @@ def zipfile():
 
 
 @lazy_import
-def jms_utils():
-    import jms_utils
-    import jms_utils.system
-    import jms_utils.terminal
-    return jms_utils
+def dsdev_utils():
+    import dsdev_utils
+    import dsdev_utils.system
+    import dsdev_utils.terminal
+    return dsdev_utils
 
 
 @lazy_import
@@ -220,7 +220,6 @@ class PluginManager(object):
         except Exception as err:
             log.error('There was an error during configuration '
                       'of %s crated by %s', plugin.name, plugin.author)
-            log.error(err)
             log.debug(err, exc_info=True)
 
     def get_plugin_names(self):
@@ -397,7 +396,7 @@ def setup_appname(config):  # pragma: no cover
         default = config.APP_NAME
     else:
         default = None
-    config.APP_NAME = jms_utils.terminal.get_correct_answer('Please enter '
+    config.APP_NAME = dsdev_utils.terminal.get_correct_answer('Please enter '
                                                             'app name',
                                                             required=True,
                                                             default=default)
@@ -408,7 +407,7 @@ def setup_company(config):  # pragma: no cover
         default = config.COMPANY_NAME
     else:
         default = None
-    temp = jms_utils.terminal.get_correct_answer('Please enter your comp'
+    temp = dsdev_utils.terminal.get_correct_answer('Please enter your comp'
                                                  'any or name',
                                                  required=True,
                                                  default=default)
@@ -423,7 +422,7 @@ def setup_client_config_path(config): # pragma: no cover
                 "initialize the update process. \nExamples:\n\n"
                 "lib/utils, src/lib, src. \n\nLeave blank to use "
                 "the current directory")
-    answer = jms_utils.terminal.get_correct_answer(question,
+    answer = dsdev_utils.terminal.get_correct_answer(question,
                                                    default=_default_dir)
 
     if answer == _default_dir:
@@ -436,15 +435,15 @@ def setup_client_config_path(config): # pragma: no cover
 
 
 def setup_urls(config):  # pragma: no cover
-    url = jms_utils.terminal.get_correct_answer('Enter a url to ping for '
+    url = dsdev_utils.terminal.get_correct_answer('Enter a url to ping for '
                                                 'updates.', required=True)
     config.UPDATE_URLS = [url]
     while 1:
-        answer = jms_utils.terminal.ask_yes_no('Would you like to add '
+        answer = dsdev_utils.terminal.ask_yes_no('Would you like to add '
                                                'another url for backup?',
                                                default='no')
         if answer is True:
-            url = jms_utils.terminal.get_correct_answer('Enter another url.',
+            url = dsdev_utils.terminal.get_correct_answer('Enter another url.',
                                                         required=True)
             config.UPDATE_URLS.append(url)
         else:
@@ -452,7 +451,7 @@ def setup_urls(config):  # pragma: no cover
 
 
 def setup_patches(config):  # pragma: no cover
-    config.UPDATE_PATCHES = jms_utils.terminal.ask_yes_no('Would you like to '
+    config.UPDATE_PATCHES = dsdev_utils.terminal.ask_yes_no('Would you like to '
                                                           'enable patch upda'
                                                           'tes?',
                                                           default='yes')
@@ -467,13 +466,13 @@ def setup_plugin(name, config):
 
 
 def setup_scp(config):  # pragma: no cover
-    _temp = jms_utils.terminal.get_correct_answer('Enter remote dir',
+    _temp = dsdev_utils.terminal.get_correct_answer('Enter remote dir',
                                                   required=True)
     config.SSH_REMOTE_DIR = _temp
-    config.SSH_HOST = jms_utils.terminal.get_correct_answer('Enter host',
+    config.SSH_HOST = dsdev_utils.terminal.get_correct_answer('Enter host',
                                                             required=True)
 
-    config.SSH_USERNAME = jms_utils.terminal.get_correct_answer('Enter '
+    config.SSH_USERNAME = dsdev_utils.terminal.get_correct_answer('Enter '
                                                                 'usernmae',
                                                                 required=True)
 
@@ -505,7 +504,7 @@ def make_archive(name, target, version, external=False):
     """
     file_dir = os.path.dirname(os.path.abspath(target))
     filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
-                                 jms_utils.system.get_system(), version)
+                                 dsdev_utils.system.get_system(), version)
     filename_path = os.path.join(file_dir, filename)
 
     log.debug('starting archive')
@@ -528,7 +527,7 @@ def make_archive(name, target, version, external=False):
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
     # tar.gz creates full file path
-    if jms_utils.system.get_system() == 'win':
+    if dsdev_utils.system.get_system() == 'win':
         ext = '.zip'
         with zipfile.ZipFile(filename_path + '.zip', 'w') as zf:
             zf.write(target, temp_file)

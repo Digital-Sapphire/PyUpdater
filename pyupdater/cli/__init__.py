@@ -22,9 +22,9 @@ import os
 import sys
 
 from appdirs import user_log_dir
-from jms_utils.logger import logging_formatter
-from jms_utils.paths import ChDir, remove_any
-from jms_utils.terminal import ask_yes_no, get_correct_answer
+from dsdev_utils.logger import logging_formatter
+from dsdev_utils.paths import ChDir, remove_any
+from dsdev_utils.terminal import ask_yes_no, get_correct_answer
 
 
 from pyupdater import PyUpdater, __version__
@@ -66,7 +66,7 @@ log.addHandler(sh)
 # We'll only keep one backup log file
 LOG_DIR = user_log_dir(settings.APP_NAME, settings.APP_AUTHOR)
 log_file = os.path.join(LOG_DIR, settings.LOG_FILENAME_DEBUG)
-rfh = logging.handlers.RotatingFileHandler(log_file, maxBytes=9445269,
+rfh = logging.handlers.RotatingFileHandler(log_file, maxBytes=1048576,
                                            backupCount=2)
 rfh.setFormatter(logging_formatter)
 rfh.setLevel(logging.DEBUG)
@@ -346,10 +346,7 @@ def upload(args):  # pragma: no cover
         try:
             pyu.upload()
         except Exception as e:
-            msg = ('Looks like you forgot to add USERNAME '
-                   'and/or REMOTE_DIR')
             log.debug(e, exc_info=True)
-            log.error(msg)
 
 
 def _real_main(args):  # pragma: no cover

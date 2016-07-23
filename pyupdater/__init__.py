@@ -51,10 +51,10 @@ def appdirs():
 
 
 @lazy_import
-def jms_utils():
-    import jms_utils
-    import jms_utils.logger
-    return jms_utils
+def dsdev_utils():
+    import dsdev_utils
+    import dsdev_utils.logger
+    return dsdev_utils
 
 
 PyUpdater = pyupdater.core.PyUpdater
@@ -74,7 +74,7 @@ LOG_FILENAME_DEBUG = os.path.join(LOG_DIR,
 rh = logging.handlers.RotatingFileHandler(LOG_FILENAME_DEBUG, backupCount=1,
                                           maxBytes=10293049)
 rh.setLevel(logging.DEBUG)
-rh.setFormatter(jms_utils.logger.logging_formatter)
+rh.setFormatter(dsdev_utils.logger.logging_formatter)
 log.addHandler(rh)
 
 from ._version import get_versions

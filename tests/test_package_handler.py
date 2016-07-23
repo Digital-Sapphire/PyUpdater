@@ -18,7 +18,7 @@ from __future__ import unicode_literals
 import io
 import os
 
-from jms_utils.paths import ChDir
+from dsdev_utils.paths import ChDir
 import pytest
 
 from pyupdater import settings

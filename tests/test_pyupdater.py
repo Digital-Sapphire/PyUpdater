@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 import os
 
 import pytest
-from jms_utils.system import get_system
+from dsdev_utils.system import get_system
 
 from pyupdater import PyUpdater
 from pyupdater.utils.config import Config

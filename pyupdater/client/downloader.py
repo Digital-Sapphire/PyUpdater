@@ -206,7 +206,7 @@ class FileDownloader(object):
                 ph(data)
             except Exception as err:
                 log.debug(err, exc_info=True)
-                log.error('Exception in callback: %s', ph.__name__)
+                log.debug('Exception in callback: %s', ph.__name__)
 
     # Creating response object to start download
     # Attempting to do some error correction for aws s3 urls
@@ -222,7 +222,7 @@ class FileDownloader(object):
                 if data.status == 505:
                     raise urllib3.exceptions.HTTPError
             except urllib3.exceptions.SSLError:
-                log.error('SSL cert not verified')
+                log.debug('SSL cert not verified')
                 data = ''
             except urllib3.exceptions.HTTPError:
                 log.debug('There may be spaces in an S3 url...')
@@ -232,7 +232,7 @@ class FileDownloader(object):
             except Exception as e:
                 # Catch whatever else comes up and log it
                 # to help fix other http related issues
-                log.error(str(e), exc_info=True)
+                log.debug(str(e), exc_info=True)
                 data = ''
             else:
                 break
@@ -244,9 +244,9 @@ class FileDownloader(object):
                     data = self.http_pool.urlopen('GET', file_url,
                                                   preload_content=False)
                 except urllib3.exceptions.SSLError:
-                    log.error('SSL cert not verified')
+                    log.debug('SSL cert not verified')
                 except Exception as e:
-                    log.error(str(e), exc_info=True)
+                    log.debug(str(e), exc_info=True)
                     self.file_binary_data = None
                 else:
                     break
