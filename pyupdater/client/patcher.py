@@ -99,7 +99,6 @@ class Patcher(object):
 
     def start(self):
         "Starts patching process"
-
         log.debug('Starting patch updater...')
         # Check hash on installed binary to begin patching
         binary_check = self._verify_installed_binary()

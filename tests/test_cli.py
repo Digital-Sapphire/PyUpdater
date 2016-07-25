@@ -20,7 +20,7 @@ import os
 
 import pytest
 
-from pyupdater.cli import _build, clean, _make_spec, pkg
+from pyupdater.cli import build, clean, make_spec, pkg
 from pyupdater.cli.options import (add_build_parser, add_clean_parser,
                                    add_keys_parser, add_make_spec_parser,
                                    add_package_parser, make_subparser)
@@ -44,7 +44,7 @@ class TestBuilder(object):
                 f.write('from __futute__ import print_function\n')
                 f.write('print("Hello, World!")')
             opts, other = parser.parse_known_args(['build', 'app.py'])
-            _build(opts, other)
+            build(opts, other)
 
 
 @pytest.mark.usefixtures('cleandir', 'parser')
@@ -117,7 +117,7 @@ class TestMakeSpec(object):
         opts, other = parser.parse_known_args(['make-spec', '-F',
                                                '--app-version=0.1.0',
                                                'app.py'])
-        _make_spec(opts, other)
+        make_spec(opts, other)
 
 
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')

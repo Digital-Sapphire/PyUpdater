@@ -70,8 +70,8 @@ def _build_make_spec_commom(subparser):
 
 def add_archive_parser(subparsers):
     archive_parser = subparsers.add_parser('archive', help='Archives external '
-                                           'file which needs updating. Can be '
-                                           'binary, library, anything really.',
+                                           'file which needs updating. Can be another'
+                                           'executable, .so, .dll, .img, etc.',
                                            usage='%(prog)s [opts] filename')
     archive_parser.add_argument('--name', required=True, help='Name used when '
                                 'renaming binary before archiving.')
@@ -85,7 +85,7 @@ def add_archive_parser(subparsers):
 
 
 def add_build_parser(subparsers):
-    build_parser = subparsers.add_parser('build', help='compiles script '
+    build_parser = subparsers.add_parser('build', help='Compiles script '
                                          'or spec file',
                                          usage='%(prog)s [opts]<script>')
     _build_make_spec_commom(build_parser)
@@ -110,7 +110,7 @@ def add_clean_parser(subparsers):
 
 
 def add_init_parser(subparsers):
-    init_parser = subparsers.add_parser('init', help='initializes a '
+    init_parser = subparsers.add_parser('init', help='Initializes a '
                                         'src directory')
     # used to suppress landscape.io warning
     init_parser.add_argument('--dummy', help=argparse.SUPPRESS)
@@ -181,7 +181,7 @@ def add_upload_parser(subparsers):
     upload_parser = subparsers.add_parser('upload', help='Uploads files')
     upload_parser.add_argument('--keep', help='Keep files after upload',
                                action='store_true')
-    upload_parser.add_argument('-s', '--service', help='The plugin for '
+    upload_parser.add_argument('-s', '--service', help='The plugin used for '
                                'uploads', dest='service')
 
 

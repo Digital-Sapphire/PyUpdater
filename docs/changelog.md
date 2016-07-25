@@ -1,10 +1,11 @@
 # Changelog
 
-## v2.0.6 - Master
+## v2.1.0 - Master
 ####* This version is not yet released and is under active development.
 
 ####Added
 
+  - Retry download
   - dsdev-utils >= 0.9.0
 
 ####Updated
@@ -13,6 +14,11 @@
     - Only log debug messages
 
   - Windows tests setup scripts
+
+####Fixed
+
+  - Client
+    - Write file to filesystem when no hash is passed
 
 ####Removed
   - jms-utils
