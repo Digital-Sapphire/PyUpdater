@@ -16,7 +16,7 @@ def main():
         for f in files:
             if f.startswith(u'.'):
                 continue
-            elif f in [u'Procfile', 'Staticfile']:
+            elif f in [u'hostess.json']:
                 continue
             elif os.path.isfile(f):
                 os.remove(f)
@@ -27,6 +27,8 @@ def main():
         files = os.listdir(os.getcwd())
         for f in files:
             if f.startswith(u'.'):
+                continue
+            if f.startswith('__init__'):
                 continue
             if os.path.isfile(f):
                 shutil.copy(f, os.path.join(DEST_DIR, f))
