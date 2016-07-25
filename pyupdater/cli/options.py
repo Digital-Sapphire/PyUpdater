@@ -69,14 +69,16 @@ def _build_make_spec_commom(subparser):
 
 
 def add_archive_parser(subparsers):
-    archive_parser = subparsers.add_parser('archive', help='Archives external '
-                                           'file which needs updating. Can be another'
-                                           'executable, .so, .dll, .img, etc.',
+    archive_parser = subparsers.add_parser('archive', help='Archive an asset '
+                                           'which needs updating. Can be '
+                                           'another executable, .so, .dll, '
+                                           '.img, etc.',
                                            usage='%(prog)s [opts] filename')
-    archive_parser.add_argument('--name', required=True, help='Name used when '
-                                'renaming binary before archiving.')
-    archive_parser.add_argument('--target-name', required=True, help='Name of '
-                                'file to be archived')
+    archive_parser.add_argument('--name', required=True, help='Name of the '
+                                'asset to archive')
+    # ToDo: Remove in v3.0
+    archive_parser.add_argument('--target-name', required=True, help='* Warning '
+                                '* Deprecated')
     archive_parser.add_argument('--version', required=True, help='Version of '
                                 'file')
     archive_parser.add_argument('-k', '--keep', action='store_true',

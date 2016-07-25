@@ -24,6 +24,7 @@ from pyupdater import settings
 from pyupdater.compat import pyi_makespec
 from pyupdater.hooks import get_hook_dir
 from pyupdater.utils import (check_repo,
+                             create_asset_archive,
                              lazy_import,
                              make_archive)
 from pyupdater.utils.config import Loader
@@ -40,6 +41,7 @@ log = logging.getLogger(__name__)
 @lazy_import
 def dsdev_utils():
     import dsdev_utils
+    import dsdev_utils.exceptions
     import dsdev_utils.paths
     import dsdev_utils.system
     return dsdev_utils
@@ -165,7 +167,7 @@ class Builder(object):  # pragma: no cover
     def _build(self, args, spec_file_path):
         try:
             Version(args.app_version)
-        except:
+        except dsdev_utils.exceptions.VersionError:
             log.error('Version format incorrect: %s', args.app_version)
             log.error("""Valid version numbers: 0.10.0, 1.1b, 1.2.1a3
 
@@ -215,22 +217,19 @@ class Builder(object):  # pragma: no cover
             if os.path.exists(temp_name + '.app'):
                 log.debug('Got mac .app')
                 app_name = temp_name + '.app'
-                name = self.app_name
-                self._mac_binary_rename(app_name, name)
+                self._mac_binary_rename(app_name, self.app_name)
             elif os.path.exists(temp_name + '.exe'):
                 log.debug('Got win .exe')
                 app_name = temp_name + '.exe'
-                name = self.app_name
             else:
                 app_name = temp_name
-                name = self.app_name
             version = args.app_version
             log.debug('Temp Name: %s', temp_name)
             log.debug('Appname: %s', app_name)
             log.debug('Version: %s', version)
 
             # Time for some archive creation!
-            filename = make_archive(name, app_name, version)
+            filename = make_archive(self.app_name, app_name, version)
             log.debug('Archive name: %s', filename)
             if args.keep is False:
                 if os.path.exists(temp_name):
@@ -244,12 +243,10 @@ class Builder(object):  # pragma: no cover
 
 class ExternalLib(object):
 
-    def __init__(self, name, target_name, version):
+    def __init__(self, name, version):
         self.name = name
-        self.target_name = target_name
         self.version = version
 
     def archive(self):
-        filename = make_archive(self.name, self.target_name,
-                                self.version, external=True)
+        filename = create_asset_archive(self.name, self.version)
         log.info('Created archive for %s: %s', self.name, filename)

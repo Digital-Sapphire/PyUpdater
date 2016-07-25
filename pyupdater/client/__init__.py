@@ -149,7 +149,8 @@ class Client(object):
 
         self.FROZEN = dsdev_utils.app.FROZEN
         # Grabbing config information
-        self.update_urls = self._sanatize_update_url(config.get('UPDATE_URLS', []))
+        update_urls = config.get('UPDATE_URLS', [])
+        self.update_urls = self._sanatize_update_url(update_urls)
         self.app_name = config.get('APP_NAME', 'PyUpdater')
         self.company_name = config.get('COMPANY_NAME', 'Digital Sapphire')
         if test:

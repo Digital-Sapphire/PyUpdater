@@ -23,8 +23,8 @@ from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.patcher import Patcher
 from pyupdater.package_handler.package import remove_previous_versions
 from pyupdater.utils import (get_filename, get_hash,
-                                                  get_highest_version, lazy_import,
-                                                  Restarter)
+                             get_highest_version, lazy_import,
+                             Restarter)
 from pyupdater.utils.exceptions import ClientError
 
 

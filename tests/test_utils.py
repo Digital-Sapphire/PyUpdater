@@ -21,6 +21,7 @@ import os
 import pytest
 
 from pyupdater.utils import (check_repo,
+                             create_asset_archive,
                              get_hash,
                              make_archive,
                              parse_platform,
@@ -32,21 +33,31 @@ from pyupdater.utils.exceptions import UtilsError
 @pytest.mark.usefixtures('cleandir')
 class TestUtils(object):
 
-    def test_archive(self):
+    def test_make_archive(self):
         with io.open('hash-test1.txt', 'w', encoding='utf-8') as f:
-            f.write('I should find some lorem text' * 20)
-        with io.open('hash-test2.txt', 'w', encoding='utf-8') as f:
             f.write('I should find some lorem text' * 11)
-        with io.open('hash-test3.txt', 'w', encoding='utf-8') as f:
+        with io.open('hash-test2.txt', 'w', encoding='utf-8') as f:
             f.write('I should find some lorem text' * 5)
-        filename = make_archive('hash', 'hash-test1.txt', '0.1', external=True)
-        filename1 = make_archive('hash', 'hash-test2.txt', '0.2',
+        filename1 = make_archive('hash', 'hash-test1.txt', '0.2',
                                  external=True)
-        filename2 = make_archive('hash', 'hash-test3.txt', '0.3',
+        filename2 = make_archive('hash', 'hash-test2.txt', '0.3',
                                  external=True)
-        assert os.path.exists(filename)
         assert os.path.exists(filename1)
         assert os.path.exists(filename2)
+
+    def test_create_asset_archive(self):
+      with io.open('hash-test1.dll', 'w', encoding='utf-8') as f:
+          f.write('I should find some lorem text' * 20)
+      with io.open('hash-test2.so', 'w', encoding='utf-8') as f:
+          f.write('I should find some lorem text' * 11)
+      with io.open('binary', 'w', encoding='utf-8') as f:
+          f.write('I should find some lorem text' * 5)
+      filename = create_asset_archive('hash-test1.dll', '0.1')
+      filename1 = create_asset_archive('hash-test2.so', '0.2')
+      filename2 = create_asset_archive('binary', '0.3')
+      assert os.path.exists(filename)
+      assert os.path.exists(filename1)
+      assert os.path.exists(filename2)
 
     def test_check_repo_fail(self):
         assert check_repo() is False
