@@ -23,7 +23,7 @@ An autoupdate framework for pyinstaller that enables simple, secure & efficient 
 - Smart patch updates
     - This method is only applied if the total size of patches are less than a full update and the user is less than 4 patches behind.
 - Asynchronous downloads
-- Update your application's artifacts
+- Update your application's assets
 - Dual key verification
     - If the repository key is compromised it is very easy to create a new one.
 - Get download progress with progress hooks a.k.a. callbacks

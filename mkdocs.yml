@@ -8,6 +8,7 @@ pages:
     - Installation: installation.md
     - Commands: commands.md
     - Workflow: workflow.md
+    - Workflow Assets: workflow-asset.md
     - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create_plugin.md
     - Important Notes: important_notes.md
