@@ -144,21 +144,16 @@ class Client(object):
             False: Don't refresh update manifest on object initialization
 
         """
-        # Used to add missing required information
-        # i.e. APP_NAME
         config = Config()
         config.from_object(obj)
 
         self.FROZEN = dsdev_utils.app.FROZEN
         # Grabbing config information
-        update_urls = config.get('UPDATE_URLS')
-        # Here we combine all urls & add trailing / if one isn't present
-        self.update_urls = self._sanatize_update_url(update_urls)
+        self.update_urls = self._sanatize_update_url(config.get('UPDATE_URLS', []))
         self.app_name = config.get('APP_NAME', 'PyUpdater')
         self.company_name = config.get('COMPANY_NAME', 'Digital Sapphire')
         if test:
             # Making platform deterministic for tests.
-            # No need to test for other platforms at the moment
             self.data_dir = obj.DATA_DIR
             self.platform = 'mac'
         else:  # pragma: no cover
@@ -168,11 +163,10 @@ class Client(object):
                                                   roaming=True)
             # Setting the platform to pass when requesting updates
             self.platform = dsdev_utils.system.get_system()
-        # Creating update folder. Using settings to ease change in future
         self.update_folder = os.path.join(self.data_dir,
                                           settings.UPDATE_FOLDER)
-        # Attempting to sanitize incorrect inputs types
         self.root_key = config.get('PUBLIC_KEY', '')
+        # We'll get the app_key later in _get_signing_key
         self.app_key = None
 
         # Config option to disable tls cert verification
@@ -225,41 +219,45 @@ class Client(object):
         # Will be set to true if we are updating an app and not a lib
         app = False
 
-        # No json data is loaded.
-        # User may need to call refresh
         if self.ready is False:
+            # No json data is loaded.
+            # User may need to call refresh
             log.debug('No update manifest found')
             return None
 
-        # If we are an app we will need restart functionality.
-        # AppUpdate instead of LibUpdate
-        if self.FROZEN is True and self.name == self.app_name:
-            app = True
         # Checking if version file is verified before
         # processing data contained in the version file.
         # This was done by self._get_update_manifest()
         if self.verified is False:
             log.debug('Failed version file verification')
             return None
-        log.debug('Checking for %s updates...', name)
 
-        # If None is returned get_highest_version could
-        # not find the supplied name in the version file
+        # If we are an app we will need restart functionality, so we'll
+        # user AppUpdate instead of LibUpdate
+        if self.FROZEN is True and self.name == self.app_name:
+            app = True
+
+        log.debug('Checking for %s updates...', name)
         latest = get_highest_version(name, self.platform,
                                      channel, self.easy_data)
         if latest is None:
+            # If None is returned get_highest_version could
+            # not find the supplied name in the version file
             log.debug('Could not find the latest version')
             return None
+
+        # Change str to version object for easy comparison
         latest = Version(latest)
         log.debug('Current vesion: %s', str(version))
         log.debug('Latest version: %s', str(latest))
-        needed = latest > version
-        log.debug('Update Needed: %s', needed)
+
+        update_needed = latest > version
+        log.debug('Update Needed: %s', update_needed)
         if latest <= version:
             log.debug('%s already updated to the latest version', name)
             return None
-        # Hey, finally made it to the bottom!
-        # Looks like its time to do some updating
+
+        # Config data to initialize update object
         data = {
             'update_urls': self.update_urls,
             'name': self.name,
@@ -283,7 +281,6 @@ class Client(object):
         else:
             return LibUpdate(data)
 
-    # Adding callbacks to be passed to client.downloader.FileDownloader
     def add_progress_hook(self, cb):
         self.progress_hooks.append(cb)
 
@@ -313,7 +310,7 @@ class Client(object):
             self.app_key = pub_key
 
     # Here we attempt to read the manifest from the filesystem
-    # in case of no Internet connection. Useful for an update
+    # in case of no Internet connection. Useful when an update
     # needs to be installed without an network connection
     def _get_manifest_filesystem(self):
         data = None
@@ -398,9 +395,7 @@ class Client(object):
 
         data = self._download_manifest()
         if data is None:
-            # Its ok if this is None. If any exceptions are raised
-            # that we can't handle we will just return an empty
-            # dictionary.
+            # Get the last downloaded manifest
             data = self._get_manifest_filesystem()
 
         if data is not None:
@@ -413,23 +408,19 @@ class Client(object):
                 self.ready = True
             except ValueError as err:
                 # Malformed json???
-                log.debug(err, exc_info=True)
                 log.debug('Json failed to load: ValueError')
+                log.debug(err, exc_info=True)
             except Exception as err:
                 # Catch all for debugging purposes.
                 # If seeing this line come up a lot in debug logs
                 # please open an issue on github or submit a pull request
-                log.debug(err)
                 log.debug(err, exc_info=True)
         else:
-            # Setting to default dict to not raise any errors
-            # in _verify_sig
             log.debug('Failed to download version file & no '
                       'version file on filesystem')
             self.json_data = {}
 
         # If verified we set self.verified to True.
-        # We return the data either way
         self._verify_sig(self.json_data)
 
         self.easy_data = EasyAccessDict(self.json_data)
@@ -466,7 +457,7 @@ class Client(object):
             log.debug('Signature not in update data')
 
     def _setup(self):
-        # Sets up required directories on end-users computer
+        # Create required directories on end-users computer
         # to place verified update data
         # Very safe director maker :)
         log.debug('Setting up directories...')
@@ -479,21 +470,11 @@ class Client(object):
     # Legacy code used when migrating from single urls to
     # A list of urls
     def _sanatize_update_url(self, urls):
-        _urls = []
-        # Making sure final output is a list
-        if isinstance(urls, list):
-            _urls += urls
-        elif isinstance(urls, six.string_types):
-            log.debug('UPDATE_URLS value should only be a list.')
-            _urls.append(urls)
-        elif isinstance(urls, tuple):
-            _urls += list(urls)
-
         sanatized_urls = []
         # Adds trailing slash to end of url if not already provided.
         # Doing this so when requesting online resources we only
         # need to add the resouce name to the end of the request.
-        for u in _urls:
+        for u in urls:
             if not u.endswith('/'):
                 sanatized_urls.append(u + '/')
             else:

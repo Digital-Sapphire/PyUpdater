@@ -100,7 +100,7 @@ def archive(args):
 
 
 # Will build and archive an exe from a python script file
-def _build(args, pyi_args):
+def build(args, pyi_args):
     check = check_repo()
     if check is False:
         _repo_error()
@@ -358,7 +358,7 @@ def _real_main(args):  # pragma: no cover
     if cmd == 'archive':
         archive(args)
     elif cmd == 'build':
-        _build(args, pyi_args)
+        build(args, pyi_args)
     elif cmd == 'clean':
         clean(args)
     elif cmd == 'init':

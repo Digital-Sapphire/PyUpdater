@@ -25,6 +25,10 @@ from pyupdater.utils import get_hash, get_http_pool
 from pyupdater.utils.exceptions import FileDownloaderError
 log = logging.getLogger(__name__)
 
+RETRIES_MAX = 3
+RETRIES_WAIT = 0.05
+
+
 
 class FileDownloader(object):
     """The FileDownloader object downloads files to memory and
@@ -97,8 +101,9 @@ class FileDownloader(object):
         # Downloading data internally
         self._download_to_memory()
         check = self._check_hash()
-        # Nothing to verify against so return true
+        # If no hash is passed just write the file
         if check is None:
+            self._write_to_file()
             return True
         if check is True:
             self._write_to_file()
@@ -145,11 +150,19 @@ class FileDownloader(object):
             return int(new_min)
         return int(rate)
 
+    def _retry_create_response(self):
+        retry_count = 0
+        while retry_count < RETRIES_MAX:
+            data = self._create_response()
+            if data is not None and data != '':
+                break
+            retry_count += 1
+            time.sleep(RETRIES_WAIT)
+        return data
+
     def _download_to_memory(self):
-        # Attempting to correct urls with spaces in them.
-        # Forgot when I ran into the error but have tests to
-        # ensure it doesn't happen again
-        data = self._create_response()
+        data = self._retry_create_response()
+
         if data is None or data == '':
             return None
 
@@ -205,8 +218,8 @@ class FileDownloader(object):
             try:
                 ph(data)
             except Exception as err:
-                log.debug(err, exc_info=True)
                 log.debug('Exception in callback: %s', ph.__name__)
+                log.debug(err, exc_info=True)
 
     # Creating response object to start download
     # Attempting to do some error correction for aws s3 urls
