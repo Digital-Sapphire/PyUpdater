@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import shutil
 import os
 
+# If clean.py is moved from dev dir please update
 HOME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
