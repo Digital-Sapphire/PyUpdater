@@ -83,7 +83,7 @@ def archive(args):
     check = check_repo()
     if check is False:
         _repo_error()
-    new_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER, 'new')
+    new_dir = os.path.join(CWD, settings.USER_DATA_FOLDER, 'new')
     name = args.name
     target_name = args.target_name
     version = args.version
@@ -203,7 +203,7 @@ def _keys(args):  # pragma: no cover
             log.warning('Keypack import failed')
 
 
-def _make_spec(args, pyi_args):
+def make_spec(args, pyi_args):
     check = check_repo()
     if check is False:
         _repo_error()
@@ -232,7 +232,7 @@ def pkg(args):
         log.info('Signing packages complete')
 
 
-def _setting(args):  # pragma: no cover
+def setting(args):  # pragma: no cover
     check = check_repo()
     if check is False:
         _repo_error()
@@ -289,7 +289,7 @@ def upload_debug_info():  # pragma: no cover
 
     upload_data = {'files': {}}
     with ChDir(LOG_DIR):
-        temp_files = os.listdir(os.getcwd())
+        temp_files = os.listdir(CWD)
         if len(temp_files) == 0:
             log.info('No log files to collect')
             return
@@ -368,13 +368,13 @@ def _real_main(args):  # pragma: no cover
     elif cmd == 'collect-debug-info':
         upload_debug_info()
     elif cmd == 'make-spec':
-        _make_spec(args, pyi_args)
+        make_spec(args, pyi_args)
     elif cmd == 'pkg':
         pkg(args)
     elif cmd == 'plugins':
         plugins()
     elif cmd == 'settings':
-        _setting(args)
+        setting(args)
     elif cmd == 'upload':
         upload(args)
     elif cmd == 'version':
