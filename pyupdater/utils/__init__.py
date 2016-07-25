@@ -486,7 +486,44 @@ def initial_setup(config):  # pragma: no cover
     return config
 
 
-def make_archive(name, target, version, external=False):
+def create_asset_archive(name, version):
+    """Used to make archives of file or dir. Zip on windows and tar.gz
+    on all other platforms
+
+    Args:
+        name - Name to rename binary.
+
+        version - Version of app. Used to create archive filename
+
+    Returns:
+         (str) - name of archive
+    """
+    file_dir = os.path.dirname(os.path.abspath(name))
+    filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
+                                 dsdev_utils.system.get_system(), version)
+    filename_path = os.path.join(file_dir, filename)
+
+    # Only use zip on windows.
+    # Zip doens't preserve file permissions on nix & mac
+    # tar.gz creates full file path
+    if dsdev_utils.system.get_system() == 'win':
+        ext = '.zip'
+        with zipfile.ZipFile(filename_path + '.zip', 'w') as zf:
+            zf.write(name, name)
+    else:
+        ext = '.tar.gz'
+        if os.path.isfile(name):
+            with tarfile.open(filename_path + '.tar.gz', 'w:gz') as tar:
+                tar.add(name, name)
+        else:
+            shutil.make_archive(filename, 'gztar', file_dir, name)
+
+    output_filename = filename + ext
+    log.debug('Archive output filename: %s', output_filename)
+    return output_filename
+
+
+def make_archive(name, target, version, **kwargs):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 
@@ -497,24 +534,14 @@ def make_archive(name, target, version, external=False):
 
         target - Name of file to archive.
 
-        external - True when archiving external binary otherwise false
-
     Returns:
          (str) - name of archive
     """
-    file_dir = os.path.dirname(os.path.abspath(target))
-    filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
-                                 dsdev_utils.system.get_system(), version)
-    filename_path = os.path.join(file_dir, filename)
-
     log.debug('starting archive')
-    # ToDo: Fix this stuff. This seems janky
-    temp_file = name
-    if external is False:
-        ext = os.path.splitext(target)[1]
-        temp_file = name + ext
-    # Remove file if it exists. Found during testing...
+    ext = os.path.splitext(target)[1]
+    temp_file = name + ext
     log.debug('Temp file: %s', temp_file)
+    # Remove file if it exists. Found during testing...
     if os.path.exists(temp_file):
         remove_any(temp_file)
 
@@ -522,7 +549,11 @@ def make_archive(name, target, version, external=False):
         shutil.copy(target, temp_file)
     else:
         shutil.copytree(target, temp_file)
-    # End ToDo: End of janky
+
+    file_dir = os.path.dirname(os.path.abspath(target))
+    filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
+                                 dsdev_utils.system.get_system(), version)
+    filename_path = os.path.join(file_dir, filename)
 
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac

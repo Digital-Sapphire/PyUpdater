@@ -85,18 +85,17 @@ def archive(args):
         _repo_error()
     new_dir = os.path.join(CWD, settings.USER_DATA_FOLDER, 'new')
     name = args.name
-    target_name = args.target_name
     version = args.version
 
     with ChDir(new_dir):
-        if not os.path.exists(target_name):
-            log.error('%s does not exists', target_name)
+        if not os.path.exists(name):
+            log.error('%s does not exists', name)
             return
-        ex_lib = ExternalLib(name, target_name, version)
+        ex_lib = ExternalLib(name, version)
         ex_lib.archive()
         if args.keep is False:
-            remove_any(target_name)
-            log.info('Removed: %s', target_name)
+            remove_any(name)
+            log.info('Removed: %s', name)
 
 
 # Will build and archive an exe from a python script file

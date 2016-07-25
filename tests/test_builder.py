@@ -54,17 +54,6 @@ class TestExternalLib(object):
     def test_archive(self):
         with io.open('test', 'w', encoding='utf-8') as f:
             f.write('this is a test')
-        ex = ExternalLib('test2', 'test', '0.1')
+        ex = ExternalLib('test', '0.1')
         ex.archive()
-        assert os.path.exists('test2-{}-0.1{}'.format(get_system(), EXT))
-
-
-@pytest.mark.usefixtures("cleandir",)
-class TestExternalLib2(object):
-
-    def test_archive(self):
-        with io.open('test2', 'w', encoding='utf-8') as f:
-            f.write('this is a test')
-        ex2 = ExternalLib('test', 'test2', '0.2')
-        ex2.archive()
-        assert os.path.exists('test-{}-0.2{}'.format(get_system(), EXT))
+        assert os.path.exists('test-{}-0.1{}'.format(get_system(), EXT))
