@@ -12,7 +12,7 @@
 
   - Client
     - Only log debug messages
-
+  - archive command
   - Windows tests setup scripts
 
 ####Fixed
@@ -24,6 +24,8 @@
   - jms-utils
   - Duplicate logging calls
   - Duplicate listing of dependencies
+  - archive --target-name
+
 
 ## v2.0.5 - 2016/07/17
 
