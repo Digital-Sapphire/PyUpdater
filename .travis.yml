@@ -6,9 +6,7 @@ sudo: false
 # Cache pip packages. Explicitly name the pip-cache directory since we
 # use a custom `install` step which annuls `cache: pip`.
 cache:
-  directories:
-    - $HOME/.cache/pip
-    - $HOME/.pip-accel
+  pip
 
 # Try OS X.
 os:
@@ -17,9 +15,7 @@ os:
 
 env:
    # shorten logging of pip-accel
-   - PIP_ACCEL_LOG_FORMAT="%(name)-18s %(levelname)s %(message)s"
-#  - PYCRYPTO_VERSION=2.4.1
-#  - PYCRYPTO_VERSION=2.6.1
+   # - PIP_ACCEL_LOG_FORMAT="%(name)-18s %(levelname)s %(message)s"
 
 python:
   - "2.7"
@@ -44,14 +40,6 @@ install:
   - curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
 
   - pip install tox-travis
-
-  # Install dependencies for tests. Use pip-accel to cache compiled
-  # packages and safe recompiling each time.
-  # Download-progress bars break Travis's log view. Disable them by
-  # piping output through another program (if output is not a tty, no
-  # progress bars)
-  - pip install pip-accel | cat
-  - pip-accel install -r dev/requirements.txt | cat
   - pip-accel install -r requirements.txt | cat
 
 script:
