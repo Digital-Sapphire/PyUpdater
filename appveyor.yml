@@ -45,8 +45,17 @@ cache:
 
 init:
     - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+    - "ECHO \"%APPVEYOR_SCHEDULED_BUILD%\""
 
 install:
+    - "ECHO Filesystem root:"
+    - ps: "ls \"C:/\""
+
+    - "ECHO Chocolatey tools:"
+    - ps: "ls \"C:/Tools\""
+
+    - "ECHO Installed SDKs:"
+    - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
     - ps: if (-not(Test-Path($env:PYTHON))) { & tests\appveyor\install.ps1 }
 
     # Prepend newly installed Python to the PATH of this build (this cannot be
@@ -55,12 +64,12 @@ install:
     - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
     # Check that we have the expected version and architecture for Python
-    - "python --version"
-    - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+    - "%CMD_IN_ENV% python --version"
+    - "%CMD_IN_ENV% python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
     # Upgrade to the latest version of pip to avoid it displaying warnings
     # about it being out of date.
-    - "pip install --disable-pip-version-check --user --upgrade pip"
+    - "%CMD_IN_ENV% python -m pip install -U pip"
 
     # Create .whl packages from dependencies for possible caching.
     # First install 'wheel' package to be able create .whl files.
