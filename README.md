@@ -7,4 +7,4 @@
 # PyUpdater
 #####An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
 
-####[Docs](http://docs.pyupdater.com) - [Installation](http://www.pyupdater.org/installation) - [Changelog](https://github.com/JMSwag/PyUpdater/blob/master/docs/changelog.md) - [License](https://github.com/JMSwag/PyUpdater/blob/master/docs/license.md)
+####[Docs](http://www.pyupdater.com) - [Installation](http://www.pyupdater.org/installation) - [Changelog](https://github.com/JMSwag/PyUpdater/blob/master/docs/changelog.md) - [License](https://github.com/JMSwag/PyUpdater/blob/master/docs/license.md)

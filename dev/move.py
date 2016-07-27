@@ -16,7 +16,7 @@ def main():
         for f in files:
             if f.startswith(u'.'):
                 continue
-            elif f in [u'hostess.json']:
+            elif f in [u'hostess.json', 'Staticfile']:
                 continue
             elif os.path.isfile(f):
                 os.remove(f)
