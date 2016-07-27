@@ -14,11 +14,12 @@
     - Only log debug messages
   - archive command
   - Windows tests setup scripts
+  - More concise docs
 
 ####Fixed
 
   - Client
-    - Write file to filesystem when no hash is passed
+    - Write file to file-system when no hash is passed
 
 ####Removed
   - jms-utils
