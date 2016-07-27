@@ -102,10 +102,7 @@ class FileDownloader(object):
         self._download_to_memory()
         check = self._check_hash()
         # If no hash is passed just write the file
-        if check is None:
-            self._write_to_file()
-            return True
-        if check is True:
+        if check is True or check is None:
             self._write_to_file()
             return True
         else:
@@ -129,9 +126,7 @@ class FileDownloader(object):
         """
         self._download_to_memory()
         check = self._check_hash()
-        if check is None:
-            return self.file_binary_data
-        if check is True:
+        if check is True or check is None:
             return self.file_binary_data
         else:
             return None
