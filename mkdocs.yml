@@ -7,14 +7,14 @@ pages:
 - User Guide:
     - Installation: installation.md
     - Commands: commands.md
-    - Workflow: workflow.md
-    - Workflow Assets: workflow-asset.md
+    - Usage: usage.md
+    - Usage - Assets: usage-asset.md
+    - Usage - Advanced: usage-advanced.md
     - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create_plugin.md
-    - Important Notes: important_notes.md
 - Change Log: changelog.md
 - Extras:
-    - Folder Layout: folder_structure.md
+    - Data Folder Layout: data-folder-layout.md
     - Contributing: contributing.md
     - Downloads: downloads.md
     - License: license.md
