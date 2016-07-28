@@ -1,18 +1,3 @@
-# --------------------------------------------------------------------------
-# Copyright 2014-2016 Digital Sapphire Development Team
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# --------------------------------------------------------------------------
 from setuptools import find_packages, setup
 
 import versioneer
@@ -36,7 +21,7 @@ setup(
     url='http://www.pyupdater.org',
     download_url=('https://github.com/JMSwag/Py'
                   'Updater/archive/master.zip'),
-    license='Apache License 2.0',
+    license='MIT',
     extras_require={
         's3': extra_s3,
         'scp': extra_scp,
@@ -59,7 +44,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4'],
