@@ -206,8 +206,7 @@ class PluginManager(object):
             # We are ensuring a unique name for users
             # to select when uploading.
             name = self._name_check(p.name)
-            self.plugins.append({'name': name,
-                                'author': p.author,
+            self.plugins.append({'name': name, 'author': p.author,
                                 'plugin': p})
 
     def config_plugin(self, name, config):
@@ -406,9 +405,9 @@ def setup_appname(config):  # pragma: no cover
     else:
         default = None
     config.APP_NAME = dsdev_utils.terminal.get_correct_answer('Please enter '
-                                                            'app name',
-                                                            required=True,
-                                                            default=default)
+                                                              'app name',
+                                                              required=True,
+                                                              default=default)
 
 
 def setup_company(config):  # pragma: no cover
@@ -417,9 +416,9 @@ def setup_company(config):  # pragma: no cover
     else:
         default = None
     temp = dsdev_utils.terminal.get_correct_answer('Please enter your comp'
-                                                 'any or name',
-                                                 required=True,
-                                                 default=default)
+                                                   'any or name',
+                                                   required=True,
+                                                   default=default)
     config.COMPANY_NAME = temp
 
 
@@ -432,7 +431,7 @@ def setup_client_config_path(config): # pragma: no cover
                 "lib/utils, src/lib, src. \n\nLeave blank to use "
                 "the current directory")
     answer = dsdev_utils.terminal.get_correct_answer(question,
-                                                   default=_default_dir)
+                                                     default=_default_dir)
 
     if answer == _default_dir:
         config.CLIENT_CONFIG_PATH = settings.DEFAULT_CLIENT_CONFIG
@@ -445,25 +444,25 @@ def setup_client_config_path(config): # pragma: no cover
 
 def setup_urls(config):  # pragma: no cover
     url = dsdev_utils.terminal.get_correct_answer('Enter a url to ping for '
-                                                'updates.', required=True)
+                                                  'updates.', required=True)
     config.UPDATE_URLS = [url]
     while 1:
         answer = dsdev_utils.terminal.ask_yes_no('Would you like to add '
-                                               'another url for backup?',
-                                               default='no')
+                                                 'another url for backup?',
+                                                 default='no')
         if answer is True:
             url = dsdev_utils.terminal.get_correct_answer('Enter another url.',
-                                                        required=True)
+                                                          required=True)
             config.UPDATE_URLS.append(url)
         else:
             break
 
 
 def setup_patches(config):  # pragma: no cover
-    config.UPDATE_PATCHES = dsdev_utils.terminal.ask_yes_no('Would you like to '
-                                                          'enable patch upda'
-                                                          'tes?',
-                                                          default='yes')
+    question = 'Would you like to enable patch updates?'
+    config.UPDATE_PATCHES = dsdev_utils.terminal.ask_yes_no(question,
+                                                            default='yes')
+
 
 def setup_plugin(name, config):
     pgm = PluginManager(config)
@@ -476,14 +475,14 @@ def setup_plugin(name, config):
 
 def setup_scp(config):  # pragma: no cover
     _temp = dsdev_utils.terminal.get_correct_answer('Enter remote dir',
-                                                  required=True)
+                                                    required=True)
     config.SSH_REMOTE_DIR = _temp
     config.SSH_HOST = dsdev_utils.terminal.get_correct_answer('Enter host',
-                                                            required=True)
+                                                              required=True)
 
-    config.SSH_USERNAME = dsdev_utils.terminal.get_correct_answer('Enter '
-                                                                'usernmae',
-                                                                required=True)
+    question = 'Enter username'
+    config.SSH_USERNAME = dsdev_utils.terminal.get_correct_answer(question,
+                                                                  required=True)
 
 
 def initial_setup(config):  # pragma: no cover

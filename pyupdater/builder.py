@@ -43,7 +43,6 @@ from dsdev_utils.paths import remove_any
 from PyInstaller.__main__ import run as pyi_build
 
 
-
 log = logging.getLogger(__name__)
 
 
