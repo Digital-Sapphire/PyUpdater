@@ -130,7 +130,7 @@ class PackageHandler(object):
         patches = self._make_patches(patch_manifest)
         self._cleanup(patch_manifest)
         pkg_manifest = self._add_patches_to_packages(pkg_manifest,
-                                                         patches)
+                                                     patches)
         self.json_data = self._update_version_file(self.json_data,
                                                    pkg_manifest)
         self._write_json_to_file(self.json_data)
@@ -297,7 +297,7 @@ class PackageHandler(object):
 
             pool = multiprocessing.Pool(processes=cpu_count)
             pool_output = pool.map(_make_patch,
-                                                        patch_manifest)
+                                   patch_manifest)
         else:
             pool_output = []
             for p in patch_manifest:
@@ -364,9 +364,11 @@ class PackageHandler(object):
         patch_size = package_info.patch_info.get('patch_size')
 
         # Converting info to format compatible for version file
-        info = {'file_hash': package_info.file_hash,
-                    'file_size': package_info.file_size,
-                    'filename': package_info.filename}
+        info = {
+            'file_hash': package_info.file_hash,
+            'file_size': package_info.file_size,
+            'filename': package_info.filename
+            }
 
         # Adding patch info if available
         if patch_name and patch_hash:

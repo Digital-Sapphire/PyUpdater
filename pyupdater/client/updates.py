@@ -289,7 +289,7 @@ class LibUpdate(object):
         log.debug('Archive filename: %s', filename)
         if filename is None:
             log.debug('Make sure version numbers are correct. '
-                        'Possible TRAP!')
+                      'Possible TRAP!')
             return False
         latest = get_highest_version(name, self.platform,
                                      self.channel, self.easy_data)
@@ -297,7 +297,7 @@ class LibUpdate(object):
         # available to patch If not we'll just do a full binary download
         if not os.path.exists(os.path.join(self.update_folder, filename)):
             log.debug('%s got deleted. No base binary to start patching '
-                        'form', filename)
+                      'form', filename)
             return False
 
         # Initilize Patch object with all required information

@@ -38,7 +38,6 @@ RETRIES_MAX = 3
 RETRIES_WAIT = 0.05
 
 
-
 class FileDownloader(object):
     """The FileDownloader object downloads files to memory and
     verifies their hash.  If hash is verified data is either

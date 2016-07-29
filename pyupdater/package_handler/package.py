@@ -99,11 +99,13 @@ def remove_previous_versions(directory, filename):
                 log.debug('Old version: %s', old_version)
                 log.debug('Current version: %s', current_version)
 
+
 # ToDo: Remove in version 3.0
 def cleanup_old_archives(filename=None, directory=None):
     "Removes previous version of named file"
     remove_previous_versions(directory, filename)
 # End Todo
+
 
 class Patch(object):
     """Holds information for patch file.

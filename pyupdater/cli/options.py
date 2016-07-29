@@ -86,8 +86,8 @@ def add_archive_parser(subparsers):
     archive_parser.add_argument('--name', required=True, help='Name of the '
                                 'asset to archive')
     # ToDo: Remove in v3.0
-    archive_parser.add_argument('--target-name', required=True, help='* Warning '
-                                '* Deprecated')
+    archive_parser.add_argument('--target-name', required=True, help='* Warnin'
+                                'g * Deprecated')
     archive_parser.add_argument('--version', required=True, help='Version of '
                                 'file')
     archive_parser.add_argument('-k', '--keep', action='store_true',
@@ -160,6 +160,7 @@ def add_package_parser(subparsers):
 
     package_parser.add_argument('-v', '--verbose', help='More output messages',
                                 action='store_true', dest='verbose')
+
 
 def add_plugin_parser(subparsers):
     plugin_parser = subparsers.add_parser('plugins', help='Shows installed '
