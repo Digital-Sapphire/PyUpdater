@@ -201,7 +201,7 @@ class LibUpdate(object):
         """
         if self.name is not None:
             # Tested elsewhere
-            if self._is_downloaded(self.name) is True:  # pragma: no cover
+            if self._is_downloaded() is True:  # pragma: no cover
                 self.status = True
             else:
                 log.debug('Starting patch download')
