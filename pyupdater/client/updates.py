@@ -148,9 +148,7 @@ class LibUpdate(object):
 
             False: File hasn't already been downloaded.
         """
-        if self.name is None or self._is_downloading is True:
-            return False
-        return self._is_downloaded(self.name)
+        return self._is_downloaded()
 
     def download(self, async=False):
         if async is True:
@@ -161,6 +159,31 @@ class LibUpdate(object):
             if self._is_downloading is False:
                 self._is_downloading = True
                 return self._download()
+
+    # Used to extract asset from archive
+    def extract(self):
+        """Will extract archived update and leave in update folder.
+        If updating a lib you can take over from there. If updating
+        an app this call should be followed by :meth:`restart` to
+        complete update.
+
+        Returns:
+
+            (bool) Meanings:
+
+                True - Extract successful
+
+                False - Extract failed
+        """
+        if dsdev_utils.system.get_system() == 'win':  # Tested elsewhere
+            log.debug('Only supported on Unix like systems')
+            return False
+        try:
+            self._extract_update()
+        except ClientError as err:
+            log.debug(err, exc_info=True)
+            return False
+        return True
 
     def _download(self):
         """Will download the package update that was referenced
@@ -202,85 +225,72 @@ class LibUpdate(object):
             self._is_downloading = False
             return self.status
 
-    def extract(self):
-        """Will extract archived update and leave in update folder.
-        If updating a lib you can take over from there. If updating
-        an app this call should be followed by :meth:`restart` to
-        complete update.
-
-        Returns:
-
-            (bool) Meanings:
-
-                True - Install successful
-
-                False - Install failed
-        """
-        if dsdev_utils.system.get_system() == 'win':  # Tested elsewhere
-            log.debug('Only supported on Unix like systems')
-            return False
-        try:
-            self._extract_update()
-        except ClientError as err:
-            log.debug(err, exc_info=True)
-            return False
-        return True
-
     def _extract_update(self):
         with dsdev_utils.paths.ChDir(self.update_folder):
             if not os.path.exists(self.filename):
                 log.debug('File does not exists')
                 raise ClientError('File does not exists', expected=True)
 
-            log.debug('Extracting Update')
-            archive_ext = os.path.splitext(self.filename)[1].lower()
-            # Handles extracting gzip or zip archives
-            if archive_ext == '.gz':
-                try:
-                    with tarfile.open(self.filename, 'r:gz') as tfile:
-                        # Extract file update to current
-                        # directory.
-                        tfile.extractall()
-                except Exception as err:  # pragma: no cover
-                    log.debug(err, exc_info=True)
-                    raise ClientError('Error reading gzip file')
-            elif archive_ext == '.zip':
-                try:
-                    with zipfile.ZipFile(self.filename, 'r') as zfile:
-                        # Extract update file to current
-                        # directory.
-                        zfile.extractall()
-                except Exception as err:  # pragma: no cover
-                    log.debug(err, exc_info=True)
-                    raise ClientError('Error reading zip file')
+            verified = self._verify_file_hash()
+            if verified:
+                log.debug('Extracting Update')
+                archive_ext = os.path.splitext(self.filename)[1].lower()
+                # Handles extracting gzip or zip archives
+                if archive_ext == '.gz':
+                    try:
+                        with tarfile.open(self.filename, 'r:gz') as tfile:
+                            # Extract file update to current
+                            # directory.
+                            tfile.extractall()
+                    except Exception as err:  # pragma: no cover
+                        log.debug(err, exc_info=True)
+                        raise ClientError('Error reading gzip file')
+                elif archive_ext == '.zip':
+                    try:
+                        with zipfile.ZipFile(self.filename, 'r') as zfile:
+                            # Extract update file to current
+                            # directory.
+                            zfile.extractall()
+                    except Exception as err:  # pragma: no cover
+                        log.debug(err, exc_info=True)
+                        raise ClientError('Error reading zip file')
+                else:
+                    raise ClientError('Unknown filetype')
             else:
-                raise ClientError('Unknown filetype')
+                raise ClientError('Update archive is corrupt')
+
+    def _get_file_hash_from_manifest(self):
+        hash_key = '{}*{}*{}*{}*{}'.format(self.updates_key, self.name,
+                                           self.latest, self.platform,
+                                           'file_hash')
+        return self.easy_data.get(hash_key)
+
+    # Must be called from directory where file is located
+    def _verify_file_hash(self):
+        if not os.path.exists(self.filename):
+            log.debug('File does not exist')
+            return False
+
+        file_hash = self._get_file_hash_from_manifest()
+        try:
+            with open(self.filename, 'rb') as f:
+                data = f.read()
+        except Exception as err:
+            log.debug(err, exc_info=True)
+            return False
+
+        if file_hash == get_hash(data):
+            return True
+        else:
+            return False
 
     # Checks if latest update is already downloaded
-    def _is_downloaded(self, name):
-        latest = get_highest_version(name, self.platform,
-                                     self.channel, self.easy_data)
-
-        filename = get_filename(name, latest, self.platform, self.easy_data)
-
-        hash_key = '{}*{}*{}*{}*{}'.format(self.updates_key, name,
-                                           latest, self.platform,
-                                           'file_hash')
-        _hash = self.easy_data.get(hash_key)
+    def _is_downloaded(self):
         # Comparing file hashes to ensure security
         with dsdev_utils.paths.ChDir(self.update_folder):
-            if not os.path.exists(filename):
-                return False
-            try:
-                with open(filename, 'rb') as f:
-                    data = f.read()
-            except Exception as err:
-                log.debug(err, exc_info=True)
-                return False
-            if _hash == get_hash(data):
-                return True
-            else:
-                return False
+            verified = self._verify_file_hash()
+
+        return verified
 
     # Handles patch updates
     def _patch_update(self, name, version):  # pragma: no cover
@@ -365,30 +375,33 @@ class AppUpdate(LibUpdate):
             self._extract_update()
 
             if dsdev_utils.system.get_system() == 'win':
-                self._win_overwrite_app_restart()
+                self._win_overwrite_restart()
             else:
-                self._overwrite_app()
+                self._overwrite()
                 self._restart()
         except ClientError as err:
             log.debug(err, exc_info=True)
 
-    def win_extract_overwrite(self):  # pragma: no cover
-        # Windows: Moves update to current directory of running
-        #          application then restarts application using
-        #          new update.
-        exe_name = self.name + '.exe'
-        current_app = os.path.join(self.current_app_dir, exe_name)
-        updated_app = os.path.join(self.update_folder, exe_name)
+    def extract_overwrite(self):  # pragma: no cover
+        """Will extract the update then overwrite the current app"""
+        try:
+            self._extract_update()
+            if dsdev_utils.system.get_system() == 'win':
+                self._win_overwrite()
+            else:
+                self._overwrite()
+        except ClientError as err:
+            log.debug(err, exc_info=True)
 
-        update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
-        r = Restarter(current_app, **update_info)
-        r.process(win_restart=False)
+    # ToDo: Remove in v3.0
+    def win_extract_overwrite(self):
+        self._win_overwrite()
+    # End ToDo
 
+    # ToDo: Remove in v3.0
     def restart(self):  # pragma: no cover
         """Will overwrite old binary with updated binary and
         restart using the updated binary. Not supported on windows.
-
-        Proxy method for :meth:`_overwrite_app` & :meth:`_restart`.
         """
         # On windows we write a batch file to move the update
         # binary to the correct location and restart app.
@@ -396,12 +409,13 @@ class AppUpdate(LibUpdate):
             log.debug('Only supported on Unix like systems')
             return
         try:
-            self._overwrite_app()
+            self._overwrite()
             self._restart()
         except ClientError as err:
             log.debug(err, exc_info=True)
+    # End ToDo
 
-    def _overwrite_app(self):  # pragma: no cover
+    def _overwrite(self):  # pragma: no cover
         # Unix: Overwrites the running applications binary
         if dsdev_utils.system.get_system() == 'mac':
             if self.current_app_dir.endswith('MacOS') is True:
@@ -451,7 +465,19 @@ class AppUpdate(LibUpdate):
         r = Restarter(current_app)
         r.restart()
 
-    def _win_overwrite_app_restart(self):  # pragma: no cover
+    def _win_overwrite(self):  # pragma: no cover
+        # Windows: Moves update to current directory of running
+        #          application then restarts application using
+        #          new update.
+        exe_name = self.name + '.exe'
+        current_app = os.path.join(self.current_app_dir, exe_name)
+        updated_app = os.path.join(self.update_folder, exe_name)
+
+        update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
+        r = Restarter(current_app, **update_info)
+        r.process(win_restart=False)
+
+    def _win_overwrite_restart(self):  # pragma: no cover
         # Windows: Moves update to current directory of running
         #          application then restarts application using
         #          new update.

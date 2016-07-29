@@ -7,6 +7,9 @@
 
   - Retry download
   - dsdev-utils >= 0.9.0
+  - Client
+    - AppUpdate.extract_overwrite
+    - File hash verification before extracting
 
 ####Updated
 
@@ -26,6 +29,16 @@
   - Duplicate logging calls
   - Duplicate listing of dependencies
   - archive --target-name
+
+
+####Deprecated
+
+  - AppUpdate.win_extract_overwrite
+    - Use: AppUpdate.extract_overwrite
+    - Remove: v3.0
+  - AppUpdate.restart
+    - Use: AppUpdate.extract_restart
+    - Remove: v3.0
 
 
 ## v2.0.5 - 2016/07/17
