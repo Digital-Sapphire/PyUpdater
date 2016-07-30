@@ -29,6 +29,7 @@
   - Duplicate logging calls
   - Duplicate listing of dependencies
   - archive --target-name
+  - Redundant code
 
 
 ####Deprecated
