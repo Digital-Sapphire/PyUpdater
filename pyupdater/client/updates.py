@@ -129,11 +129,11 @@ class LibUpdate(object):
         self._is_downloading = False
 
         # Used to generate file name of archive
-        latest = get_highest_version(self.name, self.platform,
-                                     self.channel, self.easy_data)
+        self.latest = get_highest_version(self.name, self.platform,
+                                          self.channel, self.easy_data)
         # Get full filename of latest update archive
-        self.filename = get_filename(self.name, latest, self.platform,
-                                     self.easy_data)
+        self.filename = get_filename(self.name, self.latest,
+                                     self.platform, self.easy_data)
         assert self.filename is not None
         self.abspath = os.path.join(self.update_folder, self.filename)
         # Removes old versions, of update being checked, from
@@ -207,7 +207,7 @@ class LibUpdate(object):
                 log.debug('Starting patch download')
                 patch_success = False
                 if self.channel == 'stable':
-                    patch_success = self._patch_update(self.name, self.version)
+                    patch_success = self._patch_update()
                 # Tested elsewhere
                 if patch_success:  # pragma: no cover
                     self.status = True
@@ -215,7 +215,7 @@ class LibUpdate(object):
                 else:
                     log.debug('Patch update failed')
                     log.debug('Starting full download')
-                    update_success = self._full_update(self.name)
+                    update_success = self._full_update()
                     if update_success:
                         self.status = True
                         log.debug('Full download successful')
@@ -293,26 +293,18 @@ class LibUpdate(object):
         return verified
 
     # Handles patch updates
-    def _patch_update(self, name, version):  # pragma: no cover
+    def _patch_update(self):  # pragma: no cover
         log.debug('Starting patch update')
-        filename = get_filename(name, version, self.platform, self.easy_data)
-        log.debug('Archive filename: %s', filename)
-        if filename is None:
-            log.debug('Make sure version numbers are correct. '
-                      'Possible TRAP!')
-            return False
-        latest = get_highest_version(name, self.platform,
-                                     self.channel, self.easy_data)
         # Just checking to see if the zip for the current version is
         # available to patch If not we'll just do a full binary download
-        if not os.path.exists(os.path.join(self.update_folder, filename)):
+        if not os.path.exists(os.path.join(self.update_folder, self.filename)):
             log.debug('%s got deleted. No base binary to start patching '
-                      'form', filename)
+                      'form', self.filename)
             return False
 
         # Initilize Patch object with all required information
-        p = Patcher(name=name, json_data=self.json_data,
-                    current_version=version, latest_version=latest,
+        p = Patcher(name=self.name, json_data=self.json_data,
+                    current_version=self.version, latest_version=self.latest,
                     update_folder=self.update_folder,
                     update_urls=self.update_urls, verify=self.verify,
                     progress_hooks=self.progress_hooks)
@@ -323,21 +315,13 @@ class LibUpdate(object):
         return p.start()
 
     # Starting full update
-    def _full_update(self, name):
+    def _full_update(self):
         log.debug('Starting full update')
-        latest = get_highest_version(name, self.platform,
-                                     self.channel, self.easy_data)
 
-        filename = get_filename(name, latest, self.platform, self.easy_data)
-
-        hash_key = '{}*{}*{}*{}*{}'.format(self.updates_key, name,
-                                           latest, self.platform,
-                                           'file_hash')
-        file_hash = self.easy_data.get(hash_key)
-
+        file_hash = self._get_file_hash_from_manifest()
         with dsdev_utils.paths.ChDir(self.update_folder):
             log.debug('Downloading update...')
-            fd = FileDownloader(filename, self.update_urls,
+            fd = FileDownloader(self.filename, self.update_urls,
                                 hexdigest=file_hash, verify=self.verify,
                                 progress_hooks=self.progress_hooks)
             result = fd.download_verify_write()
@@ -350,11 +334,7 @@ class LibUpdate(object):
 
     def cleanup(self):
         log.debug('Beginning removal of old updates')
-
-        filename = get_filename(self.name, self.version,
-                                self.platform, self.easy_data)
-
-        remove_previous_versions(self.update_folder, filename)
+        remove_previous_versions(self.update_folder, self.filename)
 
 
 class AppUpdate(LibUpdate):
