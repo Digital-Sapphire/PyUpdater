@@ -53,7 +53,7 @@ def dsdev_utils():
     return dsdev_utils
 
 
-_platform = dsdev_utils.system.get_system()
+_PLATFORM = dsdev_utils.system.get_system()
 
 
 class Patcher(object):
@@ -95,7 +95,7 @@ class Patcher(object):
         self.og_binary = None
         # ToDo: Update tests with linux archives.
         # Used for testing.
-        self.platform = kwargs.get('platform', _platform)
+        self.platform = kwargs.get('platform', _PLATFORM)
         self.current_filename = kwargs.get('current_filename')
         self.current_file_hash = kwargs.get('current_file_hash')
 

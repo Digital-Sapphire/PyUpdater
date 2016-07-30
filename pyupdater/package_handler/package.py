@@ -93,7 +93,7 @@ def remove_previous_versions(directory, filename):
 
             if old_version < current_version:
                 old_path = os.path.join(directory, t)
-                log.info('Removing old update: %s', old_path)
+                log.debug('Removing old update: %s', old_path)
                 remove_any(old_path)
             else:
                 log.debug('Old version: %s', old_version)
@@ -188,7 +188,7 @@ class Package(object):
             log.warning(msg)
             return
 
-        log.info('Extracting update archive info for: %s', package)
+        log.debug('Extracting update archive info for: %s', package)
         try:
             v = Version(package)
             self.channel = v.channel
@@ -212,7 +212,7 @@ class Package(object):
         self.name = self._parse_package_name(package)
         log.debug('Got name of update: %s', self.name)
         self.info['status'] = True
-        log.info('Info extraction complete')
+        log.debug('Info extraction complete')
 
     def _parse_package_name(self, package):
         # Returns package name from update archive name
