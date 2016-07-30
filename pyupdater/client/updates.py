@@ -300,6 +300,9 @@ class LibUpdate(object):
     # Handles patch updates
     def _patch_update(self):  # pragma: no cover
         log.debug('Starting patch update')
+        # The current version is not in the version manifest
+        if self.current_archive_filename is None:
+            return False
         # Just checking to see if the zip for the current version is
         # available to patch If not we'll just do a full binary download
         if not os.path.exists(os.path.join(self.update_folder,
