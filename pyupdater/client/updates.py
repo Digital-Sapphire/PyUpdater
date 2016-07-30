@@ -108,7 +108,7 @@ class LibUpdate(object):
         self.updates_key = settings.UPDATES_KEY
         self.update_urls = data.get('update_urls')
         self.name = data.get('name')
-        self.version = data.get('version')
+        self.current_version = data.get('version')
         self.easy_data = data.get('easy_data')
         # Raw form of easy_data
         self.json_data = data.get('json_data')
@@ -131,11 +131,16 @@ class LibUpdate(object):
         # Used to generate file name of archive
         self.latest = get_highest_version(self.name, self.platform,
                                           self.channel, self.easy_data)
+
+        self.current_archive_filename = get_filename(self.name,
+                                                     self.current_version,
+                                                     self.platform,
+                                                     self.easy_data)
+
         # Get full filename of latest update archive
         self.filename = get_filename(self.name, self.latest,
                                      self.platform, self.easy_data)
         assert self.filename is not None
-        self.abspath = os.path.join(self.update_folder, self.filename)
         # Removes old versions, of update being checked, from
         # updates folder.  Since we only start patching from
         # the current binary this shouldn't be a problem.
@@ -297,14 +302,16 @@ class LibUpdate(object):
         log.debug('Starting patch update')
         # Just checking to see if the zip for the current version is
         # available to patch If not we'll just do a full binary download
-        if not os.path.exists(os.path.join(self.update_folder, self.filename)):
+        if not os.path.exists(os.path.join(self.update_folder,
+                                           self.current_archive_filename)):
             log.debug('%s got deleted. No base binary to start patching '
-                      'form', self.filename)
+                      'form', self.current_archive_filename)
             return False
 
         # Initilize Patch object with all required information
         p = Patcher(name=self.name, json_data=self.json_data,
-                    current_version=self.version, latest_version=self.latest,
+                    current_version=self.current_version,
+                    latest_version=self.latest,
                     update_folder=self.update_folder,
                     update_urls=self.update_urls, verify=self.verify,
                     progress_hooks=self.progress_hooks)
@@ -334,7 +341,8 @@ class LibUpdate(object):
 
     def cleanup(self):
         log.debug('Beginning removal of old updates')
-        remove_previous_versions(self.update_folder, self.filename)
+        remove_previous_versions(self.update_folder,
+                                 self.current_archive_filename)
 
 
 class AppUpdate(LibUpdate):
