@@ -151,8 +151,10 @@ class LibUpdate(object):
 
             True: File is already downloaded.
 
-            False: File hasn't already been downloaded.
+            False: File hasn't been downloaded.
         """
+        if self._is_downloading is True:
+            return False
         return self._is_downloaded()
 
     def download(self, async=False):
@@ -226,8 +228,8 @@ class LibUpdate(object):
                     else:  # pragma: no cover
                         log.debug('Full download failed')
 
-            self._is_downloading = False
-            return self.status
+        self._is_downloading = False
+        return self.status
 
     def _extract_update(self):
         with dsdev_utils.paths.ChDir(self.update_folder):

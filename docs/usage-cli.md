@@ -1,4 +1,4 @@
-#Work Flow
+#Usage | CLI
 
 ###Step 1 - Create Keypack
 ####Create a keypack on an air-gapped computer for best security. You'll be asked for your applications name. It's important that you use the same name when creating a new keypack for the same application. If you don't your updates will fail.

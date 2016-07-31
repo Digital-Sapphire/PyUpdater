@@ -1,6 +1,6 @@
-##Write your own upload plugin
-####Example
-######my_uploader.py
+#Write your own upload plugin
+##Example
+####my_uploader.py
 ```
 
 from pyupdater.uploader import BaseUploader
@@ -25,7 +25,7 @@ class MyUploader(BaseUploader):
 ```
 
 
-######In your setup.py
+####In your setup.py
 ```
 setup(
     provides=['pyupdater.plugins',],
@@ -36,9 +36,9 @@ setup(
         },
 ```
 
-####Plugin Settings
+##Plugin Settings
 Plugin authors have 2 ways of getting config information from users.  The first would be env var. The second would be requesting information from users by calling self.get_answer('Question'). Repo settings override env vars. See the example plugins below.
 
-####Examples plugins
-#####[S3 Plugin](https://github.com/JMSwag/PyUpdater-S3-Plugin "S3 Plugin")
-#####[SCP Plugin](https://github.com/JMSwag/PyUpdater-SCP-Plugin "SCP Plugin")
+##Examples plugins
+###[S3 Plugin](https://github.com/JMSwag/PyUpdater-S3-Plugin "S3 Plugin")
+###[SCP Plugin](https://github.com/JMSwag/PyUpdater-SCP-Plugin "SCP Plugin")
