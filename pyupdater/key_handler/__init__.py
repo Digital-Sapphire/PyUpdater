@@ -90,13 +90,22 @@ class KeyHandler(object):
         data_dir = os.getcwd()
         self.data_dir = os.path.join(data_dir, settings.USER_DATA_FOLDER)
         self.deploy_dir = os.path.join(self.data_dir, 'deploy')
+
+        # Name of the keypack to import. It should be placed
+        # in the root of the repo
         self.keypack_filename = os.path.join(data_dir,
                                              settings.CONFIG_DATA_FOLDER,
                                              settings.KEYPACK_FILENAME)
+
+        # The name of the gzipped version file in
+        # the pyu-data/deploy directory
         self.version_file = os.path.join(self.deploy_dir,
-                                         settings.VERSION_FILE)
+                                         settings.VERSION_FILE_FILENAME)
+
+        # The name of the gzipped key file in
+        # the pyu-data/deploy directory
         self.key_file = os.path.join(self.deploy_dir,
-                                     settings.KEY_FILE)
+                                     settings.KEY_FILE_FILENAME)
 
     def sign_update(self):
         """Signs version file with private key
@@ -112,6 +121,8 @@ class KeyHandler(object):
     def _load_private_keys(self):
         # Loads private key
         log.debug('Loading private key')
+
+        # Loading keypack data from .pyupdater/config.pyu
         keypack_data = self.db.load(settings.CONFIG_DB_KEY_KEYPACK)
         private_key = None
         if keypack_data is not None:
@@ -132,15 +143,18 @@ class KeyHandler(object):
                       'import a keypack & try again')
             return
 
+        # Load update manifest
         update_data = self._load_update_data()
+
+        # We don't want to verify the signature
         if 'signature' in update_data:
             log.debug('Removing signatures from version file')
             del update_data['signature']
+
+        # We create a signature from the string
         update_data_str = json.dumps(update_data, sort_keys=True)
 
-        log.debug('Key type before: %s', type(private_key_raw))
         private_key_raw = private_key_raw.encode('utf-8')
-        log.debug('Key type after: %s', type(private_key_raw))
 
         # Creating signing key object
         private_key = ed25519.SigningKey(private_key_raw,
@@ -150,12 +164,17 @@ class KeyHandler(object):
                                      encoding=self.key_encoding).decode()
         log.debug('Sig: %s', signature)
 
+        # Create new dict from json string
         update_data = json.loads(update_data_str)
+
         # Add signatures to update data
         update_data['signature'] = signature
         log.info('Adding sig to update data')
-        # Write updated version file to filesystem
+
+        # Write updated version file to .pyupdater/config.pyu
         self._write_update_data(update_data)
+
+        # Write gzipped key file
         self._write_key_file()
 
     def _write_update_data(self, data):

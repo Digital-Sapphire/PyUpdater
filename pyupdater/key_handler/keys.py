@@ -43,16 +43,23 @@ log = logging.getLogger(__name__)
 class Keys(object):
 
     def __init__(self, test=False):
+        # Ensure we are working in a pyupdater initialized repo
         self.check = check_repo()
+
+        # We use base64 encoding for easy human consumption
         self.key_encoding = 'base64'
+
         # Used for testing
         # When _load is called it'll cause an empty dict to be created
-        if test is False:
-            self.data_dir = user_data_dir('PyUpdater', 'Digital Sapphire')
-        else:
+        if test:
             self.data_dir = os.path.join('private', 'data')
+        else:
+            self.data_dir = user_data_dir('PyUpdater', 'Digital Sapphire')
+
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
+
+        # The name of the offline key database
         self.keypack_filename = os.path.join(self.data_dir, 'offline_keys.db')
         self._load()
 
@@ -63,6 +70,7 @@ class Keys(object):
         except AssertionError:
             log.debug('Failed to generate keypack')
             return False
+
         # Write keypack to cwd
         with io.open(settings.KEYPACK_FILENAME, 'w', encoding="utf-8") as f:
             out = json.dumps(keypack, indent=2, sort_keys=True)
@@ -88,16 +96,21 @@ class Keys(object):
                 f.write(out)
 
     def _gen_keypack(self, name):
+        # Create new public & private key for app signing
         app_pri, app_pub = self._make_keys()
-        off_pri, off_pub = self._load_offline_keys(name)
-        log.debug('off_pri type: %s', off_pri)
 
+        # Load app specific private & public key
+        off_pri, off_pub = self._load_offline_keys(name)
+
+        log.debug('off_pri type: %s', off_pri)
         off_pri = off_pri.encode()
         if six.PY2:
             app_pub = six.b(app_pub)
             log.debug('off_pri type: %s', type(off_pri))
+
         signing_key = ed25519.SigningKey(off_pri, encoding='base64')
 
+        # Create signature from app signing public key
         signature = signing_key.sign(app_pub,
                                      encoding='base64').decode()
 
@@ -132,14 +145,12 @@ class Keys(object):
 
     def _make_keys(self):
         # Makes a set of private and public keys
-        # Used for authentication
         privkey, pubkey = ed25519.create_keypair()
         pri = privkey.to_ascii(encoding=self.key_encoding)
         pub = pubkey.to_ascii(encoding=self.key_encoding)
         return pri, pub
 
 
-# ToDo: Add some sanitation checks
 class KeyImporter(object):
 
     def __init__(self):

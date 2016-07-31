@@ -363,7 +363,7 @@ class PackageHandler(object):
         patch_hash = package_info.patch_info.get('patch_hash')
         patch_size = package_info.patch_info.get('patch_size')
 
-        # Converting info to format compatible for version file
+        # Converting info to version file format
         info = {
             'file_hash': package_info.file_hash,
             'file_size': package_info.file_size,

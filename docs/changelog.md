@@ -15,6 +15,7 @@
 
   - Client
     - Only log debug messages
+    - Store update data in appdata local instead of roaming
   - archive command
   - Windows tests setup scripts
   - More concise docs
@@ -23,6 +24,7 @@
 
   - Client
     - Write file to file-system when no hash is passed
+    - Close file descriptors
 
 ####Removed
   - jms-utils

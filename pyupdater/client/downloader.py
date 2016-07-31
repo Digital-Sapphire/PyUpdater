@@ -34,7 +34,10 @@ from pyupdater.utils import get_hash, get_http_pool
 from pyupdater.utils.exceptions import FileDownloaderError
 log = logging.getLogger(__name__)
 
+# Max number of download attempts
 RETRIES_MAX = 3
+
+# The time between retries
 RETRIES_WAIT = 0.05
 
 
@@ -71,8 +74,8 @@ class FileDownloader(object):
             self.urls = args[1]
         except IndexError:
             raise FileDownloaderError('No urls provided', expected=True)
-        # User may have accidently passed a string to
-        # the urls para
+        # User may have accidentally passed a
+        # string to the urls parameter
         if isinstance(self.urls, list) is False:
             raise FileDownloaderError('Must pass list of urls', expected=True)
 
@@ -81,10 +84,16 @@ class FileDownloader(object):
         except IndexError:
             self.hexdigest = kwargs.get('hexdigest')
 
+        # Specify if we want to verify TLS connections
         self.verify = kwargs.get('verify', True)
+
+        # Progress hooks to be called
         self.progress_hooks = kwargs.get('progress_hooks', [])
-        # End of user configurable options
-        self.b_size = 4096 * 4
+
+        # Initial block size for each read
+        self.block_size = 4096 * 4
+
+
         self.file_binary_data = None
         self.my_file = BytesIO()
         self.content_length = None
@@ -178,35 +187,48 @@ class FileDownloader(object):
         while 1:
             # Grabbing start time for use with best block size
             start_block = time.time()
-            block = data.read(self.b_size)
+
+            # Get data from connection
+            block = data.read(self.block_size)
+
             # Grabbing end time for use with best block size
             end_block = time.time()
+
             if len(block) == 0:
                 # No more data, get out of this never ending loop!
                 break
-            # Calculating the best block size for the current connection
-            # speed
-            self.b_size = self._best_block_size(end_block - start_block,
-                                                len(block))
-            log.debug('Block size: %s', self.b_size)
+
+            # Calculating the best block size for the
+            # current connection speed
+            self.block_size = self._best_block_size(end_block - start_block,
+                                                    len(block))
+            log.debug('Block size: %s', self.block_size)
             self.my_file.write(block)
+
+            # Total data we've received so far
             recieved_data += len(block)
+
             percent = self._calc_progress_percent(recieved_data,
                                                   self.content_length)
+
             time_left = FileDownloader._calc_eta(start_download, time.time(),
                                                  self.content_length,
                                                  recieved_data)
+
             status = {'total': self.content_length,
                       'downloaded': recieved_data,
                       'status': 'downloading',
                       'percent_complete': percent,
                       'time': time_left}
+
+            # Call all progress hooks with status data
             self._call_progress_hooks(status)
 
         # Flushing data to prepare to write to file
         self.my_file.flush()
         self.my_file.seek(0)
         self.file_binary_data = self.my_file.read()
+        self.my_file.close()
         status = {'total': self.content_length,
                   'downloaed': recieved_data,
                   'status': 'finished',
@@ -229,12 +251,15 @@ class FileDownloader(object):
     def _create_response(self):
         data = None
         for url in self.urls:
+
+            # Create url for resource
             file_url = url + self.filename
             log.debug('Url for request: %s', file_url)
             try:
                 data = self.http_pool.urlopen('GET', file_url,
                                               preload_content=False)
-                # Have to catch url with spaces
+
+                # Used to catch url that has spaces in it.
                 if data.status == 505:
                     raise urllib3.exceptions.HTTPError
             except urllib3.exceptions.SSLError:

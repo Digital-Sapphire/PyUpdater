@@ -97,7 +97,6 @@ def six():
 
 
 log = logging.getLogger(__name__)
-
 log_path = os.path.join(dsdev_utils.paths.app_cwd, 'pyu.log')
 if os.path.exists(log_path):  # pragma: no cover
     ch = logging.FileHandler(os.path.join(dsdev_utils.paths.app_cwd,
@@ -125,15 +124,28 @@ class Client(object):
     """
     def __init__(self, obj=None, refresh=False,
                  progress_hooks=None, test=False):
+        # String: Name of binary to update
         self.name = None
+
+        # String: Version of the binary to update
         self.version = None
+
+        # String: Update manifest as json string - set in _get_update_manifest
         self.json_data = None
+
+        # Boolean: Version file verification
         self.verified = False
+
+        # Boolean: Json being loaded to dict
         self.ready = False
+
+        # LIst: Progress hooks to be called
         self.progress_hooks = []
         if progress_hooks is not None:
             assert isinstance(progress_hooks, list) is True
             self.progress_hooks += progress_hooks
+
+        # Client config obj with settings to find & verify updates
         if obj is not None:
             self.init_app(obj, refresh, test)
 
@@ -153,38 +165,62 @@ class Client(object):
             False: Don't refresh update manifest on object initialization
 
         """
+
+        # A super dict used to save config info & be dot accessed
         config = Config()
         config.from_object(obj)
 
+        # Boolean: If executing frozen
         self.FROZEN = dsdev_utils.app.FROZEN
+
         # Grabbing config information
         update_urls = config.get('UPDATE_URLS', [])
+
+        # List of URL to check for update data
         self.update_urls = self._sanatize_update_url(update_urls)
+
+        # Name of the running application
         self.app_name = config.get('APP_NAME', 'PyUpdater')
+
+        # Name of the app author
         self.company_name = config.get('COMPANY_NAME', 'Digital Sapphire')
+
+        # Used in testing to force use of the mac archive
         if test:
             # Making platform deterministic for tests.
             self.data_dir = obj.DATA_DIR
             self.platform = 'mac'
         else:  # pragma: no cover
-            # Getting platform specific application directory
+            # Getting platform specific user data directory
             self.data_dir = appdirs.user_data_dir(self.app_name,
-                                                  self.company_name,
-                                                  roaming=True)
-            # Setting the platform to pass when requesting updates
+                                                  self.company_name)
+
+            # Used when parsing the update manifest
             self.platform = dsdev_utils.system.get_system()
+
+        # Folder to house update archives
         self.update_folder = os.path.join(self.data_dir,
                                           settings.UPDATE_FOLDER)
+
+        # The root public key to verify the app signing private key
         self.root_key = config.get('PUBLIC_KEY', '')
+
         # We'll get the app_key later in _get_signing_key
+        # That's if we verify the keys manifest
         self.app_key = None
 
-        # Config option to disable tls cert verification
+        # Used to disable TLS cert verification
         self.verify = config.get('VERIFY_SERVER_CERT', True)
-        self.version_file = settings.VERSION_FILE
-        self.key_file = settings.KEY_FILE
 
+        # The name of the version file to download
+        self.version_file = settings.VERSION_FILE_FILENAME
+
+        # The name of the key file to download
+        self.key_file = settings.KEY_FILE_FILENAME
+
+        # Creating data & update directories
         self._setup()
+
         if refresh is True:
             self.refresh()
 
@@ -223,10 +259,13 @@ class Client(object):
             log.debug('Invalid channel. May need to check spelling')
             channel = 'stable'
         self.name = name
+
+        # Version object used for comparison
         version = Version(version)
         self.version = str(version)
 
-        # Will be set to true if we are updating an app and not a lib
+        # Will be set to true if we are updating the currently
+        # running app and not an app's asset
         app = False
 
         if self.ready is False:
@@ -237,7 +276,7 @@ class Client(object):
 
         # Checking if version file is verified before
         # processing data contained in the version file.
-        # This was done by self._get_update_manifest()
+        # This was done by self._get_update_manifest
         if self.verified is False:
             log.debug('Failed version file verification')
             return None
@@ -282,6 +321,7 @@ class Client(object):
             # Ensure single occurrence of each callbackc
             'progress_hooks': list(set(self.progress_hooks)),
             }
+
         # Return update object with which handles downloading,
         # extracting updates
         if app is True:
@@ -411,10 +451,11 @@ class Client(object):
         if data is not None:
             try:
                 log.debug('Data type: %s', type(data))
-                self.json_data = json.loads(data.decode('utf-8'))
-                # Ready to check for updates.
                 # If json fails to load self.ready will stay false
                 # which will cause _update_check to exit early
+                self.json_data = json.loads(data.decode('utf-8'))
+
+                # Ready to check for updates.
                 self.ready = True
             except ValueError as err:
                 # Malformed json???
