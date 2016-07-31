@@ -13,7 +13,7 @@
 
   - Client
     - In certain cases calling download() after a failed download will not start another download
-
+  - Parsing platform name from archive filename
 
 ## v2.1.0 - 2016/07/30
 

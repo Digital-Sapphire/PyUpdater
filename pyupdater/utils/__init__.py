@@ -597,12 +597,14 @@ def parse_platform(name):
 
         (str): Platform name
     """
+    log.debug('Parsing "%s" for platform info', name)
     try:
-        re_str = '[mnw]{1}[ai]{1}[cnx]{1}[6]?[4]?'
-        platform_name = re.compile(re_str).findall(name)[0]
+        re_str = '-(?P<platform>mac|win|nix[6]?[4]?)-'
+        data = re.compile(re_str).search(name)
+        platform_name = data.groupdict()['platform']
         log.debug('Platform name is: %s', platform_name)
-    except IndexError:
-        raise UtilsError('')
+    except AttributeError:
+        raise UtilsError('Could not parse platform from filename')
 
     return platform_name
 
