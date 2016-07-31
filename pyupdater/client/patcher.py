@@ -89,14 +89,25 @@ class Patcher(object):
         self.update_folder = kwargs.get('update_folder')
         self.update_urls = kwargs.get('update_urls', [])
         self.verify = kwargs.get('verify', True)
+
+        # Progress hooks to be called
         self.progress_hooks = kwargs.get('progress_hooks', [])
+
+        # List of dicts with urls, filename & hash of each patch
         self.patch_data = []
+
+        # List of binary blobs of patch data
         self.patch_binary_data = []
+
+        # binary blob of original archive to patch
         self.og_binary = None
+
         # ToDo: Update tests with linux archives.
         # Used for testing.
         self.platform = kwargs.get('platform', _PLATFORM)
+
         self.current_filename = kwargs.get('current_filename')
+
         self.current_file_hash = kwargs.get('current_file_hash')
 
         file_info = self._get_info(self.name, self.current_version,
@@ -143,21 +154,25 @@ class Patcher(object):
     def _verify_installed_binary(self):
         # Verifies latest downloaded archive against known hash
         log.debug('Checking for current installed binary to patch')
+        status = True
 
         with dsdev_utils.paths.ChDir(self.update_folder):
             if not os.path.exists(self.current_filename):
                 log.debug('Cannot find archive to patch')
-                return False
+                status = False
+            else:
+                installed_file_hash = get_package_hashes(self.current_filename)
+                if self.current_file_hash != installed_file_hash:
+                    log.debug('Binary hash mismatch')
+                    status = False
+                else:
+                    # Read binary into memory to begin patching
+                    with open(self.current_filename, 'rb') as f:
+                        self.og_binary = f.read()
 
-            installed_file_hash = get_package_hashes(self.current_filename)
-            if self.current_file_hash != installed_file_hash:
-                log.debug('Binary hash mismatch')
-                return False
-            # Read binary into memory to begin patching
-            with open(self.current_filename, 'rb') as f:
-                self.og_binary = f.read()
-        log.debug('Binary found and verified')
-        return True
+        if status:
+            log.debug('Binary found and verified')
+        return status
 
     # We will take all versions.  Then append any version
     # thats greater then the current version to the list
@@ -179,6 +194,7 @@ class Patcher(object):
         # patches are less than the size of a full update
         fall_back = False
         total_patch_size = 0
+
         # Loop through all required patches and get file name, hash
         # and file size.
         for p in required_patches:
@@ -193,6 +209,7 @@ class Patcher(object):
                 info['patch_urls'] = self.update_urls
                 info['patch_hash'] = platform_info['patch_hash']
                 patch_size = platform_info.get('patch_size')
+
                 if patch_size is None:
                     fall_back = True
                 else:
@@ -261,13 +278,16 @@ class Patcher(object):
         log.debug('Downloading patches')
         downloaded = 0
         total = len(self.patch_data)
+
         for p in self.patch_data:
+
             # Initialize downloader
             fd = FileDownloader(p['patch_name'], p['patch_urls'],
                                 hexdigest=p['patch_hash'], verify=self.verify)
 
             # Attempt to download resource
             data = fd.download_verify_return()
+
             if data is not None:
                 self.patch_binary_data.append(data)
                 downloaded += 1
@@ -283,10 +303,12 @@ class Patcher(object):
                           'status': 'failed to download all patches'}
                 self._call_progress_hooks(status)
                 return False
+
         status = {'total': total,
                   'downloaed': downloaded,
                   'status': 'finished'}
         self._call_progress_hooks(status)
+
         return True
 
     def _call_progress_hooks(self, data):

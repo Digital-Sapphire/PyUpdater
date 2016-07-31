@@ -867,7 +867,7 @@ DEL "%~f0"
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
-        log.info('Starting update batch file')
+        log.debug('Starting update batch file')
         # os.startfile(bat)
         args = ['wscript.exe', vbs_file, bat_file]
         subprocess.Popen(args)
@@ -891,7 +891,7 @@ DEL "%~f0"
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
-        log.info('Starting update batch file')
+        log.debug('Starting update batch file')
         # os.startfile(bat)
         args = ['wscript.exe', vbs_file, bat_file]
         subprocess.Popen(args)

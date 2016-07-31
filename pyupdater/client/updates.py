@@ -141,9 +141,9 @@ class LibUpdate(object):
         self.filename = get_filename(self.name, self.latest,
                                      self.platform, self.easy_data)
         assert self.filename is not None
-        # Removes old versions, of update being checked, from
-        # updates folder.  Since we only start patching from
-        # the current binary this shouldn't be a problem.
+
+        # Removes old versions, of this asset, from
+        # the updates folder.
         self.cleanup()
 
     def is_downloaded(self):
@@ -205,7 +205,6 @@ class LibUpdate(object):
                 False - Download failed
         """
         if self.name is not None:
-            # Tested elsewhere
             if self._is_downloaded() is True:  # pragma: no cover
                 self.status = True
             else:
@@ -240,7 +239,7 @@ class LibUpdate(object):
             if verified:
                 log.debug('Extracting Update')
                 archive_ext = os.path.splitext(self.filename)[1].lower()
-                # Handles extracting gzip or zip archives
+
                 if archive_ext == '.gz':
                     try:
                         with tarfile.open(self.filename, 'r:gz') as tfile:
@@ -303,8 +302,9 @@ class LibUpdate(object):
         # The current version is not in the version manifest
         if self.current_archive_filename is None:
             return False
+
         # Just checking to see if the zip for the current version is
-        # available to patch If not we'll just do a full binary download
+        # available to patch If not we'll fall back to a full binary download
         if not os.path.exists(os.path.join(self.update_folder,
                                            self.current_archive_filename)):
             log.debug('%s got deleted. No base binary to start patching '
@@ -320,15 +320,13 @@ class LibUpdate(object):
                     progress_hooks=self.progress_hooks)
 
         # Returns True if everything went well
-        # If False is returned then we will just do the full
-        # update.
+        # If False, fall back to a full update
         return p.start()
 
-    # Starting full update
     def _full_update(self):
         log.debug('Starting full update')
-
         file_hash = self._get_file_hash_from_manifest()
+
         with dsdev_utils.paths.ChDir(self.update_folder):
             log.debug('Downloading update...')
             fd = FileDownloader(self.filename, self.update_urls,
@@ -411,22 +409,27 @@ class AppUpdate(LibUpdate):
         if dsdev_utils.system.get_system() == 'mac':
             if self.current_app_dir.endswith('MacOS') is True:
                 log.debug('Looks like we\'re dealing with a Mac Gui')
-                # Temp var used for pep 8 compliance
+
                 temp_dir = get_mac_dot_app_dir(self.current_app_dir)
                 self.current_app_dir = temp_dir
 
         app_update = os.path.join(self.update_folder, self.name)
+
         # Must be dealing with Mac .app application
         if not os.path.exists(app_update):
             app_update += '.app'
+
         log.debug('Update Location:\n%s', os.path.dirname(app_update))
         log.debug('Update Name: %s', os.path.basename(app_update))
 
         current_app = os.path.join(self.current_app_dir, self.name)
+
         # Must be dealing with Mac .app application
         if not os.path.exists(current_app):
             current_app += '.app'
+
         log.debug('Current App location:\n\n%s', current_app)
+
         # Remove current app to prevent errors when moving
         # update to new location
         if os.path.exists(current_app):
@@ -436,9 +439,6 @@ class AppUpdate(LibUpdate):
         shutil.move(app_update, self.current_app_dir)
 
     def _restart(self):  # pragma: no cover
-        # Oh yes i did just pull that new binary into
-        # the currently running process and kept it pushing
-        # like nobody's business. Windows what???
         log.debug('Restarting')
         current_app = os.path.join(self.current_app_dir, self.name)
         if dsdev_utils.system.get_system() == 'mac':
@@ -448,18 +448,19 @@ class AppUpdate(LibUpdate):
                 current_app += '.app'
                 mac_app_binary_dir = os.path.join(current_app, 'Contents',
                                                   'MacOS')
-                file_ = os.listdir(mac_app_binary_dir)
+                _file = os.listdir(mac_app_binary_dir)
+
                 # We are making an assumption here that only 1
                 # executable will be in the MacOS folder.
-                current_app = os.path.join(mac_app_binary_dir, file_[0])
+                current_app = os.path.join(mac_app_binary_dir, _file[0])
 
         r = Restarter(current_app)
         r.restart()
 
     def _win_overwrite(self):  # pragma: no cover
         # Windows: Moves update to current directory of running
-        #          application then restarts application using
-        #          new update.
+        #                 application then restarts application using
+        #                 new update.
         exe_name = self.name + '.exe'
         current_app = os.path.join(self.current_app_dir, exe_name)
         updated_app = os.path.join(self.update_folder, exe_name)

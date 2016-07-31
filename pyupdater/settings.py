@@ -63,5 +63,5 @@ UPDATES_KEY = 'updates'
 UPDATE_FOLDER = 'update'
 
 # Name of version file place in online repo
-VERSION_FILE = 'versions.gz'
-KEY_FILE = 'keys.gz'
+VERSION_FILE_FILENAME = 'versions.gz'
+KEY_FILE_FILENAME = 'keys.gz'
