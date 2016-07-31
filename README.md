@@ -5,6 +5,6 @@
 [![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master)
 
 # PyUpdater
-#####An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
+####An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
 
 ####[Docs](http://www.pyupdater.org) - [Installation](http://www.pyupdater.org/installation) - [Changelog](http://www.pyupdater.org/changelog/) - [License](http://www.pyupdater.org/license/)
