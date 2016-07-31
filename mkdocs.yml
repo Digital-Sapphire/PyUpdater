@@ -7,9 +7,11 @@ pages:
 - User Guide:
     - Installation: installation.md
     - Commands: commands.md
-    - Usage: usage.md
-    - Usage - Assets: usage-asset.md
-    - Usage - Advanced: usage-advanced.md
+    - Usage | CLI: usage-cli.md
+    - Usage | CLI | Assets: usage-cli-asset.md
+    - Usage | CLI | Advanced: usage-cli-advanced.md
+    - Usage | Client: usage-client.md
+    - Usage | Client | Asset: usage-client-asset.md
     - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create_plugin.md
 - Change Log: changelog.md

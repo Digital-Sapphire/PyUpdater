@@ -1,4 +1,4 @@
-#Workflow Assets
+#Usage | CLI | Assets
 
 ###Step 1 - Prepare external asset
 ####Place asset in pyu-data/new directory

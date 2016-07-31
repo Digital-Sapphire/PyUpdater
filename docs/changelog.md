@@ -3,6 +3,17 @@
 ## v2.1.1 - Master
 ####* This version is not yet released and is under active development.
 
+####Added
+
+  - Docs
+    - Usage docs for updating application & assets
+
+
+####Fixed
+
+  - Client
+    - In certain cases calling download() after a failed download will not start another download
+
 
 ## v2.1.0 - 2016/07/30
 
