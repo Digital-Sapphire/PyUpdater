@@ -12,6 +12,7 @@
 ####Fixed
 
   - Client
+    - Restart
     - In certain cases calling download() after a failed download will not start another download
   - Parsing platform name from archive filename
 

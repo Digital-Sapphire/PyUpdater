@@ -457,7 +457,7 @@ class AppUpdate(LibUpdate):
                 current_app = os.path.join(mac_app_binary_dir, _file[0])
 
         r = Restarter(current_app)
-        r.restart()
+        r.process()
 
     def _win_overwrite(self):  # pragma: no cover
         # Windows: Moves update to current directory of running
