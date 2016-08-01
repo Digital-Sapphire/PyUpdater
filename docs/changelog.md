@@ -1,7 +1,10 @@
 # Changelog
 
-## v2.1.1 - Master
+## v2.1.2 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.1.1 - 2016/07/31
 
 ####Added
 
