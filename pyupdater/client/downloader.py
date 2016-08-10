@@ -230,8 +230,9 @@ class FileDownloader(object):
         self.file_binary_data = self.my_file.read()
         self.my_file.close()
         status = {'total': self.content_length,
-                  'downloaed': recieved_data,
+                  'downloaded': recieved_data,
                   'status': 'finished',
+                  'percent_complete': percent,
                   'time': '00:00'}
         self._call_progress_hooks(status)
         log.debug('Download Complete')

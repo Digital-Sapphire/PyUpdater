@@ -37,7 +37,8 @@ TEST_DATA_DIR = os.path.join(os.getcwd(), 'tests', 'test data',
                              'patcher')
 
 VERSION_DATA_DIR = os.path.dirname(TEST_DATA_DIR)
-with io.open(os.path.join(VERSION_DATA_DIR, 'version.json'), encoding='utf-8') as f:
+with io.open(os.path.join(VERSION_DATA_DIR, 'version.json'),
+             encoding='utf-8') as f:
     version_data_str = f.read()
 
 json_data = json.loads(version_data_str)
@@ -64,7 +65,7 @@ update_data = {
 
 
 @pytest.mark.usefixtures("cleandir")
-class TestPatcher(object):
+class TestFails(object):
 
     @pytest.fixture
     def setup(self):
@@ -94,8 +95,33 @@ class TestPatcher(object):
         p = Patcher(**data)
         assert p.start() is False
 
+
+@pytest.mark.usefixtures("cleandir")
+class TestExecution(object):
+
+    @pytest.fixture
+    def setup(self):
+        directory = os.getcwd()
+        base_binary = os.path.join(TEST_DATA_DIR, 'Acme-mac-4.1.tar.gz')
+        shutil.copy(base_binary, directory)
+        return directory
+
     def test_execution(self, setup):
         data = update_data.copy()
         data['update_folder'] = setup
+        p = Patcher(**data)
+        assert p.start() is True
+
+    def test_execution_callback(self, setup):
+
+        def cb(status):
+            assert 'downloaded' in status.keys()
+            assert 'total' in status.keys()
+            assert 'status' in status.keys()
+            assert 'percent_complete' in status.keys()
+
+        data = update_data.copy()
+        data['update_folder'] = setup
+        data['progress_hooks'] = [cb]
         p = Patcher(**data)
         assert p.start() is True
