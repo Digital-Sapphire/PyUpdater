@@ -20,6 +20,7 @@ pages:
     - Contributing: contributing.md
     - Downloads: downloads.md
     - License: license.md
+    - F.O.S.S.: foss.md
 
 theme: 'material'
 repo_name: 'GitHub'
