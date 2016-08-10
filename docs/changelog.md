@@ -7,6 +7,7 @@
 
   - Client
     - Reporting of percent complete when patch updating
+  - FOSS to docs
 
 ###Fixed
 
