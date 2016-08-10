@@ -3,25 +3,36 @@
 ## v2.1.2 - Master
 ####* This version is not yet released and is under active development.
 
+###Added
+
+  - Client
+    - Reporting of percent complete when patch updating
+
+###Fixed
+
+  - Client
+    - Reporting of downloaded status in callbacks
+
 
 ## v2.1.1 - 2016/07/31
 
-####Added
+###Added
 
   - Docs
     - Usage docs for updating application & assets
 
 
-####Fixed
+###Fixed
 
   - Client
     - Restart
     - In certain cases calling download() after a failed download will not start another download
   - Parsing platform name from archive filename
 
+
 ## v2.1.0 - 2016/07/30
 
-####Added
+###Added
 
   - Retry download
   - dsdev-utils >= 0.9.0
@@ -29,7 +40,7 @@
     - AppUpdate.extract_overwrite
     - File hash verification before extracting
 
-####Updated
+###Updated
 
   - Client
     - Only log debug messages
@@ -38,13 +49,13 @@
   - Windows tests setup scripts
   - More concise docs
 
-####Fixed
+###Fixed
 
   - Client
     - Write file to file-system when no hash is passed
     - Close file descriptors
 
-####Removed
+###Removed
   - jms-utils
   - Duplicate logging calls
   - Duplicate listing of dependencies
@@ -52,7 +63,7 @@
   - Redundant code
 
 
-####Deprecated
+###Deprecated
 
   - AppUpdate.win_extract_overwrite
     - Use: AppUpdate.extract_overwrite
@@ -64,51 +75,51 @@
 
 ## v2.0.5 - 2016/07/17
 
-####Fixed
+###Fixed
 
  - Creating patches
 
 
 ## v2.0.4 - 2016/07/17
 
-####Added
+###Added
 
   - Ability for windows apps to be extracted & overwritten but not restarted
   - FileDownloaderError
 
-####Updated
+###Updated
 
   - Docs
   - Re-factored PackageHandler
 
-####Fixed
+###Fixed
 
   - Using format string while logging
 
 ## v2.0.3 - 2016/07/09
 
-####Added
+###Added
 
   - PyUpdater-SCP-plugin to pyupdater[all] install
 
-####Updated
+###Updated
 
   - Install bsdiff by default
   - Lib
     - PyUpdater-SCP-plugin >= 3.0.5
 
-####Fixed
+###Fixed
 
   - User message when setting config directory
 
 
 ## v2.0.2 - 2016/07/09
 
-####Updated
+###Updated
 
   - Graceful exit when attempting to import a module removed from the stdlib
 
-####Fixed
+###Fixed
 
   - Website
     - Changelog submenu
@@ -116,20 +127,20 @@
 
 ## v2.0.1 - 2016/07/09
 
-####Fixed
+###Fixed
 
   - Deploy to pypi
 
 
 ## v2.0 - 2016/07/09
-####Backwards incompatible changes
+###Backwards incompatible changes
 
   - Upload plugin system
     - See "Create Upload Plugins" in docs
   - Version manifest file the client downloads during update checks.
     - See "Upgrading PyUpdater" in docs
 
-#####Added
+###Added
 
   - CLI
     - Configure where client_config.py is written
@@ -140,7 +151,7 @@
     - Verbose: Show why packages were not processed
     - Keep files after upload
 
-#####Updated
+###Updated
 
   - Plugin System
     - Simplified plugin interface
@@ -158,13 +169,13 @@
   - Updated tests
   - Some overall clean up of the code base
 
-#####Fixed
+###Fixed
 
   - Status Badges
   - Patch updates
   - Including libraries in current directory
 
-#####Removed
+###Removed
 
   - Compatibility code for older versions of PyUpdater
   - Need for specific version of PyInstaller
@@ -174,7 +185,7 @@
 
 ## v1.1.15 - 2016/04/17
 
-#####Removed
+###Removed
 
   - debug code
 
@@ -182,7 +193,7 @@
 
 ## v1.1.14 - 2016/04/17
 
-#####Updated
+###Updated
 
   - Libs
     - PyInstaller 3.1.1
@@ -190,25 +201,25 @@
     - stevedore 1.12.0
     - urllib3 1.15.1
 
-#####Fixed
+###Fixed
 
   - Finding directory of executable
 
-#####Removed
+###Removed
 
   - Unused import
 
 
 ## v1.1.13 - 2015/12/13
 
-#####Fixed
+###Fixed
 
   - Missing import
 
 
 ## v1.1.12 - 2015/12/13
 
-#####Removed
+###Removed
 
   - Unused dependency
     - cryptography
@@ -216,14 +227,14 @@
 
 ## v1.1.11 - 2015/12/13
 
-#####Fixed
+###Fixed
 
   - Processing packages on windows
 
 
 ## v1.1.10 - 2015/12/13
 
-#####Fixed
+###Fixed
 
   - Error when archive is in the manifest but missing from files folder
   - Error when attempting to remove executable left in new folder
@@ -231,7 +242,7 @@
 
 ## v1.1.9 - 2015/12/11
 
-#####Updated
+###Updated
 
   - Read & write files in utf-8
   - Libs
@@ -239,14 +250,14 @@
     - stevedore 1.10.0
 
 
-#####Removed
+###Removed
 
   - Unused test init code
 
 
 ## v1.1.8 - 2015/11/23
 
-#####Updated
+###Updated
 
   - Libs
     - cryptography 1.1.1
@@ -255,21 +266,21 @@
 
 ## v1.1.7 - 2015/11/14
 
-#####Fixed
+###Fixed
 
   - Parsing name of archive with spaces
 
 
 ## v1.1.6 - 2015/11/12
 
-#####Fixed
+###Fixed
 
   - Creating second keypack for specific app
 
 
 ## v1.1.5 - 2015/11/08
 
-#####Updated
+###Updated
 
   - Upload Plugins
     - S3 2.5
@@ -278,31 +289,31 @@
 
 ## v1.1.4 - 2015/11/05
 
-#####Fixed
+###Fixed
 
   - Issue restarting application when located in directories beginning with a period.
 
 
 ## v1.1.3 - 2015/11/04
 
-#####Fixed
+###Fixed
 
   - Download progress callbacks
   - Potential issue restarting application when located in certain directories.
 
-#####Removed
+###Removed
 
   - Initializing client with list of callbacks
 
 
 ## v1.1.2 - 2015/10/30
 
-#####Updated
+###Updated
 
   - Cleanup of archives on dev machine
   - Centralized cleanup function to be used by client & package handler
 
-#####Fixed
+###Fixed
 
   - Creating patches for updates
   - Erroneous warning when paring version info
@@ -310,21 +321,21 @@
 
 ## v1.1.1.1 - 2015/10/28
 
-#####Updated
+###Updated
 
   - Libs
     - cryptography 1.1
     - requests 2.8.1
     - stevedore 1.9.0
 
-#####Fixed
+###Fixed
 
   - xrange on py3
 
 
 ## v1.1 - 2015/10/28
 
-#####Added
+###Added
 
   - Make file for windows
   - Patch size in manifest
@@ -333,7 +344,7 @@
   - Auto Upgrade external files
     - Update your external files, binaries or whatever you want to auto upgrade. Patch support included :). The absolute path to the update archive is available .abspath
 
-#####Updated
+###Updated
 
   - Pass all arguments except ones we care about directly to pyinstaller
   - CLI help messages
@@ -354,7 +365,7 @@
     - Commands explained with description and examples
     - Cosmetic updates
 
-#####Removed
+###Removed
 
   - Update command
   - Duplicate code
@@ -364,14 +375,14 @@
 
 ## v1.0.1 - 2015/10/11
 
-#####Updated
+###Updated
 
   - Universal wheel
 
 
 ## v1.0 - 2015/10/11
 
-#####Added
+###Added
 
   - Python 3 support
   - Offline root keys
@@ -381,7 +392,7 @@
   - Async download
     - download(async=True)
 
-#####Updated
+###Updated
 
   - Client
     - Support for offline root keys
@@ -405,13 +416,13 @@
     - requests 2.8.0
   - Simplified signature verification
 
-#####Fixed
+###Fixed
 
   - Error when not able to get cpu count on windows
   - Writing debug
   - Uploading debug logs
 
-#####Removed
+###Removed
 
   - vendored pyinstaller
   - revoking keys
@@ -420,59 +431,59 @@
 
 ## v0.23.3 - 2015/07/21
 
-#####Fixed
+###Fixed
 
   - File already exists error
 
 ## v0.23.2 - 2015/07/21
 
-#####Fixed
+###Fixed
 
   - Compilation
 
-#####Updated
+###Updated
 
   - PyInstaller to 39b02fe5e7563431115f9812f757a21bbcc78837
 
 
 ## v0.23.1 - 2015/07/19
 
-#####Fixed
+###Fixed
 
   - Missing bootloaders
 
 
 ## v0.23.0 - 2015/07/19
 
-#####Added
+###Added
 
   - Vendored PyInstaller
 
     - f920d3eea510ed088eda5359c04990338600c2b8
     - Ability to provide fixes quicker
 
-#####Fixed
+###Fixed
 
   - Error when patch info is None
 
 
 ## v0.22.3 - 2015/07/18
 
-#####Fixed
+###Fixed
 
   - Parsing platform names
 
 
 ## v0.22.2 - 2015/07/18
 
-#####Fixed
+###Fixed
 
   - Versioneer settings
 
 
 ## v0.22.1 - 2015/07/18
 
-#####Updated
+###Updated
 
   - Versioneer settings
 
@@ -480,7 +491,7 @@
 
 ## v0.22 - 2015/07/18
 
-#####Updated
+###Updated
 
   - Code refactoring & optimizations
 
@@ -496,18 +507,18 @@
     - stevedore 1.6.0
     - PyUpdater-S3-Plugin 2.3
 
-#####Removed
+###Removed
 
   - Duplicate code
   - Deprecated log command
 
 ## v0.21.1 - 2015/05/25
 
-#####Added
+###Added
 
   * More hooks from pyinstaller develop
 
-#####Updated
+###Updated
 
   * Test runs in parallel
   * Documentation
@@ -515,19 +526,19 @@
     - requests 2.7.0
     - urllib3 1.10.4
 
-#####Fixed
+###Fixed
 
   - Parsing App Name from update archive filename when version number is in x.x format
   - Potential import error if pyinstaller version lower then 2.1
 
-#####Removed
+###Removed
 
   - Unused code
 
 
 ## v0.21.0 - 2015/04/30
 
-#####Updated
+###Updated
 
   - PyUpdater
 
@@ -539,7 +550,7 @@
     - SCP plugin 2.2
     - Code refactoring
 
-#####Fixed
+###Fixed
 
   - PyUpdater
 
@@ -547,11 +558,9 @@
 
 
 ## v0.20.0 - 2015/03/08
-##### Renamed to PyUpdater
+#### Renamed to PyUpdater
 
-#####Added
-
-#####Updated
+###Updated
 
   - Client
 
@@ -564,7 +573,7 @@
     - Header performance improvements - upstream
     - Central db object
 
-#####Fixed
+###Fixed
 
   - Client
 
@@ -575,7 +584,7 @@
     - session fixation attacks and potentially cookie stealing - upstream
     - Not writing config file when cleaning repo
 
-#####Removed
+###Removed
 
   - PyUpdater
 
@@ -588,7 +597,7 @@
 
 ## v0.19.3 - 2015/02/22
 
-#####Fixed
+###Fixed
 
   - Client
 
@@ -597,7 +606,7 @@
 
 ## v0.19.2 - 2015/02/22
 
-#####Fixed
+###Fixed
 
   - Client
 
@@ -606,7 +615,7 @@
 
 ## v0.19.1 - 2015/02/22
 
-#####Fixed
+###Fixed
 
   - PyUpdater
 
@@ -615,7 +624,7 @@
 
 ## v0.19 - 2015/02/22
 
-#####Added
+###Added
 
   - CLI
 
@@ -625,7 +634,7 @@
 
     - Now logs framework version
 
-* #####Updated
+###Updated
 
   - CLI
 
@@ -659,7 +668,7 @@
     - from pyi_updater.uploader.commom import BaseUploader will
       be remove in v0.22+
 
-#####Fixed
+###Fixed
 
   - Key Handler
 
@@ -674,7 +683,7 @@
 
     - Potential error when adding key add key.db isn't loaded
 
-#####Removed
+###Removed
 
   - PyUpdater
 

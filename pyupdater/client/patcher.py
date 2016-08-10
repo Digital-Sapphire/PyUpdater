@@ -280,19 +280,19 @@ class Patcher(object):
         total = len(self.patch_data)
 
         for p in self.patch_data:
-
             # Initialize downloader
             fd = FileDownloader(p['patch_name'], p['patch_urls'],
                                 hexdigest=p['patch_hash'], verify=self.verify)
 
             # Attempt to download resource
             data = fd.download_verify_return()
-
+            percent = (float(downloaded + 1) / float(total)) * 100
             if data is not None:
                 self.patch_binary_data.append(data)
                 downloaded += 1
                 status = {'total': total,
-                          'downloaed': downloaded,
+                          'downloaded': downloaded,
+                          'percent_complete': percent,
                           'status': 'downloading'}
                 self._call_progress_hooks(status)
             else:
@@ -300,12 +300,14 @@ class Patcher(object):
                 # we cannot continue successfully
                 status = {'total': total,
                           'downloaded': downloaded,
+                          'percent_complete': percent,
                           'status': 'failed to download all patches'}
                 self._call_progress_hooks(status)
                 return False
 
         status = {'total': total,
-                  'downloaed': downloaded,
+                  'downloaded': downloaded,
+                  'percent_complete': percent,
                   'status': 'finished'}
         self._call_progress_hooks(status)
 
