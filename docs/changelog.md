@@ -3,6 +3,11 @@
 ## v2.1.3 - Master
 ####* This version is not yet released and is under active development.
 
+###Added
+
+  - CLI
+    - Ability to set max download retries. 1-10
+
 ###Fixed
 
   - Encoding URL's
@@ -15,6 +20,7 @@
 ###Removed
 
   - Obsolete info in docs
+  - Redundant code
 
 
 ## v2.1.2 - 2016/08/10

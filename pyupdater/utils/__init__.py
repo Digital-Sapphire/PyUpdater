@@ -410,18 +410,6 @@ def setup_appname(config):  # pragma: no cover
                                                               default=default)
 
 
-def setup_company(config):  # pragma: no cover
-    if config.COMPANY_NAME is not None:
-        default = config.COMPANY_NAME
-    else:
-        default = None
-    temp = dsdev_utils.terminal.get_correct_answer('Please enter your comp'
-                                                   'any or name',
-                                                   required=True,
-                                                   default=default)
-    config.COMPANY_NAME = temp
-
-
 def setup_client_config_path(config): # pragma: no cover
     _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
     question = ("Please enter the path to where pyupdater "
@@ -442,20 +430,39 @@ def setup_client_config_path(config): # pragma: no cover
         config.CLIENT_CONFIG_PATH = answer
 
 
-def setup_urls(config):  # pragma: no cover
-    url = dsdev_utils.terminal.get_correct_answer('Enter a url to ping for '
-                                                  'updates.', required=True)
-    config.UPDATE_URLS = [url]
+def setup_company(config):  # pragma: no cover
+    if config.COMPANY_NAME is not None:
+        default = config.COMPANY_NAME
+    else:
+        default = None
+    temp = dsdev_utils.terminal.get_correct_answer('Please enter your comp'
+                                                   'any or name',
+                                                   required=True,
+                                                   default=default)
+    config.COMPANY_NAME = temp
+
+
+def setup_max_download_retries(config):  # pragma: no cover
+    default = config.MAX_DOWNLOAD_RETRIES
     while 1:
-        answer = dsdev_utils.terminal.ask_yes_no('Would you like to add '
-                                                 'another url for backup?',
-                                                 default='no')
-        if answer is True:
-            url = dsdev_utils.terminal.get_correct_answer('Enter another url.',
-                                                          required=True)
-            config.UPDATE_URLS.append(url)
-        else:
-            break
+        temp = dsdev_utils.terminal.get_correct_answer('Enter max download '
+                                                       'retries',
+                                                       required=True,
+                                                       default=default)
+        try:
+            temp = int(temp)
+        except Exception as err:
+            log.error(err)
+            log.debug(err, exc_info=True)
+            continue
+
+        if temp > 10 or temp < 1:
+            log.error('Max retries can only be from 1 to 10')
+            continue
+
+        break
+
+    config.MAX_DOWNLOAD_RETRIES = temp
 
 
 def setup_patches(config):  # pragma: no cover
@@ -473,16 +480,20 @@ def setup_plugin(name, config):
     pgm.config_plugin(name, config)
 
 
-def setup_scp(config):  # pragma: no cover
-    _temp = dsdev_utils.terminal.get_correct_answer('Enter remote dir',
-                                                    required=True)
-    config.SSH_REMOTE_DIR = _temp
-    config.SSH_HOST = dsdev_utils.terminal.get_correct_answer('Enter host',
-                                                              required=True)
-
-    question = 'Enter username'
-    config.SSH_USERNAME = dsdev_utils.terminal.get_correct_answer(question,
-                                                                  required=True)
+def setup_urls(config):  # pragma: no cover
+    url = dsdev_utils.terminal.get_correct_answer('Enter a url to ping for '
+                                                  'updates.', required=True)
+    config.UPDATE_URLS = [url]
+    while 1:
+        answer = dsdev_utils.terminal.ask_yes_no('Would you like to add '
+                                                 'another url for backup?',
+                                                 default='no')
+        if answer is True:
+            url = dsdev_utils.terminal.get_correct_answer('Enter another url.',
+                                                          required=True)
+            config.UPDATE_URLS.append(url)
+        else:
+            break
 
 
 def initial_setup(config):  # pragma: no cover
