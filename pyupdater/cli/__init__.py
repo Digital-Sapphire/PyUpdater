@@ -48,9 +48,10 @@ from pyupdater.utils import (check_repo,
                              print_plugin_settings,
                              setup_client_config_path,
                              setup_company,
-                             setup_urls,
+                             setup_max_download_retries,
                              setup_patches,
-                             setup_plugin)
+                             setup_plugin,
+                             setup_urls)
 from pyupdater.utils.config import Config, Loader
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
@@ -245,26 +246,25 @@ def setting(args):  # pragma: no cover
     if check is False:
         _repo_error()
     # Used to specifiy if config needs to be saved
-    save_config = False
+    save_config = True
     loader = Loader()
     config = loader.load_config()
     if args.config_path is True:
-        save_config = True
         setup_client_config_path(config)
     if args.company is True:
-        save_config = True
         setup_company(config)
+    if args.max_download_retries is True:
+        setup_max_download_retries(config)
     if args.urls is True:
-        save_config = True
         setup_urls(config)
     if args.patches is True:
-        save_config = True
         setup_patches(config)
     if args.plugin is not None:
-        save_config = True
         setup_plugin(args.plugin, config)
     if args.show_plugin is not None:
+        save_config = False
         print_plugin_settings(args.show_plugin, config)
+
     if save_config is True:
         loader.save_config(config)
         log.info('Settings update complete')

@@ -212,6 +212,9 @@ class Client(object):
         # Used to disable TLS cert verification
         self.verify = config.get('VERIFY_SERVER_CERT', True)
 
+        # Max number of download retries
+        self.max_download_retries = config.get('MAX_DOWNLOAD_RETRIES')
+
         # The name of the version file to download
         self.version_file = settings.VERSION_FILE_FILENAME
 
@@ -318,7 +321,7 @@ class Client(object):
             'channel': channel,
             'app_name': self.app_name,
             'verify': self.verify,
-            # Ensure single occurrence of each callbackc
+            'max_download_retries': self.max_download_retries,
             'progress_hooks': list(set(self.progress_hooks)),
             }
 

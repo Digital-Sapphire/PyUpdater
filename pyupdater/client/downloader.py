@@ -24,7 +24,6 @@
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
 
-from io import BytesIO
 import logging
 import time
 
@@ -81,6 +80,9 @@ class FileDownloader(object):
 
         # Specify if we want to verify TLS connections
         self.verify = kwargs.get('verify', True)
+
+        # Max attempts to download resource
+        self.max_download_retries = kwargs.get('max_download_retries')
 
         # Progress hooks to be called
         self.progress_hooks = kwargs.get('progress_hooks', [])
@@ -243,6 +245,7 @@ class FileDownloader(object):
     # Attempting to do some error correction for aws s3 urls
     def _create_response(self):
         data = None
+        max_download_retries = self.max_download_retries
         for url in self.urls:
 
             # Create url for resource
@@ -250,7 +253,8 @@ class FileDownloader(object):
             log.debug('Url for request: %s', file_url)
             try:
                 data = self.http_pool.urlopen('GET', file_url,
-                                              preload_content=False, retries=3)
+                                              preload_content=False,
+                                              retries=max_download_retries)
             except urllib3.exceptions.SSLError:
                 log.debug('SSL cert not verified')
                 continue

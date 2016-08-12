@@ -53,7 +53,10 @@ class Config(dict):
             'PLUGIN_CONFIGS': {},
 
             # Support for patch updates
-            'UPDATE_PATCHES': True
+            'UPDATE_PATCHES': True,
+
+            # Max retries for downloads
+            'MAX_DOWNLOAD_RETRIES': 3,
             }
         self.update(config_template)
 
@@ -132,19 +135,26 @@ class Loader(object):
             public_key = keypack_data['client']['offline_public']
 
         filename = os.path.join(self.cwd, *obj.CLIENT_CONFIG_PATH)
-        attr_str_format = "    {} = '{}'\n"
-        attr_format = "    {} = {}\n"
+        attr_str_format = "\t{} = '{}'\n"
+        attr_format = "\t{} = {}\n"
+
+        log.debug('Writing client_config.py')
         with open(filename, 'w') as f:
             f.write('class ClientConfig(object):\n')
-            if hasattr(obj, 'APP_NAME') and obj.APP_NAME is not None:
+            if hasattr(obj, 'APP_NAME'):
+                log.debug('Adding APP_NAME to client_config.py')
                 f.write(attr_str_format.format('APP_NAME', obj.APP_NAME))
-                log.debug('Wrote APP_NAME to client config')
-            if hasattr(obj, 'COMPANY_NAME') and obj.COMPANY_NAME is not None:
+            if hasattr(obj, 'COMPANY_NAME'):
+                log.debug('Adding COMPANY_NAME to client_config.py')
                 f.write(attr_str_format.format('COMPANY_NAME',
-                        obj.COMPANY_NAME))
-                log.debug('Wrote COMPANY_NAME to client config')
-            if hasattr(obj, 'UPDATE_URLS') and obj.UPDATE_URLS is not None:
+                                               obj.COMPANY_NAME))
+            if hasattr(obj, 'UPDATE_URLS'):
+                log.debug('Adding UPDATE_URLS to client_config.py')
                 f.write(attr_format.format('UPDATE_URLS', obj.UPDATE_URLS))
-                log.debug('Wrote UPDATE_URLS to client config')
-            f.write(attr_str_format.format('PUBLIC_KEY', public_key))
-            log.debug('Wrote PUBLIC_KEY to client config')
+            if hasattr(obj, 'PUBLIC_KEY'):
+                log.debug('Adding PUBLIC_KEY to client_config.py')
+                f.write(attr_str_format.format('PUBLIC_KEY', public_key))
+            if hasattr(obj, 'MAX_DOWNLOAD_RETRIES'):
+                log.debug('Adding MAX_DOWNLOAD_RETRIES to client_config.py')
+                f.write(attr_format.format('MAX_DOWNLOAD_RETRIES',
+                                           obj.MAX_DOWNLOAD_RETRIES))

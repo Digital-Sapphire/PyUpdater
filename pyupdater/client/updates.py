@@ -105,6 +105,7 @@ class LibUpdate(object):
     """
 
     def __init__(self, data):
+        self.init_data = data
         self.updates_key = settings.UPDATES_KEY
         self.update_urls = data.get('update_urls')
         self.name = data.get('name')
@@ -120,6 +121,7 @@ class LibUpdate(object):
         self.update_folder = os.path.join(self.data_dir,
                                           settings.UPDATE_FOLDER)
         self.verify = data.get('verify', True)
+        self.max_download_retries = data.get('max_download_retries')
         self.current_app_dir = os.path.dirname(sys.executable)
         self.status = False
         # If user is using async download this will be True.
@@ -314,12 +316,10 @@ class LibUpdate(object):
             return False
 
         # Initilize Patch object with all required information
-        p = Patcher(name=self.name, json_data=self.json_data,
-                    current_version=self.current_version,
+        p = Patcher(current_version=self.current_version,
                     latest_version=self.latest,
                     update_folder=self.update_folder,
-                    update_urls=self.update_urls, verify=self.verify,
-                    progress_hooks=self.progress_hooks)
+                    **self.init_data)
 
         # Returns True if everything went well
         # If False, fall back to a full update
@@ -333,7 +333,8 @@ class LibUpdate(object):
             log.debug('Downloading update...')
             fd = FileDownloader(self.filename, self.update_urls,
                                 hexdigest=file_hash, verify=self.verify,
-                                progress_hooks=self.progress_hooks)
+                                progress_hooks=self.progress_hooks,
+                                max_download_retries=self.max_download_retries)
             result = fd.download_verify_write()
             if result:
                 log.debug('Download Complete')

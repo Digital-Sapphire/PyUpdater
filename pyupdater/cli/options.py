@@ -102,14 +102,6 @@ def add_build_parser(subparsers):
     _build_make_spec_commom(build_parser)
 
 
-def add_make_spec_parser(subparsers):
-    make_spec_parser = subparsers.add_parser('make-spec', help='Creates '
-                                             'spec file',
-                                             usage='%(prog)s <script> '
-                                             '[opts]')
-    _build_make_spec_commom(make_spec_parser)
-
-
 def add_clean_parser(subparsers):
     clean_parser = subparsers.add_parser('clean',
                                          help='* WARNING * removes all '
@@ -120,11 +112,26 @@ def add_clean_parser(subparsers):
                               action='store_true')
 
 
+def add_debug_parser(subparsers):
+    log_parser = subparsers.add_parser('collect-debug-info',
+                                       help='Upload debug logs to github '
+                                       'gist and return url.')
+    log_parser.add_argument('--dummy', help=argparse.SUPPRESS)
+
+
 def add_init_parser(subparsers):
     init_parser = subparsers.add_parser('init', help='Initializes a '
                                         'src directory')
     # used to suppress landscape.io warning
     init_parser.add_argument('--dummy', help=argparse.SUPPRESS)
+
+
+def add_make_spec_parser(subparsers):
+    make_spec_parser = subparsers.add_parser('make-spec', help='Creates '
+                                             'spec file',
+                                             usage='%(prog)s <script> '
+                                             '[opts]')
+    _build_make_spec_commom(make_spec_parser)
 
 
 def add_keys_parser(subparsers):
@@ -137,13 +144,6 @@ def add_keys_parser(subparsers):
                              action='store_true',)
     keys_parser.add_argument('-y', '--yes', help='Will run command without '
                              'conformation prompt', action='store_true')
-
-
-def add_debug_parser(subparsers):
-    log_parser = subparsers.add_parser('collect-debug-info',
-                                       help='Upload debug logs to github '
-                                       'gist and return url.')
-    log_parser.add_argument('--dummy', help=argparse.SUPPRESS)
 
 
 def add_package_parser(subparsers):
@@ -187,6 +187,9 @@ def add_settings_parser(subparsers):
                                  'settings', dest='plugin')
     settings_parser.add_argument('--show-plugin', help='Show the name '
                                  'plugin\'s settings', dest='show_plugin')
+    settings_parser.add_argument('--max-download-retries', help='Set the max '
+                                 'number of times to try a download.',
+                                 action='store_true')
 
 
 def add_upload_parser(subparsers):
