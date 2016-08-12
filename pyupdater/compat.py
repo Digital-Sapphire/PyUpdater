@@ -26,12 +26,17 @@ import argparse
 import logging
 import os
 # Optpare is deprecated. This will results in an error for the user.
-# Users have to user PyInstaller > 3.0  or Python version lower
-# then the version which removed optparse from the stdlib.
+# Users have to use PyInstaller > 3.0  or a Python version lower
+# than the version which removed optparse from the stdlib.
 try:
     import optparse  # noqa
 except ImportError:
     optparse = None
+
+try:
+    from urllib import quote as url_quote
+except ImportError:
+    from urllib.parse import quote as url_quote
 
 try:
     from PyInstaller import __version__ as pyi_version
