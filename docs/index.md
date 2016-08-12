@@ -41,10 +41,6 @@ An autoupdate framework for pyinstaller that enables simple, secure & efficient 
 - I really feel like I'm missing something else
 
 
-##Demos
-
-Example of using the client within your app can be found in the demos folder.
-
 ##Limitations
 
 * No Pyinstaller onedir support
