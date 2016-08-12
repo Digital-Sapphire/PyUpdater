@@ -1,6 +1,6 @@
 [![](https://badge.fury.io/py/PyUpdater.svg)](http://badge.fury.io/py/PyUpdater)
 [![Build Status](https://travis-ci.org/JMSwag/PyUpdater.svg?branch=master)](https://travis-ci.org/JMSwag/PyUpdater)
-[![Build status](https://ci.appveyor.com/api/projects/status/6kex9r8i2625pw9u?svg=true)](https://ci.appveyor.com/project/JMSwag/pyupdater)
+[![Build status](https://ci.appveyor.com/api/projects/status/6kex9r8i2625pw9u/branch/master?svg=true)](https://ci.appveyor.com/project/JMSwag/pyupdater/branch/master)
 [![](https://requires.io/github/JMSwag/PyUpdater/requirements.svg?branch=master)](https://requires.io/github/JMSwag/PyUpdater/requirements/?branch=master)
 [![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master)
 [![Codewake](https://www.codewake.com/badges/ask_question.svg)](https://www.codewake.com/p/pyupdater)
