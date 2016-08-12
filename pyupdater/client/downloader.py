@@ -30,15 +30,10 @@ import time
 
 import urllib3
 
+from pyupdater.compat import url_quote
 from pyupdater.utils import get_hash, get_http_pool
 from pyupdater.utils.exceptions import FileDownloaderError
 log = logging.getLogger(__name__)
-
-# Max number of download attempts
-RETRIES_MAX = 3
-
-# The time between retries
-RETRIES_WAIT = 0.05
 
 
 class FileDownloader(object):
@@ -93,9 +88,10 @@ class FileDownloader(object):
         # Initial block size for each read
         self.block_size = 4096 * 4
 
-
+        # Hold all binary data once file has been downloaded
         self.file_binary_data = None
-        self.my_file = BytesIO()
+
+        # Total length of data to download.
         self.content_length = None
 
         if self.verify is True:
@@ -124,7 +120,6 @@ class FileDownloader(object):
             return True
         else:
             del self.file_binary_data
-            del self.my_file
             return False
 
     def download_verify_return(self):
@@ -162,28 +157,25 @@ class FileDownloader(object):
             return int(new_min)
         return int(rate)
 
-    def _retry_create_response(self):
-        retry_count = 0
-        while retry_count < RETRIES_MAX:
-            data = self._create_response()
-            if data is not None and data != '':
-                break
-            retry_count += 1
-            time.sleep(RETRIES_WAIT)
-        return data
-
     def _download_to_memory(self):
-        data = self._retry_create_response()
+        data = self._create_response()
 
-        if data is None or data == '':
+        if data is None:
             return None
 
         # Getting length of file to show progress
         self.content_length = self._get_content_length(data)
+        if self.content_length is None:
+            log.debug('Content-Length not in headers')
+            log.debug('Callbacks will not show time left '
+                      'or percent downloaded.')
         # Setting start point to show progress
         recieved_data = 0
 
         start_download = time.time()
+        block = data.read(1)
+        recieved_data += len(block)
+        self.file_binary_data = block
         while 1:
             # Grabbing start time for use with best block size
             start_block = time.time()
@@ -203,14 +195,18 @@ class FileDownloader(object):
             self.block_size = self._best_block_size(end_block - start_block,
                                                     len(block))
             log.debug('Block size: %s', self.block_size)
-            self.my_file.write(block)
+            self.file_binary_data += block
 
             # Total data we've received so far
             recieved_data += len(block)
 
+            # If content length is None we will return a static percent
+            # -.-%
             percent = self._calc_progress_percent(recieved_data,
                                                   self.content_length)
 
+            # If content length is None we will return a static time remaining
+            # --:--
             time_left = FileDownloader._calc_eta(start_download, time.time(),
                                                  self.content_length,
                                                  recieved_data)
@@ -224,11 +220,7 @@ class FileDownloader(object):
             # Call all progress hooks with status data
             self._call_progress_hooks(status)
 
-        # Flushing data to prepare to write to file
-        self.my_file.flush()
-        self.my_file.seek(0)
-        self.file_binary_data = self.my_file.read()
-        self.my_file.close()
+        self.file_binary_data
         status = {'total': self.content_length,
                   'downloaded': recieved_data,
                   'status': 'finished',
@@ -254,46 +246,28 @@ class FileDownloader(object):
         for url in self.urls:
 
             # Create url for resource
-            file_url = url + self.filename
+            file_url = url + url_quote(self.filename)
             log.debug('Url for request: %s', file_url)
             try:
                 data = self.http_pool.urlopen('GET', file_url,
-                                              preload_content=False)
-
-                # Used to catch url that has spaces in it.
-                if data.status == 505:
-                    raise urllib3.exceptions.HTTPError
+                                              preload_content=False, retries=3)
             except urllib3.exceptions.SSLError:
                 log.debug('SSL cert not verified')
-                data = ''
-            except urllib3.exceptions.HTTPError:
-                log.debug('There may be spaces in an S3 url...')
-                file_url = file_url.replace(' ', '+')
-                log.debug('S3 updated url %s', file_url)
-                data = None
+                continue
+            except urllib3.exceptions.MaxRetryError:
+                log.debug('MaxRetryError')
+                continue
             except Exception as e:
                 # Catch whatever else comes up and log it
                 # to help fix other http related issues
                 log.debug(str(e), exc_info=True)
-                data = ''
             else:
                 break
 
-            # Try request again with spaces in url replaced with +
-            if data is None:
-                # Let's try one more time with the fixed url
-                try:
-                    data = self.http_pool.urlopen('GET', file_url,
-                                                  preload_content=False)
-                except urllib3.exceptions.SSLError:
-                    log.debug('SSL cert not verified')
-                except Exception as e:
-                    log.debug(str(e), exc_info=True)
-                    self.file_binary_data = None
-                else:
-                    break
-
-        log.debug('Downloading %s from:\n%s', self.filename, file_url)
+        if data is not None:
+            log.debug('Resource URL: %s', file_url)
+        else:
+            log.debug('Could not create resource URL.')
         return data
 
     def _write_to_file(self):
@@ -325,13 +299,14 @@ class FileDownloader(object):
         return False
 
     def _get_content_length(self, data):
-        content_length = int(data.headers.get("Content-Length", 100001))
+        content_length = data.headers.get("Content-Length")
+        if content_length is not None:
+            content_length = int(content_length)
         log.debug('Got content length of: %s', content_length)
         return content_length
 
     @staticmethod
     def _calc_eta(start, now, total, current):
-        # Not currently implemented
         # Calculates remaining time of download
         if total is None:
             return '--:--'
@@ -345,7 +320,9 @@ class FileDownloader(object):
             return '--:--'
         return '%02d:%02d' % (eta_mins, eta_secs)
 
-    def _calc_progress_percent(self, x, y):
-        percent = float(x) / y * 100
+    def _calc_progress_percent(self, recieved, total):
+        if total is None:
+            return '-.-%'
+        percent = float(recieved) / total * 100
         percent = '%.1f' % percent
         return percent

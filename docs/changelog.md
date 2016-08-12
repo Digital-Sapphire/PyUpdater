@@ -3,6 +3,19 @@
 ## v2.1.3 - Master
 ####* This version is not yet released and is under active development.
 
+###Fixed
+
+  - Encoding URL's
+
+###Updated
+
+  - Client
+    - Decreased memory usage when downloading data
+
+###Removed
+
+  - Obsolete info in docs
+
 
 ## v2.1.2 - 2016/08/10
 
