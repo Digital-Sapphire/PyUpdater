@@ -12,7 +12,7 @@
 
   - Encoding URL's
   - Client
-    - Only debug log level
+    - Only log debug
 
 ###Updated
 

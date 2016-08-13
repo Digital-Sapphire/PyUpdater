@@ -30,8 +30,8 @@ import sys
 import time
 
 from pyupdater import settings
-from pyupdater.compat import pyi_makespec
 from pyupdater.hooks import get_hook_dir
+from pyupdater.pyinstaller_compat import pyi_makespec
 from pyupdater.utils import (check_repo,
                              create_asset_archive,
                              lazy_import,
