@@ -222,7 +222,6 @@ class FileDownloader(object):
             # Call all progress hooks with status data
             self._call_progress_hooks(status)
 
-        self.file_binary_data
         status = {'total': self.content_length,
                   'downloaded': recieved_data,
                   'status': 'finished',

@@ -52,14 +52,15 @@ def remove_previous_versions(directory, filename):
     try:
         current_version = Version(filename)
     except (UtilsError, VersionError):  # pragma: no cover
-        log.warning('Cleanup Failed - Cannot parse version info.')
+        log.debug('Cleanup Failed: %s - Cannot parse version info.', filename)
         return
 
     try:
         # We set the full path here because Package() checks if filename exists
         package_info = Package(os.path.join(directory, filename))
     except (UtilsError, VersionError):
-        log.warning('Cleanup Failed - Cannot parse package info.')
+        log.debug('Cleanup Failed: %s - Cannot parse package info.',
+                  filename)
         return
 
     if package_info.info['status'] is False:
