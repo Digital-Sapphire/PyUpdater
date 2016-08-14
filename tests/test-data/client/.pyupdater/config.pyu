@@ -1,0 +1,43 @@
+{
+  "version_meta": {
+    "signature": "SFZSIMCiVl1AdjRvIAq5Qyxtk3Yk83SX8AgSFASsJT0RQ+BsNUFuRZ0OVXbnBXoNHuAfhrb7bzZhMeaxQCVSDg",
+    "updates": {
+    },
+    "latest": {
+    }
+  },
+  "count": 0,
+  "sync_threshold": 3,
+  "py_repo_config": {
+    "patches": {
+      "Acme": 4
+    },
+    "package": {
+    }
+  },
+  "app_config": {
+    "APP_NAME": "Acme",
+    "UPDATE_URLS": [
+      "http://localhost:8000/"
+    ],
+    "PLUGIN_CONFIGS": {},
+    "UPDATE_PATCHES": true,
+    "COMPANY_NAME": "Digital",
+    "CLIENT_CONFIG_PATH": [
+      "client_config.py"
+    ]
+  },
+  "keypack": {
+    "repo": {
+      "app_private": "M7o+RcxPuqKBHEka3LjbnjMQr+zYWm2t6cNk9giu7MM"
+    },
+    "client": {
+      "offline_public": "rRp4eJzzsPxN1nLXBOuLCqI33HWTridHKJpNnDSUlbU"
+    },
+    "upload": {
+      "app_public": "MEviIkxfr74822UoF97+RJ9GdS9eVtkKe4PKH2J3khA",
+      "signature": "WtNNMd2AsDlOIti1sFRylWJb/jyBOlfiF7eJPbSl/FNjvnQ+0L/7ooaDYAzRWsHCs58JyB7XYMcyfKSwDjO9Cg"
+    }
+  },
+  "config_dir": ".pyupdater"
+}

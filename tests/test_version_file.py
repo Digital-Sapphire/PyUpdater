@@ -32,10 +32,9 @@ import ed25519
 import pytest
 import six
 
-pub_key_file = os.path.abspath(os.path.join('tests', 'test data',
-                               'jms.pub'))
-version_file = os.path.abspath(os.path.join('tests', 'test data',
-                               'version.json'))
+BASE = os.path.join('tests', 'test-data')
+pub_key_file = os.path.abspath(os.path.join(BASE, 'jms.pub'))
+version_file = os.path.abspath(os.path.join(BASE, 'version.json'))
 
 
 @pytest.mark.usefixtures('cleandir')

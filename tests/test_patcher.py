@@ -33,7 +33,7 @@ import pytest
 
 from pyupdater.client.patcher import Patcher
 
-TEST_DATA_DIR = os.path.join(os.getcwd(), 'tests', 'test data',
+TEST_DATA_DIR = os.path.join(os.getcwd(), 'tests', 'test-data',
                              'patcher')
 
 VERSION_DATA_DIR = os.path.dirname(TEST_DATA_DIR)

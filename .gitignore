@@ -2,7 +2,13 @@
 
 *.log
 
+*.pkg
+
 *.pyc
+
+*.pyz
+
+*.toc
 
 .coverage
 
