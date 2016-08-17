@@ -21,12 +21,12 @@ PyUpdater depends on a few external libraries:
 
 #####Be sure to check the plugins docs for setup & configuration options.
 
-[PyUpdater-S3-Plugin](https://github.com/JohnyMoSwag/pyupdater-s3-plugin)
+[PyUpdater-S3-Plugin](https://github.com/JMSwag/pyupdater-s3-plugin)
 
-[PyUpdater-SCP-Plugin](https://github.com/JohnyMoSwag/pyupdater-scp-plugin)
+[PyUpdater-SCP-Plugin](https://github.com/JMSwag/pyupdater-scp-plugin)
 
 
 ####Install Development version
 #####We are not responsible for broken things!
 
-    $ pip install --upgrade https://github.com/JohnyMoSwag/PyUpdater/tarball/master
+    $ pip install --upgrade https://github.com/JMSwag/PyUpdater/tarball/master
