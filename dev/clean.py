@@ -17,12 +17,16 @@ def check_x(x):
         ext = os.path.splitext(f)[1]
         if ext == '.pyc':
             return True
+        basename = os.path.basename(f)
+        if basename.startswith('.coverage.SWAG-Pro.local.'):
+            return True
         return False
 
     def bad_dir(d):
+        basename = os.path.basename(d)
         bad = ['__pycache__', 'htmlcov', 'build',
                'dist', 'PyUpdater.egg-info']
-        if os.path.basename(d) in bad:
+        if basename in bad:
             return True
         return False
     if os.path.isfile(x):

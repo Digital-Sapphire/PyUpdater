@@ -146,7 +146,8 @@ class Package(object):
 
         filename (str): name of update file
     """
-    regex = re.compile('(?P<name>[\w\s]+)-[A-Za-z]+-[0-9]\.[0-9]')
+    # Used to parse name from archive filename
+    name_regex = re.compile('(?P<name>[\w -]+)-[win|mac|nix]')
 
     def __init__(self, filename):
         self.name = None
@@ -211,6 +212,7 @@ class Package(object):
         log.debug('Got platform info')
 
         self.name = self._parse_package_name(package)
+        assert self.name is not None
         log.debug('Got name of update: %s', self.name)
         self.info['status'] = True
         log.debug('Info extraction complete')
@@ -223,7 +225,12 @@ class Package(object):
         log.debug('Package name: %s', package)
         basename = os.path.basename(package)
 
-        r = self.regex.search(basename)
-        name = r.groupdict()['name']
+        r = self.name_regex.search(basename)
+        try:
+            name = r.groupdict()['name']
+        except Exception as err:
+            self.info['reason'] = str(err)
+            name = None
+
         log.debug('Regex name: %s', name)
         return name

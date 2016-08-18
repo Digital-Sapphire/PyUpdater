@@ -22,32 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # --------------------------------------------------------------------------
-from __future__ import unicode_literals
-import os
+from __future__ import print_function, unicode_literals
 
+try:
+    from http.server import SimpleHTTPRequestHandler as RequestHandler
+except ImportError:
+    from SimpleHTTPServer import SimpleHTTPRequestHandler as RequestHandler
+
+try:
+    import socketserver as socket_server
+except:
+    import SocketServer as socket_server
+
+import shutil
+import subprocess
+import threading
+import os
+import sys
+import time
+
+from dsdev_utils.paths import ChDir
 import pytest
-from dsdev_utils.system import get_system
+import six
 
 from pyupdater import PyUpdater
-from pyupdater.utils.config import Config
 from tconfig import TConfig
 
-
-def create_build_cmd(version):
-    cmd = ['build', '--app-name', 'myapp', '--app-version',
-           '0.1.{}'.format(version), 'app.py', '-F']
-    return cmd
-
-if get_system() == 'win':
-    ext = '.zip'
-else:
-    ext = '.tar.gz'
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test-data',
+                             'client')
 
 
 @pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
-class TestUtils(object):
+class TestSetup(object):
 
-    def test_setup(self):
+    def test_directory_creation(self):
         data_dir = os.getcwd()
         pyu_data_dir = os.path.join(data_dir, 'pyu-data')
         t_config = TConfig()
@@ -63,12 +71,66 @@ class TestUtils(object):
 @pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
 class TestExecution(object):
 
-    def test_execution_patch(self, pyu):
+    def test_execution_update(self):
+        dest = os.getcwd()
+        with ChDir(TEST_DATA_DIR):
+            files = os.listdir(os.getcwd())
+            for f in files:
+                dest_path = os.path.join(dest, f)
+                if os.path.isfile(f):
+                    if os.path.exists(dest_path):
+                        os.remove(dest_path)
+                    shutil.copy(f, dest)
+                else:
+                    if os.path.exists(dest_path):
+                        shutil.rmtree(dest_path, ignore_errors=True)
+                    shutil.copytree(f, dest_path)
 
-        def gen_archive_name(version):
-            archive_name = 'myapp-{}-0.1.{}{}'.format(get_system(),
-                                                      version, ext)
-            return archive_name
+        PORT = 8000
+        socket_server.TCPServer.allow_reuse_address = True
+        httpd = socket_server.TCPServer(("", PORT), RequestHandler)
 
-        # ToDo: Add pre-generated archives to test with
-        pass
+        # class MyServer(threading.Thread):
+
+        #     def run(self):
+        #         self.heartbeat = True
+        #         while heartbeat:
+
+        t = threading.Thread(target=httpd.serve_forever)
+        t.daemon = True
+        t.start()
+
+        cmd = 'python app_build.py'
+        os.system(cmd)
+
+        deploy_dir = os.path.join('pyu-data', 'deploy')
+        with ChDir(deploy_dir):
+            files = os.listdir(os.getcwd())
+            for f in files:
+                shutil.move(f, dest)
+
+        app_name = 'Acme'
+        if sys.platform == 'win32':
+            app_name += '.exe'
+
+        with open('pyu.log', 'w') as f:
+            f.write('')
+
+        print(os.listdir(os.getcwd()))
+        if sys.platform != 'win32':
+            app_name = './{}'.format(app_name)
+
+        print('Appname: {}'.format(app_name))
+        # Call the binary to self update
+        out = subprocess.check_output(app_name, shell=True)
+        time.sleep(15)
+
+        # Call again to check the output
+        out = subprocess.check_output(app_name, shell=True)
+        out = out.strip()
+
+        with open('pyu.log', 'r') as f:
+            data = f.read()
+
+        print(data)
+        assert out == six.b('4.2')

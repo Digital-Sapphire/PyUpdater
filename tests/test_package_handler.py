@@ -38,7 +38,7 @@ from pyupdater.utils.exceptions import PackageHandlerError
 from tconfig import TConfig
 
 s_dir = settings.USER_DATA_FOLDER
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test data',
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test-data',
                              'package-handler')
 
 

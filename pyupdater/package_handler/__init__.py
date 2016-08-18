@@ -67,12 +67,17 @@ class PackageHandler(object):
 
         app (instance): Config object
     """
-
-    data_dir = None
-
     def __init__(self, config=None):
+        # References the pyu-data folder in the root of repo
+        self.data_dir = None
+
+        # Specifies if the config file needs to be loaded
         self.config_loaded = False
+
+        # Used to store config information
         self.db = Storage()
+
+        # Initialize app if config is available
         if config is not None:
             self.init_app(config)
 
@@ -91,12 +96,11 @@ class PackageHandler(object):
         else:
             log.info('Patch support disabled')
             self.patch_support = False
-        data_dir = os.getcwd()
-        self.data_dir = os.path.join(data_dir, settings.USER_DATA_FOLDER)
+        self.data_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER)
         self.files_dir = os.path.join(self.data_dir, 'files')
         self.deploy_dir = os.path.join(self.data_dir, 'deploy')
         self.new_dir = os.path.join(self.data_dir, 'new')
-        self.config_dir = os.path.join(os.path.dirname(self.data_dir),
+        self.config_dir = os.path.join(os.getcwd(),
                                        settings.CONFIG_DATA_FOLDER)
         self.config = None
         self.json_data = None
