@@ -41,7 +41,7 @@ import os
 import sys
 import time
 
-from dsdev_utils.paths import ChDir
+from dsdev_utils.paths import ChDir, remove_any
 import pytest
 import six
 
@@ -79,11 +79,11 @@ class TestExecution(object):
                 dest_path = os.path.join(dest, f)
                 if os.path.isfile(f):
                     if os.path.exists(dest_path):
-                        os.remove(dest_path)
+                        remove_any(dest_path)
                     shutil.copy(f, dest)
                 else:
                     if os.path.exists(dest_path):
-                        shutil.rmtree(dest_path, ignore_errors=True)
+                        remove_any(dest_path)
                     shutil.copytree(f, dest_path)
 
         PORT = 8000
@@ -107,6 +107,8 @@ class TestExecution(object):
         with ChDir(deploy_dir):
             files = os.listdir(os.getcwd())
             for f in files:
+                if f == '.DS_Store':
+                    continue
                 shutil.move(f, dest)
 
         app_name = 'Acme'
