@@ -1,28 +1,41 @@
 # Changelog
 
-## v2.1.3 - Master
+## v2.1.4 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.1.3 - 2016/08/19
 
 ###Added
 
   - CLI
     - Ability to set max download retries. 1-10
+  - Tests
+    - Auto update
 
 ###Fixed
 
-  - Encoding URL's
-  - Client
+  - Docs
+    - Links on Install page - @LucaBernstein
     - Only log debug
+  - Encoding URL's
+  - Usage on 64bit linux
 
 ###Updated
 
   - Client
     - Decreased memory usage when downloading data
+  - Docs
+    - Badges reflect master build status
+  - Tests
+    - Less output on appveyor
 
 ###Removed
 
-  - Obsolete info in docs
+  - Docs
+    - Obsolete info
   - Redundant code
+  - Unused requirements
 
 
 ## v2.1.2 - 2016/08/10
