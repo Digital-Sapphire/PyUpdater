@@ -138,7 +138,6 @@ class Uploader(object):
             failed_uploads = self._retry_upload(failed_uploads)
         if len(failed_uploads) < 1:
             print("\nUpload Complete")
-            time.sleep(3)
             return True
         else:
             print('The following files were not uploaded')

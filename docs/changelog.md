@@ -8,6 +8,10 @@
   - Client
     - Percent complete shows up to 1 decimal
 
+###Removed
+
+  - CLI
+    - Extended pause after uploading
 
 ## v2.1.3 - 2016/08/19
 
