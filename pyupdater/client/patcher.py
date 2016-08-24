@@ -289,6 +289,7 @@ class Patcher(object):
             # Attempt to download resource
             data = fd.download_verify_return()
             percent = int((float(downloaded + 1) / float(total)) * 100)
+            percent = '{0:.1f}'.format(percent)
             if data is not None:
                 self.patch_binary_data.append(data)
                 downloaded += 1

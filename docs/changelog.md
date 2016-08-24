@@ -3,6 +3,11 @@
 ## v2.1.4 - Master
 ####* This version is not yet released and is under active development.
 
+###Updated
+
+  - Client
+    - Percent complete shows up to 1 decimal
+
 
 ## v2.1.3 - 2016/08/19
 
