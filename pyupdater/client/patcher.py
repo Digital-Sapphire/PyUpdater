@@ -212,6 +212,10 @@ class Patcher(object):
                 patch_size = platform_info.get('patch_size')
 
                 if patch_size is None:
+                    # Since we are missing the patch size we cannot
+                    # compare the total size of all patches to the size
+                    # of a full update. Used for backwards compat before
+                    # we added patch size to version manifest.
                     fall_back = True
                 else:
                     try:
@@ -229,6 +233,8 @@ class Patcher(object):
                                      option='file')
         latest_file_size = latest_info.get('file_size')
         if latest_file_size is None:
+            # Since we are missing the full update size we cannot
+            # compare the total size of all patches to the full update.
             fall_back = True
 
         if fall_back is True:

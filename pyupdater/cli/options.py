@@ -78,7 +78,7 @@ def add_archive_parser(subparsers):
     archive_parser.add_argument('--name', required=True, help='Name of the '
                                 'asset to archive')
     # ToDo: Remove in v3.0
-    archive_parser.add_argument('--target-name', required=True, help='* Warnin'
+    archive_parser.add_argument('--target-name', help='* Warnin'
                                 'g * Deprecated')
     archive_parser.add_argument('--version', required=True, help='Version of '
                                 'file')
