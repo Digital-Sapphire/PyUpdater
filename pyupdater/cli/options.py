@@ -37,9 +37,6 @@ def make_subparser(parser):
 
 def _build_make_spec_commom(subparser):
     # Start of args override
-    # start a clean build
-    subparser.add_argument('--clean', help='Clean build. '
-                           'Bypass the cache', action="store_true")
 
     # This will be set to the pyu-data/new directory.
     # When we make the final compressed archive we will look
@@ -71,11 +68,6 @@ def _build_make_spec_commom(subparser):
 
     # End of args override
 
-    subparser.add_argument('--app-version', dest="app_version",
-                           required=True)
-    subparser.add_argument('-k', '--keep', dest='keep', action='store_true',
-                           help='Will not delete executable after archiving')
-
 
 def add_archive_parser(subparsers):
     archive_parser = subparsers.add_parser('archive', help='Archive an asset '
@@ -99,6 +91,16 @@ def add_build_parser(subparsers):
     build_parser = subparsers.add_parser('build', help='Compiles script '
                                          'or spec file',
                                          usage='%(prog)s [opts]<script>')
+    # start a clean build
+    build_parser.add_argument('--clean', help='Clean build. '
+                              'Bypass the cache', action="store_true")
+
+    build_parser.add_argument('--app-version', dest="app_version",
+                              required=True)
+    build_parser.add_argument('-k', '--keep', dest='keep', action='store_true',
+                              help='Will not delete executable '
+                              'after archiving')
+
     _build_make_spec_commom(build_parser)
 
 
