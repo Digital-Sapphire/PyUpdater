@@ -15,6 +15,10 @@
   - CLI
     - Extended pause after uploading
 
+###Deprecated
+
+    - Unused flags for make-spec command
+
 ## v2.1.3 - 2016/08/19
 
 ###Added

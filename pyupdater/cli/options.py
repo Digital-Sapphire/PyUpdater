@@ -133,6 +133,13 @@ def add_make_spec_parser(subparsers):
                                              'spec file',
                                              usage='%(prog)s <script> '
                                              '[opts]')
+
+    # ToDo: Remove in v3.0
+    make_spec_parser.add_argument('--clean', help=argparse.SUPPRESS)
+    make_spec_parser.add_argument('--app-version', help=argparse.SUPPRESS)
+    make_spec_parser.add_argument('-k', '--keep', help=argparse.SUPPRESS)
+    # End ToDo
+
     _build_make_spec_commom(make_spec_parser)
 
 
