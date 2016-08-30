@@ -7,6 +7,8 @@
 
   - Client
     - Percent complete shows up to 1 decimal
+  - Docs
+    - Add make spec command
 
 ###Removed
 
