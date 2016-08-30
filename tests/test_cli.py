@@ -111,6 +111,16 @@ class TestKeys(object):
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
 class TestMakeSpec(object):
 
+    def test_deprecated_opts(self, parser, pyu):
+        pyu.setup()
+        subparser = make_subparser(parser)
+        add_make_spec_parser(subparser)
+        with io.open('app.py', 'w', encoding='utf-8') as f:
+            f.write('print "Hello World"')
+        opts, other = parser.parse_known_args(['make-spec', '-F',
+                                              '--app-version=0.1.0', 'app.py'])
+        make_spec(opts, other)
+
     def test_execution(self, parser, pyu):
         pyu.setup()
         subparser = make_subparser(parser)
