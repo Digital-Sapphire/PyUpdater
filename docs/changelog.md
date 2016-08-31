@@ -5,6 +5,8 @@
 
 ###Updated
 
+  - CLI
+    - More efficient deltas. (A small internal app now has a patch size of 2kb, down from 1.4mb.)
   - Client
     - Percent complete shows up to 1 decimal
   - Docs
@@ -14,10 +16,11 @@
 
   - CLI
     - Extended pause after uploading
+    - requirement of --target-name on archive command
 
 ###Deprecated
 
-    - Unused flags for make-spec command
+  - Unused flags for make-spec command
 
 ## v2.1.3 - 2016/08/19
 

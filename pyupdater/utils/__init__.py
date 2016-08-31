@@ -34,7 +34,7 @@ except ImportError:
 
 import certifi
 from dsdev_utils.helpers import lazy_import, Version
-from dsdev_utils.paths import remove_any
+from dsdev_utils.paths import ChDir, remove_any
 from stevedore.extension import ExtensionManager
 import urllib3
 
@@ -524,18 +524,16 @@ def create_asset_archive(name, version):
 
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
-    # tar.gz creates full file path
     if dsdev_utils.system.get_system() == 'win':
         ext = '.zip'
-        with zipfile.ZipFile(filename_path + '.zip', 'w') as zf:
+        with zipfile.ZipFile(filename_path + ext, 'w') as zf:
             zf.write(name, name)
     else:
         ext = '.tar.gz'
-        if os.path.isfile(name):
-            with tarfile.open(filename_path + '.tar.gz', 'w:gz') as tar:
+        with ChDir(file_dir):
+            with tarfile.open(filename_path + ext, 'w:gz',
+                              compresslevel=0) as tar:
                 tar.add(name, name)
-        else:
-            shutil.make_archive(filename, 'gztar', file_dir, name)
 
     output_filename = filename + ext
     log.debug('Archive output filename: %s', output_filename)
@@ -579,15 +577,14 @@ def make_archive(name, target, version, **kwargs):
     # tar.gz creates full file path
     if dsdev_utils.system.get_system() == 'win':
         ext = '.zip'
-        with zipfile.ZipFile(filename_path + '.zip', 'w') as zf:
+        with zipfile.ZipFile(filename_path + ext, 'w') as zf:
             zf.write(target, temp_file)
     else:
         ext = '.tar.gz'
-        if os.path.isfile(target):
-            with tarfile.open(filename_path + '.tar.gz', 'w:gz') as tar:
+        with ChDir(file_dir):
+            with tarfile.open(filename_path + ext, 'w:gz',
+                              compresslevel=0) as tar:
                 tar.add(target, temp_file)
-        else:
-            shutil.make_archive(filename, 'gztar', file_dir, temp_file)
 
     if os.path.exists(temp_file):
         remove_any(temp_file)
