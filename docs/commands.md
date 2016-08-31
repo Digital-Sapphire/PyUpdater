@@ -9,21 +9,19 @@ usage: pyupdater archive [opts] filename
 optional arguments:
   -h, --help            show this help message and exit
   --name NAME           Name used when renaming binary before archiving.
-  --target-name TARGET_NAME
-                        Name of file to be archived
   --version VERSION     Version of file
   -k, --keep            Will not delete source file after archiving
 ```
 
 Description:
 
-The archive command archives the file to be updated in a PyUpdater compatible format. The file must be in the new directory.
+The archive command will archive an external asset used by your application which will allow updating of the asset. An example of this would be if your application depended on ffmpeg but you didn't want to bundle ffmpeg within your app. See Usage | CLI | Assets & Usage | Client | Assets for more info.
 
 Example:
 ```
-# When you have multiple binaries with the same name even on different platforms.
-$ pyupdater archive --name 'ffmpgeg' --target 'ffmpeg-nix64' --version 2.2.4
-$ pyupdater archive --name ffmpeg --target ffmpeg-mac --version 2.1
+$ pyupdater archive --name ffmpeg --version 2.1.4
+
+$ pyupdater archive --name ffmpeg  --version 2.2
 ```
 
 
@@ -40,14 +38,18 @@ optional arguments:
 
 Description:
 
-The build command wraps pyinstaller to create the final executable. All options are passed to pyinstaller. Once built the executable is archived, in a pyupdater compatible formate, and place in the pyu-data/new directory. If you supply a version number with an alpha or beta tag, when processed this binary will be placed on the respective release channel. Example: 1.0.1beta2
+The build command wraps pyinstaller to create the final executable. All options are passed to pyinstaller. Once built the executable is archived, in a pyupdater compatible format, and placed in the pyu-data/new directory. If you supply a version number with an alpha or beta tag, when processed this binary will be placed on the respective release channel. Note that patches will only be created for the stable channel.
 
 Example:
 ```
 # Build from python script
 $ pyupdater build -F --app-version 1.0 app.py
+
 # Build from spec file (see Make Spec on how to create spec files)
 $ pyupdater build --app-version 1.2 app.spec
+
+# Beta channel
+$ pyupdater build --app-version 1.2beta2
 ```
 
 
@@ -119,7 +121,7 @@ optional arguments:
 
 Description:
 
-The keys command is used to create & import keypack files. It's advised to create keypacks on an off-line computer. Keypack files contains keys to cryptographically sign meta-data files used by pyupdater. Keys can be created and imported as many times as needed. Usually only needed when dev machine has been compromised.
+The keys command is used to create & import keypack files. It's advised to create keypacks on an off-line computer. Keypack files contains keys to cryptographically sign meta-data files used by pyupdater. Keys can be created and imported as many times as needed. Usually only needed when a development machine has been compromised.
 
 Example:
 ```
@@ -162,7 +164,7 @@ optional arguments:
 
 Description:
 
-The package command is used to process packages, creates patches if possible and process them & update package meta-data. During processing we collect hashes, file size, version & platform info. Once done archives and patches if any are placed in the deploy directory. The sign command, signs the package meta-data, archives the meta-data & places the meta-data archive in the deploy directory.
+The process flag is used to process packages, creates patches if possible and process them & update package meta-data. During processing we collect hashes, file size, version & platform info. Once done archives and patches, if any, are placed in the deploy directory. The sign flag signs the package meta-data, archives the meta-data & places those assets in the deploy directory.
 
 Example:
 ```
@@ -184,7 +186,7 @@ optional arguments:
 
 Description:
 
-The plugins command shows a list of installed plugins & authors name.
+The plugins command shows a list of installed upload plugins & authors name.
 
 Example:
 ```
@@ -211,7 +213,7 @@ optional arguments:
   --patches             Changed patch support
   --plugin PLUGIN       Change the named plugin's settings
   --show-plugin SHOW_PLUGIN
-                        Show the name plugin's settings
+                        Show the named plugin's settings
   --max-download-retries
                         Set the max number of times to try a download.
 ```
@@ -222,7 +224,9 @@ Update configuration for the current repository.
 Example:
 ```
 $ pyupdater settings --urls
+
 $ pyupdater settings --plugin s3
+
 $ pyupdater settings --company
 ```
 
@@ -239,7 +243,7 @@ optional arguments:
 
 Description:
 
-Will upload all data in the deploy folder to the desired remote location. The uploader has a plugin interface. Check the installation page for links to core plugins. Plugins are activated by installation.
+Uploads all data in the deploy folder to the desired remote location. The uploader has a plugin interface. Check the installation page for links to core plugins. Plugins are activated by installation.
 
 Example:
 ```
@@ -278,7 +282,7 @@ optional arguments:
 
 Description:
 
-Show help information
+Shows help information
 
 Example:
 ```
