@@ -16,7 +16,7 @@ PyUpdater depends on a few external libraries:
 
 ####For complete install
 
-    $ pip install PyUpdater[all]
+    $ pip install --upgrade PyUpdater[all]
 
 
 #####Be sure to check the plugins docs for setup & configuration options.
