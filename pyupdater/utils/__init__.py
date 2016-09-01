@@ -520,20 +520,20 @@ def create_asset_archive(name, version):
     file_dir = os.path.dirname(os.path.abspath(name))
     filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
                                  dsdev_utils.system.get_system(), version)
-    filename_path = os.path.join(file_dir, filename)
 
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
-    if dsdev_utils.system.get_system() == 'win':
-        ext = '.zip'
-        with zipfile.ZipFile(filename_path + ext, 'w') as zf:
-            zf.write(name, name)
-    else:
-        ext = '.tar.gz'
-        with ChDir(file_dir):
-            with tarfile.open(filename_path + ext, 'w:gz',
-                              compresslevel=0) as tar:
-                tar.add(name, name)
+    with ChDir(file_dir):
+        if dsdev_utils.system.get_system() == 'win':
+            ext = '.zip'
+            with zipfile.ZipFile(filename + ext, 'w') as zf:
+                zf.write(name, name)
+        else:
+            ext = '.tar.gz'
+            with ChDir(file_dir):
+                with tarfile.open(filename + ext, 'w:gz',
+                                  compresslevel=0) as tar:
+                    tar.add(name, name)
 
     output_filename = filename + ext
     log.debug('Archive output filename: %s', output_filename)
@@ -570,19 +570,18 @@ def make_archive(name, target, version, **kwargs):
     file_dir = os.path.dirname(os.path.abspath(target))
     filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
                                  dsdev_utils.system.get_system(), version)
-    filename_path = os.path.join(file_dir, filename)
 
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
     # tar.gz creates full file path
-    if dsdev_utils.system.get_system() == 'win':
-        ext = '.zip'
-        with zipfile.ZipFile(filename_path + ext, 'w') as zf:
-            zf.write(target, temp_file)
-    else:
-        ext = '.tar.gz'
-        with ChDir(file_dir):
-            with tarfile.open(filename_path + ext, 'w:gz',
+    with ChDir(file_dir):
+        if dsdev_utils.system.get_system() == 'win':
+            ext = '.zip'
+            with zipfile.ZipFile(filename + ext, 'w') as zf:
+                zf.write(target, temp_file)
+        else:
+            ext = '.tar.gz'
+            with tarfile.open(filename + ext, 'w:gz',
                               compresslevel=0) as tar:
                 tar.add(target, temp_file)
 
