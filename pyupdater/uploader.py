@@ -26,7 +26,6 @@ from __future__ import print_function, unicode_literals
 
 import logging
 import os
-import time
 
 from dsdev_utils.paths import remove_any
 from dsdev_utils.terminal import get_correct_answer

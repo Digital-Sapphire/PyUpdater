@@ -31,6 +31,6 @@ except ImportError:
     optparse = None
 
 try:
-    from urllib import quote as url_quote
+    from urllib import quote as url_quote  # noqa
 except ImportError:
     from urllib.parse import quote as url_quote  # noqa

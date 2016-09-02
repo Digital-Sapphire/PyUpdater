@@ -540,7 +540,7 @@ def create_asset_archive(name, version):
     return output_filename
 
 
-def make_archive(name, target, version, **kwargs):
+def make_archive(name, target, version):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 
@@ -693,53 +693,6 @@ def _decode_offt(_bytes):
     if _bytes[7] & 0x80:
         x = -x
     return x
-
-
-class bsdiff4_py(object):
-    """Pure-python version of bsdiff4 module that can only patch, not diff.
-
-    By providing a pure-python fallback, we don't force frozen apps to
-    bundle the bsdiff module in order to make use of patches.  Besides,
-    the patch-applying algorithm is very simple.
-    """
-    @staticmethod
-    def patch(source, patch):  # pragma: no cover
-        #  Read the length headers
-        l_bcontrol = _decode_offt(patch[8:16])
-        l_bdiff = _decode_offt(patch[16:24])
-        #  Read the three data blocks
-        e_bcontrol = 32 + l_bcontrol
-        e_bdiff = e_bcontrol + l_bdiff
-        bcontrol = bz2.decompress(patch[32:e_bcontrol])
-        bdiff = bz2.decompress(patch[e_bcontrol:e_bdiff])
-        bextra = bz2.decompress(patch[e_bdiff:])
-        #  Decode the control tuples
-        tcontrol = []
-        for i in xrange(0, len(bcontrol), 24):
-            tcontrol.append((
-                _decode_offt(bcontrol[i:i+8]),
-                _decode_offt(bcontrol[i+8:i+16]),
-                _decode_offt(bcontrol[i+16:i+24]),
-            ))
-        #  Actually do the patching.
-        #  This is the bdiff4 patch algorithm in slow, pure python.
-        source = six.BytesIO(source)
-        result = six.BytesIO()
-        bdiff = six.BytesIO(bdiff)
-        bextra = six.BytesIO(bextra)
-        for (x, y, z) in tcontrol:
-            diff_data = bdiff.read(x)
-            orig_data = source.read(x)
-            if sys.version_info[0] < 3:
-                for i in xrange(len(diff_data)):
-                    result.write(chr((ord(diff_data[i]) +
-                                 ord(orig_data[i])) % 256))
-            else:
-                for i in xrange(len(diff_data)):
-                    result.write(bytes([(diff_data[i] + orig_data[i]) % 256]))
-            result.write(bextra.read(y))
-            source.seek(z, os.SEEK_CUR)
-        return result.getvalue()
 
 
 class JSONStore(dictmixin):
