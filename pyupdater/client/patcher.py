@@ -27,10 +27,8 @@ from __future__ import unicode_literals, print_function
 import logging
 import os
 
-try:
-    import bsdiff4
-except ImportError:  # pragma: no cover
-    bsdiff4 = None
+import bsdiff4
+
 from dsdev_utils.crypto import get_package_hashes
 from dsdev_utils.helpers import EasyAccessDict, lazy_import, Version
 from dsdev_utils.paths import remove_any
@@ -38,9 +36,6 @@ from dsdev_utils.paths import remove_any
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
 from pyupdater.utils.exceptions import PatcherError
-
-if bsdiff4 is None:  # pragma: no cover
-    from pyupdater.utils import bsdiff4_py as bsdiff4
 
 log = logging.getLogger(__name__)
 

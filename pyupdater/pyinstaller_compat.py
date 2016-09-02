@@ -34,11 +34,6 @@ except ImportError:
     optparse = None
 
 try:
-    from urllib import quote as url_quote
-except ImportError:
-    from urllib.parse import quote as url_quote
-
-try:
     from PyInstaller import __version__ as pyi_version
 except ImportError:
     pyi_version = '0.0'
