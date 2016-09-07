@@ -24,15 +24,36 @@
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
 
+import hashlib
 import logging
 import time
 
+import six
 import urllib3
 
 from pyupdater.compat import url_quote
-from pyupdater.utils import get_hash, get_http_pool
+from pyupdater.utils import get_http_pool
 from pyupdater.utils.exceptions import FileDownloaderError
 log = logging.getLogger(__name__)
+
+
+def get_hash(data):
+    """Get hash of object
+
+    Args:
+
+        data (object): Object you want hash of.
+
+    Returns:
+
+        (str): sha256 hash
+    """
+    if six.PY3:
+        if not isinstance(data, bytes):
+            data = bytes(data, 'utf-8')
+    hash_ = hashlib.sha256(data).hexdigest()
+    log.debug('Hash for binary data: %s', hash_)
+    return hash_
 
 
 class FileDownloader(object):
