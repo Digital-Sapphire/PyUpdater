@@ -11,6 +11,8 @@
     - More efficient deltas. (A small internal app now has a patch size of 2kb, down from 1.4mb.)
   - Docs
     - Add missing commands
+  - Libs
+    - urllib3 1.17
 
 ###Removed
 
