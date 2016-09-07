@@ -1,7 +1,10 @@
 # Changelog
 
-## v2.1.4 - Master
+## v2.1.5 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.1.4 - Master
 
 ###Updated
 
@@ -28,6 +31,7 @@
 
   - CLI
     - Unused flags for make-spec command
+
 
 ## v2.1.3 - 2016/08/19
 
