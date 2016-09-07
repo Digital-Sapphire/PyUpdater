@@ -3,6 +3,9 @@
 ## v2.1.5 - Master
 ####* This version is not yet released and is under active development.
 
+###Updated
+
+  - Docs
 
 ## v2.1.4 - Master
 
