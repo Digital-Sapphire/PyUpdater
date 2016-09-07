@@ -1,4 +1,9 @@
-#Write your own upload plugin
+#Create Upload Plugins
+
+- Plugins are enabled on installation
+- Plugins authors can get config info from the user. (Optional)
+- Plugin configs are saved by PyUpdater
+
 ##Example
 ####my_uploader.py
 ```

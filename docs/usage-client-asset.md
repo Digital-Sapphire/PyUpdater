@@ -40,7 +40,7 @@ client = Client(ClientConfig(), refresh=True,
 ```
 
 ###Step 4a - Update Check
-####update_check returns an AppUpdate object if there is an update available
+####update_check returns an LibUpdate object if there is an update available
 ```
 lib_update = client.update_check(ASSET_NAME, ASSET_VERSION)
 ```

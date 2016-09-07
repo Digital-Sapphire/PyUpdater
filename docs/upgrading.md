@@ -1,4 +1,4 @@
-#Upgrading
+#Upgrading PyUpdater
 #####Note: Major version will maintain compatibility.
 
 ##To PyUpdater >= 2.0.3

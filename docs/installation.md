@@ -29,4 +29,4 @@ PyUpdater depends on a few external libraries:
 ####Install Development version
 #####We are not responsible for broken things!
 
-    $ pip install --upgrade https://github.com/JMSwag/PyUpdater/tarball/master
+    $ pip install --upgrade https://github.com/JMSwag/PyUpdater.git@master

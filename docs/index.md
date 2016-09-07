@@ -21,23 +21,18 @@ An autoupdate framework for pyinstaller that enables simple, secure & efficient 
 - Secured with EdDSA
 - Secure off line update
 - Release channels
-- Automatic Binary creation/patching
+- Automatic generation & application of patch updates
 - Smart patch updates
-    - This method is only applied if the total size of patches are less than a full update and the user is less than 4 patches behind.
+    - This method is only applied if the total size of patches is less than a full update.
 - Asynchronous downloads
-- Update your application's assets
+- Update your application's assets.
+    - A bundled copy of ffmpeg for example
 - Dual key verification
     - If the repository key is compromised it is very easy to create a new one.
 - Get download progress with progress hooks a.k.a. callbacks
     - Great for GUI applications.
     - Super easy setup
 - Upload system based on a plugin architecture
-    - Anyone can create a plugin
-    - Plugins are enabled on installation
-    - Plugins can optionally get config info from the user
-    - Auto save config info
-    - Configs are separated from each other by namespace.
-    - Plugins will have config info auto loaded before upload
 - I really feel like I'm missing something else
 
 
