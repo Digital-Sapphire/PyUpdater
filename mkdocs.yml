@@ -13,7 +13,7 @@ pages:
     - Usage | Client: usage-client.md
     - Usage | Client | Asset: usage-client-asset.md
     - Upgrading PyUpdater: upgrading.md
-    - Create Upload Plugins: create_upload_plugin.md
+    - Create Upload Plugins: create-upload-plugin.md
 - Change Log: changelog.md
 - Extras:
     - Data Folder Layout: data-folder-layout.md
