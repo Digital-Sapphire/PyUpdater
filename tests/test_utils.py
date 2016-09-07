@@ -31,7 +31,6 @@ import pytest
 
 from pyupdater.utils import (check_repo,
                              create_asset_archive,
-                             get_hash,
                              make_archive,
                              parse_platform,
                              remove_dot_files,
@@ -75,11 +74,6 @@ class TestUtils(object):
 
     def test_check_repo_fail(self):
         assert check_repo() is False
-
-    def test_get_hash(self):
-        digest = ('380fd2bf3d78bb411e4c1801ce3ce7804bf5a22d79'
-                  '405d950e5d5c8f3169fca0')
-        assert digest == get_hash('Get this hash please')
 
 
 @pytest.mark.usefixtures('cleandir')
