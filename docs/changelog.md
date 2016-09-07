@@ -5,22 +5,27 @@
 
 ###Updated
 
-  - CLI
-    - More efficient deltas. (A small internal app now has a patch size of 2kb, down from 1.4mb.)
   - Client
     - Percent complete shows up to 1 decimal
+  - Core
+    - More efficient deltas. (A small internal app now has a patch size of 2kb, down from 1.4mb.)
   - Docs
-    - Add make spec command
+    - Add missing commands
 
 ###Removed
 
   - CLI
-    - Extended pause after uploading
     - requirement of --target-name on archive command
+  - Client
+    - bsdiff python implementation (slower & no longer used)
+  - Core
+    - Extended pause after uploading
+    - Redundant compatibility code
 
 ###Deprecated
 
-  - Unused flags for make-spec command
+  - CLI
+    - Unused flags for make-spec command
 
 ## v2.1.3 - 2016/08/19
 
