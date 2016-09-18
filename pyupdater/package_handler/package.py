@@ -27,11 +27,11 @@ import logging
 import os
 import re
 
-from dsdev_utils.exceptions import PackageHandlerError, VersionError
+from dsdev_utils.exceptions import VersionError
 from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
 
-from pyupdater.utils.exceptions import UtilsError
+from pyupdater.utils.exceptions import PackageHandlerError, UtilsError
 
 log = logging.getLogger(__name__)
 
