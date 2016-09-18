@@ -27,14 +27,36 @@ import logging
 import os
 import re
 
-from dsdev_utils.exceptions import VersionError
+from dsdev_utils.exceptions import PackageHandlerError, VersionError
 from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
 
-from pyupdater.utils import parse_platform
 from pyupdater.utils.exceptions import UtilsError
 
 log = logging.getLogger(__name__)
+
+
+def parse_platform(name):
+    """Parses platfrom name from given string
+
+    Args:
+
+        name (str): Name to be parsed
+
+    Returns:
+
+        (str): Platform name
+    """
+    log.debug('Parsing "%s" for platform info', name)
+    try:
+        re_str = '-(?P<platform>mac|win|nix[6]?[4]?)-'
+        data = re.compile(re_str).search(name)
+        platform_name = data.groupdict()['platform']
+        log.debug('Platform name is: %s', platform_name)
+    except AttributeError:
+        raise PackageHandlerError('Could not parse platform from filename')
+
+    return platform_name
 
 
 def remove_previous_versions(directory, filename):

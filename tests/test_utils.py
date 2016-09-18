@@ -31,12 +31,9 @@ import pytest
 
 from pyupdater.utils import (check_repo,
                              create_asset_archive,
-                             get_hash,
                              make_archive,
-                             parse_platform,
                              remove_dot_files,
                              )
-from pyupdater.utils.exceptions import UtilsError
 
 
 @pytest.mark.usefixtures('cleandir')
@@ -76,24 +73,9 @@ class TestUtils(object):
     def test_check_repo_fail(self):
         assert check_repo() is False
 
-    def test_get_hash(self):
-        digest = ('380fd2bf3d78bb411e4c1801ce3ce7804bf5a22d79'
-                  '405d950e5d5c8f3169fca0')
-        assert digest == get_hash('Get this hash please')
-
 
 @pytest.mark.usefixtures('cleandir')
 class TestUtils1(object):
-
-    def test_parse_platform(self):
-        assert parse_platform('app-mac-0.1.0.tar.gz') == 'mac'
-        assert parse_platform('app-win-1.0.0.zip') == 'win'
-        assert parse_platform('Email Parser-mac-0.2.0.tar.gz') == 'mac'
-        assert parse_platform('Hangman-nix-0.0.1b1.zip') == 'nix'
-
-    def test_parse_platform_fail(self):
-        with pytest.raises(UtilsError):
-            parse_platform('app-nex-1.0.0.tar.gz')
 
     def test_remove_dot_files(self):
         bad_list = ['.DS_Store', 'test', 'stuff', '.trash']

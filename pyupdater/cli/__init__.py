@@ -40,10 +40,10 @@ from pyupdater import PyUpdater, __version__
 from pyupdater import settings
 from pyupdater.builder import Builder, ExternalLib
 from pyupdater.cli.options import get_parser
+from pyupdater.client.downloader import get_http_pool
 from pyupdater.key_handler.keys import Keys, KeyImporter
 from pyupdater.utils import (check_repo,
                              initial_setup,
-                             get_http_pool,
                              PluginManager,
                              print_plugin_settings,
                              setup_client_config_path,

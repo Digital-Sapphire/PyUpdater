@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 
 import pytest
 
-from pyupdater.client.downloader import FileDownloader
+from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.utils.exceptions import FileDownloaderError
 
 
@@ -87,3 +87,12 @@ class TestContentLength(object):
         fd = FileDownloader(FILENAME, URLS, hexdigest=FILE_HASH, verify=True)
         fd.download_verify_return()
         assert fd.content_length == 2387
+
+
+@pytest.mark.usefixtue("cleandir")
+class TestGetHash(object):
+
+    def test_get_hash(self):
+        digest = ('380fd2bf3d78bb411e4c1801ce3ce7804bf5a22d79'
+                  '405d950e5d5c8f3169fca0')
+        assert digest == get_hash('Get this hash please')
