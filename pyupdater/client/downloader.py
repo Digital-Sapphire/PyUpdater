@@ -28,14 +28,11 @@ import hashlib
 import logging
 import time
 
+import certifi
 import six
 import urllib3
 
 from pyupdater.compat import url_quote
-<<<<<<< HEAD
-=======
-from pyupdater.utils import get_http_pool
->>>>>>> origin/remove-client-dependencies
 from pyupdater.utils.exceptions import FileDownloaderError
 log = logging.getLogger(__name__)
 
@@ -59,7 +56,6 @@ def get_hash(data):
     return hash_
 
 
-<<<<<<< HEAD
 def get_http_pool(secure=True):
     if secure is True:
         return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
@@ -68,8 +64,6 @@ def get_http_pool(secure=True):
         return urllib3.PoolManager()
 
 
-=======
->>>>>>> origin/remove-client-dependencies
 class FileDownloader(object):
     """The FileDownloader object downloads files to memory and
     verifies their hash.  If hash is verified data is either

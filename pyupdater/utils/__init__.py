@@ -32,10 +32,7 @@ try:
 except ImportError:
     from collections import MutableMapping as dictmixin
 
-<<<<<<< HEAD
-=======
-import certifi
->>>>>>> origin/remove-client-dependencies
+
 from dsdev_utils.helpers import lazy_import
 from dsdev_utils.paths import ChDir, remove_any
 from stevedore.extension import ExtensionManager
