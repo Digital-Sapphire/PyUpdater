@@ -24,32 +24,18 @@
 # --------------------------------------------------------------------------
 from __future__ import print_function, unicode_literals
 
-try:
-    from http.server import SimpleHTTPRequestHandler as RequestHandler
-except ImportError:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler as RequestHandler
-
-try:
-    import socketserver as socket_server
-except:
-    import SocketServer as socket_server
-
 import shutil
 import subprocess
-import threading
 import os
 import sys
 import time
 
-from dsdev_utils.paths import ChDir, remove_any
+from dsdev_utils.paths import ChDir
 import pytest
 import six
 
 from pyupdater import PyUpdater
 from tconfig import TConfig
-
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test-data',
-                             'client')
 
 
 @pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
@@ -68,71 +54,55 @@ class TestSetup(object):
         assert os.path.exists(os.path.join(pyu_data_dir, 'new'))
 
 
-@pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
+@pytest.mark.usefixtures('cleandir')
 class TestExecution(object):
 
-    def test_execution_update(self):
-        dest = os.getcwd()
-        with ChDir(TEST_DATA_DIR):
-            files = os.listdir(os.getcwd())
-            for f in files:
-                dest_path = os.path.join(dest, f)
-                if os.path.isfile(f):
-                    if os.path.exists(dest_path):
-                        remove_any(dest_path)
-                    shutil.copy(f, dest)
-                else:
-                    if os.path.exists(dest_path):
-                        remove_any(dest_path)
-                    shutil.copytree(f, dest_path)
+    def test_execution_update_onefile(self, datadir, simpleserver):
+        data_dir = datadir['update_repo']
 
-        PORT = 8000
-        socket_server.TCPServer.allow_reuse_address = True
-        httpd = socket_server.TCPServer(("", PORT), RequestHandler)
+        # We are moving all of the files from the deploy directory to the
+        # cwd. We will start a simple http server to use for updates
+        with ChDir(data_dir):
+            simpleserver.start()
 
-        # class MyServer(threading.Thread):
+            cmd = 'python app_build_onefile.py'
+            os.system(cmd)
 
-        #     def run(self):
-        #         self.heartbeat = True
-        #         while heartbeat:
+            # Moving all files from the deploy directory to the cwd
+            # since that is where we will start the simple server
+            deploy_dir = os.path.join('pyu-data', 'deploy')
+            test_cwd = os.getcwd()
+            with ChDir(deploy_dir):
+                files = os.listdir(os.getcwd())
+                for f in files:
+                    if f == '.DS_Store':
+                        continue
+                    shutil.move(f, test_cwd)
 
-        t = threading.Thread(target=httpd.serve_forever)
-        t.daemon = True
-        t.start()
+            app_name = 'Acme'
+            if sys.platform == 'win32':
+                app_name += '.exe'
 
-        cmd = 'python app_build.py'
-        os.system(cmd)
+            with open('pyu.log', 'w') as f:
+                f.write('')
 
-        deploy_dir = os.path.join('pyu-data', 'deploy')
-        with ChDir(deploy_dir):
-            files = os.listdir(os.getcwd())
-            for f in files:
-                if f == '.DS_Store':
-                    continue
-                shutil.move(f, dest)
+            print(os.listdir(os.getcwd()))
+            if sys.platform != 'win32':
+                app_name = './{}'.format(app_name)
 
-        app_name = 'Acme'
-        if sys.platform == 'win32':
-            app_name += '.exe'
+            print('Appname: {}'.format(app_name))
+            # Call the binary to self update
+            out = subprocess.check_output(app_name, shell=True)
+            # Allow enough time for update process to complete.
+            time.sleep(15)
 
-        with open('pyu.log', 'w') as f:
-            f.write('')
+            # Call again to check the output
+            out = subprocess.check_output(app_name, shell=True)
+            out = out.strip()
 
-        print(os.listdir(os.getcwd()))
-        if sys.platform != 'win32':
-            app_name = './{}'.format(app_name)
+            with open('pyu.log', 'r') as f:
+                data = f.read()
 
-        print('Appname: {}'.format(app_name))
-        # Call the binary to self update
-        out = subprocess.check_output(app_name, shell=True)
-        time.sleep(15)
-
-        # Call again to check the output
-        out = subprocess.check_output(app_name, shell=True)
-        out = out.strip()
-
-        with open('pyu.log', 'r') as f:
-            data = f.read()
-
-        print(data)
-        assert out == six.b('4.2')
+            print(data)
+            assert out == six.b('4.2')
+            simpleserver.stop()

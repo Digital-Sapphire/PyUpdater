@@ -27,33 +27,22 @@ from __future__ import unicode_literals, print_function
 import io
 import json
 import os
-import shutil
 
 import pytest
 
 from pyupdater.client.patcher import Patcher
-
-TEST_DATA_DIR = os.path.join(os.getcwd(), 'tests', 'test-data',
-                             'patcher')
-
-VERSION_DATA_DIR = os.path.dirname(TEST_DATA_DIR)
-with io.open(os.path.join(VERSION_DATA_DIR, 'version.json'),
-             encoding='utf-8') as f:
-    version_data_str = f.read()
-
-json_data = json.loads(version_data_str)
 
 
 def cb(status):
     pass
 
 
+# Just throwing a monkey wrench into.
 def cb2(status):
     raise IndexError
 
 update_data = {
     'name': 'Acme',
-    'json_data': json_data,
     'current_filename': 'Acme-mac-4.1.tar.gz',
     'current_version': '4.1.0.2.0',
     'latest_version': '4.4.0.2.0',
@@ -67,30 +56,39 @@ update_data = {
 @pytest.mark.usefixtures("cleandir")
 class TestFails(object):
 
-    @pytest.fixture
-    def setup(self):
-        directory = os.getcwd()
-        base_binary = os.path.join(TEST_DATA_DIR, 'Acme-mac-4.1.tar.gz')
-        shutil.copy(base_binary, directory)
-        return directory
+    base_binary = 'Acme-mac-4.1.tar.gz'
 
-    def test_no_base_binary(self):
+    @pytest.fixture
+    def json_data(self, datadir):
+        version_data_str = datadir.read('version.json')
+        return json.loads(version_data_str)
+
+    def test_no_base_binary(self, json_data):
         assert os.listdir(os.getcwd()) == []
         data = update_data.copy()
         data['update_folder'] = os.getcwd()
+        data['json_data'] = json_data
         p = Patcher(**data)
         assert p.start() is False
 
-    def test_bad_hash_current_version(self, setup):
+    def test_bad_hash_current_version(self, datadir, json_data):
+        # pytest-datadir copies the file on access
+        datadir[self.base_binary]
+
         data = update_data.copy()
-        data['update_folder'] = setup
+        data['update_folder'] = datadir.tmpdir
+        data['json_data'] = json_data
         data['current_file_hash'] = 'Thisisabadhash'
         p = Patcher(**data)
         assert p.start() is False
 
-    def test_missing_version(self, setup):
+    def test_missing_version(self, datadir, json_data):
+        # pytest-datadir copies the file on access
+        datadir[self.base_binary]
+
         data = update_data.copy()
-        data['update_folder'] = setup
+        data['update_folder'] = datadir.tmpdir
+        data['json_data'] = json_data
         data['latest_version'] = '0.0.4.2.0'
         p = Patcher(**data)
         assert p.start() is False
@@ -99,20 +97,24 @@ class TestFails(object):
 @pytest.mark.usefixtures("cleandir")
 class TestExecution(object):
 
-    @pytest.fixture
-    def setup(self):
-        directory = os.getcwd()
-        base_binary = os.path.join(TEST_DATA_DIR, 'Acme-mac-4.1.tar.gz')
-        shutil.copy(base_binary, directory)
-        return directory
+    base_binary = 'Acme-mac-4.1.tar.gz'
 
-    def test_execution(self, setup):
+    @pytest.fixture
+    def json_data(self, datadir):
+        version_data_str = datadir.read('version.json')
+        return json.loads(version_data_str)
+
+    def test_execution(self, datadir, json_data):
+        # pytest-datadir copies the file on access
+        datadir[self.base_binary]
+
         data = update_data.copy()
-        data['update_folder'] = setup
+        data['update_folder'] = datadir.tmpdir
+        data['json_data'] = json_data
         p = Patcher(**data)
         assert p.start() is True
 
-    def test_execution_callback(self, setup):
+    def test_execution_callback(self, datadir, json_data):
 
         def cb(status):
             assert 'downloaded' in status.keys()
@@ -120,8 +122,12 @@ class TestExecution(object):
             assert 'status' in status.keys()
             assert 'percent_complete' in status.keys()
 
+        # pytest-datadir copies the file on access
+        datadir[self.base_binary]
+
         data = update_data.copy()
-        data['update_folder'] = setup
+        data['update_folder'] = datadir.tmpdir
+        data['json_data'] = json_data
         data['progress_hooks'] = [cb]
         p = Patcher(**data)
         assert p.start() is True

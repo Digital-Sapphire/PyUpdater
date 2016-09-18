@@ -24,6 +24,16 @@
 # --------------------------------------------------------------------------
 import os
 import tempfile
+import threading
+
+try:
+    from http.server import SimpleHTTPRequestHandler as RequestHandler
+except ImportError:
+    from SimpleHTTPServer import SimpleHTTPRequestHandler as RequestHandler
+try:
+    import socketserver as socket_server
+except:
+    import SocketServer as socket_server
 
 import pytest
 
@@ -64,6 +74,21 @@ def db():
 
 
 @pytest.fixture
+def loader():
+    CONFIG = {
+        'APP_NAME': 'PyUpdater Test',
+        'COMPANY_NAME': 'ACME',
+        'UPDATE_PATCHES': True,
+        }
+
+    l = Loader()
+    config = l.load_config()
+    config.update(CONFIG)
+    l.save_config(config)
+    return config
+
+
+@pytest.fixture
 def parser():
     parser = make_parser()
     return parser
@@ -78,15 +103,21 @@ def pyu():
 
 
 @pytest.fixture
-def loader():
-    CONFIG = {
-        'APP_NAME': 'PyUpdater Test',
-        'COMPANY_NAME': 'ACME',
-        'UPDATE_PATCHES': True,
-        }
+def simpleserver():
+    class Server(object):
+        def __init__(self):
+            self._server = None
 
-    l = Loader()
-    config = l.load_config()
-    config.update(CONFIG)
-    l.save_config(config)
-    return config
+        def start(self, port=8000):
+            socket_server.TCPServer.allow_reuse_address = True
+            httpd = socket_server.TCPServer(("", port), RequestHandler)
+
+            self._server = threading.Thread(target=httpd.serve_forever)
+            self._server.daemon = True
+            self._server.start()
+
+        def stop(self):
+            if self._server is not None:
+                self._server.alive = False
+                self._server = None
+    return Server()
