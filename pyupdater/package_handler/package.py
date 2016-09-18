@@ -217,7 +217,7 @@ class Package(object):
             v = Version(package)
             self.channel = v.channel
             self.version = str(v)
-        except (UtilsError, VersionError):
+        except VersionError:
             msg = 'Package version not formatted correctly'
             self.info['reason'] = msg
             log.error(msg)
@@ -226,7 +226,7 @@ class Package(object):
 
         try:
             self.platform = parse_platform(package)
-        except UtilsError:
+        except PackageHandlerError:
             msg = 'Package platform not formatted correctly'
             self.info['reason'] = msg
             log.error(msg)
