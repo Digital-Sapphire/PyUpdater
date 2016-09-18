@@ -23,77 +23,174 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
+import io
+import logging
+import os
+import shutil
+import subprocess
+import sys
+import tarfile
 import threading
+import zipfile
 
-from dsdev_utils.paths import get_mac_dot_app_dir, remove_any
+from dsdev_utils.helpers import Version
+from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
+from dsdev_utils.system import get_system
 
 from pyupdater import settings
-from pyupdater.client.downloader import FileDownloader
+from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.package_handler.package import remove_previous_versions
-from pyupdater.utils import (get_filename, get_hash,
-                             get_highest_version, lazy_import,
-                             Restarter)
 from pyupdater.utils.exceptions import ClientError
 
 
-@lazy_import
-def io():
-    import io
-    return io
-
-
-@lazy_import
-def logging():
-    import logging
-    return logging
-
-
-@lazy_import
-def os():
-    import os
-    return os
-
-
-@lazy_import
-def shutil():
-    import shutil
-    return shutil
-
-
-@lazy_import
-def sys():
-    import sys
-    return sys
-
-
-@lazy_import
-def tarfile():
-    import tarfile
-    return tarfile
-
-
-@lazy_import
-def warnings():
-    import warnings
-    return warnings
-
-
-@lazy_import
-def zipfile():
-    import zipfile
-    return zipfile
-
-
-@lazy_import
-def dsdev_utils():
-    import dsdev_utils
-    import dsdev_utils.paths
-    import dsdev_utils.system
-    return dsdev_utils
-
-
 log = logging.getLogger(__name__)
+
+
+def get_filename(name, version, platform, easy_data):
+    """Gets full filename for given name & version combo
+
+    Args:
+
+        name (str): name of file to get full filename for
+
+       version (str): version of file to get full filename for
+
+       easy_data (dict): data file to search
+
+    Returns:
+
+       (str) Filename with extension
+    """
+    filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, name,
+                                           version, platform, 'filename')
+    filename = easy_data.get(filename_key)
+
+    log.debug("Filename for %s-%s: %s", name, version, filename)
+    return filename
+
+
+
+def get_highest_version(name, plat, channel, easy_data):
+    """Parses version file and returns the highest version number.
+
+    Args:
+
+       name (str): name of file to search for updates
+
+       easy_data (dict): data file to search
+
+    Returns:
+
+       (str) Highest version number
+    """
+    version_key_alpha = '{}*{}*{}*{}'.format('latest', name, 'alpha', plat)
+    version_key_beta = '{}*{}*{}*{}'.format('latest', name, 'beta', plat)
+    version_key_stable = '{}*{}*{}*{}'.format('latest', name, 'stable', plat)
+    version = None
+
+    alpha = easy_data.get(version_key_alpha)
+    if alpha is None:
+        alpha = '0.0'
+
+    beta = easy_data.get(version_key_beta)
+    if beta is None:
+        beta = '0.0'
+
+    stable = easy_data.get(version_key_stable)
+
+    if alpha is not None and channel == 'alpha':
+        version = alpha
+        if Version(version) < Version(stable):
+            version = stable
+        if Version(version) < Version(beta):
+            version = beta
+
+    if beta is not None and channel == 'beta':
+        version = beta
+        if Version(version) < Version(stable):
+            version = stable
+
+    if stable is not None and channel == 'stable':
+        version = stable
+
+    if version is not None:
+        log.debug('Highest version: %s', version)
+    else:
+        log.error('No updates for "%s" on %s exists', name, plat)
+
+    return version
+
+
+class Restarter(object):
+
+    def __init__(self, current_app, **kwargs):
+        self.current_app = current_app
+        self.is_win = sys.platform == 'win32'
+        self.data_dir = kwargs.get('data_dir')
+        self.updated_app = kwargs.get('updated_app')
+        log.debug('Current App: %s', self.current_app)
+        if self.is_win is True:
+            log.debug('Restart script dir: %s', self.data_dir)
+            log.debug('Update path: %s', self.updated_app)
+
+    def process(self, win_restart=True):
+        if self.is_win:
+            if win_restart is True:
+                self._win_overwrite_restart()
+            else:
+                self._win_overwrite()
+        else:
+            self._restart()
+
+    def _restart(self):
+        subprocess.Popen(self.current_app).wait()
+
+    def _win_overwrite(self):
+        bat_file = os.path.join(self.data_dir, 'update.bat')
+        vbs_file = os.path.join(self.data_dir, 'invis.vbs')
+        with io.open(bat_file, 'w', encoding='utf-8') as bat:
+            bat.write("""
+@echo off
+echo Updating to latest version...
+ping 127.0.0.1 -n 5 -w 1000 > NUL
+move /Y "{}" "{}" > NUL
+DEL invis.vbs
+DEL "%~f0"
+""".format(self.updated_app, self.current_app))
+        with io.open(vbs_file, 'w', encoding='utf-8') as vbs:
+            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
+            vbs.write('CreateObject("Wscript.Shell").Run """" '
+                      '& WScript.Arguments(0) & """", 0, False')
+        log.debug('Starting update batch file')
+        # os.startfile(bat)
+        args = ['wscript.exe', vbs_file, bat_file]
+        subprocess.Popen(args)
+        sys.exit(0)
+
+    def _win_overwrite_restart(self):
+        bat_file = os.path.join(self.data_dir, 'update.bat')
+        vbs_file = os.path.join(self.data_dir, 'invis.vbs')
+        with io.open(bat_file, 'w', encoding='utf-8') as bat:
+            bat.write("""
+@echo off
+echo Updating to latest version...
+ping 127.0.0.1 -n 5 -w 1000 > NUL
+move /Y "{}" "{}" > NUL
+echo restarting...
+start "" "{}"
+DEL invis.vbs
+DEL "%~f0"
+""".format(self.updated_app, self.current_app, self.current_app))
+        with io.open(vbs_file, 'w', encoding='utf-8') as vbs:
+            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
+            vbs.write('CreateObject("Wscript.Shell").Run """" '
+                      '& WScript.Arguments(0) & """", 0, False')
+        log.debug('Starting update batch file')
+        # os.startfile(bat)
+        args = ['wscript.exe', vbs_file, bat_file]
+        subprocess.Popen(args)
+        sys.exit(0)
 
 
 class LibUpdate(object):
@@ -184,7 +281,7 @@ class LibUpdate(object):
 
                 False - Extract failed
         """
-        if dsdev_utils.system.get_system() == 'win':  # Tested elsewhere
+        if get_system() == 'win':  # Tested elsewhere
             log.debug('Only supported on Unix like systems')
             return False
         try:
@@ -234,7 +331,7 @@ class LibUpdate(object):
         return self.status
 
     def _extract_update(self):
-        with dsdev_utils.paths.ChDir(self.update_folder):
+        with ChDir(self.update_folder):
             if not os.path.exists(self.filename):
                 log.debug('File does not exists')
                 raise ClientError('File does not exists', expected=True)
@@ -295,7 +392,7 @@ class LibUpdate(object):
     # Checks if latest update is already downloaded
     def _is_downloaded(self):
         # Comparing file hashes to ensure security
-        with dsdev_utils.paths.ChDir(self.update_folder):
+        with ChDir(self.update_folder):
             verified = self._verify_file_hash()
 
         return verified
@@ -329,7 +426,7 @@ class LibUpdate(object):
         log.debug('Starting full update')
         file_hash = self._get_file_hash_from_manifest()
 
-        with dsdev_utils.paths.ChDir(self.update_folder):
+        with ChDir(self.update_folder):
             log.debug('Downloading update...')
             fd = FileDownloader(self.filename, self.update_urls,
                                 hexdigest=file_hash, verify=self.verify,
@@ -366,7 +463,7 @@ class AppUpdate(LibUpdate):
         try:
             self._extract_update()
 
-            if dsdev_utils.system.get_system() == 'win':
+            if get_system() == 'win':
                 self._win_overwrite_restart()
             else:
                 self._overwrite()
@@ -378,7 +475,7 @@ class AppUpdate(LibUpdate):
         """Will extract the update then overwrite the current app"""
         try:
             self._extract_update()
-            if dsdev_utils.system.get_system() == 'win':
+            if get_system() == 'win':
                 self._win_overwrite()
             else:
                 self._overwrite()
@@ -397,7 +494,7 @@ class AppUpdate(LibUpdate):
         """
         # On windows we write a batch file to move the update
         # binary to the correct location and restart app.
-        if dsdev_utils.system.get_system() == 'win':
+        if get_system() == 'win':
             log.debug('Only supported on Unix like systems')
             return
         try:
@@ -409,7 +506,7 @@ class AppUpdate(LibUpdate):
 
     def _overwrite(self):  # pragma: no cover
         # Unix: Overwrites the running applications binary
-        if dsdev_utils.system.get_system() == 'mac':
+        if get_system() == 'mac':
             if self.current_app_dir.endswith('MacOS') is True:
                 log.debug('Looks like we\'re dealing with a Mac Gui')
 
@@ -444,7 +541,7 @@ class AppUpdate(LibUpdate):
     def _restart(self):  # pragma: no cover
         log.debug('Restarting')
         current_app = os.path.join(self.current_app_dir, self.name)
-        if dsdev_utils.system.get_system() == 'mac':
+        if get_system() == 'mac':
             # Must be dealing with Mac .app application
             if not os.path.exists(current_app):
                 log.debug('Must be a .app bundle')

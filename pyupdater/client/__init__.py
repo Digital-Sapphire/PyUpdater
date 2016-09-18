@@ -23,86 +23,37 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
+import gzip
+import json
+import logging
+import os
 import warnings
 
+import appdirs
+from dsdev_utils.app import FROZEN
 from dsdev_utils.helpers import EasyAccessDict, gzip_decompress, Version
+from dsdev_utils.logger import logging_formatter
+from dsdev_utils.paths import app_cwd, ChDir
+from dsdev_utils.system import get_system
+import ed25519
+import six
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
-from pyupdater.client.updates import AppUpdate, LibUpdate
-from pyupdater.utils import (get_highest_version,
-                             lazy_import)
+from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
 from pyupdater.utils.config import Config
 
 
 warnings.simplefilter('always', DeprecationWarning)
 
 
-@lazy_import
-def gzip():
-    import gzip
-    return gzip
-
-
-@lazy_import
-def io():
-    import io
-    return io
-
-
-@lazy_import
-def json():
-    import json
-    return json
-
-
-@lazy_import
-def logging():
-    import logging
-    return logging
-
-
-@lazy_import
-def os():
-    import os
-    return os
-
-
-@lazy_import
-def appdirs():
-    import appdirs
-    return appdirs
-
-
-@lazy_import
-def ed25519():
-    import ed25519
-    return ed25519
-
-
-@lazy_import
-def dsdev_utils():
-    import dsdev_utils
-    import dsdev_utils.app
-    import dsdev_utils.logger
-    import dsdev_utils.paths
-    import dsdev_utils.system
-    return dsdev_utils
-
-
-@lazy_import
-def six():
-    import six
-    return six
-
-
 log = logging.getLogger(__name__)
-log_path = os.path.join(dsdev_utils.paths.app_cwd, 'pyu.log')
+log_path = os.path.join(app_cwd, 'pyu.log')
 if os.path.exists(log_path):  # pragma: no cover
-    ch = logging.FileHandler(os.path.join(dsdev_utils.paths.app_cwd,
+    ch = logging.FileHandler(os.path.join(app_cwd,
                              'pyu.log'))
     ch.setLevel(logging.DEBUG)
-    ch.setFormatter(dsdev_utils.logger.logging_formatter)
+    ch.setFormatter(logging_formatter)
     log.addHandler(ch)
 log.debug('PyUpdater Version %s', __version__)
 
@@ -171,7 +122,7 @@ class Client(object):
         config.from_object(obj)
 
         # Boolean: If executing frozen
-        self.FROZEN = dsdev_utils.app.FROZEN
+        self.FROZEN = FROZEN
 
         # Grabbing config information
         update_urls = config.get('UPDATE_URLS', [])
@@ -196,7 +147,7 @@ class Client(object):
                                                   self.company_name)
 
             # Used when parsing the update manifest
-            self.platform = dsdev_utils.system.get_system()
+            self.platform = get_system()
 
         # Folder to house update archives
         self.update_folder = os.path.join(self.data_dir,
@@ -367,7 +318,7 @@ class Client(object):
     # needs to be installed without an network connection
     def _get_manifest_filesystem(self):
         data = None
-        with dsdev_utils.paths.ChDir(self.data_dir):
+        with ChDir(self.data_dir):
             if not os.path.exists(self.version_file):
                 log.debug('No version file on file system')
                 return data
@@ -437,7 +388,7 @@ class Client(object):
             return None
 
     def _write_manifest_2_filesystem(self, data):
-        with dsdev_utils.paths.ChDir(self.data_dir):
+        with ChDir(self.data_dir):
             log.debug('Writing version file to disk')
             with gzip.open(self.version_file, 'wb') as f:
                 f.write(data)

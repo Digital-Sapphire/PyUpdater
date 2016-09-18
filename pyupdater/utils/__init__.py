@@ -32,14 +32,12 @@ try:
 except ImportError:
     from collections import MutableMapping as dictmixin
 
-import certifi
-from dsdev_utils.helpers import lazy_import, Version
+
+from dsdev_utils.helpers import lazy_import
 from dsdev_utils.paths import ChDir, remove_any
 from stevedore.extension import ExtensionManager
-import urllib3
 
 from pyupdater import settings
-from pyupdater.utils.exceptions import UtilsError
 
 log = logging.getLogger(__name__)
 
@@ -283,14 +281,6 @@ def print_plugin_settings(plugin_name, config):
         print(config)
 
 
-def get_http_pool(secure=True):
-    if secure is True:
-        return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
-                                   ca_certs=certifi.where())
-    else:
-        return urllib3.PoolManager()
-
-
 def check_repo():
     "Checks if current directory is a pyupdater repository"
     repo = True
@@ -298,99 +288,6 @@ def check_repo():
         log.debug('PyUpdater config data folder is missing')
         repo = False
     return repo
-
-
-def get_filename(name, version, platform, easy_data):
-    """Gets full filename for given name & version combo
-
-    Args:
-
-        name (str): name of file to get full filename for
-
-       version (str): version of file to get full filename for
-
-       easy_data (dict): data file to search
-
-    Returns:
-
-       (str) Filename with extension
-    """
-    filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, name,
-                                           version, platform, 'filename')
-    filename = easy_data.get(filename_key)
-
-    log.debug("Filename for %s-%s: %s", name, version, filename)
-    return filename
-
-
-def get_hash(data):
-    """Get hash of object
-
-    Args:
-
-        data (object): Object you want hash of.
-
-    Returns:
-
-        (str): sha256 hash
-    """
-    if six.PY3:
-        if not isinstance(data, bytes):
-            data = bytes(data, 'utf-8')
-    hash_ = hashlib.sha256(data).hexdigest()
-    log.debug('Hash for binary data: %s', hash_)
-    return hash_
-
-
-def get_highest_version(name, plat, channel, easy_data):
-    """Parses version file and returns the highest version number.
-
-    Args:
-
-       name (str): name of file to search for updates
-
-       easy_data (dict): data file to search
-
-    Returns:
-
-       (str) Highest version number
-    """
-    version_key_alpha = '{}*{}*{}*{}'.format('latest', name, 'alpha', plat)
-    version_key_beta = '{}*{}*{}*{}'.format('latest', name, 'beta', plat)
-    version_key_stable = '{}*{}*{}*{}'.format('latest', name, 'stable', plat)
-    version = None
-
-    alpha = easy_data.get(version_key_alpha)
-    if alpha is None:
-        alpha = '0.0'
-
-    beta = easy_data.get(version_key_beta)
-    if beta is None:
-        beta = '0.0'
-
-    stable = easy_data.get(version_key_stable)
-
-    if alpha is not None and channel == 'alpha':
-        version = alpha
-        if Version(version) < Version(stable):
-            version = stable
-        if Version(version) < Version(beta):
-            version = beta
-
-    if beta is not None and channel == 'beta':
-        version = beta
-        if Version(version) < Version(stable):
-            version = stable
-
-    if stable is not None and channel == 'stable':
-        version = stable
-
-    if version is not None:
-        log.debug('Highest version: %s', version)
-    else:
-        log.error('No updates for "%s" on %s exists', name, plat)
-
-    return version
 
 
 def get_size_in_bytes(filename):
@@ -410,7 +307,7 @@ def setup_appname(config):  # pragma: no cover
                                                               default=default)
 
 
-def setup_client_config_path(config): # pragma: no cover
+def setup_client_config_path(config):  # pragma: no cover
     _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
     question = ("Please enter the path to where pyupdater "
                 "will write the client_config.py file. "
@@ -593,29 +490,6 @@ def make_archive(name, target, version):
     return output_filename
 
 
-def parse_platform(name):
-    """Parses platfrom name from given string
-
-    Args:
-
-        name (str): Name to be parsed
-
-    Returns:
-
-        (str): Platform name
-    """
-    log.debug('Parsing "%s" for platform info', name)
-    try:
-        re_str = '-(?P<platform>mac|win|nix[6]?[4]?)-'
-        data = re.compile(re_str).search(name)
-        platform_name = data.groupdict()['platform']
-        log.debug('Platform name is: %s', platform_name)
-    except AttributeError:
-        raise UtilsError('Could not parse platform from filename')
-
-    return platform_name
-
-
 def pretty_time(sec):
     """Turns seconds into a human readable format. Example: 2020/07/31 12:22:83
 
@@ -787,74 +661,3 @@ class JSONStore(dictmixin):
         self._synced_json_kw = json_kw
         self._needs_sync = False
         return True
-
-
-class Restarter(object):
-
-    def __init__(self, current_app, **kwargs):
-        self.current_app = current_app
-        self.is_win = sys.platform == 'win32'
-        self.data_dir = kwargs.get('data_dir')
-        self.updated_app = kwargs.get('updated_app')
-        log.debug('Current App: %s', self.current_app)
-        if self.is_win is True:
-            log.debug('Restart script dir: %s', self.data_dir)
-            log.debug('Update path: %s', self.updated_app)
-
-    def process(self, win_restart=True):
-        if self.is_win:
-            if win_restart is True:
-                self._win_overwrite_restart()
-            else:
-                self._win_overwrite()
-        else:
-            self._restart()
-
-    def _restart(self):
-        subprocess.Popen(self.current_app).wait()
-
-    def _win_overwrite(self):
-        bat_file = os.path.join(self.data_dir, 'update.bat')
-        vbs_file = os.path.join(self.data_dir, 'invis.vbs')
-        with io.open(bat_file, 'w', encoding='utf-8') as bat:
-            bat.write("""
-@echo off
-echo Updating to latest version...
-ping 127.0.0.1 -n 5 -w 1000 > NUL
-move /Y "{}" "{}" > NUL
-DEL invis.vbs
-DEL "%~f0"
-""".format(self.updated_app, self.current_app))
-        with io.open(vbs_file, 'w', encoding='utf-8') as vbs:
-            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
-            vbs.write('CreateObject("Wscript.Shell").Run """" '
-                      '& WScript.Arguments(0) & """", 0, False')
-        log.debug('Starting update batch file')
-        # os.startfile(bat)
-        args = ['wscript.exe', vbs_file, bat_file]
-        subprocess.Popen(args)
-        sys.exit(0)
-
-    def _win_overwrite_restart(self):
-        bat_file = os.path.join(self.data_dir, 'update.bat')
-        vbs_file = os.path.join(self.data_dir, 'invis.vbs')
-        with io.open(bat_file, 'w', encoding='utf-8') as bat:
-            bat.write("""
-@echo off
-echo Updating to latest version...
-ping 127.0.0.1 -n 5 -w 1000 > NUL
-move /Y "{}" "{}" > NUL
-echo restarting...
-start "" "{}"
-DEL invis.vbs
-DEL "%~f0"
-""".format(self.updated_app, self.current_app, self.current_app))
-        with io.open(vbs_file, 'w', encoding='utf-8') as vbs:
-            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
-            vbs.write('CreateObject("Wscript.Shell").Run """" '
-                      '& WScript.Arguments(0) & """", 0, False')
-        log.debug('Starting update batch file')
-        # os.startfile(bat)
-        args = ['wscript.exe', vbs_file, bat_file]
-        subprocess.Popen(args)
-        sys.exit(0)

@@ -32,9 +32,10 @@ import pytest
 
 from pyupdater import settings
 from pyupdater.package_handler import PackageHandler
-from pyupdater.package_handler.package import Patch, Package
+from pyupdater.package_handler.package import Package, Patch, parse_platform
 from pyupdater.utils.config import Config
 from pyupdater.utils.exceptions import PackageHandlerError
+
 from tconfig import TConfig
 
 s_dir = settings.USER_DATA_FOLDER
@@ -64,6 +65,16 @@ class TestUtils(object):
         config.from_object(t_config)
         p = PackageHandler(config)
         p.process_packages()
+
+    def test_parse_platform(self):
+        assert parse_platform('app-mac-0.1.0.tar.gz') == 'mac'
+        assert parse_platform('app-win-1.0.0.zip') == 'win'
+        assert parse_platform('Email Parser-mac-0.2.0.tar.gz') == 'mac'
+        assert parse_platform('Hangman-nix-0.0.1b1.zip') == 'nix'
+
+    def test_parse_platform_fail(self):
+        with pytest.raises(PackageHandlerError):
+            parse_platform('app-nex-1.0.0.tar.gz')
 
 
 @pytest.mark.usefixtures('cleandir', 'pyu')
@@ -111,7 +122,6 @@ class TestPackage(object):
         assert p1.platform == 'nix'
         assert p1.channel == 'beta'
         assert p1.info['status'] is True
-
 
     def test_package_alpha(self):
         test_file = 'with spaces-win-0.0.1a2.zip'
