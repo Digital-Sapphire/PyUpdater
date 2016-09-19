@@ -86,11 +86,9 @@ class TestExecution(object):
             with open('pyu.log', 'w') as f:
                 f.write('')
 
-            print(os.listdir(os.getcwd()))
             if sys.platform != 'win32':
                 app_name = './{}'.format(app_name)
 
-            print('Appname: {}'.format(app_name))
             # Call the binary to self update
             out = subprocess.check_output(app_name, shell=True)
             # Allow enough time for update process to complete.
@@ -100,9 +98,6 @@ class TestExecution(object):
             out = subprocess.check_output(app_name, shell=True)
             out = out.strip()
 
-            with open('pyu.log', 'r') as f:
-                data = f.read()
-
-            print(data)
-            assert out == six.b('4.2')
             simpleserver.stop()
+
+            assert out == six.b('4.2')
