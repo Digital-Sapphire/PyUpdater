@@ -1,0 +1,51 @@
+{
+    "latest": {
+        "Acme": {
+            "stable": {
+                "mac": "4.4.0.2.0"
+            }
+        }
+    },
+    "signature": "xyRZyduSdlLS+9eCmfU/NJeCk9Ybr/bmKQ5GareDbf9/BIajHZevErcRsZi0oTKqKos4b/6fjcNbO9W112T+Ag",
+    "updates": {
+        "Acme": {
+            "4.1.0.2.0": {
+                "mac": {
+                    "file_hash": "7ade54611f1b632e8df7b6eb0a59f4eb5f4eaaf6d4d806a9b3b7cb7129214e6a",
+                    "file_size": 4997814,
+                    "filename": "Acme-mac-4.1.tar.gz"
+                }
+            },
+            "4.2.0.2.0": {
+                "mac": {
+                    "file_hash": "7872d3b61026048e6b114a15819742ad00afb2395bcd35106d1b8dc42df00b14",
+                    "file_size": 4997728,
+                    "filename": "Acme-mac-4.2.tar.gz",
+                    "patch_hash": "70f3529a891af3145782722a6f5d39f8ea3d87b5ffebbc9d2110d230a49f840d",
+                    "patch_name": "Acme-mac-2",
+                    "patch_size": 1276614
+                }
+            },
+            "4.3.0.2.0": {
+                "mac": {
+                    "file_hash": "7d3d3b110be99648d70e10ea63f6520e54071f241fb712d23b8f7abc3494c600",
+                    "file_size": 4997724,
+                    "filename": "Acme-mac-4.3.tar.gz",
+                    "patch_hash": "b74269e7433535aa0884eb69937c19bed133fdd7a112a853f66f5815a1bea803",
+                    "patch_name": "Acme-mac-3",
+                    "patch_size": 824443
+                }
+            },
+            "4.4.0.2.0": {
+                "mac": {
+                    "file_hash": "4f583cdc3ef72f6a4876bdaae690aa634a3d6507211dea7b9e9f771563c1d8d4",
+                    "file_size": 4997724,
+                    "filename": "Acme-mac-4.4.tar.gz",
+                    "patch_hash": "025f443c98b58714e56d7aa9dbb174a28d0d5926942f1005c1a7ae7c5d2cde08",
+                    "patch_name": "Acme-mac-4",
+                    "patch_size": 612937
+                }
+            }
+        }
+    }
+}

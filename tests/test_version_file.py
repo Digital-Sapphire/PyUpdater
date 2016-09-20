@@ -24,25 +24,18 @@
 # --------------------------------------------------------------------------
 from __future__ import unicode_literals
 
-import io
 import json
-import os
 
 import ed25519
 import pytest
 import six
 
-BASE = os.path.join('tests', 'test-data')
-pub_key_file = os.path.abspath(os.path.join(BASE, 'jms.pub'))
-version_file = os.path.abspath(os.path.join(BASE, 'version.json'))
-
 
 @pytest.mark.usefixtures('cleandir')
 class TestVersionFile(object):
 
-    def test_signature(self):
-        with io.open(version_file, 'r', encoding='utf-8') as f:
-            version_data = json.loads(f.read())
+    def test_signature(self, datadir):
+        version_data = json.loads(datadir.read('version.json'))
 
         sig = version_data['signature']
         del version_data['signature']
@@ -52,7 +45,7 @@ class TestVersionFile(object):
         else:
             version_data = data
 
-        with io.open(pub_key_file, 'r', encoding='utf-8') as pkf:
-            public_key = ed25519.VerifyingKey(pkf.read(), encoding='base64')
+        public_key = ed25519.VerifyingKey(datadir.read('jms.pub'),
+                                          encoding='base64')
 
         public_key.verify(sig, version_data, encoding='base64')

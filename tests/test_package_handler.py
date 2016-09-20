@@ -38,9 +38,7 @@ from pyupdater.utils.exceptions import PackageHandlerError
 
 from tconfig import TConfig
 
-s_dir = settings.USER_DATA_FOLDER
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test-data',
-                             'package-handler')
+user_data_dir = settings.USER_DATA_FOLDER
 
 
 @pytest.mark.usefixtures('cleandir', 'pyu')
@@ -53,8 +51,8 @@ class TestUtils(object):
         config = Config()
         config.from_object(t_config)
         p = PackageHandler(config)
-        assert p.files_dir == os.path.join(data_dir, s_dir, 'files')
-        assert p.deploy_dir == os.path.join(data_dir, s_dir, 'deploy')
+        assert p.files_dir == os.path.join(data_dir, user_data_dir, 'files')
+        assert p.deploy_dir == os.path.join(data_dir, user_data_dir, 'deploy')
 
     def test_no_patch_support(self):
         data_dir = os.getcwd()
@@ -99,10 +97,9 @@ class TestExecution(object):
 @pytest.mark.usefixtures('cleandir')
 class TestPackage(object):
 
-    def test_package_1(self):
+    def test_package_1(self, datadir):
         test_file = 'Acme-mac-4.1.tar.gz'
-        with ChDir(TEST_DATA_DIR):
-            p1 = Package(test_file)
+        p1 = Package(datadir[test_file])
 
         assert p1.name == 'Acme'
         assert p1.version == '4.1.0.2.0'
@@ -111,10 +108,9 @@ class TestPackage(object):
         assert p1.channel == 'stable'
         assert p1.info['status'] is True
 
-    def test_package_name_with_spaces(self):
+    def test_package_name_with_spaces(self, datadir):
         test_file = 'with spaces-nix-0.0.1b1.zip'
-        with ChDir(TEST_DATA_DIR):
-            p1 = Package(test_file)
+        p1 = Package(datadir[test_file])
 
         assert p1.name == 'with spaces'
         assert p1.version == '0.0.1.1.1'
@@ -123,10 +119,9 @@ class TestPackage(object):
         assert p1.channel == 'beta'
         assert p1.info['status'] is True
 
-    def test_package_alpha(self):
+    def test_package_alpha(self, datadir):
         test_file = 'with spaces-win-0.0.1a2.zip'
-        with ChDir(TEST_DATA_DIR):
-            p1 = Package(test_file)
+        p1 = Package(datadir[test_file])
 
         assert p1.name == 'with spaces'
         assert p1.version == '0.0.1.0.2'
@@ -141,10 +136,9 @@ class TestPackage(object):
         p = Package('.DS_Store')
         assert p.info['status'] is False
 
-    def test_package_bad_extension(self):
+    def test_package_bad_extension(self, datadir):
         test_file_2 = 'pyu-win-0.0.2.bzip2'
-        with ChDir(TEST_DATA_DIR):
-            p2 = Package(test_file_2)
+        p2 = Package(datadir[test_file_2])
 
         assert p2.filename == test_file_2
         assert p2.name is None
@@ -153,20 +147,13 @@ class TestPackage(object):
         assert p2.info['reason'] == ('Not a supported archive format: '
                                      '{}'.format(test_file_2))
 
-    def test_package_bad_version(self):
-        with ChDir(TEST_DATA_DIR):
-            p = Package('pyu-win-1.tar.gz')
+    def test_package_bad_version(self, datadir):
+        p = Package(datadir['pyu-win-1.tar.gz'])
         assert p.info['reason'] == 'Package version not formatted correctly'
 
-    def test_package_bad_platform(self):
-        with ChDir(TEST_DATA_DIR):
-            p = Package('pyu-wi-1.1.tar.gz')
+    def test_package_bad_platform(self, datadir):
+        p = Package(datadir['pyu-wi-1.1.tar.gz'])
         assert p.info['reason'] == 'Package platform not formatted correctly'
-
-    def test_package_missing(self):
-        test_file_4 = 'jms-nix-0.0.3.tar.gz'
-        with ChDir(TEST_DATA_DIR):
-            Package(test_file_4)
 
 
 @pytest.mark.usefixtures('cleandir')

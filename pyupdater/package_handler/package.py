@@ -174,7 +174,7 @@ class Package(object):
     def __init__(self, filename):
         self.name = None
         self.version = None
-        self.filename = filename
+        self.filename = os.path.basename(filename)
         self.file_hash = None
         self.file_size = None
         self.platform = None
@@ -195,26 +195,28 @@ class Package(object):
 
             package (str): filename
         """
+        package_basename = os.path.basename(package)
+
         if not os.path.exists(package):
             msg = '{} does not exists'.format(package)
             log.debug(msg)
             self.info['reason'] = msg
             return
-        if package in self.ignored_files:
-            msg = 'Ignored file: {}'.format(package)
+        if package_basename in self.ignored_files:
+            msg = 'Ignored file: {}'.format(package_basename)
             log.debug(msg)
             self.info['reason'] = msg
             return
-        if os.path.splitext(package)[1].lower() not in \
+        if os.path.splitext(package_basename)[1].lower() not in \
                 self.supported_extensions:
-            msg = 'Not a supported archive format: {}'.format(package)
+            msg = 'Not a supported archive format: {}'.format(package_basename)
             self.info['reason'] = msg
             log.warning(msg)
             return
 
-        log.debug('Extracting update archive info for: %s', package)
+        log.debug('Extracting update archive info for: %s', package_basename)
         try:
-            v = Version(package)
+            v = Version(package_basename)
             self.channel = v.channel
             self.version = str(v)
         except VersionError:
@@ -225,7 +227,7 @@ class Package(object):
         log.debug('Got version info')
 
         try:
-            self.platform = parse_platform(package)
+            self.platform = parse_platform(package_basename)
         except PackageHandlerError:
             msg = 'Package platform not formatted correctly'
             self.info['reason'] = msg
@@ -233,7 +235,7 @@ class Package(object):
             return
         log.debug('Got platform info')
 
-        self.name = self._parse_package_name(package)
+        self.name = self._parse_package_name(package_basename)
         assert self.name is not None
         log.debug('Got name of update: %s', self.name)
         self.info['status'] = True
