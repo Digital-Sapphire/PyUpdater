@@ -386,7 +386,7 @@ def _real_main(args):  # pragma: no cover
     elif cmd == 'upload':
         upload(args)
     elif cmd == 'version':
-        print('PyUpdater %s', __version__)
+        print('PyUpdater {}'.format(__version__))
     else:
         log.error('Not Implemented')
         sys.exit(1)
