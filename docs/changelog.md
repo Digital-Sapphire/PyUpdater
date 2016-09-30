@@ -1,7 +1,15 @@
 # Changelog
 
-## v2.1.6 - Master
+## v2.1.7 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.1.6 - 2016/09/30
+
+###Fixed
+
+ - Deploy script
+
 
 ## v2.1.5 - 2016/09/29
 
