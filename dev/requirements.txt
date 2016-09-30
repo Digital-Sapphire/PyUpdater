@@ -4,5 +4,5 @@ mkdocs-material
 tox
 tox-pyenv
 twine
-versioneer == 0.16
+versioneer == 0.17
 wheel
