@@ -282,22 +282,29 @@ def upload_debug_info():  # pragma: no cover
         api = 'https://api.github.com/'
         gist_url = api + 'gists'
         http = get_http_pool()
-        headers = {"Accept": "application/vnd.github.v3+json"}
-        r = http.request('POST', gist_url, headers=headers,
-                         fields=json.dumps(data))
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "PyUpdater"
+                }
+
+        r = http.urlopen('POST', gist_url, headers=headers,
+                         body=json.dumps(data))
         try:
-            r_string = r.read()
-            data = json.loads(r_string)
+            data = json.loads(r.data)
             url = data['html_url']
         except Exception as err:
             log.debug(err, exc_info=True)
-            log.debug(json.dumps(r.json(), indent=2))
+            log.debug(json.dumps(r.data, indent=2))
             url = None
         return url
 
-    upload_data = {'files': {}}
+    upload_data = {
+        'files': {},
+        'description': 'PyUpdater debug logs',
+        'public': False,
+            }
     with ChDir(LOG_DIR):
-        temp_files = os.listdir(CWD)
+        temp_files = os.listdir(os.getcwd())
         if len(temp_files) == 0:
             log.info('No log files to collect')
             return
@@ -306,13 +313,18 @@ def upload_debug_info():  # pragma: no cover
             if t.startswith(settings.LOG_FILENAME_DEBUG):
                 log.debug('Adding %s to log', t)
                 _add_file(upload_data, t)
+
+    if len(temp_files) < 1:
+        log.error('No log files to upload')
+    else:
         log.info('Found all logs')
         url = _upload(upload_data)
-    if url is None:
-        log.error('Could not upload debug info to github')
-    else:
-        log.info('Log export complete')
-        log.info('Logs uploaded to %s', url)
+
+        if url is None:
+            log.error('Could not upload debug info to github')
+        else:
+            log.info('Log export complete')
+            log.info('Logs uploaded to %s', url)
 
 
 def plugins():
