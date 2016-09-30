@@ -1,7 +1,9 @@
 # Changelog
 
-## v2.1.5 - Master
+## v2.1.6 - Master
 ####* This version is not yet released and is under active development.
+
+## v2.1.5 - 2016/09/29
 
 ###Added
 
@@ -26,11 +28,12 @@
 ###Fixed
 
   - CLI
+    - Writing public key to client config
     - Uploading of debug logs
     - version output -- @cbenhagen
 
 
-## v2.1.4 - Master
+## v2.1.4 - 2016/09/06
 
 ###Updated
 
