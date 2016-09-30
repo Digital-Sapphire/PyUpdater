@@ -284,7 +284,7 @@ def upload_debug_info():  # pragma: no cover
         http = get_http_pool()
         headers = {"Accept": "application/vnd.github.v3+json"}
         r = http.request('POST', gist_url, headers=headers,
-                         data=json.dumps(data))
+                         fields=json.dumps(data))
         try:
             r_string = r.read()
             data = json.loads(r_string)
