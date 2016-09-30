@@ -88,7 +88,7 @@ $ pyupdater pkg --process
 ```
 
 ###Step 8 - Cryptographically Sign
-####Now lets sign our version manifest file, gzip our version manifest, gzip keyfile & place in the deploy directory. You can combine --sign with --process
+####Now lets sign our version manifest file, gzip our version manifest, gzip keyfile & place in the deploy directory. Note that the signing process works without any user intervention. You can combine --sign with --process
 ```
 $ pyupdater pkg --sign
 ```
