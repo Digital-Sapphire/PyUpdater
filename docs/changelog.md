@@ -3,9 +3,32 @@
 ## v2.1.5 - Master
 ####* This version is not yet released and is under active development.
 
+###Added
+
+  - Tests
+    - Auto update
+    - One dir support - currently disabled
+    - pytest-datadir
+
 ###Updated
 
+  - Client
+    - No longer importing unused functions
   - Docs
+    - Page titles
+    - Install instructions
+  - Libs
+    - versioneer 0.17
+    - urllib3 1.18
+  - Tests
+    - To coincide with the refactoring of some modules
+
+###Fixed
+
+  - CLI
+    - Uploading of debug logs
+    - version output -- @cbenhagen
+
 
 ## v2.1.4 - Master
 
