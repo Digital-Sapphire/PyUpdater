@@ -6,7 +6,7 @@ import shutil
 from dsdev_utils.paths import ChDir
 
 HTML_DIR = os.path.join(os.getcwd(), 'site')
-DEST_DIR = os.path.join(os.path.expanduser(u'~'), u'BTSync',
+DEST_DIR = os.path.join(os.path.expanduser(u'~'), u'Sync',
                         u'code', u'Web', u'PyUpdater')
 
 
