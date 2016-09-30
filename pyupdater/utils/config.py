@@ -130,17 +130,22 @@ class Loader(object):
         """
         keypack_data = self.db.load(settings.CONFIG_DB_KEY_KEYPACK)
         if keypack_data is None:
+            log.debug('*** Keypack data is None ***')
             public_key = None
         else:
             public_key = keypack_data['client']['offline_public']
 
         filename = os.path.join(self.cwd, *obj.CLIENT_CONFIG_PATH)
-        attr_str_format = "\t{} = '{}'\n"
-        attr_format = "\t{} = {}\n"
+        attr_str_format = "    {} = '{}'\n"
+        attr_format = "    {} = {}\n"
 
         log.debug('Writing client_config.py')
         with open(filename, 'w') as f:
             f.write('class ClientConfig(object):\n')
+
+            log.debug('Adding PUBLIC_KEY to client_config.py')
+            f.write(attr_str_format.format('PUBLIC_KEY', public_key))
+
             if hasattr(obj, 'APP_NAME'):
                 log.debug('Adding APP_NAME to client_config.py')
                 f.write(attr_str_format.format('APP_NAME', obj.APP_NAME))
@@ -151,9 +156,7 @@ class Loader(object):
             if hasattr(obj, 'UPDATE_URLS'):
                 log.debug('Adding UPDATE_URLS to client_config.py')
                 f.write(attr_format.format('UPDATE_URLS', obj.UPDATE_URLS))
-            if hasattr(obj, 'PUBLIC_KEY'):
-                log.debug('Adding PUBLIC_KEY to client_config.py')
-                f.write(attr_str_format.format('PUBLIC_KEY', public_key))
+
             if hasattr(obj, 'MAX_DOWNLOAD_RETRIES'):
                 log.debug('Adding MAX_DOWNLOAD_RETRIES to client_config.py')
                 f.write(attr_format.format('MAX_DOWNLOAD_RETRIES',
