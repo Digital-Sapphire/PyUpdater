@@ -13,8 +13,8 @@
 
 ###Updated
 
-    - Docs
-      - Added note about signing
+  - Docs
+    - Added note about signing
 
 ###Fixed
 
