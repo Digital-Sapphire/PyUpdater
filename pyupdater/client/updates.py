@@ -70,7 +70,6 @@ def get_filename(name, version, platform, easy_data):
     return filename
 
 
-
 def get_highest_version(name, plat, channel, easy_data):
     """Parses version file and returns the highest version number.
 
@@ -128,6 +127,8 @@ class Restarter(object):
         self.current_app = current_app
         self.is_win = sys.platform == 'win32'
         self.data_dir = kwargs.get('data_dir')
+        self.bat_file = os.path.join(self.data_dir, 'update.bat')
+        self.vbs_file = os.path.join(self.data_dir, 'invis.vbs')
         self.updated_app = kwargs.get('updated_app')
         log.debug('Current App: %s', self.current_app)
         if self.is_win is True:
@@ -147,31 +148,26 @@ class Restarter(object):
         subprocess.Popen(self.current_app).wait()
 
     def _win_overwrite(self):
-        bat_file = os.path.join(self.data_dir, 'update.bat')
-        vbs_file = os.path.join(self.data_dir, 'invis.vbs')
-        with io.open(bat_file, 'w', encoding='utf-8') as bat:
+        with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             bat.write("""
 @echo off
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 move /Y "{}" "{}" > NUL
-DEL invis.vbs
+DEL {}
 DEL "%~f0"
-""".format(self.updated_app, self.current_app))
-        with io.open(vbs_file, 'w', encoding='utf-8') as vbs:
+""".format(self.updated_app, self.current_app, self.vbs_file))
+        with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
-        # os.startfile(bat)
-        args = ['wscript.exe', vbs_file, bat_file]
+        args = ['wscript.exe', self.vbs_file, self.bat_file]
         subprocess.Popen(args)
         sys.exit(0)
 
     def _win_overwrite_restart(self):
-        bat_file = os.path.join(self.data_dir, 'update.bat')
-        vbs_file = os.path.join(self.data_dir, 'invis.vbs')
-        with io.open(bat_file, 'w', encoding='utf-8') as bat:
+        with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             bat.write("""
 @echo off
 echo Updating to latest version...
@@ -179,16 +175,17 @@ ping 127.0.0.1 -n 5 -w 1000 > NUL
 move /Y "{}" "{}" > NUL
 echo restarting...
 start "" "{}"
-DEL invis.vbs
+DEL {}
 DEL "%~f0"
-""".format(self.updated_app, self.current_app, self.current_app))
-        with io.open(vbs_file, 'w', encoding='utf-8') as vbs:
+""".format(self.updated_app, self.current_app,
+                self.current_app, self.vbs_file))
+
+        with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
-        # os.startfile(bat)
-        args = ['wscript.exe', vbs_file, bat_file]
+        args = ['wscript.exe', self.vbs_file, self.bat_file]
         subprocess.Popen(args)
         sys.exit(0)
 
