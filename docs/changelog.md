@@ -3,6 +3,11 @@
 ## v2.1.8 - Master
 ####* This version is not yet released and is under active development.
 
+###Fixed
+
+  - Client
+    - Remove all restart files after application update
+
 ###Removed
 
   - Client
