@@ -39,10 +39,13 @@ install:
   - eval "$(pyenv virtualenv-init -)"
   - curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
 
-  - pip install tox-travis
+  - pip install tox-travis coveralls
   - pip-accel install -r requirements.txt | cat
 
 script:
   # Run tests and speed them up by sending them to multiple CPUs.
   # Run unitttest first.
   - tox
+
+after_success:
+  coveralls

@@ -95,18 +95,6 @@ class TestKeys(object):
         add_keys_parser(subparser)
         assert parser.parse_known_args(['keys'])
 
-    def test_revoke(self, parser):
-        subparser = make_subparser(parser)
-        add_keys_parser(subparser)
-        cmd = ['keys', '-y']
-        opts, other = parser.parse_known_args(cmd)
-
-    def test_revoke_count(self, parser):
-        subparser = make_subparser(parser)
-        add_keys_parser(subparser)
-        cmd = ['keys', '-y', '--count=3']
-        opts, other = parser.parse_known_args(cmd)
-
 
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
 class TestMakeSpec(object):
