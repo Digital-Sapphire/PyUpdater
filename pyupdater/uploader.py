@@ -64,27 +64,27 @@ class Uploader(object):
         """
         data_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER)
         self.deploy_dir = os.path.join(data_dir, 'deploy')
+
+        # The upload plugin that'll be used to upload our files
         self.uploader = None
+
         # Files to be uploaded
         self.files = []
 
         # Extension Manager
+        # ToDo: Make this a more descriptive variable name
         self.mgr = PluginManager(obj)
 
     def get_plugin_names(self):
         return self.mgr.get_plugin_names()
 
     def set_uploader(self, requested_uploader, keep=False):
-        """Returns an uploader object. 1 of S3, SCP, SFTP.
-        SFTP uploaders not supported at this time.
+        """Sets the named upload plugin.
 
         Args:
 
             requested_uploader (string): Either s3 or scp
 
-        Returns:
-
-            object (instance): Uploader object
         """
         self.keep = keep
         if isinstance(requested_uploader, six.string_types) is False:
@@ -99,6 +99,9 @@ class Uploader(object):
 
         msg = 'Requested uploader: {}'.format(requested_uploader)
         log.debug(msg)
+
+        # ToDo: Move this into it's own function.
+        #            Call this new function in the upload method
         try:
             _files = os.listdir(self.deploy_dir)
         except OSError:
@@ -109,6 +112,7 @@ class Uploader(object):
             files.append(os.path.join(self.deploy_dir, f))
 
         self.files = remove_dot_files(files)
+        # End ToDo
 
     def upload(self):
         """Uploads all files in file_list"""
