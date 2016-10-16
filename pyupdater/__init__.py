@@ -70,21 +70,6 @@ PyUpdater = pyupdater.core.PyUpdater
 
 
 log = logging.getLogger()
-log.setLevel(logging.DEBUG)
-nh = logging.NullHandler()
-nh.setLevel(logging.DEBUG)
-log.addHandler(nh)
-LOG_DIR = appdirs.user_log_dir(pyupdater.settings.APP_NAME,
-                               pyupdater.settings.APP_AUTHOR)
-if not os.path.exists(LOG_DIR):  # pragma: no cover
-    os.makedirs(LOG_DIR)
-LOG_FILENAME_DEBUG = os.path.join(LOG_DIR,
-                                  pyupdater.settings.LOG_FILENAME_DEBUG)
-rh = logging.handlers.RotatingFileHandler(LOG_FILENAME_DEBUG, backupCount=1,
-                                          maxBytes=10293049)
-rh.setLevel(logging.DEBUG)
-rh.setFormatter(dsdev_utils.logger.logging_formatter)
-log.addHandler(rh)
 
 from ._version import get_versions
 __version__ = get_versions()['version']
