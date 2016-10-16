@@ -15,7 +15,7 @@ optional arguments:
 
 Description:
 
-The archive command will archive an external asset used by your application which will allow updating of the asset. An example of this would be if your application depended on ffmpeg but you didn't want to bundle ffmpeg within your app. See Usage | CLI | Assets & Usage | Client | Assets for more info.
+The archive command will archive an external asset used by your application which will allow updating of the asset. An example of this would be if your application depended on ffmpeg but you didn't want to bundle ffmpeg within your app. See "Usage | CLI | Assets" & "Usage | Client | Assets" for more info.
 
 Example:
 ```
