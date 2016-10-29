@@ -8,6 +8,11 @@ from __future__ import print_function
 #------------------------------------------------------------------------------
 
 import inspect
+try:
+    from inspect import getfullargspec as getargspec
+except ImportError:
+    from inspect import getargspec
+
 import os.path as op
 import re
 import sys
@@ -184,7 +189,7 @@ def _concat(header, docstring):
 
 def _function_header(subpackage, func):
     """Generate the docstring of a function."""
-    args = inspect.formatargspec(*inspect.getfullargspec(func))
+    args = inspect.formatargspec(*getargspec(func))
     return "{name}{args}".format(name=_full_name(subpackage, func),
                                    args=args,
                                    )
@@ -198,7 +203,7 @@ def _doc_function(subpackage, func):
 
 def _doc_method(klass, func):
     """Generate the docstring of a method."""
-    argspec = inspect.getfullargspec(func)
+    argspec = inspect.getargspec(func)
     # Remove first 'self' argument.
     if argspec.args and argspec.args[0] == 'self':
         del argspec.args[0]

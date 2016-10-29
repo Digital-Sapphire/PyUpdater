@@ -221,9 +221,5 @@ class TestGenVersion(object):
     def test1(self):
         assert _gen_user_friendly_version('1.0.0.2.0') == '1.0'
         assert _gen_user_friendly_version('1.2.2.2.0') == '1.2.2'
-        assert _gen_user_friendly_version('2.0.1.1.0') == '2.0.1 Beta'
-        assert _gen_user_friendly_version('2.20.0.2.3') == '2.20 Alpha 3'
-
-
-
-
+        assert _gen_user_friendly_version('2.0.5.0.3') == '2.0.5 Alpha 3'
+        assert _gen_user_friendly_version('2.2.1.1.0') == '2.1.1 Beta'
