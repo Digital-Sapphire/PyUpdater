@@ -35,6 +35,7 @@ import pytest
 import six
 
 from pyupdater.client import Client
+from pyupdater.client.updates import _gen_user_friendly_version
 from pyupdater.utils import remove_any
 from tconfig import TConfig
 
@@ -213,3 +214,12 @@ class TestExtract(object):
                 remove_any(f)
         if get_system() != 'win':
             assert update.extract() is False
+
+
+class TestGenVersion(object):
+
+    def test1(self):
+        assert _gen_user_friendly_version('1.0.0.2.0') == '1.0'
+        assert _gen_user_friendly_version('1.2.2.2.0') == '1.2.2'
+        assert _gen_user_friendly_version('2.0.5.0.3') == '2.0.5 Alpha 3'
+        assert _gen_user_friendly_version('2.2.1.1.0') == '2.2.1 Beta'

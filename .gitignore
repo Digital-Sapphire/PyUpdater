@@ -12,6 +12,8 @@
 
 .coverage
 
+.idea
+
 build
 
 debug.txt

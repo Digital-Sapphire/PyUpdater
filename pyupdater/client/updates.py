@@ -77,12 +77,18 @@ def get_highest_version(name, plat, channel, easy_data):
 
        name (str): name of file to search for updates
 
+       plat (str): the platform we are requesting for
+
+       channel (str): the release channel
+
        easy_data (dict): data file to search
 
     Returns:
 
        (str) Highest version number
     """
+    # We grab all keys and return the version corresponding to the
+    # channel passed to this function
     version_key_alpha = '{}*{}*{}*{}'.format('latest', name, 'alpha', plat)
     version_key_beta = '{}*{}*{}*{}'.format('latest', name, 'beta', plat)
     version_key_stable = '{}*{}*{}*{}'.format('latest', name, 'stable', plat)
@@ -98,25 +104,46 @@ def get_highest_version(name, plat, channel, easy_data):
 
     stable = easy_data.get(version_key_stable)
 
-    if alpha is not None and channel == 'alpha':
+    if channel == 'alpha':
+        # Setting the latest alpha version
         version = alpha
         if Version(version) < Version(stable):
             version = stable
         if Version(version) < Version(beta):
             version = beta
 
-    if beta is not None and channel == 'beta':
+    if channel == 'beta':
+        # Setting the latest beta version
         version = beta
         if Version(version) < Version(stable):
             version = stable
 
     if stable is not None and channel == 'stable':
+        # Setting the latest stable version
         version = stable
 
     if version is not None:
         log.debug('Highest version: %s', version)
     else:
         log.error('No updates for "%s" on %s exists', name, plat)
+
+    return version
+
+
+def _gen_user_friendly_version(internal_version):
+    channel = {0: 'Alpha', 1: 'Beta'}
+    v = list(map(int, internal_version.split('.')))
+
+    # 1.2
+    version = '{}.{}'.format(v[0], v[1])
+    if v[2] != 0:
+        # 1.2.1
+        version += '.{}'.format(v[2])
+    if v[3] != 2:
+        # 1.2.1 Alpha
+        version += ' {}'.format(channel[v[3]])
+        if v[4] != 0:
+            version += ' {}'.format(v[4])
 
     return version
 
@@ -227,6 +254,8 @@ class LibUpdate(object):
         # Used to generate file name of archive
         self.latest = get_highest_version(self.name, self.platform,
                                           self.channel, self.easy_data)
+
+        self.version = _gen_user_friendly_version(self.latest)
 
         self.current_archive_filename = get_filename(self.name,
                                                      self.current_version,

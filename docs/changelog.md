@@ -1,7 +1,12 @@
 # Changelog
 
-## v2.1.8 - Master
+## v2.2.0 - Master
 ####* This version is not yet released and is under active development.
+
+###Added
+
+- Client
+  - version attribute on update object is version string in a human readable format.
 
 ###Updated
 
