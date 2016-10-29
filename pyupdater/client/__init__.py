@@ -59,7 +59,7 @@ log.debug('PyUpdater Version %s', __version__)
 
 
 class Client(object):
-    """Used on client side to update files
+    """Used to check for updates & returns an updateobject if there is an update.
 
     Kwargs:
 
@@ -71,7 +71,8 @@ class Client(object):
 
             False: Don't refresh update manifest on object initialization
 
-        call_back (func): Used for download progress
+        progress_hooks (list) List of callbacks
+
     """
     def __init__(self, obj=None, refresh=False,
                  progress_hooks=None, test=False):
@@ -185,9 +186,7 @@ class Client(object):
 
     def update_check(self, name, version, channel='stable'):
         """
-        Will try to patch binary if all check pass.  IE hash verified
-        signature verified.  If any check doesn't pass then falls back to
-        full update
+        Checks for available updates
 
         Args:
 
@@ -199,11 +198,13 @@ class Client(object):
 
         Returns:
 
-            (bool) Meanings:
+            (updateobject) Meanings:
 
-                True - Update Successful
+                AppUpdate - Used to update current binary
 
-                False - Update Failed
+                LibUpdate - Used to update external assets
+
+                None - No Updates available
         """
         return self._update_check(name, version, channel)
 

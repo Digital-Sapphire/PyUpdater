@@ -3,9 +3,9 @@ from __future__ import print_function
 
 """Minimal API documentation generation."""
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Imports
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 import inspect
 try:
@@ -13,12 +13,14 @@ try:
 except ImportError:
     from inspect import getargspec
 
+import os
 import os.path as op
 import re
 import sys
 
-from six import string_types
+sys.path.append(os.getcwd())
 
+from six import string_types
 
 #------------------------------------------------------------------------------
 # Utility functions
@@ -233,7 +235,7 @@ def _link(name, anchor=None):
 
 def _generate_preamble(package, subpackages):
 
-    yield "# API documentation of {}".format(package)
+    yield "# API documentation".format(package)
 
     yield _doc(_import_module(package))
 
@@ -315,18 +317,20 @@ def generate_api_doc(package, subpackages, path=None):
             f.write(out)
 
 
-if __name__ == '__main__':
-
+def main():
     package = 'pyupdater'
     subpackages = [
-                   'cli',
+                   # 'cli',
                    'client',
-                   'hooks',
-                   'key_handler',
-                   'package_handler',
-                   'utils',
+                   # 'hooks',
+                   # 'key_handler',
+                   # 'package_handler',
+                   # 'utils',
                    ]
 
     curdir = op.dirname(op.realpath(__file__))
-    path = op.join(curdir, 'docs/api.md')
+    path = op.join(curdir, '../docs/api.md')
     generate_api_doc(package, subpackages, path=path)
+
+if __name__ == '__main__':
+    main()
