@@ -291,9 +291,10 @@ def _generate_paragraphs(package, subpackages):
             for method in _iter_methods(klass, package):
                 yield '##### ' + _doc_method(klass, method)
 
-            yield "#### Properties"
-            for prop in _iter_properties(klass, package):
-                yield '##### ' + _doc_property(klass, prop)
+            # Uncomment to document properties.
+            # yield "#### Properties"
+            # for prop in _iter_properties(klass, package):
+            #     yield '##### ' + _doc_property(klass, prop)
 
 
 def _print_paragraph(paragraph):
