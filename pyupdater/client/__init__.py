@@ -31,17 +31,19 @@ import warnings
 
 import appdirs
 from dsdev_utils.app import FROZEN
-from dsdev_utils.helpers import EasyAccessDict, gzip_decompress, Version
+from dsdev_utils.helpers import (EasyAccessDict as _EAD,
+                                 gzip_decompress as _gzip_decompress,
+                                 Version as _Version)
 from dsdev_utils.logger import logging_formatter
-from dsdev_utils.paths import app_cwd, ChDir
-from dsdev_utils.system import get_system
+from dsdev_utils.paths import app_cwd, ChDir as _ChDir
+from dsdev_utils.system import get_system as _get_system
 import ed25519
 import six
 
 from pyupdater import settings, __version__
-from pyupdater.client.downloader import FileDownloader
-from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
-from pyupdater.utils.config import Config
+from pyupdater.client.downloader import FileDownloader as _FD
+from pyupdater.client.updates import AppUpdate, _get_highest_version, LibUpdate
+from pyupdater.utils.config import Config as _Config
 
 
 warnings.simplefilter('always', DeprecationWarning)
@@ -61,17 +63,17 @@ log.debug('PyUpdater Version %s', __version__)
 class Client(object):
     """Used to check for updates & returns an updateobject if there is an update.
 
-    Kwargs:
+        Kwargs:
 
-        obj (instance): config object
+            obj (instance): config object
 
-        refresh (bool) Meaning:
+            refresh (bool) Meaning:
 
-            True: Refresh update manifest on object initialization
+                True: Refresh update manifest on object initialization
 
-            False: Don't refresh update manifest on object initialization
+                False: Don't refresh update manifest on object initialization
 
-        progress_hooks (list) List of callbacks
+            progress_hooks (list) List of callbacks
 
     """
     def __init__(self, obj=None, refresh=False,
@@ -104,22 +106,22 @@ class Client(object):
     def init_app(self, obj, refresh=False, test=False):
         """Sets up client with config values from obj
 
-        Args:
+            Args:
 
-            obj (instance): config object
+                obj (instance): config object
 
-        Kwargs:
+            Kwargs:
 
-            refresh (bool) Meaning:
+                refresh (bool) Meaning:
 
-            True: Refresh update manifest on object initialization
+                True: Refresh update manifest on object initialization
 
-            False: Don't refresh update manifest on object initialization
+                False: Don't refresh update manifest on object initialization
 
         """
 
         # A super dict used to save config info & be dot accessed
-        config = Config()
+        config = _Config()
         config.from_object(obj)
 
         # Boolean: If executing frozen
@@ -148,7 +150,7 @@ class Client(object):
                                                   self.company_name)
 
             # Used when parsing the update manifest
-            self.platform = get_system()
+            self.platform = _get_system()
 
         # Folder to house update archives
         self.update_folder = os.path.join(self.data_dir,
@@ -180,7 +182,7 @@ class Client(object):
             self.refresh()
 
     def refresh(self):
-        "Will download and verify your version file."
+        "Will download and verify the version manifest."
         self._get_signing_key()
         self._get_update_manifest()
 
@@ -188,23 +190,23 @@ class Client(object):
         """
         Checks for available updates
 
-        Args:
+            Args:
 
-            name (str): Name of file to update
+                name (str): Name of file to update
 
-            version (str): Current version number of file to update
+                version (str): Current version number of file to update
 
-            channel (str): Release channel
+                channel (str): Release channel
 
-        Returns:
+            Returns:
 
-            (updateobject) Meanings:
+                (updateobject) Meanings:
 
-                AppUpdate - Used to update current binary
+                    AppUpdate - Used to update current binary
 
-                LibUpdate - Used to update external assets
+                    LibUpdate - Used to update external assets
 
-                None - No Updates available
+                    None - No Updates available
         """
         return self._update_check(name, version, channel)
 
@@ -216,7 +218,7 @@ class Client(object):
         self.name = name
 
         # Version object used for comparison
-        version = Version(version)
+        version = _Version(version)
         self.version = str(version)
 
         # Will be set to true if we are updating the currently
@@ -242,16 +244,16 @@ class Client(object):
             app = True
 
         log.debug('Checking for %s updates...', name)
-        latest = get_highest_version(name, self.platform,
-                                     channel, self.easy_data)
+        latest = _get_highest_version(name, self.platform,
+                                      channel, self.easy_data)
         if latest is None:
-            # If None is returned get_highest_version could
+            # If None is returned _get_highest_version could
             # not find the supplied name in the version file
             log.debug('Could not find the latest version')
             return None
 
         # Change str to version object for easy comparison
-        latest = Version(latest)
+        latest = _Version(latest)
         log.debug('Current vesion: %s', str(version))
         log.debug('Latest version: %s', str(latest))
 
@@ -287,6 +289,22 @@ class Client(object):
             return LibUpdate(data)
 
     def add_progress_hook(self, cb):
+        """
+        Add a download progress callback function to the list of progress
+        hooks.
+
+        The function should take a dict. The values of the keys that will be
+        available in the dict are below.
+
+        total:  Total size of the file to download
+        downloaded: The amount of bytes that have been downloaded so far.
+        percent_complete: The percentage downloaded so far
+        status: Status of download
+
+            Args:
+
+                cb (function):
+        """
         self.progress_hooks.append(cb)
 
     def _get_signing_key(self):
@@ -319,7 +337,7 @@ class Client(object):
     # needs to be installed without an network connection
     def _get_manifest_filesystem(self):
         data = None
-        with ChDir(self.data_dir):
+        with _ChDir(self.data_dir):
             if not os.path.exists(self.version_file):
                 log.debug('No version file on file system')
                 return data
@@ -337,7 +355,7 @@ class Client(object):
                 # In case we don't have any data to pass
                 # Catch the error here and just return None
                 try:
-                    decompressed_data = gzip_decompress(data)
+                    decompressed_data = _gzip_decompress(data)
                 except Exception as err:
                     decompressed_data = None
 
@@ -347,11 +365,11 @@ class Client(object):
     def _download_manifest(self):
         log.debug('Downloading online version file')
         try:
-            fd = FileDownloader(self.version_file, self.update_urls,
+            fd = _FD(self.version_file, self.update_urls,
                                 verify=self.verify)
             data = fd.download_verify_return()
             try:
-                decompressed_data = gzip_decompress(data)
+                decompressed_data = _gzip_decompress(data)
             except IOError:
                 log.debug('Failed to decompress gzip file')
                 # Will be caught down below.
@@ -370,11 +388,11 @@ class Client(object):
     def _download_key(self):
         log.debug('Downloading key file')
         try:
-            fd = FileDownloader(self.key_file, self.update_urls,
+            fd = _FD(self.key_file, self.update_urls,
                                 verify=self.verify)
             data = fd.download_verify_return()
             try:
-                decompressed_data = gzip_decompress(data)
+                decompressed_data = _gzip_decompress(data)
             except IOError:
                 log.debug('Failed to decompress gzip file')
                 # Will be caught down below. Just logging the error
@@ -389,7 +407,7 @@ class Client(object):
             return None
 
     def _write_manifest_2_filesystem(self, data):
-        with ChDir(self.data_dir):
+        with _ChDir(self.data_dir):
             log.debug('Writing version file to disk')
             with gzip.open(self.version_file, 'wb') as f:
                 f.write(data)
@@ -429,7 +447,7 @@ class Client(object):
         # If verified we set self.verified to True.
         self._verify_sig(self.json_data)
 
-        self.easy_data = EasyAccessDict(self.json_data)
+        self.easy_data = _EAD(self.json_data)
         log.debug('Version Data:\n%s', str(self.easy_data))
 
     def _verify_sig(self, data):

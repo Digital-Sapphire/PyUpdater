@@ -61,28 +61,26 @@ class Config(dict):
         self.update(config_template)
 
     def from_object(self, obj):
-        """Updates the values from the given object
+        # Updates the values from the given object
 
-        Args:
+        # Args:
 
-            obj (instance): Object with config attributes
+        #     obj (instance): Object with config attributes
 
-        Objects are classes.
+        # Objects are classes.
 
-        Just the uppercase variables in that object are stored in the config.
-        Example usage::
+        # Just the uppercase variables in that object are stored in the config.
+        # Example usage::
 
-            from yourapplication import default_config
-            app.config.from_object(default_config())
-        """
+        #     from yourapplication import default_config
+        #     app.config.from_object(default_config())
         for key in dir(obj):
             if key.isupper():
                 self[key] = getattr(obj, key)
 
 
+# Loads &  saves config file
 class Loader(object):
-    """Loads &  saves config file
-    """
 
     def __init__(self):
         self.cwd = os.getcwd()
@@ -90,11 +88,8 @@ class Loader(object):
         self.password = os.environ.get(settings.USER_PASS_ENV)
         self.config_key = settings.CONFIG_DB_KEY_APP_CONFIG
 
+    # Loads config from database (json file)
     def load_config(self):
-        """Loads config from database (json file)
-
-            Returns (obj): Config object
-        """
         config_data = self.db.load(self.config_key)
         if config_data is None:
             config_data = {}
@@ -108,26 +103,16 @@ class Loader(object):
         config = self.load_config()
         return config.APP_NAME
 
+    # Saves config to database (json file)
     def save_config(self, obj):
-        """Saves config file to pyupdater database
-
-        Args:
-
-            obj (obj): config object
-        """
         log.info('Saving Config')
         self.db.save(self.config_key, obj)
         log.info('Config saved')
         self._write_config_py(obj)
         log.info('Wrote client config')
 
+    # Writes client config to client_config.py
     def _write_config_py(self, obj):
-        """Writes client config to client_config.py
-
-        Args:
-
-            obj (obj): config object
-        """
         keypack_data = self.db.load(settings.CONFIG_DB_KEY_KEYPACK)
         if keypack_data is None:
             log.debug('*** Keypack data is None ***')

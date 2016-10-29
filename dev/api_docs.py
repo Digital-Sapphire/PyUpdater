@@ -12,19 +12,19 @@ try:
     from inspect import getfullargspec as getargspec
 except ImportError:
     from inspect import getargspec
-
 import os
 import os.path as op
 import re
 import sys
 
-sys.path.append(os.getcwd())
-
 from six import string_types
 
-#------------------------------------------------------------------------------
+sys.path.append(os.getcwd())
+
+
+# ------------------------------------------------------------------------------
 # Utility functions
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def _name(obj):
     if hasattr(obj, '__name__'):
@@ -114,9 +114,9 @@ def _import_module(module_name):
         return sys.modules[module_name]
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Introspection methods
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def _is_public(obj):
     name = _name(obj) if not isinstance(obj, string_types) else obj
@@ -179,9 +179,9 @@ def _iter_properties(klass, package=None):
             yield member.fget
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # API doc generation
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def _concat(header, docstring):
     return '{header}\n\n{docstring}'.format(header=header,
@@ -193,8 +193,8 @@ def _function_header(subpackage, func):
     """Generate the docstring of a function."""
     args = inspect.formatargspec(*getargspec(func))
     return "{name}{args}".format(name=_full_name(subpackage, func),
-                                   args=args,
-                                   )
+                                 args=args,
+                                 )
 
 
 def _doc_function(subpackage, func):
@@ -211,9 +211,8 @@ def _doc_method(klass, func):
         del argspec.args[0]
     args = inspect.formatargspec(*argspec)
     header = "{klass}.{name}{args}".format(klass=klass.__name__,
-                                             name=_name(func),
-                                             args=args,
-                                             )
+                                           name=_name(func), args=args,
+                                           )
     docstring = _doc(func)
     return _concat(header, docstring)
 
@@ -221,8 +220,8 @@ def _doc_method(klass, func):
 def _doc_property(klass, prop):
     """Generate the docstring of a property."""
     header = "{klass}.{name}".format(klass=klass.__name__,
-                                       name=_name(prop),
-                                       )
+                                     name=_name(prop),
+                                     )
     docstring = _doc(prop)
     return _concat(header, docstring)
 
@@ -235,7 +234,7 @@ def _link(name, anchor=None):
 
 def _generate_preamble(package, subpackages):
 
-    yield "# API documentation".format(package)
+    yield "# API"
 
     yield _doc(_import_module(package))
 

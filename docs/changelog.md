@@ -5,8 +5,11 @@
 
 ###Added
 
-- Client
-  - version attribute on update object is version string in a human readable format.
+  - Client
+    - version attribute on update object is version string in a human readable format.
+
+  - Docs
+    - API
 
 ###Updated
 
@@ -16,13 +19,14 @@
 ###Fixed
 
   - Client
-    - Remove all restart files after application update
+    - Remove all files used to auto-update after application update - win
     - Restart GUI applications on Mac & Linux
 
 ###Removed
 
   - Client
     - Writing debug log -- @cbenhagen
+    - Unused code
 
 
 ## v2.1.7 - 2016/09/30
