@@ -145,7 +145,7 @@ class Restarter(object):
             self._restart()
 
     def _restart(self):
-        subprocess.Popen(self.current_app).wait()
+        os.execv(self.current_app, [self.current_app])
 
     def _win_overwrite(self):
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
