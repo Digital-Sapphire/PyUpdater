@@ -132,7 +132,7 @@ def get_highest_version(name, plat, channel, easy_data):
 
 def _gen_user_friendly_version(internal_version):
     channel = {0: 'Alpha', 1: 'Beta'}
-    v = map(int, internal_version.split('.'))
+    v = list(map(int, internal_version.split('.')))
 
     # 1.2
     version = '{}.{}'.format(v[0], v[1])
