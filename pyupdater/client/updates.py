@@ -130,7 +130,6 @@ class Restarter(object):
         self.bat_file = os.path.join(self.data_dir, 'update.bat')
         self.vbs_file = os.path.join(self.data_dir, 'invis.vbs')
         self.updated_app = kwargs.get('updated_app')
-        self.mac_app_bundle = kwargs.get('mac_app_bundle', False)
         log.debug('Current App: %s', self.current_app)
         if self.is_win is True:
             log.debug('Restart script dir: %s', self.data_dir)
@@ -146,10 +145,7 @@ class Restarter(object):
             self._restart()
 
     def _restart(self):
-        if self.mac_app_bundle:
-            os.execv(self.current_app, [self.current_app])
-        else:
-            subprocess.Popen(self.current_app).wait()
+        os.execv(self.current_app, [self.current_app])
 
     def _win_overwrite(self):
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
@@ -541,12 +537,10 @@ class AppUpdate(LibUpdate):
 
     def _restart(self):  # pragma: no cover
         log.debug('Restarting')
-        mac_app_bundle = False
         current_app = os.path.join(self.current_app_dir, self.name)
         if get_system() == 'mac':
             # Must be dealing with Mac .app application
             if not os.path.exists(current_app):
-                mac_app_bundle = True
                 log.debug('Must be a .app bundle')
                 current_app += '.app'
                 mac_app_binary_dir = os.path.join(current_app, 'Contents',
@@ -557,7 +551,7 @@ class AppUpdate(LibUpdate):
                 # executable will be in the MacOS folder.
                 current_app = os.path.join(mac_app_binary_dir, _file[0])
 
-        r = Restarter(current_app, mac_app_bundle=mac_app_bundle)
+        r = Restarter(current_app)
         r.process()
 
     def _win_overwrite(self):  # pragma: no cover
