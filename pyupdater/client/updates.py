@@ -203,9 +203,22 @@ class LibUpdate(object):
             data (dict): Info dict
     """
 
-    def __init__(self, data):
+    def __init__(self, data=None):
+        self._updates_key = settings.UPDATES_KEY
+        self._current_app_dir = os.path.dirname(sys.executable)
+        self._status = False
+        # If user is using async download this will be True.
+        # Future calls to an download methods will not run
+        # until the current download is complete. Which will
+        # set this back to False.
+        self._is_downloading = False
+        self._version = ""
+
+        if data is not None:
+            self.init_app(data)
+
+    def init_app(self, data):
         self.init_data = data
-        self.updates_key = settings.UPDATES_KEY
         self.update_urls = data.get('update_urls')
         self.name = data.get('name')
         self.current_version = data.get('version')
@@ -221,19 +234,10 @@ class LibUpdate(object):
                                           settings.UPDATE_FOLDER)
         self.verify = data.get('verify', True)
         self.max_download_retries = data.get('max_download_retries')
-        self._current_app_dir = os.path.dirname(sys.executable)
-        self.status = False
-        # If user is using async download this will be True.
-        # Future calls to an download methods will not run
-        # until the current download is complete. Which will
-        # set this back to False.
-        self._is_downloading = False
 
         # Used to generate file name of archive
         self.latest = _get_highest_version(self.name, self.platform,
                                            self.channel, self.easy_data)
-
-        self.version = _gen_user_friendly_version(self.latest)
 
         self._current_archive_name = self._get_filename(self.name,
                                                         self.current_version,
@@ -248,6 +252,12 @@ class LibUpdate(object):
         # Removes old versions, of this asset, from
         # the updates folder.
         self.cleanup()
+
+    @property
+    def version(self):
+        if self._version == "":
+            self._version = _gen_user_friendly_version(self.latest)
+        return self._version
 
     def is_downloaded(self):
         """Used to check if update has been downloaded.
@@ -340,7 +350,7 @@ class LibUpdate(object):
         """
         if self.name is not None:
             if self._is_downloaded() is True:  # pragma: no cover
-                self.status = True
+                self._status = True
             else:
                 log.debug('Starting patch download')
                 patch_success = False
@@ -348,20 +358,20 @@ class LibUpdate(object):
                     patch_success = self._patch_update()
                 # Tested elsewhere
                 if patch_success:  # pragma: no cover
-                    self.status = True
+                    self._status = True
                     log.debug('Patch download successful')
                 else:
                     log.debug('Patch update failed')
                     log.debug('Starting full download')
                     update_success = self._full_update()
                     if update_success:
-                        self.status = True
+                        self._status = True
                         log.debug('Full download successful')
                     else:  # pragma: no cover
                         log.debug('Full download failed')
 
         self._is_downloading = False
-        return self.status
+        return self._status
 
     def _extract_update(self):
         with ChDir(self.update_folder):
@@ -398,9 +408,9 @@ class LibUpdate(object):
                 raise ClientError('Update archive is corrupt')
 
     def _get_file_hash_from_manifest(self):
-        hash_key = '{}*{}*{}*{}*{}'.format(self.updates_key, self.name,
-                                           self.latest, self.platform,
-                                           'file_hash')
+        hash_key = '{}*{}*{}*{}*{}'.format(self._updates_key,
+                                           self.name, self.latest,
+                                           self.platform, 'file_hash')
         return self.easy_data.get(hash_key)
 
     # Must be called from directory where file is located
