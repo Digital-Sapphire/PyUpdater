@@ -302,7 +302,7 @@ class LibUpdate(object):
             return False
         return True
 
-    def _get_filename(name, version, platform, easy_data):
+    def _get_filename(self, name, version, platform, easy_data):
         """Gets full filename for given name & version combo
 
             Args:
