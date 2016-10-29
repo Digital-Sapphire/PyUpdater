@@ -1,12 +1,15 @@
 # Changelog
 
-## v2.2.0 - Master
+## v2.2.1 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.2.0 - 2016/10/29
 
 ###Added
 
   - Client
-    - version attribute on update object is version string in a human readable format.
+    - version attribute on update object is a version string in a human readable format.
 
   - Docs
     - API
@@ -15,6 +18,9 @@
 
   - Docs
     - Usage | CLI
+  - Libs
+    - dsdev-utils 0.9.2
+    - requests 1.18.1
 
 ###Fixed
 

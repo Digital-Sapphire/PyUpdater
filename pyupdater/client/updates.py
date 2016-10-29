@@ -215,9 +215,9 @@ class LibUpdate(object):
         self._version = ""
 
         if data is not None:
-            self.init_app(data)
+            self._init_app(data)
 
-    def init_app(self, data):
+    def _init_app(self, data):
         self.init_data = data
         self.update_urls = data.get('update_urls')
         self.name = data.get('name')
