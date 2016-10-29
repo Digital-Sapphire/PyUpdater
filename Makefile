@@ -12,6 +12,9 @@ deploy: clean docs-deploy pypi
 	twine upload -r pypi dist/*
 	python dev/clean.py
 
+api-md:
+	python dev/api_docs.py
+
 docs-deploy:
 	mkdocs build --clean
 	python dev/move.py

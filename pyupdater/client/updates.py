@@ -47,45 +47,22 @@ from pyupdater.utils.exceptions import ClientError
 log = logging.getLogger(__name__)
 
 
-def get_filename(name, version, platform, easy_data):
-    """Gets full filename for given name & version combo
-
-    Args:
-
-        name (str): name of file to get full filename for
-
-       version (str): version of file to get full filename for
-
-       easy_data (dict): data file to search
-
-    Returns:
-
-       (str) Filename with extension
-    """
-    filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, name,
-                                           version, platform, 'filename')
-    filename = easy_data.get(filename_key)
-
-    log.debug("Filename for %s-%s: %s", name, version, filename)
-    return filename
-
-
-def get_highest_version(name, plat, channel, easy_data):
+def _get_highest_version(name, plat, channel, easy_data):
     """Parses version file and returns the highest version number.
 
-    Args:
+        Args:
 
-       name (str): name of file to search for updates
+           name (str): name of file to search for updates
 
-       plat (str): the platform we are requesting for
+           plat (str): the platform we are requesting for
 
-       channel (str): the release channel
+           channel (str): the release channel
 
-       easy_data (dict): data file to search
+           easy_data (dict): data file to search
 
-    Returns:
+        Returns:
 
-       (str) Highest version number
+           (str) Highest version number
     """
     # We grab all keys and return the version corresponding to the
     # channel passed to this function
@@ -218,16 +195,30 @@ DEL "%~f0"
 
 
 class LibUpdate(object):
-    """Used to update library files used by an application
+    """Used to update library files used by an application. This object is
+    returned by pyupdater.client.Client.update_check
 
-    Args:
+        Args:
 
-        data (dict): Info dict
+            data (dict): Info dict
     """
 
-    def __init__(self, data):
+    def __init__(self, data=None):
+        self._updates_key = settings.UPDATES_KEY
+        self._current_app_dir = os.path.dirname(sys.executable)
+        self._status = False
+        # If user is using async download this will be True.
+        # Future calls to an download methods will not run
+        # until the current download is complete. Which will
+        # set this back to False.
+        self._is_downloading = False
+        self._version = ""
+
+        if data is not None:
+            self.init_app(data)
+
+    def init_app(self, data):
         self.init_data = data
-        self.updates_key = settings.UPDATES_KEY
         self.update_urls = data.get('update_urls')
         self.name = data.get('name')
         self.current_version = data.get('version')
@@ -243,36 +234,35 @@ class LibUpdate(object):
                                           settings.UPDATE_FOLDER)
         self.verify = data.get('verify', True)
         self.max_download_retries = data.get('max_download_retries')
-        self.current_app_dir = os.path.dirname(sys.executable)
-        self.status = False
-        # If user is using async download this will be True.
-        # Future calls to an download methods will not run
-        # until the current download is complete. Which will
-        # set this back to False.
-        self._is_downloading = False
 
         # Used to generate file name of archive
-        self.latest = get_highest_version(self.name, self.platform,
-                                          self.channel, self.easy_data)
+        self.latest = _get_highest_version(self.name, self.platform,
+                                           self.channel, self.easy_data)
 
-        self.version = _gen_user_friendly_version(self.latest)
-
-        self.current_archive_filename = get_filename(self.name,
-                                                     self.current_version,
-                                                     self.platform,
-                                                     self.easy_data)
+        self._current_archive_name = self._get_filename(self.name,
+                                                        self.current_version,
+                                                        self.platform,
+                                                        self.easy_data)
 
         # Get full filename of latest update archive
-        self.filename = get_filename(self.name, self.latest,
-                                     self.platform, self.easy_data)
+        self.filename = self._get_filename(self.name, self.latest,
+                                           self.platform, self.easy_data)
         assert self.filename is not None
 
         # Removes old versions, of this asset, from
         # the updates folder.
         self.cleanup()
 
+    @property
+    def version(self):
+        if self._version == "":
+            self._version = _gen_user_friendly_version(self.latest)
+        return self._version
+
     def is_downloaded(self):
-        """Returns (bool):
+        """Used to check if update has been downloaded.
+
+        Returns (bool):
 
             True: File is already downloaded.
 
@@ -283,6 +273,12 @@ class LibUpdate(object):
         return self._is_downloaded()
 
     def download(self, async=False):
+        """Downloads update
+
+            Args:
+
+                async (bool): Perform download in background thread
+        """
         if async is True:
             if self._is_downloading is False:
                 self._is_downloading = True
@@ -292,11 +288,10 @@ class LibUpdate(object):
                 self._is_downloading = True
                 return self._download()
 
-    # Used to extract asset from archive
     def extract(self):
-        """Will extract archived update and leave in update folder.
+        """Will extract the update from its archive to the update folder.
         If updating a lib you can take over from there. If updating
-        an app this call should be followed by :meth:`restart` to
+        an app this call should be followed by method "restart" to
         complete update.
 
         Returns:
@@ -317,11 +312,33 @@ class LibUpdate(object):
             return False
         return True
 
+    def _get_filename(self, name, version, platform, easy_data):
+        """Gets full filename for given name & version combo
+
+            Args:
+
+                name (str): name of file to get full filename for
+
+               version (str): version of file to get full filename for
+
+               easy_data (dict): data file to search
+
+            Returns:
+
+               (str) Filename with extension
+        """
+        filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, name,
+                                               version, platform, 'filename')
+        filename = easy_data.get(filename_key)
+
+        log.debug("Filename for %s-%s: %s", name, version, filename)
+        return filename
+
     def _download(self):
         """Will download the package update that was referenced
         with check update.
 
-        Proxy method for :meth:`_patch_update` & :meth:`_full_update`.
+        Proxy method for method "_patch_update" & method "_full_update".
 
         Returns:
 
@@ -333,7 +350,7 @@ class LibUpdate(object):
         """
         if self.name is not None:
             if self._is_downloaded() is True:  # pragma: no cover
-                self.status = True
+                self._status = True
             else:
                 log.debug('Starting patch download')
                 patch_success = False
@@ -341,20 +358,20 @@ class LibUpdate(object):
                     patch_success = self._patch_update()
                 # Tested elsewhere
                 if patch_success:  # pragma: no cover
-                    self.status = True
+                    self._status = True
                     log.debug('Patch download successful')
                 else:
                     log.debug('Patch update failed')
                     log.debug('Starting full download')
                     update_success = self._full_update()
                     if update_success:
-                        self.status = True
+                        self._status = True
                         log.debug('Full download successful')
                     else:  # pragma: no cover
                         log.debug('Full download failed')
 
         self._is_downloading = False
-        return self.status
+        return self._status
 
     def _extract_update(self):
         with ChDir(self.update_folder):
@@ -391,9 +408,9 @@ class LibUpdate(object):
                 raise ClientError('Update archive is corrupt')
 
     def _get_file_hash_from_manifest(self):
-        hash_key = '{}*{}*{}*{}*{}'.format(self.updates_key, self.name,
-                                           self.latest, self.platform,
-                                           'file_hash')
+        hash_key = '{}*{}*{}*{}*{}'.format(self._updates_key,
+                                           self.name, self.latest,
+                                           self.platform, 'file_hash')
         return self.easy_data.get(hash_key)
 
     # Must be called from directory where file is located
@@ -427,15 +444,15 @@ class LibUpdate(object):
     def _patch_update(self):  # pragma: no cover
         log.debug('Starting patch update')
         # The current version is not in the version manifest
-        if self.current_archive_filename is None:
+        if self._current_archive_name is None:
             return False
 
         # Just checking to see if the zip for the current version is
         # available to patch If not we'll fall back to a full binary download
         if not os.path.exists(os.path.join(self.update_folder,
-                                           self.current_archive_filename)):
+                                           self._current_archive_name)):
             log.debug('%s got deleted. No base binary to start patching '
-                      'form', self.current_archive_filename)
+                      'form', self._current_archive_name)
             return False
 
         # Initilize Patch object with all required information
@@ -467,25 +484,27 @@ class LibUpdate(object):
                 return False
 
     def cleanup(self):
+        """Cleans up old update archives for this app or asset"""
         log.debug('Beginning removal of old updates')
         remove_previous_versions(self.update_folder,
-                                 self.current_archive_filename)
+                                 self._current_archive_name)
 
 
 class AppUpdate(LibUpdate):
-    """Used to update library files used by an application
+    """Used to update an application. This object is returned by
+    pyupdater.client.Client.update_check
 
-    Args:
+        Args:
 
-        data (dict): Info dict
+            data (dict): Info dict
     """
 
     def __init__(self, data):
         super(AppUpdate, self).__init__(data)
 
     def extract_restart(self):  # pragma: no cover
-        """Will extract the update, overwrite the current app,
-        then restart the app using the updated binary."""
+        """Will extract the update, overwrite the current binary,
+        then restart the application using the updated binary."""
         try:
             self._extract_update()
 
@@ -498,7 +517,7 @@ class AppUpdate(LibUpdate):
             log.debug(err, exc_info=True)
 
     def extract_overwrite(self):  # pragma: no cover
-        """Will extract the update then overwrite the current app"""
+        """Will extract the update then overwrite the current binary"""
         try:
             self._extract_update()
             if get_system() == 'win':
@@ -510,13 +529,20 @@ class AppUpdate(LibUpdate):
 
     # ToDo: Remove in v3.0
     def win_extract_overwrite(self):
+        """Overwrite current binary with update bianry on windows.
+
+        Deprecated: Use extract_overwrite instead.
+        """
         self._win_overwrite()
     # End ToDo
 
     # ToDo: Remove in v3.0
     def restart(self):  # pragma: no cover
         """Will overwrite old binary with updated binary and
-        restart using the updated binary. Not supported on windows.
+        restart the application using the updated binary.
+        Not supported on windows.
+
+        Deprecated: Used extract_restart instead.
         """
         # On windows we write a batch file to move the update
         # binary to the correct location and restart app.
@@ -533,11 +559,11 @@ class AppUpdate(LibUpdate):
     def _overwrite(self):  # pragma: no cover
         # Unix: Overwrites the running applications binary
         if get_system() == 'mac':
-            if self.current_app_dir.endswith('MacOS') is True:
+            if self._current_app_dir.endswith('MacOS') is True:
                 log.debug('Looks like we\'re dealing with a Mac Gui')
 
-                temp_dir = get_mac_dot_app_dir(self.current_app_dir)
-                self.current_app_dir = temp_dir
+                temp_dir = get_mac_dot_app_dir(self._current_app_dir)
+                self._current_app_dir = temp_dir
 
         app_update = os.path.join(self.update_folder, self.name)
 
@@ -548,7 +574,7 @@ class AppUpdate(LibUpdate):
         log.debug('Update Location:\n%s', os.path.dirname(app_update))
         log.debug('Update Name: %s', os.path.basename(app_update))
 
-        current_app = os.path.join(self.current_app_dir, self.name)
+        current_app = os.path.join(self._current_app_dir, self.name)
 
         # Must be dealing with Mac .app application
         if not os.path.exists(current_app):
@@ -561,12 +587,12 @@ class AppUpdate(LibUpdate):
         if os.path.exists(current_app):
             remove_any(current_app)
 
-        log.debug('Moving app to new location:\n\n%s', self.current_app_dir)
-        shutil.move(app_update, self.current_app_dir)
+        log.debug('Moving app to new location:\n\n%s', self._current_app_dir)
+        shutil.move(app_update, self._current_app_dir)
 
     def _restart(self):  # pragma: no cover
         log.debug('Restarting')
-        current_app = os.path.join(self.current_app_dir, self.name)
+        current_app = os.path.join(self._current_app_dir, self.name)
         if get_system() == 'mac':
             # Must be dealing with Mac .app application
             if not os.path.exists(current_app):
@@ -588,7 +614,7 @@ class AppUpdate(LibUpdate):
         #                 application then restarts application using
         #                 new update.
         exe_name = self.name + '.exe'
-        current_app = os.path.join(self.current_app_dir, exe_name)
+        current_app = os.path.join(self._current_app_dir, exe_name)
         updated_app = os.path.join(self.update_folder, exe_name)
 
         update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
@@ -600,7 +626,7 @@ class AppUpdate(LibUpdate):
         #          application then restarts application using
         #          new update.
         exe_name = self.name + '.exe'
-        current_app = os.path.join(self.current_app_dir, exe_name)
+        current_app = os.path.join(self._current_app_dir, exe_name)
         updated_app = os.path.join(self.update_folder, exe_name)
 
         update_info = dict(data_dir=self.data_dir, updated_app=updated_app)

@@ -64,27 +64,27 @@ def get_http_pool(secure=True):
         return urllib3.PoolManager()
 
 
+# The FileDownloader object downloads files to memory and
+# verifies their hash.  If hash is verified data is either
+# written to disk to returned to calling object
+#
+# Args:
+#
+#     filename (str): The name of file to download
+#
+#     urls (list): List of urls to use for file download
+#
+# Kwargs:
+#
+#     hexdigest (str): The hash of the file to download
+#
+#     verify (bool) Meaning:
+#
+#         True: Verify https connection
+#
+#         False: Don't verify https connection
 class FileDownloader(object):
-    """The FileDownloader object downloads files to memory and
-    verifies their hash.  If hash is verified data is either
-    written to disk to returned to calling object
 
-    Args:
-
-        filename (str): The name of file to download
-
-        urls (list): List of urls to use for file download
-
-    Kwargs:
-
-        hexdigest (str): The hash of the file to download
-
-        verify (bool) Meaning:
-
-            True: Verify https connection
-
-            False: Don't verify https connection
-    """
     def __init__(self, *args, **kwargs):
         # We'll append the filename to one of the provided urls
         # to create the download link
@@ -130,18 +130,17 @@ class FileDownloader(object):
         else:
             self.http_pool = get_http_pool(secure=False)
 
+    # Downloads file then verifies against provided hash
+    # If hash verfies then writes data to disk
+    #
+    # Returns:
+    #
+    #     (bool) Meanings:
+    #
+    #         True - Hashes match or no hash was given during initialization.
+    #
+    #         False - Hashes don't match
     def download_verify_write(self):
-        """Downloads file then verifies against provided hash
-        If hash verfies then writes data to disk
-
-        Returns:
-
-            (bool) Meanings:
-
-                True - Hashes match or no hash was given during initialization.
-
-                False - Hashes don't match
-        """
         # Downloading data internally
         self._download_to_memory()
         check = self._check_hash()
