@@ -323,5 +323,5 @@ if __name__ == '__main__':
                    ]
 
     curdir = op.dirname(op.realpath(__file__))
-    path = op.join(curdir, '..//docs/api.md')
+    path = op.join(curdir, 'docs/api.md')
     generate_api_doc(package, subpackages, path=path)

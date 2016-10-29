@@ -34,7 +34,8 @@ from dsdev_utils.paths import ChDir
 import pytest
 import six
 
-from pyupdater.client import Client, _gen_user_friendly_version
+from pyupdater.client import Client
+from pyupdater.client.updates import _gen_user_friendly_version
 from pyupdater.utils import remove_any
 from tconfig import TConfig
 
