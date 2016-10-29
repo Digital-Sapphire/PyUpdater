@@ -12,6 +12,7 @@
 
   - Client
     - Remove all restart files after application update
+    - Restart GUI applications on Mac & Linux
 
 ###Removed
 
