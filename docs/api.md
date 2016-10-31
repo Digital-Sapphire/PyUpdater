@@ -22,9 +22,9 @@
 Used to update an application. This object is returned by
 pyupdater.client.Client.update_check
 
-    Args:
+Args:
 
-        data (dict): Info dict
+data (dict): Info dict
 
 #### Methods
 
@@ -36,9 +36,9 @@ Cleans up old update archives for this app or asset
 
 Downloads update
 
-Args:
+######Args:
 
-    async (bool): Perform download in background thread
+async (bool): Perform download in background thread
 
 ##### AppUpdate.extract()
 
@@ -47,13 +47,9 @@ If updating a lib you can take over from there. If updating
 an app this call should be followed by method "restart" to
 complete update.
 
-Returns:
+######Returns:
 
-    (bool) Meanings:
-
-        True - Extract successful
-
-        False - Extract failed
+(bool) True - Extract successful. False - Extract failed.
 
 ##### AppUpdate.extract_overwrite()
 
@@ -68,11 +64,8 @@ then restart the application using the updated binary.
 
 Used to check if update has been downloaded.
 
-Returns (bool):
-
-    True: File is already downloaded.
-
-    False: File hasn't been downloaded.
+######Returns (bool): True - File is already downloaded.
+False - File hasn't been downloaded.
 
 ##### AppUpdate.restart()
 
@@ -92,17 +85,18 @@ Deprecated: Use extract_overwrite instead.
 
 Used to check for updates & returns an updateobject if there is an update.
 
-Kwargs:
+######Kwargs:
 
-    obj (instance): config object
+obj (instance): config object
 
-    refresh (bool) Meaning:
+refresh (bool): True - Refresh update manifest on object initialization.
+False - Don't refresh update manifest on object initialization
 
-        True: Refresh update manifest on object initialization
+progress_hooks (list): List of callbacks
 
-        False: Don't refresh update manifest on object initialization
+######Returns:
 
-    progress_hooks (list) List of callbacks
+(obj): AppUpdate or LibUpdate
 
 #### Methods
 
@@ -111,33 +105,31 @@ Kwargs:
 Add a download progress callback function to the list of progress
 hooks.
 
-The function should take a dict. The values of the keys that will be
-available in the dict are below.
-
 total:  Total size of the file to download
+
 downloaded: The amount of bytes that have been downloaded so far.
+
 percent_complete: The percentage downloaded so far
+
 status: Status of download
 
-    Args:
+Args:
 
-        cb (function):
+cb (function): Function which takes a dict as its first argument
 
 ##### Client.init_app(obj, refresh=False, test=False)
 
 Sets up client with config values from obj
 
-Args:
+######Args:
 
-    obj (instance): config object
+obj (instance): config object
 
-Kwargs:
+######Kwargs:
 
-    refresh (bool) Meaning:
-
-    True: Refresh update manifest on object initialization
-
-    False: Don't refresh update manifest on object initialization
+refresh (bool) Meaning: True - Refresh update manifest on object
+initialization. False - Don't refresh update manifest on object
+initialization
 
 ##### Client.refresh()
 
@@ -147,32 +139,32 @@ Will download and verify the version manifest.
 
 Checks for available updates
 
-    Args:
+######Args:
 
-        name (str): Name of file to update
+name (str): Name of file to update
 
-        version (str): Current version number of file to update
+version (str): Current version number of file to update
 
-        channel (str): Release channel
+channel (str): Release channel
 
-    Returns:
+######Returns:
 
-        (updateobject) Meanings:
+(updateobject) Meanings:
 
-            AppUpdate - Used to update current binary
+AppUpdate - Used to update current binary
 
-            LibUpdate - Used to update external assets
+LibUpdate - Used to update external assets
 
-            None - No Updates available
+None - No Updates available
 
 ### pyupdater.client.LibUpdate
 
 Used to update library files used by an application. This object is
 returned by pyupdater.client.Client.update_check
 
-    Args:
+######Args:
 
-        data (dict): Info dict
+data (dict): Info dict
 
 #### Methods
 
@@ -184,9 +176,9 @@ Cleans up old update archives for this app or asset
 
 Downloads update
 
-Args:
+######Args:
 
-    async (bool): Perform download in background thread
+async (bool): Perform download in background thread
 
 ##### LibUpdate.extract()
 
@@ -195,21 +187,14 @@ If updating a lib you can take over from there. If updating
 an app this call should be followed by method "restart" to
 complete update.
 
-Returns:
+######Returns:
 
-    (bool) Meanings:
-
-        True - Extract successful
-
-        False - Extract failed
+(bool) True - Extract successful. False - Extract failed.
 
 ##### LibUpdate.is_downloaded()
 
 Used to check if update has been downloaded.
 
-Returns (bool):
-
-    True: File is already downloaded.
-
-    False: File hasn't been downloaded.
+######Returns (bool): True - File is already downloaded.
+False - File hasn't been downloaded.
 
