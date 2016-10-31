@@ -198,9 +198,9 @@ class LibUpdate(object):
     """Used to update library files used by an application. This object is
     returned by pyupdater.client.Client.update_check
 
-        Args:
+    ######Args:
 
-            data (dict): Info dict
+    data (dict): Info dict
     """
 
     def __init__(self, data=None):
@@ -262,11 +262,8 @@ class LibUpdate(object):
     def is_downloaded(self):
         """Used to check if update has been downloaded.
 
-        Returns (bool):
-
-            True: File is already downloaded.
-
-            False: File hasn't been downloaded.
+        ######Returns (bool): True - File is already downloaded.
+        False - File hasn't been downloaded.
         """
         if self._is_downloading is True:
             return False
@@ -275,9 +272,9 @@ class LibUpdate(object):
     def download(self, async=False):
         """Downloads update
 
-            Args:
+        ######Args:
 
-                async (bool): Perform download in background thread
+        async (bool): Perform download in background thread
         """
         if async is True:
             if self._is_downloading is False:
@@ -294,13 +291,9 @@ class LibUpdate(object):
         an app this call should be followed by method "restart" to
         complete update.
 
-        Returns:
+        ######Returns:
 
-            (bool) Meanings:
-
-                True - Extract successful
-
-                False - Extract failed
+        (bool) True - Extract successful. False - Extract failed.
         """
         if get_system() == 'win':  # Tested elsewhere
             log.debug('Only supported on Unix like systems')
@@ -494,9 +487,9 @@ class AppUpdate(LibUpdate):
     """Used to update an application. This object is returned by
     pyupdater.client.Client.update_check
 
-        Args:
+    Args:
 
-            data (dict): Info dict
+    data (dict): Info dict
     """
 
     def __init__(self, data):
