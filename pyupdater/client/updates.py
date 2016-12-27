@@ -129,13 +129,13 @@ class Restarter(object):
 
     def __init__(self, current_app, **kwargs):
         self.current_app = current_app
-        self.is_win = sys.platform == 'win32'
-        self.data_dir = kwargs.get('data_dir')
-        self.bat_file = os.path.join(self.data_dir, 'update.bat')
-        self.vbs_file = os.path.join(self.data_dir, 'invis.vbs')
-        self.updated_app = kwargs.get('updated_app')
         log.debug('Current App: %s', self.current_app)
+        self.is_win = sys.platform == 'win32'
         if self.is_win is True:
+            self.data_dir = kwargs.get('data_dir')
+            self.bat_file = os.path.join(self.data_dir, 'update.bat')
+            self.vbs_file = os.path.join(self.data_dir, 'invis.vbs')
+            self.updated_app = kwargs.get('updated_app')
             log.debug('Restart script dir: %s', self.data_dir)
             log.debug('Update path: %s', self.updated_app)
 
