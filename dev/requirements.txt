@@ -1,8 +1,5 @@
-dsdev-utils >= 0.9.0
 mkdocs == 0.15.3
 mkdocs-material
 tox
 tox-pyenv
-twine
 versioneer == 0.17
-wheel
