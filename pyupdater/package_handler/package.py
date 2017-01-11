@@ -198,7 +198,7 @@ class Package(object):
         package_basename = os.path.basename(package)
 
         if not os.path.exists(package):
-            msg = '{} does not exists'.format(package)
+            msg = '{} does not exist'.format(package)
             log.debug(msg)
             self.info['reason'] = msg
             return
