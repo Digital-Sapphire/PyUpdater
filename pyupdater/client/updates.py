@@ -102,7 +102,7 @@ def _get_highest_version(name, plat, channel, easy_data):
     if version is not None:
         log.debug('Highest version: %s', version)
     else:
-        log.error('No updates for "%s" on %s exists', name, plat)
+        log.info('No updates for "%s" on %s exists', name, plat)
 
     return version
 
