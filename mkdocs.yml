@@ -14,6 +14,7 @@ pages:
     - Usage | Client | Asset: usage-client-asset.md
     - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create-upload-plugin.md
+    - Demo | wxPython: demo-wxpython.md
     - Danger Zone: danger-zone.md
 - API: api.md
 - Change Log: changelog.md
