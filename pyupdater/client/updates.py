@@ -129,6 +129,7 @@ class Restarter(object):
 
     def __init__(self, current_app, **kwargs):
         self.current_app = current_app
+        self.name = kwargs.get('name', "")
         log.debug('Current App: %s', self.current_app)
         self.is_win = sys.platform == 'win32'
         if self.is_win is True:
@@ -149,7 +150,7 @@ class Restarter(object):
             self._restart()
 
     def _restart(self):
-        os.execv(self.current_app, [self.current_app])
+        os.execl(self.current_app, self.current_app)
 
     def _win_overwrite(self):
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
@@ -599,7 +600,7 @@ class AppUpdate(LibUpdate):
                 # executable will be in the MacOS folder.
                 current_app = os.path.join(mac_app_binary_dir, _file[0])
 
-        r = Restarter(current_app)
+        r = Restarter(current_app, name=self.name)
         r.process()
 
     def _win_overwrite(self):  # pragma: no cover
