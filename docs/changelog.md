@@ -7,6 +7,7 @@
 
   - Libs
     - certifi 2016.9.26
+    - dsdev-utils 0.9.4
     - urllib3 1.20
 
 ###Fixed

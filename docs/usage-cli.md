@@ -64,21 +64,19 @@ if lib_update is not None:
 ```
 
 ###Step 6 - Make Spec
-####Is your app more of the demanding type? If so, your spec file must be based on  a PyUpdater generated spec file. You can easily generate one using the example below. If you do not need a custom spec file skip to the next step. * Warning * Do not change the name attribute in the spec file.
+####Is your app more of the demanding type? If so, your spec file must be based on  a PyUpdater generated spec file. You can easily generate one using the example below. If you do not need a custom spec file skip to the next step. Please see the Danger Zone section on spec files.
 ```
 $ pyupdater make-spec -w main.py
 ```
 
 ###Step 7 - Build
-####Now let's build our app. You have two options when building. You can specify a spec file or a main script.
+####Now let's build our app. You have two options when building. You can specify a spec file or a main script. Please see the Danger Zone section on version numbers.
 
-#####Build from a spec file.
 ```
+# Build from a spec file.
 $ pyupdater build --app-version=1.0.0 main.spec
-```
 
-#####Build from a script.
-```
+# Build from a script.
 $ pyupdater build --app-version=1.0.0 main.py
 ```
 
