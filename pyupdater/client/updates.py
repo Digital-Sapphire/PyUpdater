@@ -70,33 +70,23 @@ def _get_highest_version(name, plat, channel, easy_data):
     version_key_beta = '{}*{}*{}*{}'.format('latest', name, 'beta', plat)
     version_key_stable = '{}*{}*{}*{}'.format('latest', name, 'stable', plat)
     version = None
-
     alpha = easy_data.get(version_key_alpha)
     if alpha is None:
-        alpha = '0.0'
+        alpha = '0.0.0a0'
 
     beta = easy_data.get(version_key_beta)
     if beta is None:
-        beta = '0.0'
+        beta = '0.0.0b0'
 
     stable = easy_data.get(version_key_stable)
 
     if channel == 'alpha':
-        # Setting the latest alpha version
         version = alpha
-        if Version(version) < Version(stable):
-            version = stable
-        if Version(version) < Version(beta):
-            version = beta
 
     if channel == 'beta':
-        # Setting the latest beta version
         version = beta
-        if Version(version) < Version(stable):
-            version = stable
 
     if stable is not None and channel == 'stable':
-        # Setting the latest stable version
         version = stable
 
     if version is not None:

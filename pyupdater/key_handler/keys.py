@@ -102,7 +102,7 @@ class Keys(object):
         # Load app specific private & public key
         off_pri, off_pub = self._load_offline_keys(name)
 
-        log.debug('off_pri type: %s', off_pri)
+        log.debug('off_pri type: %s', type(off_pri))
         off_pri = off_pri.encode()
         if six.PY2:
             app_pub = six.b(app_pub)
