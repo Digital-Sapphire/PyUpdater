@@ -1,4 +1,4 @@
-#F.O.S.S.
+#O.S.S.
 
 PyUpdater uses the libraries listed below.
 

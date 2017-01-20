@@ -252,7 +252,7 @@ class Client(object):
 
         # Change str to version object for easy comparison
         latest = _Version(latest)
-        log.debug('Current vesion: %s', str(version))
+        log.debug('Current version: %s', str(version))
         log.debug('Latest version: %s', str(latest))
 
         update_needed = latest > version

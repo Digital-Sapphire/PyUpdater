@@ -14,6 +14,7 @@ pages:
     - Usage | Client | Asset: usage-client-asset.md
     - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create-upload-plugin.md
+    - Danger Zone: danger-zone.md
 - API: api.md
 - Change Log: changelog.md
 - Extras:
@@ -21,7 +22,7 @@ pages:
     - Contributing: contributing.md
     - Downloads: downloads.md
     - License: license.md
-    - F.O.S.S.: foss.md
+    - O.S.S.: oss.md
 
 theme: 'material'
 repo_name: 'GitHub'
