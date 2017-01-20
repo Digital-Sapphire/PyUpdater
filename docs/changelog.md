@@ -1,12 +1,19 @@
 # Changelog
 
-## v2.3 - Master
+## v2.2.1 - Master
 ####* This version is not yet released and is under active development.
 
 ###Updated
 
   - Libs
-    - urllib3 1.19.1
+    - certifi 2016.9.26
+    - urllib3 1.20
+
+###Fixed
+
+  - Restart
+    - LInux & Mac
+
 
 ## v2.2.0 - 2016/10/29
 
