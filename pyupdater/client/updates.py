@@ -150,7 +150,7 @@ class Restarter(object):
             self._restart()
 
     def _restart(self):
-        os.execl(self.current_app, self.current_app)
+        os.execl(self.current_app, self.name)
 
     def _win_overwrite(self):
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
