@@ -2,4 +2,4 @@ mkdocs == 0.16.1
 mkdocs-material
 tox
 tox-pyenv
-versioneer == 0.17
+versioneer == 0.18

@@ -14,29 +14,47 @@ environment:
 
     matrix:
 
-    - JOB: "2.7 32-bit"
-      TOXENV: "py27"
-      PYTHON: "C:\\Python27.10"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "32"
+      - JOB: "2.7 32-bit"
+        TOXENV: "py27"
+        PYTHON: "C:\\Python27"
+        PYTHON_VERSION: "2.7"
+        PYTHON_ARCH: "32"
 
-    - JOB: "3.3 32-bit"
-      TOXENV: "py33"
-      PYTHON: "C:\\Python33"
-      PYTHON_VERSION: "3.3"
-      PYTHON_ARCH: "32"
+      - JOB: "3.3 32-bit"
+        TOXENV: "py33"
+        PYTHON: "C:\\Python33"
+        PYTHON_VERSION: "3.3"
+        PYTHON_ARCH: "32"
 
-    - JOB: "3.4 32-bit"
-      TOXENV: "py34"
-      PYTHON: "C:\\Python34"
-      PYTHON_VERSION: "3.4"
-      PYTHON_ARCH: "32"
+      - JOB: "3.4 32-bit"
+        TOXENV: "py34"
+        PYTHON: "C:\\Python34"
+        PYTHON_VERSION: "3.4"
+        PYTHON_ARCH: "32"
 
-    - JOB: "3.5 32-bit"
-      TOXENV: "py35"
-      PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5"
-      PYTHON_ARCH: "32"
+      - JOB: "3.5 32-bit"
+        TOXENV: "py35"
+        PYTHON: "C:\\Python35"
+        PYTHON_VERSION: "3.5"
+        PYTHON_ARCH: "32"
+
+      - JOB: "3.5 64-bit"
+        TOXENV: "py35"
+        PYTHON: "C:\\Python35-x64"
+        PYTHON_VERSION: "3.5"
+        PYTHON_ARCH: "64"
+
+      # - JOB: "3.6 32-bit"
+      #   TOXENV: "py36"
+      #   PYTHON: "C:\\Python36"
+      #   PYTHON_VERSION: "3.6"
+      #   PYTHON_ARCH: "32"
+
+      # - JOB: "3.6 64-bit"
+      #   TOXENV: "py36"
+      #   PYTHON: "C:\\Python36-x64"
+      #   PYTHON_VERSION: "3.6"
+      #   PYTHON_ARCH: "64"
 
 cache:
     # Cache created Python .whl packages to avoid compiling them again.

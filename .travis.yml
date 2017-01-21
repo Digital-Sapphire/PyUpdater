@@ -10,10 +10,12 @@ python:
 - '3.3'
 - '3.4'
 - '3.5'
+- '3.6'
 - nightly
 matrix:
   allow_failures:
   - python: nightly
+  - python: '3.6'
   - os: osx
 install:
 - export PATH="/home/travis/.pyenv/bin:$PATH"
