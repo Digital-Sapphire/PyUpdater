@@ -195,57 +195,101 @@ class LibUpdate(object):
     """
 
     def __init__(self, data=None):
+        # A key used in the version meta data dictionary
         self._updates_key = settings.UPDATES_KEY
+
+        # The current directory of the running executable
         self._current_app_dir = os.path.dirname(sys.executable)
-        self._status = False
+
+        # The status of the download. Once downloaded this will be True
+        self._download_status = False
+
         # If user is using async download this will be True.
         # Future calls to an download methods will not run
         # until the current download is complete. Which will
         # set this back to False.
         self._is_downloading = False
+
+        # Used with the version property. Returns a user friendly version string
         self._version = ""
 
+        # Initialize this object with a dict of various options
         if data is not None:
             self._init_app(data)
 
     def _init_app(self, data):
+        # Dictionary of config variables
         self.init_data = data
+
+        # List of urls used to look for meta data & updates
         self.update_urls = data.get('update_urls')
+
+        # The name of the asset we are targeting. Provided by user
+        # in update_check
         self.name = data.get('name')
+
+        # The APP_NAME  specified in the client_config.py
+        self.app_name = data.get('app_name')
+
+        # The version of the current asset
         self.current_version = data.get('version')
+
+        # A special dictionary that allows getting nested values by
+        # providing a key in the form of "this*is*a*deep*key".
         self.easy_data = data.get('easy_data')
+
         # Raw form of easy_data
         self.json_data = data.get('json_data')
+
+        # The directory used to store files needed for the restart process
+        # on windows
         self.data_dir = data.get('data_dir')
+
+        # The platform we are targeting
         self.platform = data.get('platform')
-        self.app_name = data.get('app_name')
+
+        # The channel we are targeting
         self.channel = data.get('channel', 'stable')
+
+        # Progress callbacks
         self.progress_hooks = data.get('progress_hooks')
+
+        # The folder on the end users system which hold meta data & updates
         self.update_folder = os.path.join(self.data_dir,
                                           settings.UPDATE_FOLDER)
+
+        # Weather or not the verify the https connection
         self.verify = data.get('verify', True)
+
+        # The amount of times to retry a url before giving up
         self.max_download_retries = data.get('max_download_retries')
 
-        # Used to generate file name of archive
+        # The latest version available
         self.latest = _get_highest_version(self.name, self.platform,
                                            self.channel, self.easy_data)
 
+        # The name of the current versions update archive.
+        # Will be used to check if the current archive is available for a
+        # patch update
         self._current_archive_name = self._get_filename(self.name,
                                                         self.current_version,
                                                         self.platform,
                                                         self.easy_data)
 
-        # Get full filename of latest update archive
+        # Get filename of latest versions update archive
         self.filename = self._get_filename(self.name, self.latest,
                                            self.platform, self.easy_data)
         assert self.filename is not None
 
-        # Removes old versions, of this asset, from
-        # the updates folder.
+        # Used to remove version earlier than the current.
         self.cleanup()
 
     @property
     def version(self):
+        """Generates a user friendly version string
+
+        ######Returns (str): User friendly version string
+        """
         if self._version == "":
             self._version = _gen_user_friendly_version(self.latest)
         return self._version
@@ -334,7 +378,7 @@ class LibUpdate(object):
         """
         if self.name is not None:
             if self._is_downloaded() is True:  # pragma: no cover
-                self._status = True
+                self._download_status = True
             else:
                 log.debug('Starting patch download')
                 patch_success = False
@@ -342,20 +386,20 @@ class LibUpdate(object):
                     patch_success = self._patch_update()
                 # Tested elsewhere
                 if patch_success:  # pragma: no cover
-                    self._status = True
+                    self._download_status = True
                     log.debug('Patch download successful')
                 else:
                     log.debug('Patch update failed')
                     log.debug('Starting full download')
                     update_success = self._full_update()
                     if update_success:
-                        self._status = True
+                        self._download_status = True
                         log.debug('Full download successful')
                     else:  # pragma: no cover
                         log.debug('Full download failed')
 
         self._is_downloading = False
-        return self._status
+        return self._download_status
 
     def _extract_update(self):
         with ChDir(self.update_folder):

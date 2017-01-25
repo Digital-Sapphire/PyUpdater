@@ -3,3 +3,4 @@ mkdocs-material
 tox
 tox-pyenv
 versioneer == 0.18
+vulture
