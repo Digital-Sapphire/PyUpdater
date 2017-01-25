@@ -35,3 +35,5 @@ site
 .cache/v/cache/lastfailed
 
 tests/dev
+
+unused.txt
