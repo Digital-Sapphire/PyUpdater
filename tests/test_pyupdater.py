@@ -54,7 +54,7 @@ class TestSetup(object):
         assert os.path.exists(os.path.join(pyu_data_dir, 'new'))
 
 
-@pytest.mark.usefixtures('cleandir')
+@pytest.mark.usefixtures('cleandir', 'pyu')
 class TestExecution(object):
 
     def test_execution_update_onefile(self, datadir, simpleserver):
