@@ -12,6 +12,8 @@
 
 .coverage
 
+.coverage.*
+
 .idea
 
 build

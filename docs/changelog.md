@@ -5,9 +5,12 @@
 
 ###Updated
 
+  - Client
+    - Added option to update_check which allows for being less restrictive about looking on the specific channel for updates. The default setting is to only allow from the provided channel.
+
   - Libs
     - certifi 2016.9.26
-    - dsdev-utils 0.9.4
+    - dsdev-utils 0.9.6
     - urllib3 1.20
 
 ###Fixed
