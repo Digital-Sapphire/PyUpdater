@@ -10,7 +10,7 @@ environment:
     PYU_AWS_SECRET:
         secure: E8Lyi89ePr8Zk7HC5eTdSDYwUeQY2gow7g3A3+scRAgsAU0gm/A4DWaA/0IY2DJC
 
-    matrix:
+matrix:
       - JOB: "2.7 32-bit"
         TOXENV: "py27"
         PYTHON: "C:\\Python27"
@@ -41,8 +41,6 @@ environment:
         PYTHON_VERSION: "3.5"
         PYTHON_ARCH: "64"
 
-
-matrix:
     allow_failures:
       - JOB: "3.6 32-bit"
         TOXENV: "py36"
