@@ -5,21 +5,48 @@ cache: pip
 matrix:
   include:
     - python: 2.7
+      os: linux
       env: PYTHON=2.7
     - python: 3.3
+      os: linux
       env: PYTHON=3.3
     - python: 3.4
+      os: linux
       env: PYTHON=3.4
     - python: 3.5
+      os: linux
       env: PYTHON=3.5
     - python: 3.6
+      os: linux
       env: PYTHON=3.6
     - python: nightly
+      os: linux
+      env: PYTHON=nightly
+
+    # Mac
+    - python: 2.7
+      os: osx
+      env: PYTHON=2.7
+    - python: 3.3
+      os: osx
+      env: PYTHON=3.3
+    - python: 3.4
+      os: osx
+      env: PYTHON=3.4
+    - python: 3.5
+      os: osx
+      env: PYTHON=3.5
+    - python: 3.6
+      os: osx
+      env: PYTHON=3.6
+    - python: nightly
+      os: osx
       env: PYTHON=nightly
 
   allow_failures:
   - env: PYTHON=3.6
   - env: PYTHON=nightly
+  - os: osx
 
 install:
 - export PATH="/home/travis/.pyenv/bin:$PATH"
