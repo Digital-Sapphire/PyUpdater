@@ -29,13 +29,14 @@ import json
 import os
 import time
 
+from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.system import get_system
 from dsdev_utils.paths import ChDir
 import pytest
 import six
 
 from pyupdater.client import Client
-from pyupdater.client.updates import _gen_user_friendly_version
+from pyupdater.client.updates import _gen_user_friendly_version, _get_highest_version
 from pyupdater.utils import remove_any
 from tconfig import TConfig
 
@@ -223,3 +224,71 @@ class TestGenVersion(object):
         assert _gen_user_friendly_version('1.2.2.2.0') == '1.2.2'
         assert _gen_user_friendly_version('2.0.5.0.3') == '2.0.5 Alpha 3'
         assert _gen_user_friendly_version('2.2.1.1.0') == '2.2.1 Beta'
+
+
+class TestChannelStrict(object):
+
+    version_data = {
+            "latest": {
+                "Acme": {
+                    "stable": {
+                        "mac": "4.4.3.2.0"
+                    },
+                    "beta": {
+                        "mac": "4.4.1.1.0"
+                    },
+                    "alpha": {
+                        "mac": "4.4.2.0.5"
+                    }
+                }
+            }
+        }
+
+    def test1(self):
+        data = EasyAccessDict(self.version_data)
+        assert _get_highest_version('Acme', 'mac', 'alpha', data, strict=True) == '4.4.2.0.5'
+        assert _get_highest_version('Acme', 'mac', 'beta', data, strict=True) == '4.4.1.1.0'
+        assert _get_highest_version('Acme', 'mac', 'stable', data, strict=True) == '4.4.3.2.0'
+
+
+class TestChannelLessStrict(object):
+
+    version_data = {
+            "latest": {
+                "Acme": {
+                    "stable": {
+                        "mac": "4.4.3.2.0"
+                    },
+                    "beta": {
+                        "mac": "4.4.1.1.0"
+                    },
+                    "alpha": {
+                        "mac": "4.4.2.0.5"
+                    }
+                }
+            }
+        }
+
+    def test1(self):
+        data = EasyAccessDict(self.version_data)
+        assert _get_highest_version('Acme', 'mac', 'alpha', data, strict=False) == '4.4.3.2.0'
+
+
+class TestMissingStable(object):
+
+    version_data = {
+            "latest": {
+                "Acme": {
+                    "beta": {
+                        "mac": "4.4.1.1.0"
+                    },
+                    "alpha": {
+                        "mac": "4.4.2.0.5"
+                    }
+                }
+            }
+        }
+
+    def test1(self):
+        data = EasyAccessDict(self.version_data)
+        assert _get_highest_version('Acme', 'mac', 'stable', data, strict=True) is None

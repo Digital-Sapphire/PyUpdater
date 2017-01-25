@@ -185,7 +185,7 @@ class Client(object):
         self._get_signing_key()
         self._get_update_manifest()
 
-    def update_check(self, name, version, channel='stable'):
+    def update_check(self, name, version, channel='stable', strict=True):
         """Checks for available updates
 
         ######Args:
@@ -206,9 +206,9 @@ class Client(object):
 
         None - No Updates available
         """
-        return self._update_check(name, version, channel)
+        return self._update_check(name, version, channel, strict)
 
-    def _update_check(self, name, version, channel):
+    def _update_check(self, name, version, channel, strict):
         valid_channels = ['alpha', 'beta', 'stable']
         if channel not in valid_channels:
             log.debug('Invalid channel. May need to check spelling')
@@ -243,7 +243,7 @@ class Client(object):
 
         log.debug('Checking for %s updates...', name)
         latest = _get_highest_version(name, self.platform,
-                                      channel, self.easy_data)
+                                      channel, self.easy_data, strict)
         if latest is None:
             # If None is returned _get_highest_version could
             # not find the supplied name in the version file
@@ -263,6 +263,7 @@ class Client(object):
 
         # Config data to initialize update object
         data = {
+            'strict': strict,
             'update_urls': self.update_urls,
             'name': self.name,
             'version': self.version,
