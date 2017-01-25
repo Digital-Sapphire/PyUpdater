@@ -42,7 +42,7 @@ environment:
             PYTHON_ARCH: "64"
 
           - JOB: "3.6 32-bit"
-            TOXENV: "py35"
+            TOXENV: "py36"
             PYTHON: "C:\\Python36"
             PYTHON_VERSION: "3.6"
             PYTHON_ARCH: "32"
