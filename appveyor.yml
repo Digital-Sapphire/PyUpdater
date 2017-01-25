@@ -76,7 +76,6 @@ install:
 
     # - "ECHO Installed SDKs:"
     # - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
-    - ps: if (-not(Test-Path($env:PYTHON))) { & tests\appveyor\install.ps1 }
 
     # Check that we have the expected version and architecture for Python
     - "build.cmd %PYTHON%\\python.exe --version"
@@ -117,4 +116,4 @@ on_finish:
 
 test_script:
     # Split tests into several subprocesses.
-    - "build.cmd %PYTHON%\\Scripts\\tox"
+    - "build.cmd tox"
