@@ -4,8 +4,6 @@ shallow_clone: true
 
 environment:
 
-    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\tests\\appveyor\\run_with_env.cmd"
-
     PYU_AWS_ID:
         secure: ofIt2g7GRes1RPVXfM02/cH4uePSav+8qgZ74oGKraw=
 
@@ -13,48 +11,53 @@ environment:
         secure: E8Lyi89ePr8Zk7HC5eTdSDYwUeQY2gow7g3A3+scRAgsAU0gm/A4DWaA/0IY2DJC
 
     matrix:
+          - JOB: "2.7 32-bit"
+            TOXENV: "py27"
+            PYTHON: "C:\\Python27"
+            PYTHON_VERSION: "2.7"
+            PYTHON_ARCH: "32"
 
-      - JOB: "2.7 32-bit"
-        TOXENV: "py27"
-        PYTHON: "C:\\Python27"
-        PYTHON_VERSION: "2.7"
-        PYTHON_ARCH: "32"
+          - JOB: "3.3 32-bit"
+            TOXENV: "py33"
+            PYTHON: "C:\\Python33"
+            PYTHON_VERSION: "3.3"
+            PYTHON_ARCH: "32"
 
-      - JOB: "3.3 32-bit"
-        TOXENV: "py33"
-        PYTHON: "C:\\Python33"
-        PYTHON_VERSION: "3.3"
-        PYTHON_ARCH: "32"
+          - JOB: "3.4 32-bit"
+            TOXENV: "py34"
+            PYTHON: "C:\\Python34"
+            PYTHON_VERSION: "3.4"
+            PYTHON_ARCH: "32"
 
-      - JOB: "3.4 32-bit"
-        TOXENV: "py34"
-        PYTHON: "C:\\Python34"
-        PYTHON_VERSION: "3.4"
-        PYTHON_ARCH: "32"
+          - JOB: "3.5 32-bit"
+            TOXENV: "py35"
+            PYTHON: "C:\\Python35"
+            PYTHON_VERSION: "3.5"
+            PYTHON_ARCH: "32"
 
-      - JOB: "3.5 32-bit"
-        TOXENV: "py35"
-        PYTHON: "C:\\Python35"
-        PYTHON_VERSION: "3.5"
-        PYTHON_ARCH: "32"
+          - JOB: "3.5 64-bit"
+            TOXENV: "py35"
+            PYTHON: "C:\\Python35-x64"
+            PYTHON_VERSION: "3.5"
+            PYTHON_ARCH: "64"
 
-      - JOB: "3.5 64-bit"
-        TOXENV: "py35"
-        PYTHON: "C:\\Python35-x64"
-        PYTHON_VERSION: "3.5"
-        PYTHON_ARCH: "64"
+          - JOB: "3.6 32-bit"
+            TOXENV: "py36"
+            PYTHON: "C:\\Python36"
+            PYTHON_VERSION: "3.6"
+            PYTHON_ARCH: "32"
 
-      # - JOB: "3.6 32-bit"
-      #   TOXENV: "py36"
-      #   PYTHON: "C:\\Python36"
-      #   PYTHON_VERSION: "3.6"
-      #   PYTHON_ARCH: "32"
+          - JOB: "3.6 64-bit"
+            TOXENV: "py36"
+            PYTHON: "C:\\Python36-x64"
+            PYTHON_VERSION: "3.6"
+            PYTHON_ARCH: "64"
 
-      # - JOB: "3.6 64-bit"
-      #   TOXENV: "py36"
-      #   PYTHON: "C:\\Python36-x64"
-      #   PYTHON_VERSION: "3.6"
-      #   PYTHON_ARCH: "64"
+
+matrix:
+    allow_failures:
+        - PYTHON_VERSION: "3.6"
+
 
 cache:
     # Cache created Python .whl packages to avoid compiling them again.
@@ -76,24 +79,18 @@ install:
 
     # - "ECHO Installed SDKs:"
     # - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
-    - ps: if (-not(Test-Path($env:PYTHON))) { & tests\appveyor\install.ps1 }
-
-    # Prepend newly installed Python to the PATH of this build (this cannot be
-    # done from inside the powershell script as it would require to restart
-    # the parent CMD process).
-    - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
     # Check that we have the expected version and architecture for Python
-    - "%CMD_IN_ENV% python --version"
-    - "%CMD_IN_ENV% python -c \"import struct; print(struct.calcsize('P') * 8)\""
+    - "build.cmd %PYTHON%\\python.exe --version"
+    - "build.cmd %PYTHON%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
 
     # Upgrade to the latest version of pip to avoid it displaying warnings
     # about it being out of date.
-    - "%CMD_IN_ENV% python -m pip install -U pip"
+    - "build.cmd %PYTHON%\\python.exe -m pip install -U pip"
 
     # Create .whl packages from dependencies for possible caching.
     # First install 'wheel' package to be able create .whl files.
-    - "%CMD_IN_ENV% pip install wheel tox"
+    - "build.cmd pip install wheel tox"
 
     # Create c:/wheels if it does not exist.
     - ps: If ( -not (Test-Path C:/wheels) )  { mkdir C:/wheels }
@@ -111,8 +108,8 @@ install:
     # skip rebuilding it. The wheel will still be rebuilt if a newer version is
     # available on PyPI.
     # TODO: remove out-of-date wheels to avoid overflowing the build cache
-    - "%CMD_IN_ENV% pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r requirements.txt"
-    - "%CMD_IN_ENV% pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r dev/requirements.txt"
+    - "build.cmd pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r requirements.txt"
+    - "build.cmd pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r dev/requirements.txt"
 #
 build: none
 
@@ -122,4 +119,4 @@ on_finish:
 
 test_script:
     # Split tests into several subprocesses.
-    - "%CMD_IN_ENV% %PYTHON%\\Scripts\\tox"
+    - "build.cmd tox"

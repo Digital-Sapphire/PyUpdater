@@ -49,7 +49,7 @@ def parse_platform(name):
     """
     log.debug('Parsing "%s" for platform info', name)
     try:
-        re_str = '-(?P<platform>mac|win|nix[6]?[4]?)-'
+        re_str = r'-(?P<platform>mac|win|nix[6]?[4]?)-'
         data = re.compile(re_str).search(name)
         platform_name = data.groupdict()['platform']
         log.debug('Platform name is: %s', platform_name)
@@ -169,7 +169,7 @@ class Package(object):
         filename (str): name of update file
     """
     # Used to parse name from archive filename
-    name_regex = re.compile('(?P<name>[\w -]+)-[win|mac|nix]')
+    name_regex = re.compile(r'(?P<name>[\w -]+)-[win|mac|nix]')
 
     def __init__(self, filename):
         self.name = None
