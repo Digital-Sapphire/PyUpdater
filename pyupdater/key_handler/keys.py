@@ -49,9 +49,8 @@ class Keys(object):
         # We use base64 encoding for easy human consumption
         self.key_encoding = 'base64'
 
-        # Used for testing
-        # When _load is called it'll cause an empty dict to be created
         if test:
+            self.key_data = {}
             self.data_dir = os.path.join('private', 'data')
         else:
             self.data_dir = user_data_dir('PyUpdater', 'Digital Sapphire')
@@ -81,19 +80,17 @@ class Keys(object):
 
     def _load(self):
         if not os.path.exists(self.keypack_filename):
-            self.key_data = {}
             self._save()
         else:
             with io.open(self.keypack_filename, 'r', encoding="utf-8") as f:
                 self.key_data = json.loads(f.read())
 
     def _save(self):
-        if self.keypack_filename is not None:
-            with io.open(self.keypack_filename, 'w', encoding="utf-8") as f:
-                out = json.dumps(self.key_data, indent=2, sort_keys=True)
-                if six.PY2:
-                    out = unicode(out)
-                f.write(out)
+        with io.open(self.keypack_filename, 'w', encoding="utf-8") as f:
+            out = json.dumps(self.key_data, indent=2, sort_keys=True)
+            if six.PY2:
+                out = unicode(out)
+            f.write(out)
 
     def _gen_keypack(self, name):
         # Create new public & private key for app signing
@@ -106,9 +103,8 @@ class Keys(object):
         off_pri = off_pri.encode()
         if six.PY2:
             app_pub = six.b(app_pub)
-            log.debug('off_pri type: %s', type(off_pri))
 
-        signing_key = ed25519.SigningKey(off_pri, encoding='base64')
+        signing_key = ed25519.SigningKey(off_pri, self.key_encoding)
 
         # Create signature from app signing public key
         signature = signing_key.sign(app_pub,

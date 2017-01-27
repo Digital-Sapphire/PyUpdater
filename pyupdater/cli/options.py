@@ -151,8 +151,10 @@ def add_keys_parser(subparsers):
     keys_parser.add_argument('-c', '--create', help='Creates keypack. Should '
                              'only be used on your off-line machine',
                              action='store_true',)
-    keys_parser.add_argument('-y', '--yes', help='Will run command without '
+    # ToDo: Remove in v 3.0
+    keys_parser.add_argument('-y', '--yes', help='[Deprecated] Will run command without '
                              'conformation prompt', action='store_true')
+    # End ToDo
 
 
 def add_package_parser(subparsers):

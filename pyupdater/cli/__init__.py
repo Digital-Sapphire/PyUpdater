@@ -171,20 +171,6 @@ def init():  # pragma: no cover
 
 
 def keys(args):  # pragma: no cover
-    if args.yes is True:
-        _keys(args)
-
-    else:
-        answer = ask_yes_no('Are you sure you want to continue?',
-                            default='no')
-        if answer is True:
-            _keys(args)
-        else:
-            log.info('Command aborted!')
-
-
-# Revokes keys
-def _keys(args):  # pragma: no cover
     check = check_repo()
     if args.create is True and args.import_keys is True:
         log.error('Only one options is allowed at a time')
