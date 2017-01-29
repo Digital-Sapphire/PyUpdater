@@ -26,18 +26,12 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import logging
-import sys
 try:
     from UserDict import DictMixin as dictmixin
 except ImportError:
     from collections import MutableMapping as dictmixin
 
-
 from dsdev_utils.helpers import lazy_import
-from dsdev_utils.paths import ChDir, remove_any
-from stevedore.extension import ExtensionManager
-
-from pyupdater import settings
 
 log = logging.getLogger(__name__)
 
@@ -58,6 +52,13 @@ def gzip():
 def hashlib():
     import hashlib
     return hashlib
+
+
+@lazy_import
+def pyupdater():
+    import pyupdater
+    import pyupdater.settings
+    return pyupdater
 
 
 @lazy_import
@@ -94,6 +95,12 @@ def shutil():
 
 
 @lazy_import
+def stevedore():
+    import stevedore
+    import stevedore.extensions
+    return stevedore
+
+@lazy_import
 def subprocess():
     import subprocess
     return subprocess
@@ -120,6 +127,7 @@ def zipfile():
 @lazy_import
 def dsdev_utils():
     import dsdev_utils
+    import dsdev_utils.paths
     import dsdev_utils.system
     import dsdev_utils.terminal
     return dsdev_utils
@@ -132,13 +140,19 @@ def six():
     return six
 
 
+@lazy_import
+def sys():
+    import sys
+    return sys
+
+
 class PluginManager(object):
 
     PLUGIN_NAMESPACE = 'pyupdater.plugins'
 
     def __init__(self, config):
-        plugins_namespace = ExtensionManager(self.PLUGIN_NAMESPACE,
-                                             invoke_on_load=True)
+        plugins_namespace = stevedore.extension.ExtensionManager(self.PLUGIN_NAMESPACE,
+                                                                 invoke_on_load=True)
         plugins = []
         for p in plugins_namespace.extensions:
             plugins.append(p.obj)
@@ -284,7 +298,7 @@ def print_plugin_settings(plugin_name, config):
 def check_repo():
     "Checks if current directory is a pyupdater repository"
     repo = True
-    if not os.path.exists(settings.CONFIG_DATA_FOLDER):
+    if not os.path.exists(pyupdater.settings.CONFIG_DATA_FOLDER):
         log.debug('PyUpdater config data folder is missing')
         repo = False
     return repo
@@ -319,10 +333,10 @@ def setup_client_config_path(config):  # pragma: no cover
                                                      default=_default_dir)
 
     if answer == _default_dir:
-        config.CLIENT_CONFIG_PATH = settings.DEFAULT_CLIENT_CONFIG
+        config.CLIENT_CONFIG_PATH = pyupdater.settings.DEFAULT_CLIENT_CONFIG
     else:
         answer = answer.split(os.sep)
-        answer.append(settings.DEFAULT_CLIENT_CONFIG[0])
+        answer.append(pyupdater.settings.DEFAULT_CLIENT_CONFIG[0])
 
         config.CLIENT_CONFIG_PATH = answer
 
@@ -420,14 +434,14 @@ def create_asset_archive(name, version):
 
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
-    with ChDir(file_dir):
+    with dsdev_utils.paths.ChDir(file_dir):
         if dsdev_utils.system.get_system() == 'win':
             ext = '.zip'
             with zipfile.ZipFile(filename + ext, 'w') as zf:
                 zf.write(name, name)
         else:
             ext = '.tar.gz'
-            with ChDir(file_dir):
+            with dsdev_utils.paths.ChDir(file_dir):
                 with tarfile.open(filename + ext, 'w:gz',
                                   compresslevel=0) as tar:
                     tar.add(name, name)
@@ -457,7 +471,7 @@ def make_archive(name, target, version):
     log.debug('Temp file: %s', temp_file)
     # Remove file if it exists. Found during testing...
     if os.path.exists(temp_file):
-        remove_any(temp_file)
+        dsdev_utils.paths.remove_any(temp_file)
 
     if os.path.isfile(target):
         shutil.copy(target, temp_file)
@@ -471,7 +485,7 @@ def make_archive(name, target, version):
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
     # tar.gz creates full file path
-    with ChDir(file_dir):
+    with dsdev_utils.paths.ChDir(file_dir):
         if dsdev_utils.system.get_system() == 'win':
             ext = '.zip'
             with zipfile.ZipFile(filename + ext, 'w') as zf:
@@ -483,7 +497,7 @@ def make_archive(name, target, version):
                 tar.add(target, temp_file)
 
     if os.path.exists(temp_file):
-        remove_any(temp_file)
+        dsdev_utils.paths.remove_any(temp_file)
 
     output_filename = filename + ext
     log.debug('Archive output filename: %s', output_filename)
