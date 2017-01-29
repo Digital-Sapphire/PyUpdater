@@ -33,9 +33,11 @@ from appdirs import user_data_dir
 import ed25519
 import six
 
+from pyupdater import settings
+from pyupdater.utils.exceptions import KeyHandlerError
 from pyupdater.utils import check_repo
 from pyupdater.utils.storage import Storage
-from pyupdater import settings
+
 
 log = logging.getLogger(__name__)
 
@@ -69,6 +71,9 @@ class Keys(object):
         except AssertionError:
             log.debug('Failed to generate keypack')
             return False
+        except KeyHandlerError as err:
+            log.error(err)
+            return False
 
         # Write keypack to cwd
         with io.open(settings.KEYPACK_FILENAME, 'w', encoding="utf-8") as f:
@@ -94,7 +99,12 @@ class Keys(object):
 
     def _gen_keypack(self, name):
         # Create new public & private key for app signing
-        app_pri, app_pub = self._make_keys()
+        try:
+            app_pri, app_pub = self._make_keys()
+        except Exception as err:
+            log.error(err)
+            log.debug(err, exc_info=True)
+            raise KeyHandlerError("Failed to create keypair")
 
         # Load app specific private & public key
         off_pri, off_pub = self._load_offline_keys(name)
