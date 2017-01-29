@@ -114,7 +114,7 @@ class Keys(object):
 
         # Create signature from app signing public key
         signature = signing_key.sign(app_pub,
-                                     encoding='base64').decode()
+                                     encoding=self.key_encoding).decode()
 
         if six.PY3:
             app_pri = app_pri.decode()
