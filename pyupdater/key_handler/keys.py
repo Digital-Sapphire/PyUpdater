@@ -35,7 +35,6 @@ import six
 
 from pyupdater import settings
 from pyupdater.utils.exceptions import KeyHandlerError
-from pyupdater.utils import check_repo
 from pyupdater.utils.storage import Storage
 
 
@@ -45,9 +44,6 @@ log = logging.getLogger(__name__)
 class Keys(object):
 
     def __init__(self, test=False):
-        # Ensure we are working in a pyupdater initialized repo
-        self.check = check_repo()
-
         # We use base64 encoding for easy human consumption
         self.key_encoding = 'base64'
 
