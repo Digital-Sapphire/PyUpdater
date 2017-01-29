@@ -25,51 +25,15 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import gzip
+import json
+import logging
+import os
+import ed25519
+import six
+
 from pyupdater import settings
-from pyupdater.utils import lazy_import
 from pyupdater.utils.storage import Storage
-
-
-@lazy_import
-def gzip():
-    import gzip
-    return gzip
-
-
-@lazy_import
-def json():
-    import json
-    return json
-
-
-@lazy_import
-def logging():
-    import logging
-    return logging
-
-
-@lazy_import
-def os():
-    import os
-    return os
-
-
-@lazy_import
-def shutil():
-    import shutil
-    return shutil
-
-
-@lazy_import
-def ed25519():
-    import ed25519
-    return ed25519
-
-
-@lazy_import
-def six():
-    import six
-    return six
 
 
 log = logging.getLogger(__name__)

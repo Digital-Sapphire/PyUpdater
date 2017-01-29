@@ -24,126 +24,33 @@
 # --------------------------------------------------------------------------
 from __future__ import absolute_import
 from __future__ import unicode_literals
-
+import io
 import logging
+try:
+    import simplejson as json
+except ImportError:
+    import json
+import os
+import shutil
+import subprocess
+import sys
+import tarfile
+import time
+import zipfile
 try:
     from UserDict import DictMixin as dictmixin
 except ImportError:
     from collections import MutableMapping as dictmixin
 
-from dsdev_utils.helpers import lazy_import
+from dsdev_utils import paths
+from dsdev_utils import system
+from dsdev_utils import terminal
+import six
+from stevedore.extension import ExtensionManager
+
+from pyupdater import settings
 
 log = logging.getLogger(__name__)
-
-
-@lazy_import
-def bz2():
-    import bz2
-    return bz2
-
-
-@lazy_import
-def gzip():
-    import gzip
-    return gzip
-
-
-@lazy_import
-def hashlib():
-    import hashlib
-    return hashlib
-
-
-@lazy_import
-def pyupdater():
-    import pyupdater
-    import pyupdater.settings
-    return pyupdater
-
-
-@lazy_import
-def io():
-    import io
-    return io
-
-
-@lazy_import
-def json():
-    try:
-        import simplejson as json
-    except ImportError:
-        import json
-    return json
-
-
-@lazy_import
-def os():
-    import os
-    return os
-
-
-@lazy_import
-def re():
-    import re
-    return re
-
-
-@lazy_import
-def shutil():
-    import shutil
-    return shutil
-
-
-@lazy_import
-def stevedore():
-    import stevedore
-    import stevedore.extensions
-    return stevedore
-
-@lazy_import
-def subprocess():
-    import subprocess
-    return subprocess
-
-
-@lazy_import
-def tarfile():
-    import tarfile
-    return tarfile
-
-
-@lazy_import
-def time():
-    import time
-    return time
-
-
-@lazy_import
-def zipfile():
-    import zipfile
-    return zipfile
-
-
-@lazy_import
-def dsdev_utils():
-    import dsdev_utils
-    import dsdev_utils.paths
-    import dsdev_utils.system
-    import dsdev_utils.terminal
-    return dsdev_utils
-
-
-@lazy_import
-def six():
-    import six
-    import six.moves
-    return six
-
-
-@lazy_import
-def sys():
-    import sys
-    return sys
 
 
 class PluginManager(object):
@@ -151,8 +58,8 @@ class PluginManager(object):
     PLUGIN_NAMESPACE = 'pyupdater.plugins'
 
     def __init__(self, config):
-        plugins_namespace = stevedore.extension.ExtensionManager(self.PLUGIN_NAMESPACE,
-                                                                 invoke_on_load=True)
+        plugins_namespace = ExtensionManager(self.PLUGIN_NAMESPACE,
+                                             invoke_on_load=True)
         plugins = []
         for p in plugins_namespace.extensions:
             plugins.append(p.obj)
@@ -298,7 +205,7 @@ def print_plugin_settings(plugin_name, config):
 def check_repo():
     "Checks if current directory is a pyupdater repository"
     repo = True
-    if not os.path.exists(pyupdater.settings.CONFIG_DATA_FOLDER):
+    if not os.path.exists(settings.CONFIG_DATA_FOLDER):
         log.debug('PyUpdater config data folder is missing')
         repo = False
     return repo
@@ -315,7 +222,7 @@ def setup_appname(config):  # pragma: no cover
         default = config.APP_NAME
     else:
         default = None
-    config.APP_NAME = dsdev_utils.terminal.get_correct_answer('Please enter '
+    config.APP_NAME = terminal.get_correct_answer('Please enter '
                                                               'app name',
                                                               required=True,
                                                               default=default)
@@ -329,14 +236,14 @@ def setup_client_config_path(config):  # pragma: no cover
                 "initialize the update process. \nExamples:\n\n"
                 "lib/utils, src/lib, src. \n\nLeave blank to use "
                 "the current directory")
-    answer = dsdev_utils.terminal.get_correct_answer(question,
+    answer = terminal.get_correct_answer(question,
                                                      default=_default_dir)
 
     if answer == _default_dir:
-        config.CLIENT_CONFIG_PATH = pyupdater.settings.DEFAULT_CLIENT_CONFIG
+        config.CLIENT_CONFIG_PATH = settings.DEFAULT_CLIENT_CONFIG
     else:
         answer = answer.split(os.sep)
-        answer.append(pyupdater.settings.DEFAULT_CLIENT_CONFIG[0])
+        answer.append(settings.DEFAULT_CLIENT_CONFIG[0])
 
         config.CLIENT_CONFIG_PATH = answer
 
@@ -346,7 +253,7 @@ def setup_company(config):  # pragma: no cover
         default = config.COMPANY_NAME
     else:
         default = None
-    temp = dsdev_utils.terminal.get_correct_answer('Please enter your comp'
+    temp = terminal.get_correct_answer('Please enter your comp'
                                                    'any or name',
                                                    required=True,
                                                    default=default)
@@ -356,7 +263,7 @@ def setup_company(config):  # pragma: no cover
 def setup_max_download_retries(config):  # pragma: no cover
     default = config.MAX_DOWNLOAD_RETRIES
     while 1:
-        temp = dsdev_utils.terminal.get_correct_answer('Enter max download '
+        temp = terminal.get_correct_answer('Enter max download '
                                                        'retries',
                                                        required=True,
                                                        default=default)
@@ -378,7 +285,7 @@ def setup_max_download_retries(config):  # pragma: no cover
 
 def setup_patches(config):  # pragma: no cover
     question = 'Would you like to enable patch updates?'
-    config.UPDATE_PATCHES = dsdev_utils.terminal.ask_yes_no(question,
+    config.UPDATE_PATCHES = terminal.ask_yes_no(question,
                                                             default='yes')
 
 
@@ -392,15 +299,15 @@ def setup_plugin(name, config):
 
 
 def setup_urls(config):  # pragma: no cover
-    url = dsdev_utils.terminal.get_correct_answer('Enter a url to ping for '
+    url = terminal.get_correct_answer('Enter a url to ping for '
                                                   'updates.', required=True)
     config.UPDATE_URLS = [url]
     while 1:
-        answer = dsdev_utils.terminal.ask_yes_no('Would you like to add '
+        answer = terminal.ask_yes_no('Would you like to add '
                                                  'another url for backup?',
                                                  default='no')
         if answer is True:
-            url = dsdev_utils.terminal.get_correct_answer('Enter another url.',
+            url = terminal.get_correct_answer('Enter another url.',
                                                           required=True)
             config.UPDATE_URLS.append(url)
         else:
@@ -430,18 +337,18 @@ def create_asset_archive(name, version):
     """
     file_dir = os.path.dirname(os.path.abspath(name))
     filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
-                                 dsdev_utils.system.get_system(), version)
+                                 system.get_system(), version)
 
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
-    with dsdev_utils.paths.ChDir(file_dir):
-        if dsdev_utils.system.get_system() == 'win':
+    with paths.ChDir(file_dir):
+        if system.get_system() == 'win':
             ext = '.zip'
             with zipfile.ZipFile(filename + ext, 'w') as zf:
                 zf.write(name, name)
         else:
             ext = '.tar.gz'
-            with dsdev_utils.paths.ChDir(file_dir):
+            with paths.ChDir(file_dir):
                 with tarfile.open(filename + ext, 'w:gz',
                                   compresslevel=0) as tar:
                     tar.add(name, name)
@@ -471,7 +378,7 @@ def make_archive(name, target, version):
     log.debug('Temp file: %s', temp_file)
     # Remove file if it exists. Found during testing...
     if os.path.exists(temp_file):
-        dsdev_utils.paths.remove_any(temp_file)
+        paths.remove_any(temp_file)
 
     if os.path.isfile(target):
         shutil.copy(target, temp_file)
@@ -480,13 +387,13 @@ def make_archive(name, target, version):
 
     file_dir = os.path.dirname(os.path.abspath(target))
     filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
-                                 dsdev_utils.system.get_system(), version)
+                                 system.get_system(), version)
 
     # Only use zip on windows.
     # Zip doens't preserve file permissions on nix & mac
     # tar.gz creates full file path
-    with dsdev_utils.paths.ChDir(file_dir):
-        if dsdev_utils.system.get_system() == 'win':
+    with paths.ChDir(file_dir):
+        if system.get_system() == 'win':
             ext = '.zip'
             with zipfile.ZipFile(filename + ext, 'w') as zf:
                 zf.write(target, temp_file)
@@ -497,7 +404,7 @@ def make_archive(name, target, version):
                 tar.add(target, temp_file)
 
     if os.path.exists(temp_file):
-        dsdev_utils.paths.remove_any(temp_file)
+        paths.remove_any(temp_file)
 
     output_filename = filename + ext
     log.debug('Archive output filename: %s', output_filename)

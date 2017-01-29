@@ -31,13 +31,13 @@ import time
 
 from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.system import get_system
-from dsdev_utils.paths import ChDir
+from dsdev_utils.paths import ChDir, remove_any
 import pytest
 import six
 
 from pyupdater.client import Client
-from pyupdater.client.updates import _gen_user_friendly_version, _get_highest_version
-from pyupdater.utils import remove_any
+from pyupdater.client.updates import (_gen_user_friendly_version,
+                                      _get_highest_version)
 from tconfig import TConfig
 
 

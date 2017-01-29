@@ -22,51 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # --------------------------------------------------------------------------
-from pyupdater.utils import lazy_import
+import logging
+
+from pyupdater.core import PyUpdater
 
 __all__ = ['PyUpdater']
-
-
-@lazy_import
-def pyupdater():
-    import pyupdater.core
-    import pyupdater.settings
-    return pyupdater
-
-
-@lazy_import
-def logging():
-    import logging
-    import logging.handlers
-    return logging
-
-
-@lazy_import
-def os():
-    import os
-    return os
-
-
-@lazy_import
-def sys():
-    import sys
-    return sys
-
-
-@lazy_import
-def appdirs():
-    import appdirs
-    return appdirs
-
-
-@lazy_import
-def dsdev_utils():
-    import dsdev_utils
-    import dsdev_utils.logger
-    return dsdev_utils
-
-
-PyUpdater = pyupdater.core.PyUpdater
 
 
 log = logging.getLogger()

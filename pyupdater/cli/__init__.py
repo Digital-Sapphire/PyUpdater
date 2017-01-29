@@ -27,6 +27,7 @@ from __future__ import unicode_literals
 import io
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import sys
 
@@ -81,8 +82,7 @@ if not os.path.exists(LOG_DIR):  # pragma: no cover
     os.makedirs(LOG_DIR)
 
 log_file = os.path.join(LOG_DIR, settings.LOG_FILENAME_DEBUG)
-rfh = logging.handlers.RotatingFileHandler(log_file, maxBytes=1048576,
-                                           backupCount=2)
+rfh = RotatingFileHandler(log_file, maxBytes=1048576, backupCount=2)
 rfh.setFormatter(logging_formatter)
 rfh.setLevel(logging.DEBUG)
 log.addHandler(rfh)
