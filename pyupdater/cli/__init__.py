@@ -187,9 +187,10 @@ def keys(args):  # pragma: no cover
         k = Keys()
         app_name = get_correct_answer('Please enter app name',
                                       required=True)
-        k.make_keypack(app_name)
-        log.info('Keypack placed in cwd')
-        return
+        if k.make_keypack(app_name):
+            log.info('Keypack placed in cwd')
+        else:
+            sys.exit(1)
 
     if args.import_keys is True and check is True:
         loader = Loader()
