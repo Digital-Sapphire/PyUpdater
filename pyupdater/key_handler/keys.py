@@ -110,7 +110,7 @@ class Keys(object):
         if six.PY2:
             app_pub = six.b(app_pub)
 
-        signing_key = ed25519.SigningKey(off_pri, self.key_encoding)
+        signing_key = ed25519.SigningKey(off_pri, encoding=self.key_encoding)
 
         # Create signature from app signing public key
         signature = signing_key.sign(app_pub,
