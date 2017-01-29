@@ -73,6 +73,11 @@ class FileDownloaderError(STDError):
         super(FileDownloaderError, self).__init__(*args, **kwargs)
 
 
+class KeyError(STDError):
+    def __init__(self, *args, **kwargs):
+        super(KeyError, self).__init__(*args, **kwargs)
+
+
 class PackageHandlerError(STDError):
     """Raised for PackageHandler exceptions"""
     def __init__(self, *args, **kwargs):

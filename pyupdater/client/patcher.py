@@ -30,8 +30,9 @@ import os
 import bsdiff4
 
 from dsdev_utils.crypto import get_package_hashes
-from dsdev_utils.helpers import EasyAccessDict, lazy_import, Version
-from dsdev_utils.paths import remove_any
+from dsdev_utils.helpers import EasyAccessDict, Version
+from dsdev_utils.paths import ChDir, remove_any
+from dsdev_utils.system import get_system
 
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
@@ -39,16 +40,7 @@ from pyupdater.utils.exceptions import PatcherError
 
 log = logging.getLogger(__name__)
 
-
-@lazy_import
-def dsdev_utils():
-    import dsdev_utils
-    import dsdev_utils.paths
-    import dsdev_utils.system
-    return dsdev_utils
-
-
-_PLATFORM = dsdev_utils.system.get_system()
+_PLATFORM = get_system()
 
 
 class Patcher(object):
@@ -152,7 +144,7 @@ class Patcher(object):
         log.debug('Checking for current installed binary to patch')
         status = True
 
-        with dsdev_utils.paths.ChDir(self.update_folder):
+        with ChDir(self.update_folder):
             if not os.path.exists(self.current_filename):
                 log.debug('Cannot find archive to patch')
                 status = False
@@ -349,7 +341,7 @@ class Patcher(object):
         if filename is None:
             raise PatcherError('Filename missing in version file')
 
-        with dsdev_utils.paths.ChDir(self.update_folder):
+        with ChDir(self.update_folder):
             try:
                 with open(filename, 'wb') as f:
                     f.write(self.og_binary)

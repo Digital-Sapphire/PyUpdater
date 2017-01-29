@@ -38,26 +38,17 @@ except ImportError:  # pragma: no cover
     bsdiff4 = None
 from dsdev_utils.crypto import get_package_hashes as gph
 from dsdev_utils.helpers import EasyAccessDict
+from dsdev_utils.paths import ChDir
 
 from pyupdater import settings
 from pyupdater.package_handler.package import (remove_previous_versions,
-                                               Package,
-                                               Patch)
+                                               Package, Patch)
 from pyupdater.utils import (get_size_in_bytes as in_bytes,
-                             lazy_import,
-                             remove_dot_files
-                             )
+                             remove_dot_files)
 from pyupdater.utils.exceptions import PackageHandlerError
 from pyupdater.utils.storage import Storage
 
 log = logging.getLogger(__name__)
-
-
-@lazy_import
-def dsdev_utils():
-    import dsdev_utils
-    import dsdev_utils.paths
-    return dsdev_utils
 
 
 class PackageHandler(object):
@@ -190,7 +181,7 @@ class PackageHandler(object):
         package_manifest = []
         patch_manifest = []
         bad_packages = []
-        with dsdev_utils.paths.ChDir(self.new_dir):
+        with ChDir(self.new_dir):
             # Getting a list of all files in the new dir
             packages = os.listdir(os.getcwd())
             for p in packages:
@@ -436,7 +427,7 @@ class PackageHandler(object):
         log.info('Moving packages to deploy folder')
         for p in package_manifest:
             patch = p.patch_info.get('patch_name')
-            with dsdev_utils.paths.ChDir(self.new_dir):
+            with ChDir(self.new_dir):
                 if patch:
                     if os.path.exists(os.path.join(self.deploy_dir, patch)):
                         os.remove(os.path.join(self.deploy_dir, patch))
@@ -462,7 +453,7 @@ class PackageHandler(object):
             return None
         src_file_path = None
         if os.path.exists(self.files_dir):
-            with dsdev_utils.paths.ChDir(self.files_dir):
+            with ChDir(self.files_dir):
                 files = os.listdir(os.getcwd())
                 log.debug('Found %s files in files dir', len(files))
 
