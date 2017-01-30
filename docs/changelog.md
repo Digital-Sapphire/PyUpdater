@@ -1,7 +1,10 @@
 # Changelog
 
-## v2.2.1 - Master
+## v2.3.1 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.3.0 - 2017/01/29
 
 ###Updated
 
@@ -15,10 +18,17 @@
 
 ###Fixed
 
-  - Restart
-    - Linux & Mac
+  - Client
+    - Restart - Linux & Mac
   - CLI
     - MemoryError - Windows Python 3.5 64bit
+  - PyUpdater
+    - Parsing a pre-release format
+
+###Removed
+
+  - Extra Y/N prompt before keypack creation
+  - Unused code
 
 
 ## v2.2.0 - 2016/10/29
