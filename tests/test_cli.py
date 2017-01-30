@@ -29,11 +29,37 @@ import os
 
 import pytest
 
-from pyupdater.cli import build, clean, make_spec, pkg
+from pyupdater.cli import build, clean, keys, make_spec, pkg
 from pyupdater.cli.options import (add_build_parser, add_clean_parser,
                                    add_keys_parser, add_make_spec_parser,
                                    add_package_parser, make_subparser)
 
+
+class NamespaceHelper(object):
+
+    def __init__(self, **kwargs):
+        self.reload(**kwargs)
+
+    def _clear(self):
+        self.__dict__.clear()
+
+    def _pre_update(self):
+        self.__dict__.update(test=True)
+
+    def reload(self, **kwargs):
+        self._clear()
+        self._pre_update()
+        self.__dict__.update(**kwargs)
+
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            self.__dict__[name] = None
+            return None
+
+
+namespace_helper = NamespaceHelper()
 
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
 class TestBuilder(object):
@@ -94,6 +120,11 @@ class TestKeys(object):
         subparser = make_subparser(parser)
         add_keys_parser(subparser)
         assert parser.parse_known_args(['keys'])
+
+    def test_create_keys(self):
+        namespace_helper.reload(command='keys', create=True)
+        keys(namespace_helper)
+
 
 
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')

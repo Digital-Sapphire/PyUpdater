@@ -184,12 +184,18 @@ def keys(args):  # pragma: no cover
         _repo_error()
 
     if args.create is True and check is False:
-        k = Keys()
-        app_name = get_correct_answer('Please enter app name',
+        if hasattr(args, 'test'):
+            log.debug('We are testing!reloan2')
+            app_name = 'test'
+            k = Keys(test=True)
+        else:
+            k = Keys()
+            app_name = get_correct_answer('Please enter app name',
                                       required=True)
         if k.make_keypack(app_name):
             log.info('Keypack placed in cwd')
         else:
+            log.error('Failed to create keypack')
             sys.exit(1)
 
     if args.import_keys is True and check is True:
