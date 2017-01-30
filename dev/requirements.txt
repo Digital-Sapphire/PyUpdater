@@ -1,6 +1,7 @@
 memory_profiler
 mkdocs == 0.16.1
 mkdocs-material
+PyUpdater-s3-Plugin
 tox
 tox-pyenv
 versioneer == 0.18

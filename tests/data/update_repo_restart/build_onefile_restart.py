@@ -12,7 +12,7 @@ home_dir = os.path.abspath(__file__)
 
 def build(app):
     cmd = ('pyupdater build -F --path={} '
-           '--app-version={} {} --clean'.format(home_dir, app[1], app[0]))
+           '--app-version={} {}'.format(home_dir, app[1], app[0]))
     os.system(cmd)
 
 
