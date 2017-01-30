@@ -366,6 +366,7 @@ def upload(args):  # pragma: no cover
             log.debug(e, exc_info=True)
 
 def _real_main(args=None, namespace_helper=None):  # pragma: no cover
+    pyi_args = None
     if args is None:
         args = sys.argv[1:]
 
@@ -375,6 +376,9 @@ def _real_main(args=None, namespace_helper=None):  # pragma: no cover
     else:
         args = namespace_helper
 
+    _dispatch_commands(args, pyi_args)
+
+def _dispatch_commands(args, pyi_args):
     cmd = args.command
     if cmd == 'archive':
         archive(args)
@@ -403,6 +407,9 @@ def _real_main(args=None, namespace_helper=None):  # pragma: no cover
     else:
         log.error('Not Implemented')
         sys.exit(1)
+
+
+
 
 
 def main(args=None):  # pragma: no cover

@@ -16,7 +16,9 @@
 ###Fixed
 
   - Restart
-    - LInux & Mac
+    - Linux & Mac
+  - CLI
+    - MemoryError - Windows Python 3.5 64bit
 
 
 ## v2.2.0 - 2016/10/29

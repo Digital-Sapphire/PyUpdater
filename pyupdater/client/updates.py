@@ -60,7 +60,8 @@ def _get_highest_version(name, plat, channel, easy_data, strict):
 
            easy_data (dict): data file to search
 
-           strict (bool): specify whether or not to take the channel into consideration
+           strict (bool): specify whether or not to take the channel
+                          into consideration
 
         Returns:
 
@@ -101,7 +102,6 @@ def _get_highest_version(name, plat, channel, easy_data, strict):
 
     if strict is False:
         return str(max(version_options))
-
 
     if alpha_available is True and channel == 'alpha':
         version = alpha
@@ -292,7 +292,8 @@ class LibUpdate(object):
 
         # The latest version available
         self.latest = _get_highest_version(self.name, self.platform,
-                                           self.channel, self.easy_data, self.strict)
+                                           self.channel, self.easy_data,
+                                           self.strict)
 
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
@@ -554,15 +555,16 @@ class AppUpdate(LibUpdate):
     """
 
     def __init__(self, data):
+        self._is_win = get_system() == 'win'
         super(AppUpdate, self).__init__(data)
 
-    def extract_restart(self):  # pragma: no cover
+    def extract_restart(self):
         """Will extract the update, overwrite the current binary,
         then restart the application using the updated binary."""
         try:
             self._extract_update()
 
-            if get_system() == 'win':
+            if self._is_win:
                 self._win_overwrite_restart()
             else:
                 self._overwrite()
@@ -570,11 +572,11 @@ class AppUpdate(LibUpdate):
         except ClientError as err:
             log.debug(err, exc_info=True)
 
-    def extract_overwrite(self):  # pragma: no cover
+    def extract_overwrite(self):
         """Will extract the update then overwrite the current binary"""
         try:
             self._extract_update()
-            if get_system() == 'win':
+            if self._is_win:
                 self._win_overwrite()
             else:
                 self._overwrite()
@@ -610,7 +612,7 @@ class AppUpdate(LibUpdate):
             log.debug(err, exc_info=True)
     # End ToDo
 
-    def _overwrite(self):  # pragma: no cover
+    def _overwrite(self):
         # Unix: Overwrites the running applications binary
         if get_system() == 'mac':
             if self._current_app_dir.endswith('MacOS') is True:
@@ -644,7 +646,7 @@ class AppUpdate(LibUpdate):
         log.debug('Moving app to new location:\n\n%s', self._current_app_dir)
         shutil.move(app_update, self._current_app_dir)
 
-    def _restart(self):  # pragma: no cover
+    def _restart(self):
         log.debug('Restarting')
         current_app = os.path.join(self._current_app_dir, self.name)
         if get_system() == 'mac':
@@ -663,7 +665,7 @@ class AppUpdate(LibUpdate):
         r = Restarter(current_app, name=self.name)
         r.process()
 
-    def _win_overwrite(self):  # pragma: no cover
+    def _win_overwrite(self):
         # Windows: Moves update to current directory of running
         #                 application then restarts application using
         #                 new update.
@@ -675,7 +677,7 @@ class AppUpdate(LibUpdate):
         r = Restarter(current_app, **update_info)
         r.process(win_restart=False)
 
-    def _win_overwrite_restart(self):  # pragma: no cover
+    def _win_overwrite_restart(self):
         # Windows: Moves update to current directory of running
         #          application then restarts application using
         #          new update.

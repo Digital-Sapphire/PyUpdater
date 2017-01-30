@@ -12,7 +12,7 @@ home_dir = os.path.abspath(__file__)
 
 def build(app):
     cmd = ('pyupdater build -F --path={} '
-           '--app-version={} {} --clean'.format(home_dir, app[1], app[0]))
+           '--app-version={} {}'.format(home_dir, app[1], app[0]))
     os.system(cmd)
 
 
@@ -27,7 +27,7 @@ def extract(filename):
 
 
 def main():
-    scripts = [('app1.py', '4.1'), ('app2.py', '4.2')]
+    scripts = [('app_restart_01.py', '4.1'), ('app_restart_02.py', '4.2')]
 
     # We use this flag to untar & move our binary to the
     # current working directory

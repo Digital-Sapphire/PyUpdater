@@ -61,7 +61,8 @@ log.debug('PyUpdater Version %s', __version__)
 
 
 class Client(object):
-    """Used to check for updates & returns an updateobject if there is an update.
+    """Used to check for updates & returns an updateobject if there
+    is an update.
 
     ######Kwargs:
 

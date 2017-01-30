@@ -55,17 +55,17 @@ class TestSetup(object):
 
 
 @pytest.mark.usefixtures('cleandir', 'pyu')
-class TestExecution(object):
+class TestExecutionExtraction(object):
 
-    def test_execution_update_onefile(self, datadir, simpleserver):
-        data_dir = datadir['update_repo']
+    def test_execution_onefile_extract(self, datadir, simpleserver):
+        data_dir = datadir['update_repo_extract']
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
         with ChDir(data_dir):
-            simpleserver.start()
+            simpleserver.start(8000)
 
-            cmd = 'python app_build_onefile.py'
+            cmd = 'python build_onefile_extract.py'
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -90,7 +90,7 @@ class TestExecution(object):
                 app_name = './{}'.format(app_name)
 
             # Call the binary to self update
-            out = subprocess.check_output(app_name, shell=True)
+            subprocess.check_output(app_name, shell=True)
             # Allow enough time for update process to complete.
             time.sleep(15)
 
@@ -101,3 +101,51 @@ class TestExecution(object):
             simpleserver.stop()
 
             assert out == six.b('4.2')
+
+
+@pytest.mark.usefixtures('cleandir', 'pyu')
+class TestExecutionRestart(object):
+
+    def test_execution_one_file_restart(self, datadir, simpleserver):
+        data_dir = datadir['update_repo_restart']
+
+        # We are moving all of the files from the deploy directory to the
+        # cwd. We will start a simple http server to use for updates
+        with ChDir(data_dir):
+            simpleserver.start(8001)
+
+            cmd = 'python build_onefile_restart.py'
+            os.system(cmd)
+
+            # Moving all files from the deploy directory to the cwd
+            # since that is where we will start the simple server
+            deploy_dir = os.path.join('pyu-data', 'deploy')
+            test_cwd = os.getcwd()
+            with ChDir(deploy_dir):
+                files = os.listdir(os.getcwd())
+                for f in files:
+                    if f == '.DS_Store':
+                        continue
+                    shutil.move(f, test_cwd)
+
+            app_name = 'Acme'
+            if sys.platform == 'win32':
+                app_name += '.exe'
+
+            with open('pyu.log', 'w') as f:
+                f.write('')
+
+            if sys.platform != 'win32':
+                app_name = './{}'.format(app_name)
+
+            # Call the binary to self update
+            subprocess.call(app_name)
+            # Allow enough time for update process to complete.
+            time.sleep(15)
+
+            simpleserver.stop()
+
+            assert os.path.exists('version2.txt')
+            with open('version2.txt', 'r') as f:
+                output = f.read().strip()
+            assert output == '4.2'
