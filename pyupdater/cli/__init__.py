@@ -36,7 +36,6 @@ from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.terminal import ask_yes_no, get_correct_answer
 
-
 from pyupdater import PyUpdater, __version__
 from pyupdater import settings
 from pyupdater.builder import Builder, ExternalLib
@@ -185,7 +184,7 @@ def keys(args):  # pragma: no cover
 
     if args.create is True and check is False:
         if hasattr(args, 'test'):
-            log.debug('We are testing!reloan2')
+            log.debug('We are testing!')
             app_name = 'test'
             k = Keys(test=True)
         else:
@@ -366,12 +365,16 @@ def upload(args):  # pragma: no cover
         except Exception as e:
             log.debug(e, exc_info=True)
 
-
-def _real_main(args):  # pragma: no cover
+def _real_main(args=None, namespace_helper=None):  # pragma: no cover
     if args is None:
         args = sys.argv[1:]
-    parser = get_parser()
-    args, pyi_args = parser.parse_known_args(args)
+
+    if namespace_helper is None:
+        parser = get_parser()
+        args, pyi_args = parser.parse_known_args(args)
+    else:
+        args = namespace_helper
+
     cmd = args.command
     if cmd == 'archive':
         archive(args)

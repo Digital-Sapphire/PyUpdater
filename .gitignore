@@ -39,3 +39,9 @@ site
 tests/dev
 
 unused.txt
+
+keypack.pyu
+
+private
+
+test.py
