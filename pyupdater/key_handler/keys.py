@@ -33,9 +33,10 @@ from appdirs import user_data_dir
 import ed25519
 import six
 
-from pyupdater.utils import check_repo
-from pyupdater.utils.storage import Storage
 from pyupdater import settings
+from pyupdater.utils.exceptions import KeyHandlerError
+from pyupdater.utils.storage import Storage
+
 
 log = logging.getLogger(__name__)
 
@@ -43,15 +44,11 @@ log = logging.getLogger(__name__)
 class Keys(object):
 
     def __init__(self, test=False):
-        # Ensure we are working in a pyupdater initialized repo
-        self.check = check_repo()
-
         # We use base64 encoding for easy human consumption
         self.key_encoding = 'base64'
 
-        # Used for testing
-        # When _load is called it'll cause an empty dict to be created
         if test:
+            self.key_data = {}
             self.data_dir = os.path.join('private', 'data')
         else:
             self.data_dir = user_data_dir('PyUpdater', 'Digital Sapphire')
@@ -70,6 +67,9 @@ class Keys(object):
         except AssertionError:
             log.debug('Failed to generate keypack')
             return False
+        except KeyHandlerError as err:
+            log.error(err)
+            return False
 
         # Write keypack to cwd
         with io.open(settings.KEYPACK_FILENAME, 'w', encoding="utf-8") as f:
@@ -81,23 +81,26 @@ class Keys(object):
 
     def _load(self):
         if not os.path.exists(self.keypack_filename):
-            self.key_data = {}
             self._save()
         else:
             with io.open(self.keypack_filename, 'r', encoding="utf-8") as f:
                 self.key_data = json.loads(f.read())
 
     def _save(self):
-        if self.keypack_filename is not None:
-            with io.open(self.keypack_filename, 'w', encoding="utf-8") as f:
-                out = json.dumps(self.key_data, indent=2, sort_keys=True)
-                if six.PY2:
-                    out = unicode(out)
-                f.write(out)
+        with io.open(self.keypack_filename, 'w', encoding="utf-8") as f:
+            out = json.dumps(self.key_data, indent=2, sort_keys=True)
+            if six.PY2:
+                out = unicode(out)
+            f.write(out)
 
     def _gen_keypack(self, name):
         # Create new public & private key for app signing
-        app_pri, app_pub = self._make_keys()
+        try:
+            app_pri, app_pub = self._make_keys()
+        except Exception as err:
+            log.error(err)
+            log.debug(err, exc_info=True)
+            raise KeyHandlerError("Failed to create keypair")
 
         # Load app specific private & public key
         off_pri, off_pub = self._load_offline_keys(name)
@@ -106,13 +109,12 @@ class Keys(object):
         off_pri = off_pri.encode()
         if six.PY2:
             app_pub = six.b(app_pub)
-            log.debug('off_pri type: %s', type(off_pri))
 
-        signing_key = ed25519.SigningKey(off_pri, encoding='base64')
+        signing_key = ed25519.SigningKey(off_pri, encoding=self.key_encoding)
 
         # Create signature from app signing public key
         signature = signing_key.sign(app_pub,
-                                     encoding='base64').decode()
+                                     encoding=self.key_encoding).decode()
 
         if six.PY3:
             app_pri = app_pri.decode()

@@ -73,9 +73,9 @@ class FileDownloaderError(STDError):
         super(FileDownloaderError, self).__init__(*args, **kwargs)
 
 
-class KeyError(STDError):
+class KeyHandlerError(STDError):
     def __init__(self, *args, **kwargs):
-        super(KeyError, self).__init__(*args, **kwargs)
+        super(KeyHandlerError, self).__init__(*args, **kwargs)
 
 
 class PackageHandlerError(STDError):

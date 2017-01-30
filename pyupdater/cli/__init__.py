@@ -36,7 +36,6 @@ from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.terminal import ask_yes_no, get_correct_answer
 
-
 from pyupdater import PyUpdater, __version__
 from pyupdater import settings
 from pyupdater.builder import Builder, ExternalLib
@@ -171,20 +170,6 @@ def init():  # pragma: no cover
 
 
 def keys(args):  # pragma: no cover
-    if args.yes is True:
-        _keys(args)
-
-    else:
-        answer = ask_yes_no('Are you sure you want to continue?',
-                            default='no')
-        if answer is True:
-            _keys(args)
-        else:
-            log.info('Command aborted!')
-
-
-# Revokes keys
-def _keys(args):  # pragma: no cover
     check = check_repo()
     if args.create is True and args.import_keys is True:
         log.error('Only one options is allowed at a time')
@@ -198,12 +183,19 @@ def _keys(args):  # pragma: no cover
         _repo_error()
 
     if args.create is True and check is False:
-        k = Keys()
-        app_name = get_correct_answer('Please enter app name',
+        if hasattr(args, 'test'):
+            log.debug('We are testing!')
+            app_name = 'test'
+            k = Keys(test=True)
+        else:
+            k = Keys()
+            app_name = get_correct_answer('Please enter app name',
                                       required=True)
-        k.make_keypack(app_name)
-        log.info('Keypack placed in cwd')
-        return
+        if k.make_keypack(app_name):
+            log.info('Keypack placed in cwd')
+        else:
+            log.error('Failed to create keypack')
+            sys.exit(1)
 
     if args.import_keys is True and check is True:
         loader = Loader()
@@ -373,12 +365,16 @@ def upload(args):  # pragma: no cover
         except Exception as e:
             log.debug(e, exc_info=True)
 
-
-def _real_main(args):  # pragma: no cover
+def _real_main(args=None, namespace_helper=None):  # pragma: no cover
     if args is None:
         args = sys.argv[1:]
-    parser = get_parser()
-    args, pyi_args = parser.parse_known_args(args)
+
+    if namespace_helper is None:
+        parser = get_parser()
+        args, pyi_args = parser.parse_known_args(args)
+    else:
+        args = namespace_helper
+
     cmd = args.command
     if cmd == 'archive':
         archive(args)
