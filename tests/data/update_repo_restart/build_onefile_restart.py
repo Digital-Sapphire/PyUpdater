@@ -27,7 +27,7 @@ def extract(filename):
 
 
 def main():
-    scripts = [('app1.py', '4.1'), ('app2.py', '4.2')]
+    scripts = [('app_restart_01.py', '4.1'), ('app_restart_02.py', '4.2')]
 
     # We use this flag to untar & move our binary to the
     # current working directory

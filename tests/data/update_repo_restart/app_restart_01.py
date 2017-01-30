@@ -7,7 +7,7 @@ from pyupdater.client import Client
 import client_config
 
 APPNAME = 'Acme'
-VERSION = '4.2'
+VERSION = '4.1'
 
 log = logging.getLogger()
 
@@ -28,12 +28,17 @@ def cb(status):
 
 def main():
     print(VERSION)
-    client = Client(client_config.ClientConfig(), refresh=True)
+    client = Client(client_config.ClientConfig(),
+                    refresh=True, progress_hooks=[cb])
     update = client.update_check(APPNAME, VERSION)
     if update is not None:
-        update.download()
-        update.extract_overwrite()
-
+        success = update.download()
+        if success is True:
+            print('Update download successful')
+            print('Restarting')
+            update.extract_restart()
+        else:
+            print('Failed to download update')
     return VERSION
 
 

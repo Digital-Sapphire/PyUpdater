@@ -106,9 +106,15 @@ def pyu():
 def simpleserver():
     class Server(object):
         def __init__(self):
+            self.count = 0
             self._server = None
 
-        def start(self, port=8000):
+        def start(self, port=None):
+            if port is None:
+                raise
+            self.count += 1
+            if self._server is not None:
+                return
             socket_server.TCPServer.allow_reuse_address = True
             httpd = socket_server.TCPServer(("", port), RequestHandler)
 
@@ -117,7 +123,8 @@ def simpleserver():
             self._server.start()
 
         def stop(self):
-            if self._server is not None:
+            self.count -= 1
+            if self._server is not None and self.count == 0:
                 self._server.alive = False
                 self._server = None
     return Server()
