@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright (c) 2016 Digital Sapphire
+# Copyright (c) 2015-2017 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -176,7 +176,8 @@ DEL {}
 DEL "%~f0"
 """.format(self.updated_app, self.current_app, self.vbs_file))
         with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
-            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
+            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
+            # file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
@@ -199,7 +200,8 @@ DEL "%~f0"
                 self.current_app, self.vbs_file))
 
         with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
-            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-file-without-a-visible-command-prompt/
+            # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
+            # file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
@@ -233,7 +235,8 @@ class LibUpdate(object):
         # set this back to False.
         self._is_downloading = False
 
-        # Used with the version property. Returns a user friendly version string
+        # Used with the version property.
+        # Returns a user friendly version string
         self._version = ""
 
         # Initialize this object with a dict of various options

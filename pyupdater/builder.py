@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright (c) 2016 Digital Sapphire
+# Copyright (c) 2015-2017 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -35,7 +35,7 @@ from pyupdater.pyinstaller_compat import pyi_makespec
 from pyupdater.utils import (check_repo,
                              create_asset_archive,
                              make_archive)
-from pyupdater.utils.config import Loader
+from pyupdater.utils.config import ConfigManager
 
 from dsdev_utils.exceptions import VersionError
 from dsdev_utils.helpers import Version
@@ -62,8 +62,8 @@ class Builder(object):  # pragma: no cover
     def __init__(self, args, pyi_args):
         check_repo()
         # We only need to grab appname
-        l = Loader()
-        self.app_name = l.get_app_name()
+        cm = ConfigManager()
+        self.app_name = cm.get_app_name()
         self.args = args
         self.app_info, self.pyi_args = self._check_input_file(pyi_args)
 

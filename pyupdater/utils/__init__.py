@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright (c) 2016 Digital Sapphire
+# Copyright (c) 2015-2017 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -575,7 +575,6 @@ class JSONStore(dictmixin):
         with io.open(self.path, 'w', encoding='utf-8') as json_file:
             data = json.dumps(data, ensure_ascii=False, indent=2)
             if six.PY2:
-                # unicode(data) auto-decodes data to unicode if str
                 data = unicode(data)
             json_file.write(data)
 
