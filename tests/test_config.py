@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 
 import os
 
-from pyupdater.utils.config import Config, Loader
+from pyupdater.utils.config import Config, ConfigManager
 
 
 class DevConfig(object):
@@ -81,6 +81,6 @@ def test_write_config(cleandir):
     config = Config()
     prod_config = ProdConfig()
     config.from_object(prod_config)
-    l = Loader()
-    l._write_config_py(config)
+    cm = ConfigManager()
+    cm._write_config_py(config)
     assert 'client_config.py' in os.listdir(os.getcwd())
