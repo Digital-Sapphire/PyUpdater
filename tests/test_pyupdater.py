@@ -37,6 +37,10 @@ import six
 from pyupdater import PyUpdater
 from tconfig import TConfig
 
+AUTO_UPDATE_PAUSE = 25
+if sys.platform == 'win32':
+    AUTO_UPDATE_PAUSE += 10
+
 
 @pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
 class TestSetup(object):
@@ -54,11 +58,12 @@ class TestSetup(object):
         assert os.path.exists(os.path.join(pyu_data_dir, 'new'))
 
 
-@pytest.mark.usefixtures('cleandir', 'pyu')
+@pytest.mark.usefixtures('cleandir')
 class TestExecutionExtraction(object):
 
-    def test_execution_onefile_extract(self, datadir, simpleserver):
+    def test_execution_onefile_extract(self, datadir, simpleserver, pyu):
         data_dir = datadir['update_repo_extract']
+        pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
@@ -71,6 +76,7 @@ class TestExecutionExtraction(object):
             # Moving all files from the deploy directory to the cwd
             # since that is where we will start the simple server
             deploy_dir = os.path.join('pyu-data', 'deploy')
+            assert os.path.exists(deploy_dir)
             test_cwd = os.getcwd()
             with ChDir(deploy_dir):
                 files = os.listdir(os.getcwd())
@@ -90,9 +96,9 @@ class TestExecutionExtraction(object):
                 app_name = './{}'.format(app_name)
 
             # Call the binary to self update
-            subprocess.check_output(app_name, shell=True)
+            subprocess.call(app_name, shell=True)
             # Allow enough time for update process to complete.
-            time.sleep(15)
+            time.sleep(AUTO_UPDATE_PAUSE)
 
             # Call again to check the output
             out = subprocess.check_output(app_name, shell=True)
@@ -103,11 +109,12 @@ class TestExecutionExtraction(object):
             assert out == six.b('4.2')
 
 
-@pytest.mark.usefixtures('cleandir', 'pyu')
+@pytest.mark.usefixtures('cleandir')
 class TestExecutionRestart(object):
 
-    def test_execution_one_file_restart(self, datadir, simpleserver):
+    def test_execution_one_file_restart(self, datadir, simpleserver, pyu):
         data_dir = datadir['update_repo_restart']
+        pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
@@ -120,6 +127,7 @@ class TestExecutionRestart(object):
             # Moving all files from the deploy directory to the cwd
             # since that is where we will start the simple server
             deploy_dir = os.path.join('pyu-data', 'deploy')
+            assert os.path.exists(deploy_dir)
             test_cwd = os.getcwd()
             with ChDir(deploy_dir):
                 files = os.listdir(os.getcwd())
@@ -141,7 +149,7 @@ class TestExecutionRestart(object):
             # Call the binary to self update
             subprocess.call(app_name)
             # Allow enough time for update process to complete.
-            time.sleep(15)
+            time.sleep(AUTO_UPDATE_PAUSE)
 
             simpleserver.stop()
 

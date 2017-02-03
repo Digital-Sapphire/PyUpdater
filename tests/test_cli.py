@@ -29,10 +29,13 @@ import os
 
 import pytest
 
-from pyupdater.cli import build, clean, keys, make_spec, pkg
+from pyupdater.cli import commands
 from pyupdater.cli.options import (add_build_parser, add_clean_parser,
                                    add_keys_parser, add_make_spec_parser,
                                    add_package_parser, make_subparser)
+
+
+commands.TEST = True
 
 
 class NamespaceHelper(object):
@@ -61,6 +64,7 @@ class NamespaceHelper(object):
 
 namespace_helper = NamespaceHelper()
 
+
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
 class TestBuilder(object):
 
@@ -79,7 +83,7 @@ class TestBuilder(object):
                 f.write('from __futute__ import print_function\n')
                 f.write('print("Hello, World!")')
             opts, other = parser.parse_known_args(['build', 'app.py'])
-            build(opts, other)
+            commands.build(opts, other)
 
 
 @pytest.mark.usefixtures('cleandir', 'parser')
@@ -98,7 +102,7 @@ class TestClean(object):
         os.mkdir(update_folder)
         os.mkdir(data_folder)
         args, other = parser.parse_known_args(['clean', '-y'])
-        clean(args)
+        commands.clean(args)
         assert not os.path.exists(update_folder)
         assert not os.path.exists(data_folder)
 
@@ -108,7 +112,7 @@ class TestClean(object):
         subparser = make_subparser(parser)
         add_clean_parser(subparser)
         args, other = parser.parse_known_args(['clean', '-y'])
-        clean(args)
+        commands.clean(args)
         assert not os.path.exists(update_folder)
         assert not os.path.exists(data_folder)
 
@@ -123,8 +127,7 @@ class TestKeys(object):
 
     def test_create_keys(self):
         namespace_helper.reload(command='keys', create=True)
-        keys(namespace_helper)
-
+        commands.keys(namespace_helper)
 
 
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
@@ -138,7 +141,7 @@ class TestMakeSpec(object):
             f.write('print "Hello World"')
         opts, other = parser.parse_known_args(['make-spec', '-F',
                                               '--app-version=0.1.0', 'app.py'])
-        make_spec(opts, other)
+        commands.make_spec(opts, other)
 
     def test_execution(self, parser, pyu):
         pyu.setup()
@@ -148,20 +151,11 @@ class TestMakeSpec(object):
             f.write('print "Hello World"')
         opts, other = parser.parse_known_args(['make-spec', '-F',
                                                'app.py'])
-        make_spec(opts, other)
+        commands.make_spec(opts, other)
 
 
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
 class TestPkg(object):
-
-    def test_no_options(self, parser, pyu):
-        subparser = make_subparser(parser)
-        add_package_parser(subparser)
-        pyu.update_config(pyu.config)
-        pyu.setup()
-        opts, other = parser.parse_known_args(['pkg'])
-        with pytest.raises(SystemExit):
-            pkg(opts)
 
     def test_execution(self, parser, pyu):
         subparser = make_subparser(parser)
@@ -170,4 +164,4 @@ class TestPkg(object):
         pyu.setup()
         cmd = ['pkg', '-P', '-S']
         opts, other = parser.parse_known_args(cmd)
-        pkg(opts)
+        commands.pkg(opts)

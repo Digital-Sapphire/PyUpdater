@@ -1,5 +1,4 @@
 from __future__ import print_function
-import logging
 import sys
 
 from pyupdater.client import Client
@@ -8,8 +7,6 @@ import client_config
 
 APPNAME = 'Acme'
 VERSION = '4.1'
-
-log = logging.getLogger()
 
 
 def cb(status):

@@ -90,7 +90,7 @@ class TestSetup(object):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
         client = Client(t_config, refresh=True, test=True)
-        filesystem_data = client._get_manifest_filesystem()
+        filesystem_data = client._get_manifest_from_disk()
         assert filesystem_data is not None
         if six.PY3:
             filesystem_data = filesystem_data.decode()
@@ -229,66 +229,71 @@ class TestGenVersion(object):
 class TestChannelStrict(object):
 
     version_data = {
-            "latest": {
-                "Acme": {
-                    "stable": {
-                        "mac": "4.4.3.2.0"
-                    },
-                    "beta": {
-                        "mac": "4.4.1.1.0"
-                    },
-                    "alpha": {
-                        "mac": "4.4.2.0.5"
-                    }
+        "latest": {
+            "Acme": {
+                "stable": {
+                    "mac": "4.4.3.2.0"
+                },
+                "beta": {
+                    "mac": "4.4.1.1.0"
+                },
+                "alpha": {
+                    "mac": "4.4.2.0.5"
                 }
             }
         }
+    }
 
     def test1(self):
         data = EasyAccessDict(self.version_data)
-        assert _get_highest_version('Acme', 'mac', 'alpha', data, strict=True) == '4.4.2.0.5'
-        assert _get_highest_version('Acme', 'mac', 'beta', data, strict=True) == '4.4.1.1.0'
-        assert _get_highest_version('Acme', 'mac', 'stable', data, strict=True) == '4.4.3.2.0'
+        assert _get_highest_version('Acme', 'mac', 'alpha',
+                                    data, strict=True) == '4.4.2.0.5'
+        assert _get_highest_version('Acme', 'mac', 'beta',
+                                    data, strict=True) == '4.4.1.1.0'
+        assert _get_highest_version('Acme', 'mac', 'stable',
+                                    data, strict=True) == '4.4.3.2.0'
 
 
 class TestChannelLessStrict(object):
 
     version_data = {
-            "latest": {
-                "Acme": {
-                    "stable": {
-                        "mac": "4.4.3.2.0"
-                    },
-                    "beta": {
-                        "mac": "4.4.1.1.0"
-                    },
-                    "alpha": {
-                        "mac": "4.4.2.0.5"
-                    }
+        "latest": {
+            "Acme": {
+                "stable": {
+                    "mac": "4.4.3.2.0"
+                },
+                "beta": {
+                    "mac": "4.4.1.1.0"
+                },
+                "alpha": {
+                    "mac": "4.4.2.0.5"
                 }
             }
         }
+    }
 
     def test1(self):
         data = EasyAccessDict(self.version_data)
-        assert _get_highest_version('Acme', 'mac', 'alpha', data, strict=False) == '4.4.3.2.0'
+        assert _get_highest_version('Acme', 'mac', 'alpha',
+                                    data, strict=False) == '4.4.3.2.0'
 
 
 class TestMissingStable(object):
 
     version_data = {
-            "latest": {
-                "Acme": {
-                    "beta": {
-                        "mac": "4.4.1.1.0"
-                    },
-                    "alpha": {
-                        "mac": "4.4.2.0.5"
-                    }
+        "latest": {
+            "Acme": {
+                "beta": {
+                    "mac": "4.4.1.1.0"
+                },
+                "alpha": {
+                    "mac": "4.4.2.0.5"
                 }
             }
         }
+    }
 
     def test1(self):
         data = EasyAccessDict(self.version_data)
-        assert _get_highest_version('Acme', 'mac', 'stable', data, strict=True) is None
+        assert _get_highest_version('Acme', 'mac', 'stable',
+                                    data, strict=True) is None

@@ -32,18 +32,18 @@ import sys
 from appdirs import user_log_dir
 from dsdev_utils.logger import logging_formatter
 
-from pyupdater import settings
+from pyupdater import __version__, settings
 from pyupdater.cli import commands
 from pyupdater.cli.options import get_parser
 
 
-CWD = os.getcwd()
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
 # Log to pyu.log if available
-if os.path.exists(os.path.join(CWD, 'pyu.log')):  # pragma: no cover
-    fh = logging.FileHandler(os.path.join(CWD, 'pyu.log'))
+local_debug_file_path = os.path.join(os.getcwd(), 'pyu.log')
+if os.path.exists(local_debug_file_path):  # pragma: no cover
+    fh = logging.FileHandler(local_debug_file_path)
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(logging_formatter)
     log.addHandler(fh)
@@ -96,10 +96,10 @@ def _dispatch_command(args, pyi_args):
         # This should only get hit by misconfigured tests.
         # "Should" being the key word here :)
         log.error('Unknown Command')
-        sys.exit(1)
 
 
 def main(args=None):  # pragma: no cover
+    log.info('PyUpdater %s', __version__)
     try:
         _real_main(args)
     except KeyboardInterrupt:
@@ -108,6 +108,7 @@ def main(args=None):  # pragma: no cover
         msg = 'Exited by user'
         log.warning(msg)
     except Exception as err:
+        print(err)
         log.error(err)
         log.debug(err, exc_info=True)
 
