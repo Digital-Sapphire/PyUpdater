@@ -41,7 +41,7 @@ from pyupdater import PyUpdater
 from pyupdater.cli.options import make_parser
 from pyupdater.client import Client
 from pyupdater.key_handler.keys import Keys
-from pyupdater.utils.config import Loader
+from pyupdater.utils.config import ConfigManager
 from pyupdater.utils.storage import Storage
 from tconfig import TConfig
 
@@ -79,12 +79,12 @@ def loader():
         'APP_NAME': 'PyUpdater Test',
         'COMPANY_NAME': 'ACME',
         'UPDATE_PATCHES': True,
-        }
+    }
 
-    l = Loader()
-    config = l.load_config()
+    cm = ConfigManager()
+    config = cm.load_config()
     config.update(CONFIG)
-    l.save_config(config)
+    cm.save_config(config)
     return config
 
 
