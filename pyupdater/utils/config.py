@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright (c) 2016 Digital Sapphire
+# Copyright (c) 2015-2017 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -57,7 +57,7 @@ class Config(dict):
 
             # Max retries for downloads
             'MAX_DOWNLOAD_RETRIES': 3,
-            }
+        }
         self.update(config_template)
 
     def from_object(self, obj):
@@ -80,7 +80,7 @@ class Config(dict):
 
 
 # Loads &  saves config file
-class Loader(object):
+class ConfigManager(object):
 
     def __init__(self):
         self.cwd = os.getcwd()

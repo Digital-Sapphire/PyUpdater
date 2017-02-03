@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright (c) 2016 Digital Sapphire
+# Copyright (c) 2015-2017 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -197,6 +197,10 @@ class Client(object):
 
         channel (str): Release channel
 
+        strict (bool):
+            True - Only look for updates on specified channel.
+            False - Look for updates on all channels
+
         ######Returns:
 
         (updateobject) Meanings:
@@ -243,8 +247,8 @@ class Client(object):
             app = True
 
         log.debug('Checking for %s updates...', name)
-        latest = _get_highest_version(name, self.platform,
-                                      channel, self.easy_data, strict)
+        latest = _get_highest_version(name, self.platform, channel,
+                                      self.easy_data, strict)
         if latest is None:
             # If None is returned _get_highest_version could
             # not find the supplied name in the version file
@@ -277,13 +281,13 @@ class Client(object):
             'verify': self.verify,
             'max_download_retries': self.max_download_retries,
             'progress_hooks': list(set(self.progress_hooks)),
-            }
+        }
 
         # Return update object with which handles downloading,
         # extracting updates
         if app is True:
-            # AppUpdate objects also has methods to restart
-            # the app with the new version
+            # AppUpdate is a subclass of LibUpdate that add methods
+            # to restart the application
             return AppUpdate(data)
         else:
             return LibUpdate(data)
@@ -307,11 +311,18 @@ class Client(object):
         self.progress_hooks.append(cb)
 
     def _get_signing_key(self):
-        key_data_str = self._download_key()
+
+        # Here we will download the keys.gz file, decompress it then return
+        # its contents. If an error happens you'll get None.
+        key_data_str = self._get_key_data()
         if key_data_str is None:
             return
 
+        # Key data dict
         key_data = json.loads(key_data_str.decode('utf-8'))
+
+        # Get the public key so we can verify it's authenticity with the
+        # root public key.
         pub_key = key_data['app_public']
         if six.PY3:
             if not isinstance(pub_key, bytes):
@@ -319,53 +330,60 @@ class Client(object):
         else:
             pub_key = str(pub_key)
 
+        # The signature that we'll validate
         sig = key_data['signature']
+
+        # Let's generate our signing key.
         signing_key = ed25519.VerifyingKey(self.root_key, encoding='base64')
 
         try:
             signing_key.verify(sig, pub_key, encoding='base64')
         except Exception as err:
+            # This is bad. Very bad.
+            # Create another keypack.pyu & import it not your repo.
             log.debug('Key file not verified')
             log.debug(err, exc_info=True)
         else:
+            # Everything checks out
             log.debug('Key file verified')
             self.app_key = pub_key
 
     # Here we attempt to read the manifest from the filesystem
     # in case of no Internet connection. Useful when an update
     # needs to be installed without an network connection
-    def _get_manifest_filesystem(self):
-        data = None
+    def _get_manifest_from_disk(self):
         with _ChDir(self.data_dir):
+            # This could be the first run or an accidental deletion of the
+            # cached version manifest.
             if not os.path.exists(self.version_file):
                 log.debug('No version file on file system')
-                return data
+                return None
             else:
                 log.debug('Found version file on file system')
+                # Attempt to open the cached version file
                 try:
                     with open(self.version_file, 'rb') as f:
                         data = f.read()
                     log.debug('Loaded version file from file system')
                 except Exception as err:
-                    # Whatever the error data is already set to None
                     log.debug('Failed to load version file from file '
                               'system')
                     log.debug(err, exc_info=True)
-                # In case we don't have any data to pass
-                # Catch the error here and just return None
+                    return None
+
+                # Attempt the decompress
                 try:
                     decompressed_data = _gzip_decompress(data)
                 except Exception as err:
-                    decompressed_data = None
+                    return None
 
                 return decompressed_data
 
     # Downloading the manifest. If successful also writes it to file-system
-    def _download_manifest(self):
+    def _get_manifest_from_http(self):
         log.debug('Downloading online version file')
         try:
-            fd = _FD(self.version_file, self.update_urls,
-                                verify=self.verify)
+            fd = _FD(self.version_file, self.update_urls, verify=self.verify)
             data = fd.download_verify_return()
             try:
                 decompressed_data = _gzip_decompress(data)
@@ -384,17 +402,15 @@ class Client(object):
             return None
 
     # Downloading the key file.
-    def _download_key(self):
+    def _get_key_data(self):
         log.debug('Downloading key file')
         try:
-            fd = _FD(self.key_file, self.update_urls,
-                                verify=self.verify)
+            fd = _FD(self.key_file, self.update_urls, verify=self.verify)
             data = fd.download_verify_return()
             try:
                 decompressed_data = _gzip_decompress(data)
             except IOError:
                 log.debug('Failed to decompress gzip file')
-                # Will be caught down below. Just logging the error
                 raise
             log.debug('Key file download successful')
             # Writing version file to application data directory
@@ -405,20 +421,23 @@ class Client(object):
             log.debug(err, exc_info=True)
             return None
 
+    # Adds the ability to apply updates when there isn't an
+    # Internet connection.
     def _write_manifest_2_filesystem(self, data):
         with _ChDir(self.data_dir):
             log.debug('Writing version file to disk')
             with gzip.open(self.version_file, 'wb') as f:
                 f.write(data)
 
+    # We first attempt to download the version manifest. If that fails
+    # we try to load a cached version manifest from disk. Once we have
+    # the data in memory we'll verify it's signature.
     def _get_update_manifest(self):
-        #  Downloads & Verifies version file signature.
         log.debug('Loading version file...')
 
-        data = self._download_manifest()
+        data = self._get_manifest_from_http()
         if data is None:
-            # Get the last downloaded manifest
-            data = self._get_manifest_filesystem()
+            data = self._get_manifest_from_disk()
 
         if data is not None:
             try:
@@ -449,6 +468,7 @@ class Client(object):
         self.easy_data = _EAD(self.json_data)
         log.debug('Version Data:\n%s', str(self.easy_data))
 
+    # Verify the signature of the version manifest.
     def _verify_sig(self, data):
         if self.app_key is None:
             log.debug('App key is None')
@@ -458,10 +478,10 @@ class Client(object):
         if 'signature' in data.keys():
             signature = data['signature']
             log.debug('Deleting signature from update data')
+            # We are removing the signature to prepare the data
+            # for verification.
             del data['signature']
 
-            # After removing the signatures we turn the json data back
-            # into a string to use as data to verify the sig.
             update_data = json.dumps(data, sort_keys=True)
 
             pub_key = ed25519.VerifyingKey(self.app_key, encoding='base64')
@@ -490,6 +510,7 @@ class Client(object):
                 log.debug('Creating directory: %s', d)
                 os.makedirs(d)
 
+    # ToDo: Remove in v 3.0
     # Legacy code used when migrating from single urls to
     # A list of urls
     def _sanatize_update_url(self, urls):
@@ -504,3 +525,4 @@ class Client(object):
                 sanatized_urls.append(u)
         # Removing duplicates
         return list(set(sanatized_urls))
+    # End ToDo
