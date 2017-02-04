@@ -1,7 +1,15 @@
 # Changelog
 
-## v2.3.1 - Master
+## v2.3.2 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.3.1 - 2017/02/04
+
+###Fixed
+
+  - CLI
+    - Creating keypack.pyu files for new users
 
 
 ## v2.3.0 - 2017/01/29
