@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import tarfile
@@ -5,13 +6,15 @@ import zipfile
 
 from dsdev_utils.system import get_system
 
+log = logging.getLogger()
+
 cmd1 = 'pyupdater pkg -P'
 cmd2 = 'pyupdater pkg -S'
-home_dir = os.path.abspath(__file__)
+home_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def build(app):
-    cmd = ('pyupdater build -F --path={} '
+    cmd = ('pyupdater build -F --clean --path={} '
            '--app-version={} {}'.format(home_dir, app[1], app[0]))
     os.system(cmd)
 
@@ -44,6 +47,9 @@ def main():
             archive_path = os.path.join('pyu-data', 'new',
                                         'Acme-{}-4.1{}'.format(get_system(),
                                                                ext))
+
+            if not os.path.exists(archive_path):
+                sys.exit(1)
 
             # We extract the Acme binary here. When we call pyupdater pkg -P
             # the Acme binary will be moved to the deploy folder. In our test

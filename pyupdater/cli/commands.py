@@ -2,7 +2,6 @@ import io
 import json
 import logging
 import os
-import sys
 
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.terminal import ask_yes_no, get_correct_answer
@@ -28,6 +27,7 @@ log = logging.getLogger(__name__)
 CWD = os.getcwd()
 # Will get populated by pyupdater.cli
 LOG_DIR = None
+TEST = False
 
 
 # A wrapper for _check_repo that will log errors and
@@ -37,8 +37,8 @@ def check_repo(exit_on_error=False):
     if check is False:
         log.error('Not a PyUpdater repo: You must initialize '
                   'your repository first')
-    if exit_on_error is True:
-        sys.exit(1)
+        if exit_on_error is True and TEST is False:
+            os._exit(1)
     return check
 
 
@@ -69,7 +69,7 @@ def build(*args):
     check_repo(exit_on_error=True)
 
     ns = args[0]
-    pyi_args = [1]
+    pyi_args = args[1]
     builder = Builder(ns, pyi_args)
     builder.build()
 
@@ -181,7 +181,7 @@ def init(*args):  # pragma: no cover
         cm.save_config(config)
         log.info('Setup complete')
     else:
-        sys.exit('Not an empty PyUpdater repository')
+        log.error('Not an empty PyUpdater repository')
 
 
 # We create and import keys with this puppy.
@@ -193,16 +193,16 @@ def keys(*args):  # pragma: no cover
     # machines.
     if ns.create is True and ns.import_keys is True:
         log.error('Only one options is allowed at a time')
-        sys.exit(1)
+        return
 
     # Okay the actual check is pretty weak but we are all grown ups here :)
     if ns.create is True and check is True:
         log.error('You can not create off-line keys on your dev machine')
-        sys.exit(1)
+        return
 
     # Can't import if we don't have a config to place it in.
     if ns.import_keys is True and check is False:
-        sys.exit(1)
+        return
 
     # We are supposed to be on another secure computer.
     # Security is in the eye of the beholder.
@@ -225,7 +225,7 @@ def keys(*args):  # pragma: no cover
             log.info('Keypack placed in cwd')
         else:
             log.error('Failed to create keypack')
-            sys.exit(1)
+            return
 
     # Save the keypack.pyu that's in the current directory to the
     # .pyupdater/config.pyu file.
@@ -263,7 +263,8 @@ def pkg(*args):
 
     # Please give pkg something to do
     if ns.process is False and ns.sign is False:
-        sys.exit('You must specify a command')
+        log.error('You must specify a command')
+        return
 
     # Gather meta data and save to disk
     if ns.process is True:

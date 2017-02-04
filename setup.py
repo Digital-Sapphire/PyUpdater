@@ -29,7 +29,7 @@ setup(
         'patch': extra_patch,
         # End ToDo
         'all': [extra_s3, extra_scp]
-        },
+    },
     zip_safe=False,
     include_package_data=True,
     tests_require=['pytest'],
@@ -48,4 +48,4 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4'],
-    )
+)

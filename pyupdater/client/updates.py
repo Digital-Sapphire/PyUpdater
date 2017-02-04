@@ -183,7 +183,7 @@ DEL "%~f0"
         log.debug('Starting update batch file')
         args = ['wscript.exe', self.vbs_file, self.bat_file]
         subprocess.Popen(args)
-        sys.exit(0)
+        os._exit(0)
 
     def _win_overwrite_restart(self):
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
@@ -207,7 +207,7 @@ DEL "%~f0"
         log.debug('Starting update batch file')
         args = ['wscript.exe', self.vbs_file, self.bat_file]
         subprocess.Popen(args)
-        sys.exit(0)
+        os._exit(0)
 
 
 class LibUpdate(object):
