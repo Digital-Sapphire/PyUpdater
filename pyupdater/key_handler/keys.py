@@ -46,9 +46,9 @@ class Keys(object):
     def __init__(self, test=False):
         # We use base64 encoding for easy human consumption
         self.key_encoding = 'base64'
+        self.key_data = {}
 
         if test:
-            self.key_data = {}
             self.data_dir = os.path.join('private', 'data')
         else:
             self.data_dir = user_data_dir('PyUpdater', 'Digital Sapphire')

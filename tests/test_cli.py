@@ -128,6 +128,7 @@ class TestKeys(object):
     def test_create_keys(self):
         namespace_helper.reload(command='keys', create=True)
         commands.keys(namespace_helper)
+        assert os.path.exists('keypack.pyu')
 
 
 @pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
