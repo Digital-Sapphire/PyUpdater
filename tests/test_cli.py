@@ -208,15 +208,15 @@ class TestPkg(object):
         commands._cmd_pkg(opts)
 
 
-@pytest.mark.usefixtures('cleandir')
-class TestUpload(object):
+# @pytest.mark.usefixtures('cleandir')
+# class TestUpload(object):
 
-    def test_upload_execution(self, parser, pyu):
-        subparser = make_subparser(parser)
-        add_upload_parser(subparser)
-        pyu.update_config(pyu.config)
-        pyu.setup()
-        cmd = ['upload', '-h']
-        opts, other = parser.parse_known_args(cmd)
-        with pytest.raises(SystemExit):
-            commands._cmd_upload(opts)
+#     def test_upload_execution(self, parser, pyu):
+#         subparser = make_subparser(parser)
+#         add_upload_parser(subparser)
+#         pyu.update_config(pyu.config)
+#         pyu.setup()
+#         cmd = ['upload', '-h']
+#         opts, other = parser.parse_known_args(cmd)
+#         with pytest.raises(SystemExit):
+#             commands._cmd_upload(opts)
