@@ -1,7 +1,15 @@
 # Changelog
 
-## v2.3.2 - Master
+## v2.3.3 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.3.2 - 2017/02/04
+####* This version is not yet released and is under active development.
+
+###Fixed
+
+  - Calling certain cli commands
 
 
 ## v2.3.1 - 2017/02/04

@@ -87,15 +87,20 @@ def _real_main(args, namespace_test_helper=None):  # pragma: no cover
 
 # Dispatch the passed in command to its respective function in
 # pyupdater.cli.commands
-def _dispatch_command(args, pyi_args):
+def _dispatch_command(args, pyi_args=None, test=False):
     # Turns collect-debug-info into collect_debug_info
-    cmd = args.command.replace('-', '_')
+    cmd_str = "_cmd_" + args.command.replace('-', '_')
     try:
-        getattr(commands, cmd)(args, pyi_args)
+        cmd = getattr(commands, cmd_str)
+        # We are just making sure we can load the function
+        if test:
+            return True
+        cmd(args, pyi_args)
     except AttributeError:
         # This should only get hit by misconfigured tests.
         # "Should" being the key word here :)
-        log.error('Unknown Command')
+        log.error('Unknown Command: %s', cmd_str)
+        return False
 
 
 def main(args=None):  # pragma: no cover
