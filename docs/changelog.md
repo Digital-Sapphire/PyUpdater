@@ -5,7 +5,6 @@
 
 
 ## v2.3.2 - 2017/02/04
-####* This version is not yet released and is under active development.
 
 ###Fixed
 
