@@ -29,11 +29,11 @@ import os
 
 import pytest
 
-from pyupdater.cli import commands
+from pyupdater.cli import commands, _dispatch_command
 from pyupdater.cli.options import (add_build_parser, add_clean_parser,
                                    add_keys_parser, add_make_spec_parser,
-                                   add_package_parser, make_subparser)
-
+                                   add_package_parser, add_upload_parser,
+                                   make_subparser)
 
 commands.TEST = True
 
@@ -62,10 +62,51 @@ class NamespaceHelper(object):
             return None
 
 
-namespace_helper = NamespaceHelper()
+@pytest.mark.usefixtures('cleandir')
+class TestCommandDispatch(object):
+
+    def test_build(self):
+        assert _dispatch_command(NamespaceHelper(command='build'),
+                                 test=True) is True
+
+    def test_clean(self):
+        assert _dispatch_command(NamespaceHelper(command='clean'),
+                                 test=True) is True
+
+    def test_settings(self):
+        assert _dispatch_command(NamespaceHelper(command='settings'),
+                                 test=True) is True
+
+    def test_init(self):
+        assert _dispatch_command(NamespaceHelper(command='init'),
+                                 test=True) is True
+
+    def test_keys(self):
+        assert _dispatch_command(NamespaceHelper(command='keys'),
+                                 test=True) is True
+
+    def test_make_spec(self):
+        assert _dispatch_command(NamespaceHelper(command='make-spec'),
+                                 test=True) is True
+
+    def test_pkg(self):
+        assert _dispatch_command(NamespaceHelper(command='pkg'),
+                                 test=True) is True
+
+    def test_collect_debug_info(self):
+        assert _dispatch_command(NamespaceHelper(command='collect-debug-info'),
+                                 test=True) is True
+
+    def test_upload(self):
+        assert _dispatch_command(NamespaceHelper(command='upload'),
+                                 test=True) is True
+
+    def test_version(self):
+        assert _dispatch_command(NamespaceHelper(command='version'),
+                                 test=True) is True
 
 
-@pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
+@pytest.mark.usefixtures('cleandir')
 class TestBuilder(object):
 
     def test_build_no_options(self, parser):
@@ -83,7 +124,7 @@ class TestBuilder(object):
                 f.write('from __futute__ import print_function\n')
                 f.write('print("Hello, World!")')
             opts, other = parser.parse_known_args(['build', 'app.py'])
-            commands.build(opts, other)
+            commands._cmd_build(opts, other)
 
 
 @pytest.mark.usefixtures('cleandir', 'parser')
@@ -102,7 +143,7 @@ class TestClean(object):
         os.mkdir(update_folder)
         os.mkdir(data_folder)
         args, other = parser.parse_known_args(['clean', '-y'])
-        commands.clean(args)
+        commands._cmd_clean(args)
         assert not os.path.exists(update_folder)
         assert not os.path.exists(data_folder)
 
@@ -112,7 +153,7 @@ class TestClean(object):
         subparser = make_subparser(parser)
         add_clean_parser(subparser)
         args, other = parser.parse_known_args(['clean', '-y'])
-        commands.clean(args)
+        commands._cmd_clean(args)
         assert not os.path.exists(update_folder)
         assert not os.path.exists(data_folder)
 
@@ -126,8 +167,7 @@ class TestKeys(object):
         assert parser.parse_known_args(['keys'])
 
     def test_create_keys(self):
-        namespace_helper.reload(command='keys', create=True)
-        commands.keys(namespace_helper)
+        commands._cmd_keys(NamespaceHelper(command='keys', create=True))
         assert os.path.exists('keypack.pyu')
 
 
@@ -142,7 +182,7 @@ class TestMakeSpec(object):
             f.write('print "Hello World"')
         opts, other = parser.parse_known_args(['make-spec', '-F',
                                               '--app-version=0.1.0', 'app.py'])
-        commands.make_spec(opts, other)
+        commands._cmd_make_spec(opts, other)
 
     def test_execution(self, parser, pyu):
         pyu.setup()
@@ -152,17 +192,31 @@ class TestMakeSpec(object):
             f.write('print "Hello World"')
         opts, other = parser.parse_known_args(['make-spec', '-F',
                                                'app.py'])
-        commands.make_spec(opts, other)
+        commands._cmd_make_spec(opts, other)
 
 
-@pytest.mark.usefixtures('cleandir', 'parser', 'pyu')
+@pytest.mark.usefixtures('cleandir')
 class TestPkg(object):
 
-    def test_execution(self, parser, pyu):
+    def test_pkg_execution(self, parser, pyu):
         subparser = make_subparser(parser)
         add_package_parser(subparser)
         pyu.update_config(pyu.config)
         pyu.setup()
         cmd = ['pkg', '-P', '-S']
         opts, other = parser.parse_known_args(cmd)
-        commands.pkg(opts)
+        commands._cmd_pkg(opts)
+
+
+# @pytest.mark.usefixtures('cleandir')
+# class TestUpload(object):
+
+#     def test_upload_execution(self, parser, pyu):
+#         subparser = make_subparser(parser)
+#         add_upload_parser(subparser)
+#         pyu.update_config(pyu.config)
+#         pyu.setup()
+#         cmd = ['upload', '-h']
+#         opts, other = parser.parse_known_args(cmd)
+#         with pytest.raises(SystemExit):
+#             commands._cmd_upload(opts)

@@ -43,7 +43,7 @@ def check_repo(exit_on_error=False):
 
 
 # Archive an external asset
-def archive(*args):
+def _cmd_archive(*args):
     check_repo(exit_on_error=True)
 
     ns = args[0]
@@ -65,7 +65,7 @@ def archive(*args):
 
 
 # Will build and archive an exe from a python script file
-def build(*args):
+def _cmd_build(*args):
     check_repo(exit_on_error=True)
 
     ns = args[0]
@@ -75,7 +75,7 @@ def build(*args):
 
 
 # Get permission before deleting PyUpdater repo.
-def clean(*args):  # pragma: no cover
+def _cmd_clean(*args):  # pragma: no cover
     ns = args[0]
     if ns.yes is True:
         _clean()
@@ -113,7 +113,7 @@ def _clean(*args):
 # Just a note: We don't allow changing the app name as this could
 # cause issues with updates if not used carefully. If really need
 # this value can be changed in the .pyupdater/config.pyu file.
-def config(*args):  # pragma: no cover
+def _cmd_settings(*args):  # pragma: no cover
     check_repo(exit_on_error=True)
 
     ns = args[0]
@@ -160,7 +160,7 @@ def config(*args):  # pragma: no cover
 
 
 # Initialize PyUpdater repo
-def init(*args):  # pragma: no cover
+def _cmd_init(*args):  # pragma: no cover
     if not os.path.exists(os.path.join(settings.CONFIG_DATA_FOLDER,
                           settings.CONFIG_FILE_USER)):
         # Load a basic config.
@@ -185,7 +185,7 @@ def init(*args):  # pragma: no cover
 
 
 # We create and import keys with this puppy.
-def keys(*args):  # pragma: no cover
+def _cmd_keys(*args):  # pragma: no cover
     check = check_repo()
 
     ns = args[0]
@@ -243,7 +243,7 @@ def keys(*args):  # pragma: no cover
 # Create a spec_file and place it in the cwd.
 # This will be used when the application being build goes a little
 # beyond the basics. This is good!
-def make_spec(*args):
+def _cmd_make_spec(*args):
     check_repo(exit_on_error=True)
 
     ns = args[0]
@@ -254,7 +254,7 @@ def make_spec(*args):
 
 # The pkg command will move, gather meta-data & sign all
 # packages within the pyu-data folder
-def pkg(*args):
+def _cmd_pkg(*args):
     check_repo(exit_on_error=True)
 
     ns = args[0]
@@ -283,12 +283,12 @@ def pkg(*args):
 # I wanted to make the commands uniform to enable the usage of
 # _dispatch_command in pyupdater.cli
 def upload_debug_info(*args):
-    collect_debug_info(*args)
+    _cmd_collect_debug_info(*args)
 # End ToDo
 
 
 # Uploads the debug logs to a private github gist
-def collect_debug_info(*args):  # pragma: no cover
+def _cmd_collect_debug_info(*args):  # pragma: no cover
     log.info('Starting log export')
 
     # A helper function that adds the filename & data to the
@@ -361,7 +361,7 @@ def collect_debug_info(*args):  # pragma: no cover
 
 
 # Show list of installed upload plugins
-def plugins(*args):
+def _cmd_plugins(*args):
     plug_mgr = PluginManager({})
     # Doing some basic formatting. Design help here would be appreciated.
     # By the way I just want to thank all the contributors and bug submitters.
@@ -374,7 +374,7 @@ def plugins(*args):
 
 
 # Upload the assets with the requested upload plugin
-def upload(*args):  # pragma: no cover
+def _cmd_upload(*args):  # pragma: no cover
     check_repo(exit_on_error=True)
 
     ns = args[0]
@@ -413,5 +413,5 @@ def upload(*args):  # pragma: no cover
 
 
 # Print the version of PyUpdater to the console.
-def version(*args):
+def _cmd_version(*args):
     print('PyUpdater {}'.format(__version__))
