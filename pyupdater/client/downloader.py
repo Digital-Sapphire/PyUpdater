@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 
 import hashlib
 import logging
+import os
 import time
 
 import certifi
@@ -119,8 +120,14 @@ class FileDownloader(object):
         # Initial block size for each read
         self.block_size = 4096 * 4
 
+        # Storage type, 'memory' or 'file'
+        self.file_binary_type = 'memory'
+        # Max size of download to memory, larger file will be stored to file
+        self.download_max_size = 16 * 1024 * 1024
         # Hold all binary data once file has been downloaded
-        self.file_binary_data = None
+        self.file_binary_data = []
+        # Temporary file to hold large download data
+        self.file_binary_path = self.filename + '.part'
 
         # Total length of data to download.
         self.content_length = None
@@ -142,8 +149,7 @@ class FileDownloader(object):
     #         False - Hashes don't match
     def download_verify_write(self):
         # Downloading data internally
-        self._download_to_memory()
-        check = self._check_hash()
+        check = self._download_to_storage(check_hash=True)
         # If no hash is passed just write the file
         if check is True or check is None:
             self._write_to_file()
@@ -166,10 +172,17 @@ class FileDownloader(object):
 
                 None - If any verification didn't pass
         """
-        self._download_to_memory()
-        check = self._check_hash()
+        check = self._download_to_storage(check_hash=True)
         if check is True or check is None:
-            return self.file_binary_data
+            if self.file_binary_type == 'memory':
+                if self.file_binary_data:
+                    return b''.join(self.file_binary_data)
+                else:
+                    return None
+            else:
+                log.warning('Downloaded file is very large, reading it'
+                            ' in to memory may crash the app')
+                return open(self.file_binary_path, 'rb').read()
         else:
             return None
 
@@ -187,11 +200,12 @@ class FileDownloader(object):
             return int(new_min)
         return int(rate)
 
-    def _download_to_memory(self):
+    def _download_to_storage(self, check_hash=True):
         data = self._create_response()
 
         if data is None:
             return None
+        hash_ = hashlib.sha256()
 
         # Getting length of file to show progress
         self.content_length = self._get_content_length(data)
@@ -199,13 +213,25 @@ class FileDownloader(object):
             log.debug('Content-Length not in headers')
             log.debug('Callbacks will not show time left '
                       'or percent downloaded.')
+        if (self.content_length is None or
+                self.content_length > self.download_max_size):
+            log.debug('Using file as storage since the file is too large')
+            self.file_binary_type = 'file'
+        else:
+            self.file_binary_type = 'memory'
+
         # Setting start point to show progress
         recieved_data = 0
 
         start_download = time.time()
         block = data.read(1)
         recieved_data += len(block)
-        self.file_binary_data = block
+        if self.file_binary_type == 'memory':
+            self.file_binary_data = [block]
+        else:
+            binary_file = open(self.file_binary_path, 'wb')
+            binary_file.write(block)
+        hash_.update(block)
         while 1:
             # Grabbing start time for use with best block size
             start_block = time.time()
@@ -218,6 +244,8 @@ class FileDownloader(object):
 
             if len(block) == 0:
                 # No more data, get out of this never ending loop!
+                if self.file_binary_type == 'file':
+                    binary_file.close()
                 break
 
             # Calculating the best block size for the
@@ -225,7 +253,11 @@ class FileDownloader(object):
             self.block_size = self._best_block_size(end_block - start_block,
                                                     len(block))
             log.debug('Block size: %s', self.block_size)
-            self.file_binary_data += block
+            if self.file_binary_type == 'memory':
+                self.file_binary_data.append(block)
+            else:
+                binary_file.write(block)
+            hash_.update(block)
 
             # Total data we've received so far
             recieved_data += len(block)
@@ -257,6 +289,30 @@ class FileDownloader(object):
                   'time': '00:00'}
         self._call_progress_hooks(status)
         log.debug('Download Complete')
+
+        if check_hash:
+            # Checks hash of downloaded file
+            if self.hexdigest is None:
+                # No hash provided to check.
+                # So just return any data recieved
+                log.debug('No hash to verify')
+                return None
+            if self.file_binary_data is None:
+                # Exit quickly if we got nohting to compare
+                # Also I'm sure we'll get an exception trying to
+                # pass None to get hash :)
+                log.debug('Cannot verify file hash - No Data')
+                return False
+            log.debug('Checking file hash')
+            log.debug('Update hash: %s', self.hexdigest)
+
+            file_hash = hash_.hexdigest()
+            if file_hash == self.hexdigest:
+                log.debug('File hash verified')
+                return True
+            log.debug('Cannot verify file hash')
+            return False
+
 
     # Calling all progress hooks
     def _call_progress_hooks(self, data):
@@ -302,32 +358,15 @@ class FileDownloader(object):
         return data
 
     def _write_to_file(self):
-        # Writes download data in memory to disk
-        with open(self.filename, 'wb') as f:
-            f.write(self.file_binary_data)
-
-    def _check_hash(self):
-        # Checks hash of downloaded file
-        if self.hexdigest is None:
-            # No hash provided to check.
-            # So just return any data recieved
-            log.debug('No hash to verify')
-            return None
-        if self.file_binary_data is None:
-            # Exit quickly if we got nohting to compare
-            # Also I'm sure we'll get an exception trying to
-            # pass None to get hash :)
-            log.debug('Cannot verify file hash - No Data')
-            return False
-        log.debug('Checking file hash')
-        log.debug('Update hash: %s', self.hexdigest)
-
-        file_hash = get_hash(self.file_binary_data)
-        if file_hash == self.hexdigest:
-            log.debug('File hash verified')
-            return True
-        log.debug('Cannot verify file hash')
-        return False
+        # Writes download data to disk
+        if self.file_binary_type == 'memory':
+            with open(self.filename, 'wb') as f:
+                for block in self.file_binary_data:
+                    f.write(block)
+        else:
+            if os.path.exists(self.filename):
+                os.unlink(self.filename)
+            os.rename(self.file_binary_path, self.filename)
 
     def _get_content_length(self, data):
         content_length = data.headers.get("Content-Length")
