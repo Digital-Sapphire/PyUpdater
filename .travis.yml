@@ -65,6 +65,8 @@ deploy:
   password:
     secure: 0iX3mRqMP3iShjTznKzNKXvn5SyYy2QkKILUV+hp8/J3SeNU9PohvoNRTaJM9iFSdAbi6KUg0uivRaFOpc9ctK2bEXjPx8tHQ8KBZ6WBks9inIrcP+OnaQBYIvTU2oPtn4SCDpgBGTem7NhACbZV3Ls/A2NyFB6ly5xwzox3vKyfdcYjmAujDciHIq/fKQ1CNNq3/ImGgKZcvmvm2ugs1zsa/QDoOL+ykwVA8HMbCF8JYqf2gPpyrqwEfvoMCqCqM7sj4ySqAjWsIAPuCdTidZVFNDsA3I/fLmuUbQprk9Yc613zxMW19PkDw7nFxyPmwwi2qLRNssL+bJ6xeN8Rv6kIjNzbkmWr0hjEgGN1Ni64+amyqDCrVtNpGN+R3SWzM4LNdddes9CXN//EynC7QUwpKs7kdWxsRSa6Zl5Nv3zYmDSx5at96s2Uk3AhhlnNxc9oZQXkaWaM6C1jHlQ0dqhI6deYKJCc0LjreCwb5hvIhPw+2eQdKDbPa1sn+iNF0eTspLJkeoJZ8CRPCkj5Wqluu/vymjqg0IhDokhUpdjTsPPk5NEuv5O8qR54O63We0UpqRjAg25k2AhLSwBJbNhi2TDr34d5ZdHs2ZElYdWbGuHsUMjkxUPOxO4xOM2738I7nMblntXBta0z/c37W60IIGb6HxmwK8OFnBKP87s=
   on:
+    branch: master
     tags: true
-    distributions: sdist bdist_wheel
+    distributions: sdist bdist bdist_wheel
     repo: JMSwag/PyUpdater
+    condition: $PYTHON=3.5
