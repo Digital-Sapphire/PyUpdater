@@ -30,7 +30,7 @@ from pyupdater.client import Client
 
 # Constants
 APP_NAME = 'Acme'
-APP_VERSION = 1.0
+APP_VERSION = '1.0'
 
 LIB_NAME = 'My external library'
 LIB_VERSON = '2.4.1'

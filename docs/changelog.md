@@ -3,6 +3,10 @@
 ## v2.3.3 - Master
 ####* This version is not yet released and is under active development.
 
+###Updated
+
+  - Docs
+    - Code example
 
 ## v2.3.2 - 2017/02/04
 
