@@ -79,7 +79,7 @@ class Client(object):
 
     """
     def __init__(self, obj=None, refresh=False,
-                 progress_hooks=None, test=False):
+                 progress_hooks=None, test=False, data_dir=None):
         # String: Name of binary to update
         self.name = None
 
@@ -103,9 +103,9 @@ class Client(object):
 
         # Client config obj with settings to find & verify updates
         if obj is not None:
-            self.init_app(obj, refresh, test)
+            self.init_app(obj, refresh, test, data_dir)
 
-    def init_app(self, obj, refresh=False, test=False):
+    def init_app(self, obj, refresh=False, test=False, data_dir=None):
         """Sets up client with config values from obj
 
         ######Args:
@@ -145,9 +145,12 @@ class Client(object):
             self.data_dir = obj.DATA_DIR
             self.platform = 'mac'
         else:  # pragma: no cover
-            # Getting platform specific user data directory
-            self.data_dir = appdirs.user_data_dir(self.app_name,
-                                                  self.company_name)
+            if data_dir is None:
+                # Getting platform specific user data directory
+                self.data_dir = appdirs.user_data_dir(self.app_name,
+                                                      self.company_name)
+            else:
+                self.data_dir = data_dir
 
             # Used when parsing the update manifest
             self.platform = _get_system()
