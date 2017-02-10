@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import sys
 
 from pyupdater.client import Client
@@ -26,7 +27,9 @@ def cb(status):
 def main():
     print(VERSION)
     client = Client(client_config.ClientConfig(),
-                    refresh=True, progress_hooks=[cb])
+                    refresh=True, progress_hooks=[cb],
+                    data_dir=os.path.join(
+                        os.path.dirname(sys.executable), '.update'))
     update = client.update_check(APPNAME, VERSION)
     if update is not None:
         success = update.download()
