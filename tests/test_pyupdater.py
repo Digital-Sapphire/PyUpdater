@@ -61,16 +61,19 @@ class TestSetup(object):
 @pytest.mark.usefixtures('cleandir')
 class TestExecutionExtraction(object):
 
-    def test_execution_onefile_extract(self, datadir, simpleserver, pyu):
+    @pytest.mark.parametrize("custom_dir, port",
+                             [(True, 8000), (False, 8001)])
+    def test_execution_onefile_extract(self, datadir, simpleserver, pyu,
+                                        custom_dir, port):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
         with ChDir(data_dir):
-            simpleserver.start(8000)
+            simpleserver.start(port)
 
-            cmd = 'python build_onefile_extract.py'
+            cmd = 'python build_onefile_extract.py %s %s' % (custom_dir, port)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -112,16 +115,19 @@ class TestExecutionExtraction(object):
 @pytest.mark.usefixtures('cleandir')
 class TestExecutionRestart(object):
 
-    def test_execution_one_file_restart(self, datadir, simpleserver, pyu):
+    @pytest.mark.parametrize("custom_dir, port",
+                             [(True, 8002), (False, 8003)])
+    def test_execution_one_file_restart(self, datadir, simpleserver, pyu,
+                                        custom_dir, port):
         data_dir = datadir['update_repo_restart']
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
         with ChDir(data_dir):
-            simpleserver.start(8001)
+            simpleserver.start(port)
 
-            cmd = 'python build_onefile_restart.py'
+            cmd = 'python build_onefile_restart.py %s %s' % (custom_dir, port)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
