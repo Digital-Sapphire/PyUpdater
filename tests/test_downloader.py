@@ -36,24 +36,28 @@ URLS = ['https://pyu-tester.s3.amazonaws.com/']
 
 
 @pytest.mark.usefixtue("cleandir")
+@pytest.mark.parametrize('download_max_size', [0, 4 * 1024 * 1024])
 class TestData(object):
 
-    def test_return(self):
+    def test_return(self, download_max_size):
         fd = FileDownloader(FILENAME, URLS, FILE_HASH, verify=True)
+        fd.download_max_size = download_max_size
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
-    def test_cb(self):
+    def test_cb(self, download_max_size):
         def cb(status):
             pass
         fd = FileDownloader(FILENAME, URLS, hexdigest=FILE_HASH,
                             progress_hooks=[cb], verify=True)
+        fd.download_max_size = download_max_size
         binary_data = fd.download_verify_return()
         assert binary_data is not None
 
-    def test_return_fail(self):
+    def test_return_fail(self, download_max_size):
         fd = FileDownloader(FILENAME, URLS,
                             'JKFEIFJILEFJ983NKFNKL', verify=True)
+        fd.download_max_size = download_max_size
         binary_data = fd.download_verify_return()
         assert binary_data is None
 
