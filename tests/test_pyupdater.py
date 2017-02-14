@@ -29,6 +29,7 @@ import subprocess
 import os
 import sys
 import time
+import multiprocessing
 
 from dsdev_utils.paths import ChDir
 import pytest
@@ -40,6 +41,8 @@ from tconfig import TConfig
 AUTO_UPDATE_PAUSE = 30
 if sys.platform == 'win32':
     AUTO_UPDATE_PAUSE += 10
+
+UPDATE_LOCK = multiprocessing.Lock()
 
 
 @pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
@@ -61,16 +64,21 @@ class TestSetup(object):
 @pytest.mark.usefixtures('cleandir')
 class TestExecutionExtraction(object):
 
-    def test_execution_onefile_extract(self, datadir, simpleserver, pyu):
+    @pytest.mark.parametrize("custom_dir, port",
+                             [])
+                             # [(True, 8000),])
+                             # [(True, 8000), (False, 8001)])
+    def test_execution_onefile_extract(self, datadir, simpleserver, pyu,
+                                        custom_dir, port):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
         with ChDir(data_dir):
-            simpleserver.start(8000)
+            simpleserver.start(port)
 
-            cmd = 'python build_onefile_extract.py'
+            cmd = 'python build_onefile_extract.py %s %s' % (custom_dir, port)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -95,10 +103,18 @@ class TestExecutionExtraction(object):
             if sys.platform != 'win32':
                 app_name = './{}'.format(app_name)
 
-            # Call the binary to self update
-            subprocess.call(app_name, shell=True)
-            # Allow enough time for update process to complete.
-            time.sleep(AUTO_UPDATE_PAUSE)
+            if custom_dir:
+                # update with custom_dir is multiprocessing-safe
+                # create a dummy lock here to uniform the code
+                update_lock = multiprocessing.Lock()
+            else:
+                update_lock = UPDATE_LOCK
+
+            with update_lock:
+                # Call the binary to self update
+                subprocess.call(app_name, shell=True)
+                # Allow enough time for update process to complete.
+                time.sleep(AUTO_UPDATE_PAUSE)
 
             # Call again to check the output
             out = subprocess.check_output(app_name, shell=True)
@@ -112,16 +128,19 @@ class TestExecutionExtraction(object):
 @pytest.mark.usefixtures('cleandir')
 class TestExecutionRestart(object):
 
-    def test_execution_one_file_restart(self, datadir, simpleserver, pyu):
+    @pytest.mark.parametrize("custom_dir, port",
+                             [(True, 8002), (False, 8003)])
+    def test_execution_one_file_restart(self, datadir, simpleserver, pyu,
+                                        custom_dir, port):
         data_dir = datadir['update_repo_restart']
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
         with ChDir(data_dir):
-            simpleserver.start(8001)
+            simpleserver.start(port)
 
-            cmd = 'python build_onefile_restart.py'
+            cmd = 'python build_onefile_restart.py %s %s' % (custom_dir, port)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -146,10 +165,18 @@ class TestExecutionRestart(object):
             if sys.platform != 'win32':
                 app_name = './{}'.format(app_name)
 
-            # Call the binary to self update
-            subprocess.call(app_name)
-            # Allow enough time for update process to complete.
-            time.sleep(AUTO_UPDATE_PAUSE)
+            if custom_dir:
+                # update with custom_dir is multiprocessing-safe
+                # create a dummy lock here to uniform the code
+                update_lock = multiprocessing.Lock()
+            else:
+                update_lock = UPDATE_LOCK
+
+            with update_lock:
+                # Call the binary to self update
+                subprocess.call(app_name)
+                # Allow enough time for update process to complete.
+                time.sleep(AUTO_UPDATE_PAUSE)
 
             simpleserver.stop()
 
