@@ -72,6 +72,8 @@ class Client(object):
     False - Don't refresh update manifest on object initialization
 
     progress_hooks (list): List of callbacks
+    
+    data_dir (str): Path to custom update folder
 
     ######Returns:
 

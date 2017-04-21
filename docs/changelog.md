@@ -1,12 +1,24 @@
 # Changelog
 
-## v2.3.3 - Master
+## v2.4.0 - Master
 ####* This version is not yet released and is under active development.
 
+###Added
+
+  - Client
+    - Ability to specify a custom folder for update files. @mayli
+
 ###Updated
+  
+  - Client
+    - Faster & more efficient downloads. @mayli
 
   - Docs
     - Code example
+  
+  - Libs
+    - appdirs 1.4.3
+    
 
 ## v2.3.2 - 2017/02/04
 

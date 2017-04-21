@@ -83,7 +83,8 @@ Deprecated: Use extract_overwrite instead.
 
 ### pyupdater.client.Client
 
-Used to check for updates & returns an updateobject if there is an update.
+Used to check for updates & returns an updateobject if there
+is an update.
 
 ######Kwargs:
 
@@ -93,6 +94,8 @@ refresh (bool): True - Refresh update manifest on object initialization.
 False - Don't refresh update manifest on object initialization
 
 progress_hooks (list): List of callbacks
+
+data_dir (str): Path to custom update folder
 
 ######Returns:
 
@@ -117,7 +120,7 @@ Args:
 
 cb (function): Function which takes a dict as its first argument
 
-##### Client.init_app(obj, refresh=False, test=False)
+##### Client.init_app(obj, refresh=False, test=False, data_dir=None)
 
 Sets up client with config values from obj
 
@@ -135,7 +138,7 @@ initialization
 
 Will download and verify the version manifest.
 
-##### Client.update_check(name, version, channel=u'stable')
+##### Client.update_check(name, version, channel=u'stable', strict=True)
 
 Checks for available updates
 
@@ -146,6 +149,10 @@ name (str): Name of file to update
 version (str): Current version number of file to update
 
 channel (str): Release channel
+
+strict (bool):
+    True - Only look for updates on specified channel.
+    False - Look for updates on all channels
 
 ######Returns:
 
