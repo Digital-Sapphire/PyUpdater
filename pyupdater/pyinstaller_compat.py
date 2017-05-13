@@ -115,7 +115,7 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         _pyi_log.init()
         # We are hacking into pyinstaller here & are aware of the risks
         # using noqa below so landscape.io will ignore it
-        _pyi_log.__process_options(parser, args) # noqa
+        _pyi_log.__process_options(parser, args)  # noqa
         # End hacking
 
         run_makespec(args)

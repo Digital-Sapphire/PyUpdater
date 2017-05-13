@@ -208,7 +208,7 @@ class FileDownloader(object):
         hash_ = hashlib.sha256()
 
         # Getting length of file to show progress
-        self.content_length = self._get_content_length(data)
+        self.content_length = FileDownloader._get_content_length(data)
         if self.content_length is None:
             log.debug('Content-Length not in headers')
             log.debug('Callbacks will not show time left '
@@ -221,11 +221,11 @@ class FileDownloader(object):
             self.file_binary_type = 'memory'
 
         # Setting start point to show progress
-        recieved_data = 0
+        received_data = 0
 
         start_download = time.time()
         block = data.read(1)
-        recieved_data += len(block)
+        received_data += len(block)
         if self.file_binary_type == 'memory':
             self.file_binary_data = [block]
         else:
@@ -260,21 +260,22 @@ class FileDownloader(object):
             hash_.update(block)
 
             # Total data we've received so far
-            recieved_data += len(block)
+            self.data = received_data
+            self.data += len(block)
 
             # If content length is None we will return a static percent
             # -.-%
-            percent = self._calc_progress_percent(recieved_data,
-                                                  self.content_length)
+            percent = FileDownloader._calc_progress_percent(received_data,
+                                                            self.content_length)
 
             # If content length is None we will return a static time remaining
             # --:--
             time_left = FileDownloader._calc_eta(start_download, time.time(),
                                                  self.content_length,
-                                                 recieved_data)
+                                                 received_data)
 
             status = {'total': self.content_length,
-                      'downloaded': recieved_data,
+                      'downloaded': received_data,
                       'status': 'downloading',
                       'percent_complete': percent,
                       'time': time_left}
@@ -283,7 +284,7 @@ class FileDownloader(object):
             self._call_progress_hooks(status)
 
         status = {'total': self.content_length,
-                  'downloaded': recieved_data,
+                  'downloaded': received_data,
                   'status': 'finished',
                   'percent_complete': percent,
                   'time': '00:00'}
@@ -294,11 +295,11 @@ class FileDownloader(object):
             # Checks hash of downloaded file
             if self.hexdigest is None:
                 # No hash provided to check.
-                # So just return any data recieved
+                # So just return any data received
                 log.debug('No hash to verify')
                 return None
             if self.file_binary_data is None:
-                # Exit quickly if we got nohting to compare
+                # Exit quickly if we got nothing to compare
                 # Also I'm sure we'll get an exception trying to
                 # pass None to get hash :)
                 log.debug('Cannot verify file hash - No Data')
@@ -312,7 +313,6 @@ class FileDownloader(object):
                 return True
             log.debug('Cannot verify file hash')
             return False
-
 
     # Calling all progress hooks
     def _call_progress_hooks(self, data):
@@ -368,7 +368,8 @@ class FileDownloader(object):
                 os.unlink(self.filename)
             os.rename(self.file_binary_path, self.filename)
 
-    def _get_content_length(self, data):
+    @staticmethod
+    def _get_content_length(data):
         content_length = data.headers.get("Content-Length")
         if content_length is not None:
             content_length = int(content_length)
@@ -390,9 +391,10 @@ class FileDownloader(object):
             return '--:--'
         return '%02d:%02d' % (eta_mins, eta_secs)
 
-    def _calc_progress_percent(self, recieved, total):
+    @staticmethod
+    def _calc_progress_percent(received, total):
         if total is None:
             return '-.-%'
-        percent = float(recieved) / total * 100
+        percent = float(received) / total * 100
         percent = '%.1f' % percent
         return percent

@@ -601,7 +601,7 @@
 
   - Client
     - Support for offline root keys
-    - Sanatizing url attributes
+    - Sanitizing url attributes
     - Patches clients up to 4 versions behind
   - Config is now a dict instead of class
   - Logging errors for 3rd party services
@@ -857,7 +857,7 @@
 
     - Potential incorrect comparison of pyinstaller versions
     - Archive version parsing
-    - Crashing if directory doesn't exists
+    - Crashing if directory does not exists
     - Pinning version of plugins
     - Initial support for pre release versions
     - Moved some uploader config to plugins. Check plugin docs for more info.
@@ -870,7 +870,7 @@
   - Plugins
 
     - from pyi_updater.uploader import BaseUploader
-    - from pyi_updater.uploader.commom import BaseUploader will
+    - from pyi_updater.uploader.common import BaseUploader will
       be remove in v0.22+
 
 ###Fixed
@@ -893,4 +893,4 @@
   - PyUpdater
 
     - Some unused attributes on config object
-    - Unsed functions
+    - Unused functions

@@ -281,7 +281,7 @@ def _cmd_pkg(*args):
 
 # ToDo: Remove in v3.0
 # I wanted to make the commands uniform to enable the usage of
-# _dispatch_command in pyupdater.cli
+# dispatch_command in pyupdater.cli
 def upload_debug_info(*args):
     _cmd_collect_debug_info(*args)
 # End ToDo
@@ -398,6 +398,7 @@ def _cmd_upload(*args):  # pragma: no cover
         return
     # Something happened with the upload plugin
     except UploaderPluginError as err:
+        log.debug(err)
         log.error('Invalid upload plugin')
         log.error('Use "pyupdater plugins" to get a '
                   'list of installed plugins')

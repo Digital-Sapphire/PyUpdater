@@ -26,21 +26,17 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 import io
 import logging
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 import os
 import shutil
 import subprocess
 import sys
 import tarfile
-import time
 import zipfile
 try:
-    from UserDict import DictMixin as dictmixin
+    from UserDict import DictMixin
 except ImportError:
-    from collections import MutableMapping as dictmixin
+    from collections import MutableMapping as DictMixin
 
 from dsdev_utils import paths
 from dsdev_utils import system
@@ -74,12 +70,13 @@ class PluginManager(object):
         # A list of dicts of all installed plugins.
         # Keys: name author plugin
         self.plugins = []
-        self.configs = self._get_config(config)
+        self.configs = PluginManager._get_config(config)
         self._load(plugins)
 
     # Created a function here since we are doing
     # this in two locations in this class
-    def _get_config(self, config):
+    @staticmethod
+    def _get_config(config):
         return config.get('PLUGIN_CONFIGS')
 
     def _name_check(self, name):
@@ -162,7 +159,7 @@ class PluginManager(object):
     # Init is false by default. Used when you want
     # to get a plugin without initialization
     def get_plugin(self, name, init=False):
-        "Returns the named plugin"
+        """Returns the named plugin"""
         plugin = self._get_plugin(name)
         if plugin is not None and init is True:
             config = self._get_plugin_config(plugin)
@@ -203,7 +200,7 @@ def print_plugin_settings(plugin_name, config):
 
 
 def check_repo():
-    "Checks if current directory is a pyupdater repository"
+    """Checks if current directory is a pyupdater repository"""
     repo = True
     if not os.path.exists(settings.CONFIG_DATA_FOLDER):
         log.debug('PyUpdater config data folder is missing')
@@ -222,10 +219,8 @@ def setup_appname(config):  # pragma: no cover
         default = config.APP_NAME
     else:
         default = None
-    config.APP_NAME = terminal.get_correct_answer('Please enter '
-                                                              'app name',
-                                                              required=True,
-                                                              default=default)
+    config.APP_NAME = terminal.get_correct_answer('Please enter app name',
+                                                  required=True, default=default)
 
 
 def setup_client_config_path(config):  # pragma: no cover
@@ -236,8 +231,7 @@ def setup_client_config_path(config):  # pragma: no cover
                 "initialize the update process. \nExamples:\n\n"
                 "lib/utils, src/lib, src. \n\nLeave blank to use "
                 "the current directory")
-    answer = terminal.get_correct_answer(question,
-                                                     default=_default_dir)
+    answer = terminal.get_correct_answer(question, default=_default_dir)
 
     if answer == _default_dir:
         config.CLIENT_CONFIG_PATH = settings.DEFAULT_CLIENT_CONFIG
@@ -253,20 +247,16 @@ def setup_company(config):  # pragma: no cover
         default = config.COMPANY_NAME
     else:
         default = None
-    temp = terminal.get_correct_answer('Please enter your comp'
-                                                   'any or name',
-                                                   required=True,
-                                                   default=default)
+    temp = terminal.get_correct_answer('Please enter your name or company name',
+                                       required=True, default=default)
     config.COMPANY_NAME = temp
 
 
 def setup_max_download_retries(config):  # pragma: no cover
     default = config.MAX_DOWNLOAD_RETRIES
     while 1:
-        temp = terminal.get_correct_answer('Enter max download '
-                                                       'retries',
-                                                       required=True,
-                                                       default=default)
+        temp = terminal.get_correct_answer('Enter max download retries',
+                                           required=True, default=str(default))
         try:
             temp = int(temp)
         except Exception as err:
@@ -285,8 +275,7 @@ def setup_max_download_retries(config):  # pragma: no cover
 
 def setup_patches(config):  # pragma: no cover
     question = 'Would you like to enable patch updates?'
-    config.UPDATE_PATCHES = terminal.ask_yes_no(question,
-                                                            default='yes')
+    config.UPDATE_PATCHES = terminal.ask_yes_no(question, default='yes')
 
 
 def setup_plugin(name, config):
@@ -299,16 +288,15 @@ def setup_plugin(name, config):
 
 
 def setup_urls(config):  # pragma: no cover
-    url = terminal.get_correct_answer('Enter a url to ping for '
-                                                  'updates.', required=True)
+    url = terminal.get_correct_answer('Enter a url to ping for updates.',
+                                      required=True)
     config.UPDATE_URLS = [url]
     while 1:
         answer = terminal.ask_yes_no('Would you like to add '
-                                                 'another url for backup?',
-                                                 default='no')
+                                     'another url for backup?',
+                                     default='no')
         if answer is True:
-            url = terminal.get_correct_answer('Enter another url.',
-                                                          required=True)
+            url = terminal.get_correct_answer('Enter another url.', required=True)
             config.UPDATE_URLS.append(url)
         else:
             break
@@ -340,7 +328,7 @@ def create_asset_archive(name, version):
                                  system.get_system(), version)
 
     # Only use zip on windows.
-    # Zip doens't preserve file permissions on nix & mac
+    # Zip does not preserve file permissions on nix & mac
     with paths.ChDir(file_dir):
         if system.get_system() == 'win':
             ext = '.zip'
@@ -390,7 +378,7 @@ def make_archive(name, target, version):
                                  system.get_system(), version)
 
     # Only use zip on windows.
-    # Zip doens't preserve file permissions on nix & mac
+    # Zip does not preserve file permissions on nix & mac
     # tar.gz creates full file path
     with paths.ChDir(file_dir):
         if system.get_system() == 'win':
@@ -409,20 +397,6 @@ def make_archive(name, target, version):
     output_filename = filename + ext
     log.debug('Archive output filename: %s', output_filename)
     return output_filename
-
-
-def pretty_time(sec):
-    """Turns seconds into a human readable format. Example: 2020/07/31 12:22:83
-
-    Args:
-
-        sec (int): seconds since unix epoch
-
-    Returns:
-
-        (str): Human readable time
-    """
-    return time.strftime("%Y/%m/%d, %H:%M:%S", time.localtime(sec))
 
 
 def remove_dot_files(files):
@@ -461,36 +435,7 @@ def run(cmd):
     return exit_code
 
 
-# Used in debugging
-def dict_to_str_sanatize(data):
-    _data = data.copy()
-    new_data = {}
-    for k, v in _data.items():
-        if hasattr(v, '__call__') is True:
-            continue
-        if k in ['__weakref__', '__module__', '__dict__', '__doc__']:
-            continue
-        new_data[k] = v
-    return new_data
-
-
-def _decode_offt(_bytes):
-    """Decode an off_t value from a string.
-
-    This decodes a signed integer into 8 bytes.  I'd prefer some sort of
-    signed vint representation, but this is the format used by bsdiff4.
-    """
-    if sys.version_info[0] < 3:
-        _bytes = map(ord, _bytes)
-    x = _bytes[7] & 0x7F
-    for b in xrange(6, -1, -1):
-        x = x * 256 + _bytes[b]
-    if _bytes[7] & 0x80:
-        x = -x
-    return x
-
-
-class JSONStore(dictmixin):
+class JSONStore(DictMixin):
 
     def __init__(self, path, json_kw=None):
         """Create a JSONStore object backed by the file at `path`.
@@ -539,7 +484,8 @@ class JSONStore(dictmixin):
             i.append((k, v))
         return iter(i)
 
-    def _sanatize(self, data):
+    @staticmethod
+    def _sanitize(data):
         _data = {}
         for k, v in data.items():
             if hasattr(v, '__call__') is True:
@@ -571,7 +517,7 @@ class JSONStore(dictmixin):
         if not (self._needs_sync or force):
             return False
 
-        data = self._sanatize(self._data)
+        data = JSONStore._sanitize(self._data)
         with io.open(self.path, 'w', encoding='utf-8') as json_file:
             data = json.dumps(data, ensure_ascii=False, indent=2)
             if six.PY2:

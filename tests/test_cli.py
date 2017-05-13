@@ -29,7 +29,7 @@ import os
 
 import pytest
 
-from pyupdater.cli import commands, _dispatch_command
+from pyupdater.cli import commands, dispatch_command
 from pyupdater.cli.options import (add_build_parser, add_clean_parser,
                                    add_keys_parser, add_make_spec_parser,
                                    add_package_parser, add_upload_parser,
@@ -66,44 +66,44 @@ class NamespaceHelper(object):
 class TestCommandDispatch(object):
 
     def test_build(self):
-        assert _dispatch_command(NamespaceHelper(command='build'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='build'),
+                                test=True) is True
 
     def test_clean(self):
-        assert _dispatch_command(NamespaceHelper(command='clean'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='clean'),
+                                test=True) is True
 
     def test_settings(self):
-        assert _dispatch_command(NamespaceHelper(command='settings'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='settings'),
+                                test=True) is True
 
     def test_init(self):
-        assert _dispatch_command(NamespaceHelper(command='init'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='init'),
+                                test=True) is True
 
     def test_keys(self):
-        assert _dispatch_command(NamespaceHelper(command='keys'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='keys'),
+                                test=True) is True
 
     def test_make_spec(self):
-        assert _dispatch_command(NamespaceHelper(command='make-spec'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='make-spec'),
+                                test=True) is True
 
     def test_pkg(self):
-        assert _dispatch_command(NamespaceHelper(command='pkg'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='pkg'),
+                                test=True) is True
 
     def test_collect_debug_info(self):
-        assert _dispatch_command(NamespaceHelper(command='collect-debug-info'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='collect-debug-info'),
+                                test=True) is True
 
     def test_upload(self):
-        assert _dispatch_command(NamespaceHelper(command='upload'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='upload'),
+                                test=True) is True
 
     def test_version(self):
-        assert _dispatch_command(NamespaceHelper(command='version'),
-                                 test=True) is True
+        assert dispatch_command(NamespaceHelper(command='version'),
+                                test=True) is True
 
 
 @pytest.mark.usefixtures('cleandir')

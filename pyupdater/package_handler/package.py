@@ -60,7 +60,7 @@ def parse_platform(name):
 
 
 def remove_previous_versions(directory, filename):
-    "Removes previous version of named file"
+    """Removes previous version of named file"""
     if filename is None:
         log.debug('Cleanup Failed - Filename is None')
         return
@@ -125,7 +125,7 @@ def remove_previous_versions(directory, filename):
 
 # ToDo: Remove in version 3.0
 def cleanup_old_archives(filename=None, directory=None):
-    "Removes previous version of named file"
+    """Removes previous version of named file"""
     remove_previous_versions(directory, filename)
 # End Todo
 

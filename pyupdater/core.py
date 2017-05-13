@@ -67,7 +67,7 @@ class PyUpdater(object):
         self.up = Uploader(config)
 
     def setup(self):
-        "Sets up root dir with required PyUpdater folders"
+        """Sets up root dir with required PyUpdater folders"""
         self.ph.setup()
 
     def process_packages(self, report_errors=False):
@@ -82,20 +82,23 @@ class PyUpdater(object):
         Args:
 
             requested_uploader (str): upload service. i.e. s3, scp
+
+            keep (bool): False to delete files after upload, True to keep files. Default False.
+
         """
         self.up.set_uploader(requested_uploader, keep)
 
     def upload(self):
-        "Uploads files in deploy folder"
+        """Uploads files in deploy folder"""
         self.up.upload()
 
     def get_plugin_names(self):
         return self.up.get_plugin_names()
 
     def import_keypack(self):
-        "Creates signing keys"
+        """Creates signing keys"""
         self.key_importer.start()
 
     def sign_update(self):
-        "Signs version file with signing key"
+        """Signs version file with signing key"""
         self.kh.sign_update()

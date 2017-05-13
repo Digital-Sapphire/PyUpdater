@@ -44,7 +44,6 @@ GENERIC_APP_NAME = 'PyUpdater App'
 GENERIC_COMPANY_NAME = 'PyUpdater'
 
 # Log filename
-LOG_FILENAME = 'pyu.log'
 LOG_FILENAME_DEBUG = 'pyu-debug.log'
 
 # KeyFile
@@ -52,9 +51,6 @@ KEYPACK_FILENAME = 'keypack.pyu'
 
 # Main user visible data folder
 USER_DATA_FOLDER = 'pyu-data'
-
-# Name of env var to get users passwrod from
-USER_PASS_ENV = 'PYUPDATER_PASS'
 
 # Key in version file where value are update meta data
 UPDATES_KEY = 'updates'

@@ -82,5 +82,5 @@ def test_write_config(cleandir):
     prod_config = ProdConfig()
     config.from_object(prod_config)
     cm = ConfigManager()
-    cm._write_config_py(config)
+    cm.write_config_py(config)
     assert 'client_config.py' in os.listdir(os.getcwd())

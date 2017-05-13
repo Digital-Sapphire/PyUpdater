@@ -85,7 +85,6 @@ class ConfigManager(object):
     def __init__(self):
         self.cwd = os.getcwd()
         self.db = Storage()
-        self.password = os.environ.get(settings.USER_PASS_ENV)
         self.config_key = settings.CONFIG_DB_KEY_APP_CONFIG
 
     # Loads config from database (json file)
@@ -108,11 +107,11 @@ class ConfigManager(object):
         log.info('Saving Config')
         self.db.save(self.config_key, obj)
         log.info('Config saved')
-        self._write_config_py(obj)
+        self.write_config_py(obj)
         log.info('Wrote client config')
 
     # Writes client config to client_config.py
-    def _write_config_py(self, obj):
+    def write_config_py(self, obj):
         keypack_data = self.db.load(settings.CONFIG_DB_KEY_KEYPACK)
         if keypack_data is None:
             log.debug('*** Keypack data is None ***')

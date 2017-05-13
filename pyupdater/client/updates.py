@@ -47,7 +47,7 @@ from pyupdater.utils.exceptions import ClientError
 log = logging.getLogger(__name__)
 
 
-def _get_highest_version(name, plat, channel, easy_data, strict):
+def get_highest_version(name, plat, channel, easy_data, strict):
     """Parses version file and returns the highest version number.
 
         Args:
@@ -120,7 +120,7 @@ def _get_highest_version(name, plat, channel, easy_data, strict):
         return version
 
 
-def _gen_user_friendly_version(internal_version):
+def gen_user_friendly_version(internal_version):
     channel = {0: 'Alpha', 1: 'Beta'}
     v = list(map(int, internal_version.split('.')))
 
@@ -294,21 +294,21 @@ class LibUpdate(object):
         self.max_download_retries = data.get('max_download_retries')
 
         # The latest version available
-        self.latest = _get_highest_version(self.name, self.platform,
-                                           self.channel, self.easy_data,
-                                           self.strict)
+        self.latest = get_highest_version(self.name, self.platform,
+                                          self.channel, self.easy_data,
+                                          self.strict)
 
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
         # patch update
-        self._current_archive_name = self._get_filename(self.name,
-                                                        self.current_version,
-                                                        self.platform,
-                                                        self.easy_data)
+        self._current_archive_name = LibUpdate._get_filename(self.name,
+                                                             self.current_version,
+                                                             self.platform,
+                                                             self.easy_data)
 
         # Get filename of latest versions update archive
-        self.filename = self._get_filename(self.name, self.latest,
-                                           self.platform, self.easy_data)
+        self.filename = LibUpdate._get_filename(self.name, self.latest,
+                                                self.platform, self.easy_data)
         assert self.filename is not None
 
         # Used to remove version earlier than the current.
@@ -321,7 +321,7 @@ class LibUpdate(object):
         ######Returns (str): User friendly version string
         """
         if self._version == "":
-            self._version = _gen_user_friendly_version(self.latest)
+            self._version = gen_user_friendly_version(self.latest)
         return self._version
 
     def is_downloaded(self):
@@ -370,7 +370,8 @@ class LibUpdate(object):
             return False
         return True
 
-    def _get_filename(self, name, version, platform, easy_data):
+    @staticmethod
+    def _get_filename(name, version, platform, easy_data):
         """Gets full filename for given name & version combo
 
             Args:

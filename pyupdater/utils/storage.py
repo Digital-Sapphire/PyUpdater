@@ -39,10 +39,6 @@ class Storage(object):
 
     def __init__(self):
         """Loads & saves config file to file-system.
-
-            Args:
-
-                config_dir (str): Path to directory where config will be stored
         """
         self.config_dir = os.path.join(os.getcwd(),
                                        settings.CONFIG_DATA_FOLDER)
@@ -54,7 +50,6 @@ class Storage(object):
                                      settings.CONFIG_FILE_USER)
         log.debug('Config DB: %s', self.filename)
         self.db = JSONStore(self.filename)
-        self.sync_threshold = 3
         self.count = 0
         self._load_db()
 
@@ -77,7 +72,7 @@ class Storage(object):
         setattr(Storage, name, value)
 
     def _load_db(self):
-        "Loads database into memory."
+        """Loads database into memory."""
         for k, v in self.db:
             setattr(Storage, k, v)
 

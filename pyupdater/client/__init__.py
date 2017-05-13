@@ -42,7 +42,7 @@ import six
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader as _FD
-from pyupdater.client.updates import AppUpdate, _get_highest_version, LibUpdate
+from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
 from pyupdater.utils.config import Config as _Config
 
 
@@ -133,7 +133,7 @@ class Client(object):
         update_urls = config.get('UPDATE_URLS', [])
 
         # List of URL to check for update data
-        self.update_urls = self._sanatize_update_url(update_urls)
+        self.update_urls = Client._sanitize_update_url(update_urls)
 
         # Name of the running application
         self.app_name = config.get('APP_NAME', 'PyUpdater')
@@ -187,7 +187,7 @@ class Client(object):
             self.refresh()
 
     def refresh(self):
-        "Will download and verify the version manifest."
+        """Will download and verify the version manifest."""
         self._get_signing_key()
         self._get_update_manifest()
 
@@ -252,10 +252,10 @@ class Client(object):
             app = True
 
         log.debug('Checking for %s updates...', name)
-        latest = _get_highest_version(name, self.platform, channel,
-                                      self.easy_data, strict)
+        latest = get_highest_version(name, self.platform, channel,
+                                     self.easy_data, strict)
         if latest is None:
-            # If None is returned _get_highest_version could
+            # If None is returned get_highest_version could
             # not find the supplied name in the version file
             log.debug('Could not find the latest version')
             return None
@@ -380,6 +380,7 @@ class Client(object):
                 try:
                     decompressed_data = _gzip_decompress(data)
                 except Exception as err:
+                    log.debug(err)
                     return None
 
                 return decompressed_data
@@ -515,19 +516,16 @@ class Client(object):
                 log.debug('Creating directory: %s', d)
                 os.makedirs(d)
 
-    # ToDo: Remove in v 3.0
-    # Legacy code used when migrating from single urls to
-    # A list of urls
-    def _sanatize_update_url(self, urls):
-        sanatized_urls = []
+    @staticmethod
+    def _sanitize_update_url(urls):
+        sanitized_urls = []
         # Adds trailing slash to end of url if not already provided.
         # Doing this so when requesting online resources we only
-        # need to add the resouce name to the end of the request.
+        # need to add the resource name to the end of the request.
         for u in urls:
             if not u.endswith('/'):
-                sanatized_urls.append(u + '/')
+                sanitized_urls.append(u + '/')
             else:
-                sanatized_urls.append(u)
+                sanitized_urls.append(u)
         # Removing duplicates
-        return list(set(sanatized_urls))
-    # End ToDo
+        return list(set(sanitized_urls))

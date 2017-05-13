@@ -7,6 +7,6 @@
 [![Gitter](https://badges.gitter.im/pyupdater/Lobby.svg)](https://gitter.im/pyupdater/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # PyUpdater
-####An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
+#### An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
 
-####[Docs](http://www.pyupdater.org) - [Installation](http://www.pyupdater.org/installation) - [Changelog](http://www.pyupdater.org/changelog/) - [License](http://www.pyupdater.org/license/)
+#### [Docs](http://www.pyupdater.org) - [Installation](http://www.pyupdater.org/installation) - [Changelog](http://www.pyupdater.org/changelog/) - [License](http://www.pyupdater.org/license/)

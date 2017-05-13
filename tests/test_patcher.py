@@ -53,6 +53,7 @@ update_data = {
     }
 
 
+# noinspection PyStatementEffect,PyStatementEffect
 @pytest.mark.usefixtures("cleandir")
 class TestFails(object):
 
@@ -94,6 +95,7 @@ class TestFails(object):
         assert p.start() is False
 
 
+# noinspection PyStatementEffect,PyStatementEffect
 @pytest.mark.usefixtures("cleandir")
 class TestExecution(object):
 
