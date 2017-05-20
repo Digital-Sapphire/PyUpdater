@@ -65,7 +65,7 @@ then restart the application using the updated binary.
 Used to check if update has been downloaded.
 
 ######Returns (bool): True - File is already downloaded.
-False - File hasn't been downloaded.
+False - File has not been downloaded.
 
 ##### AppUpdate.restart()
 
@@ -77,7 +77,7 @@ Deprecated: Used extract_restart instead.
 
 ##### AppUpdate.win_extract_overwrite()
 
-Overwrite current binary with update bianry on windows.
+Overwrite current binary with update binary on windows.
 
 Deprecated: Use extract_overwrite instead.
 
@@ -203,5 +203,5 @@ complete update.
 Used to check if update has been downloaded.
 
 ######Returns (bool): True - File is already downloaded.
-False - File hasn't been downloaded.
+False - File has not been downloaded.
 

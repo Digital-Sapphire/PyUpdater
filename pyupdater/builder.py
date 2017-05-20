@@ -65,7 +65,7 @@ class Builder(object):  # pragma: no cover
         cm = ConfigManager()
         self.app_name = cm.get_app_name()
         self.args = args
-        self.app_info, self.pyi_args = self._check_input_file(pyi_args)
+        self.app_info, self.pyi_args = Builder._check_input_file(pyi_args)
 
     # Creates & archives executable
     def build(self):
@@ -111,9 +111,11 @@ class Builder(object):  # pragma: no cover
                 os.mkdir(d)
 
     # Ensure that a spec file or python script is present
-    def _check_input_file(self, pyi_args):
+    @staticmethod
+    def _check_input_file(pyi_args):
         verified = False
         new_args = []
+        app_info = None
         for p in pyi_args:
             if p.endswith('.py'):
                 log.debug('Building from python source file: %s', p)
@@ -189,7 +191,8 @@ class Builder(object):  # pragma: no cover
         pyi_build(build_args)
 
     # Updates name of binary from mac to applications name
-    def _mac_binary_rename(self, temp_name, app_name):
+    @staticmethod
+    def _mac_binary_rename(temp_name, app_name):
         bin_dir = os.path.join(temp_name, 'Contents', 'MacOS')
         plist = os.path.join(temp_name, 'Contents', 'Info.plist')
         with ChDir(bin_dir):
@@ -217,7 +220,7 @@ class Builder(object):  # pragma: no cover
             if os.path.exists(temp_name + '.app'):
                 log.debug('Got mac .app')
                 app_name = temp_name + '.app'
-                self._mac_binary_rename(app_name, self.app_name)
+                Builder._mac_binary_rename(app_name, self.app_name)
             elif os.path.exists(temp_name + '.exe'):
                 log.debug('Got win .exe')
                 app_name = temp_name + '.exe'

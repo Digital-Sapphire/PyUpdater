@@ -106,7 +106,7 @@ class Patcher(object):
             self.current_file_hash = file_info['file_hash']
 
     def start(self):
-        "Starts patching process"
+        """Starts patching process"""
         log.debug('Starting patch updater...')
         # Check hash on installed binary to begin patching
         binary_check = self._verify_installed_binary()
@@ -230,9 +230,10 @@ class Patcher(object):
             else:
                 return True
         else:
-            return self._calc_diff(total_patch_size, latest_file_size)
+            return Patcher._calc_diff(total_patch_size, latest_file_size)
 
-    def _calc_diff(self, patch_size, file_size):
+    @staticmethod
+    def _calc_diff(patch_size, file_size):
         if patch_size < file_size:
             return True
         else:
@@ -271,6 +272,7 @@ class Patcher(object):
         # Downloads & verifies all patches
         log.debug('Downloading patches')
         downloaded = 0
+        percent = 0
         total = len(self.patch_data)
 
         for p in self.patch_data:

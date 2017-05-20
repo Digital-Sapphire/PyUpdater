@@ -31,9 +31,9 @@ try:
 except ImportError:
     from SimpleHTTPServer import SimpleHTTPRequestHandler as RequestHandler
 try:
-    import socketserver as socket_server
-except:
-    import SocketServer as socket_server
+    import socketserver as SocketServer
+except ImportError:
+    import SocketServer
 
 import pytest
 
@@ -75,7 +75,7 @@ def db():
 
 @pytest.fixture
 def loader():
-    CONFIG = {
+    default_config = {
         'APP_NAME': 'PyUpdater Test',
         'COMPANY_NAME': 'ACME',
         'UPDATE_PATCHES': True,
@@ -83,7 +83,7 @@ def loader():
 
     cm = ConfigManager()
     config = cm.load_config()
-    config.update(CONFIG)
+    config.update(default_config)
     cm.save_config(config)
     return config
 
@@ -115,8 +115,8 @@ def simpleserver():
             self.count += 1
             if self._server is not None:
                 return
-            socket_server.TCPServer.allow_reuse_address = True
-            httpd = socket_server.TCPServer(("", port), RequestHandler)
+            SocketServer.TCPServer.allow_reuse_address = True
+            httpd = SocketServer.TCPServer(("", port), RequestHandler)
 
             self._server = threading.Thread(target=httpd.serve_forever)
             self._server.daemon = True

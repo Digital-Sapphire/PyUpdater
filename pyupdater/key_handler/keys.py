@@ -158,13 +158,15 @@ class KeyImporter(object):
     def __init__(self):
         self.db = Storage()
 
-    def _look_for_keypack(self):
+    @staticmethod
+    def _look_for_keypack():
         files = os.listdir(os.getcwd())
         if settings.KEYPACK_FILENAME not in files:
             return False
         return True
 
-    def _load_keypack(self):
+    @staticmethod
+    def _load_keypack():
         json_data = None
         try:
             with io.open(settings.KEYPACK_FILENAME, 'r',
@@ -180,10 +182,10 @@ class KeyImporter(object):
         return json_data
 
     def start(self):
-        found = self._look_for_keypack()
+        found = KeyImporter._look_for_keypack()
         if found is False:
             return False
-        keypack = self._load_keypack()
+        keypack = KeyImporter._load_keypack()
         if keypack is None:
             return False
         self.db.save(settings.CONFIG_DB_KEY_KEYPACK, keypack)

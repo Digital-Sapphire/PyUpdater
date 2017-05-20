@@ -47,7 +47,7 @@ class Uploader(object):
 
         Args:
 
-            obj (instance): config object
+            config (instance): config object
     """
     def __init__(self, config=None):
         # Specifies whether to keep a file after uploading
@@ -84,6 +84,8 @@ class Uploader(object):
         Args:
 
             requested_uploader (string): Either s3 or scp
+
+            keep (bool): False to delete files after upload, True to keep files. Default False.
 
         """
         self.keep = keep
@@ -171,6 +173,7 @@ class Uploader(object):
         return failed_uploads
 
 
+# noinspection PyProtectedMember
 class AbstractBaseUploaderMeta(type):
 
     def __call__(cls, *args, **kwargs):
@@ -193,7 +196,8 @@ class BaseUploader(object):
         if self.name is None or self.author is None:
             raise NotImplementedError
 
-    def get_answer(self, question, default=None):
+    @staticmethod
+    def get_answer(question, default=None):
         return get_correct_answer(question, default=default)
 
     def init_config(self, config):

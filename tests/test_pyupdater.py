@@ -64,12 +64,11 @@ class TestSetup(object):
 @pytest.mark.usefixtures('cleandir')
 class TestExecutionExtraction(object):
 
-    @pytest.mark.parametrize("custom_dir, port",
-                             [])
+    @pytest.mark.parametrize("custom_dir, port", [])
                              # [(True, 8000),])
                              # [(True, 8000), (False, 8001)])
     def test_execution_onefile_extract(self, datadir, simpleserver, pyu,
-                                        custom_dir, port):
+                                       custom_dir, port):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
 

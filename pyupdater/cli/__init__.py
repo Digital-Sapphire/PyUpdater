@@ -82,12 +82,12 @@ def _real_main(args, namespace_test_helper=None):  # pragma: no cover
         # Used for tests
         args = namespace_test_helper
 
-    _dispatch_command(args, pyi_args)
+    dispatch_command(args, pyi_args)
 
 
 # Dispatch the passed in command to its respective function in
 # pyupdater.cli.commands
-def _dispatch_command(args, pyi_args=None, test=False):
+def dispatch_command(args, pyi_args=None, test=False):
     # Turns collect-debug-info into collect_debug_info
     cmd_str = "_cmd_" + args.command.replace('-', '_')
     try:

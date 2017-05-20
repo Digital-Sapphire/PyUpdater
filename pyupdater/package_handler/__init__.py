@@ -99,7 +99,7 @@ class PackageHandler(object):
         self.setup()
 
     def setup(self):
-        "Creates working directories & loads json files."
+        """Creates working directories & loads json files."""
         if self.data_dir is not None:
             self._setup()
 
@@ -122,12 +122,12 @@ class PackageHandler(object):
         # pyu-data/new directory. Also create a patch manifest
         # to create patches.
         pkg_manifest, patch_manifest = self._get_package_list(report_errors)
-        patches = self._make_patches(patch_manifest)
-        self._cleanup(patch_manifest)
+        patches = PackageHandler._make_patches(patch_manifest)
+        PackageHandler._cleanup(patch_manifest)
         pkg_manifest = self._add_patches_to_packages(pkg_manifest,
                                                      patches)
-        self.json_data = self._update_version_file(self.json_data,
-                                                   pkg_manifest)
+        self.json_data = PackageHandler._update_version_file(self.json_data,
+                                                             pkg_manifest)
         self._write_json_to_file(self.json_data)
         self._write_config_to_file(self.config)
         self._move_packages(pkg_manifest)
@@ -200,12 +200,12 @@ class PackageHandler(object):
                 # Add package hash
                 package.file_hash = gph(package.filename)
                 package.file_size = in_bytes(package.filename)
-                self.json_data = self._update_file_list(self.json_data,
-                                                        package)
+                self.json_data = PackageHandler._update_file_list(self.json_data,
+                                                                  package)
 
                 package_manifest.append(package)
-                self.config = self._add_package_to_config(package,
-                                                          self.config)
+                self.config = PackageHandler._add_package_to_config(package,
+                                                                    self.config)
 
                 if self.patch_support:
                     # If channel is not stable skip patch creation
@@ -245,7 +245,8 @@ class PackageHandler(object):
 
         return package_manifest, patch_manifest
 
-    def _add_package_to_config(self, p, data):
+    @staticmethod
+    def _add_package_to_config(p, data):
         if 'package' not in data.keys():
             data['package'] = {}
             log.info('Initilizing config for packages')
@@ -267,7 +268,8 @@ class PackageHandler(object):
                     data['package'][p.name][p.platform] = p.version
         return data
 
-    def _cleanup(self, patch_manifest):
+    @staticmethod
+    def _cleanup(patch_manifest):
         # Remove old archives that were previously used to create patches
         if len(patch_manifest) < 1:
             return
@@ -277,7 +279,8 @@ class PackageHandler(object):
             directory = os.path.dirname(p['src'])
             remove_previous_versions(directory, filename)
 
-    def _make_patches(self, patch_manifest):
+    @staticmethod
+    def _make_patches(patch_manifest):
         pool_output = []
         if len(patch_manifest) < 1:
             return pool_output
@@ -332,7 +335,8 @@ class PackageHandler(object):
                 log.warning('No patches found')
         return package_manifest
 
-    def _update_file_list(self, json_data, package_info):
+    @staticmethod
+    def _update_file_list(json_data, package_info):
         files = json_data[settings.UPDATES_KEY]
         latest = json_data.get('latest')
         if latest is None:
@@ -352,7 +356,8 @@ class PackageHandler(object):
             json_data['latest'][package_info.name][package_info.channel] = {}
         return json_data
 
-    def _manifest_to_version_file_compat(self,  package_info):
+    @staticmethod
+    def _manifest_to_version_file_compat(package_info):
         # Checking for patch info. Patch info maybe be none
         patch_name = package_info.patch_info.get('patch_name')
         patch_hash = package_info.patch_info.get('patch_hash')
@@ -373,13 +378,14 @@ class PackageHandler(object):
 
         return info
 
-    def _update_version_file(self, json_data, package_manifest):
+    @staticmethod
+    def _update_version_file(json_data, package_manifest):
         # Adding version metadata from scanned packages to our
         # version manifest
         log.info('Adding package meta-data to version manifest')
         easy_dict = EasyAccessDict(json_data)
         for p in package_manifest:
-            info = self._manifest_to_version_file_compat(p)
+            info = PackageHandler._manifest_to_version_file_compat(p)
 
             version_key = '{}*{}*{}'.format(settings.UPDATES_KEY,
                                             p.name, p.version)
@@ -408,7 +414,7 @@ class PackageHandler(object):
                 _updates = json_data[settings.UPDATES_KEY]
                 _updates[p.name][p.version][p.platform] = info
 
-            # Add each package to latests section separated by release channel
+            # Add each package to latest section separated by release channel
             json_data['latest'][p.name][p.channel][p.platform] = p.version
         return json_data
 
@@ -451,7 +457,7 @@ class PackageHandler(object):
         if bsdiff4 is None:
             log.warning('Bsdiff is missing. Cannot create patches')
             return None
-        src_file_path = None
+
         if os.path.exists(self.files_dir):
             with ChDir(self.files_dir):
                 files = os.listdir(os.getcwd())
