@@ -438,6 +438,9 @@ class LibUpdate(object):
                 log.debug('File does not exists')
                 raise ClientError('File does not exists', expected=True)
 
+            if not os.access(self.filename, os.R_OK):
+                raise ClientError('Permissions Error', expected=True)
+
             verified = self._verify_file_hash()
             if verified:
                 log.debug('Extracting Update')
@@ -451,7 +454,7 @@ class LibUpdate(object):
                             tfile.extractall()
                     except Exception as err:  # pragma: no cover
                         log.debug(err, exc_info=True)
-                        raise ClientError('Error reading gzip file')
+                        raise ClientError('Error reading gzip file', expected=True)
                 elif archive_ext == '.zip':
                     try:
                         with zipfile.ZipFile(self.filename, 'r') as zfile:
@@ -460,7 +463,7 @@ class LibUpdate(object):
                             zfile.extractall()
                     except Exception as err:  # pragma: no cover
                         log.debug(err, exc_info=True)
-                        raise ClientError('Error reading zip file')
+                        raise ClientError('Error reading zip file', expected=True)
                 else:
                     raise ClientError('Unknown filetype')
             else:
