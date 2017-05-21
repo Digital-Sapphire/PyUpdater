@@ -38,9 +38,9 @@ import six
 from pyupdater import PyUpdater
 from tconfig import TConfig
 
-AUTO_UPDATE_PAUSE = 30
+AUTO_UPDATE_PAUSE = 40
 if sys.platform == 'win32':
-    AUTO_UPDATE_PAUSE += 10
+    AUTO_UPDATE_PAUSE += 5
 
 UPDATE_LOCK = multiprocessing.Lock()
 
@@ -61,13 +61,11 @@ class TestSetup(object):
         assert os.path.exists(os.path.join(pyu_data_dir, 'new'))
 
 
-@pytest.mark.usefixtures('cleandir')
 class TestExecutionExtraction(object):
 
-    @pytest.mark.parametrize("custom_dir, port", [])
-                             # [(True, 8000),])
-                             # [(True, 8000), (False, 8001)])
-    def test_execution_onefile_extract(self, datadir, simpleserver, pyu,
+    @pytest.mark.parametrize("custom_dir, port",
+                             [(True, 8000), (False, 8001)])
+    def test_execution_onefile_extract(self, cleandir, datadir, simpleserver, pyu,
                                        custom_dir, port):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
@@ -123,13 +121,15 @@ class TestExecutionExtraction(object):
 
             assert out == six.b('4.2')
 
+            if os.path.exists(app_name):
+                os.remove(app_name)
 
-@pytest.mark.usefixtures('cleandir')
+
 class TestExecutionRestart(object):
 
     @pytest.mark.parametrize("custom_dir, port",
                              [(True, 8002), (False, 8003)])
-    def test_execution_one_file_restart(self, datadir, simpleserver, pyu,
+    def test_execution_one_file_restart(self, cleandir, datadir, simpleserver, pyu,
                                         custom_dir, port):
         data_dir = datadir['update_repo_restart']
         pyu.setup()
@@ -183,3 +183,6 @@ class TestExecutionRestart(object):
             with open('version2.txt', 'r') as f:
                 output = f.read().strip()
             assert output == '4.2'
+
+            if os.path.exists(app_name):
+                os.remove(app_name)

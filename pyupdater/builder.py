@@ -32,8 +32,7 @@ import time
 from pyupdater import settings
 from pyupdater.hooks import get_hook_dir
 from pyupdater.pyinstaller_compat import pyi_makespec
-from pyupdater.utils import (check_repo,
-                             create_asset_archive,
+from pyupdater.utils import (create_asset_archive,
                              make_archive)
 from pyupdater.utils.config import ConfigManager
 
@@ -60,7 +59,6 @@ class Builder(object):  # pragma: no cover
     """
 
     def __init__(self, args, pyi_args):
-        check_repo()
         # We only need to grab appname
         cm = ConfigManager()
         self.app_name = cm.get_app_name()
