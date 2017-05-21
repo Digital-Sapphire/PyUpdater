@@ -119,5 +119,5 @@ def main(args=None):  # pragma: no cover
 
 
 if __name__ == '__main__':  # pragma: no cover
-    args = sys.argv[1:]
-    main(args)
+    arguments = sys.argv[1:]
+    main(arguments)
