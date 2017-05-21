@@ -441,8 +441,7 @@ class LibUpdate(object):
             if not os.access(self.filename, os.R_OK):
                 raise ClientError('Permissions Error', expected=True)
 
-            verified = self._verify_file_hash()
-            if verified:
+            if self._verify_file_hash():
                 log.debug('Extracting Update')
                 archive_ext = os.path.splitext(self.filename)[1].lower()
 
