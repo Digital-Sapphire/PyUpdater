@@ -38,9 +38,9 @@ import six
 from pyupdater import PyUpdater
 from tconfig import TConfig
 
-AUTO_UPDATE_PAUSE = 40
+AUTO_UPDATE_PAUSE = 30
 if sys.platform == 'win32':
-    AUTO_UPDATE_PAUSE += 5
+    AUTO_UPDATE_PAUSE += 10
 
 UPDATE_LOCK = multiprocessing.Lock()
 
@@ -113,16 +113,19 @@ class TestExecutionExtraction(object):
                 # Allow enough time for update process to complete.
                 time.sleep(AUTO_UPDATE_PAUSE)
 
-            # Call again to check the output
-            out = subprocess.check_output(app_name, shell=True)
-            out = out.strip()
-
             simpleserver.stop()
 
-            assert out == six.b('4.2')
+            output_file = 'version2.txt'
+            assert os.path.exists(output_file)
+            with open(output_file, 'r') as f:
+                output = f.read().strip()
+            assert output == '4.2'
 
             if os.path.exists(app_name):
                 os.remove(app_name)
+
+            if os.path.exists(output_file):
+                os.remove(output_file)
 
 
 class TestExecutionRestart(object):
@@ -179,10 +182,14 @@ class TestExecutionRestart(object):
 
             simpleserver.stop()
 
-            assert os.path.exists('version2.txt')
-            with open('version2.txt', 'r') as f:
+            version_file = 'version2.txt'
+            assert os.path.exists(version_file)
+            with open(version_file, 'r') as f:
                 output = f.read().strip()
             assert output == '4.2'
 
             if os.path.exists(app_name):
                 os.remove(app_name)
+
+            if os.path.exists(version_file):
+                os.remove(version_file)
