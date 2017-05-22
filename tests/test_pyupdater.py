@@ -115,6 +115,10 @@ class TestExecutionExtraction(object):
 
             simpleserver.stop()
 
+            # Call the binary to ensure it's
+            # the updated binary
+            subprocess.call(app_name, shell=True)
+
             output_file = 'version2.txt'
             assert os.path.exists(output_file)
             with open(output_file, 'r') as f:
