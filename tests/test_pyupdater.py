@@ -113,11 +113,11 @@ class TestExecutionExtraction(object):
                 # Allow enough time for update process to complete.
                 time.sleep(AUTO_UPDATE_PAUSE)
 
-            simpleserver.stop()
-
             # Call the binary to ensure it's
             # the updated binary
             subprocess.call(app_name, shell=True)
+
+            simpleserver.stop()
 
             output_file = 'version2.txt'
             assert os.path.exists(output_file)
