@@ -630,7 +630,7 @@ class AppUpdate(LibUpdate):
         app_update = os.path.join(self.update_folder, self.name)
 
         # Must be dealing with Mac .app application
-        if not os.path.exists(app_update):
+        if not os.path.exists(app_update) and sys.platform == "darwin":
             app_update += '.app'
 
         log.debug('Update Location:\n%s', os.path.dirname(app_update))
