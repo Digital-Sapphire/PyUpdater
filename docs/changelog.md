@@ -12,6 +12,7 @@
   
   - Client
     - Faster & more efficient downloads. @mayli
+    - Error messages on expected errors
 
   - Docs
     - Code example
@@ -19,7 +20,16 @@
   - Libs
     - appdirs 1.4.3
     - urllib3 1.21.1
-    
+
+###Fixed
+
+  - CLI
+    - Saving config changes when keypack isn't imported.
+
+###Removed
+
+  - PyUpdater
+    - Unused code
 
 ## v2.3.2 - 2017/02/04
 
