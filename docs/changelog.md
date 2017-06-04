@@ -7,6 +7,9 @@
 
   - Client
     - Ability to specify a custom folder for update files. @mayli
+  
+  - PyUpdater
+    - Arm support
 
 ###Updated
   
