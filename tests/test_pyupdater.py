@@ -119,7 +119,7 @@ class TestExecutionExtraction(object):
 
             simpleserver.stop()
 
-            output_file = 'version2.txt'
+            output_file = 'version1.txt'
             assert os.path.exists(output_file)
             with open(output_file, 'r') as f:
                 output = f.read().strip()
