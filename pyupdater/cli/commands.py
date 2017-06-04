@@ -1,3 +1,27 @@
+# --------------------------------------------------------------------------
+# Copyright (c) 2015-2017 Digital Sapphire
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to permit
+# persons to whom the Software is furnished to do so, subject to the
+# following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+# ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+# TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+# SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+# OR OTHER DEALINGS IN THE SOFTWARE.
+# --------------------------------------------------------------------------
 import io
 import json
 import logging
@@ -8,18 +32,17 @@ from dsdev_utils.terminal import ask_yes_no, get_correct_answer
 
 from pyupdater import __version__, PyUpdater, settings
 from pyupdater.builder import Builder, ExternalLib
+from pyupdater.cli.helpers import (initial_setup,
+                                   print_plugin_settings,
+                                   setup_client_config_path,
+                                   setup_company,
+                                   setup_max_download_retries,
+                                   setup_patches,
+                                   setup_plugin,
+                                   setup_urls)
 from pyupdater.client.downloader import get_http_pool
 from pyupdater.key_handler.keys import Keys, KeyImporter
-from pyupdater.utils import (check_repo as _check_repo,
-                             initial_setup,
-                             PluginManager,
-                             print_plugin_settings,
-                             setup_client_config_path,
-                             setup_company,
-                             setup_max_download_retries,
-                             setup_patches,
-                             setup_plugin,
-                             setup_urls)
+from pyupdater.utils import check_repo, PluginManager
 from pyupdater.utils.config import Config, ConfigManager
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
@@ -32,8 +55,8 @@ TEST = False
 
 # A wrapper for _check_repo that will log errors and
 # exit the program if needed
-def check_repo(exit_on_error=False):
-    check = _check_repo()
+def check_repo_ex(exit_on_error=False):
+    check = check_repo()
     if check is False:
         log.error('Not a PyUpdater repo: You must initialize '
                   'your repository first')
@@ -44,7 +67,7 @@ def check_repo(exit_on_error=False):
 
 # Archive an external asset
 def _cmd_archive(*args):
-    check_repo(exit_on_error=True)
+    check_repo_ex(exit_on_error=True)
 
     ns = args[0]
     new_dir = os.path.join(CWD, settings.USER_DATA_FOLDER, 'new')
@@ -66,7 +89,7 @@ def _cmd_archive(*args):
 
 # Will build and archive an exe from a python script file
 def _cmd_build(*args):
-    check_repo(exit_on_error=True)
+    check_repo_ex(exit_on_error=True)
 
     ns = args[0]
     pyi_args = args[1]
@@ -114,7 +137,7 @@ def _clean(*args):
 # cause issues with updates if not used carefully. If really need
 # this value can be changed in the .pyupdater/config.pyu file.
 def _cmd_settings(*args):  # pragma: no cover
-    check_repo(exit_on_error=True)
+    check_repo_ex(exit_on_error=True)
 
     ns = args[0]
     # Used to specifiy if config needs to be saved
@@ -186,7 +209,7 @@ def _cmd_init(*args):  # pragma: no cover
 
 # We create and import keys with this puppy.
 def _cmd_keys(*args):  # pragma: no cover
-    check = check_repo()
+    check = check_repo_ex()
 
     ns = args[0]
     # We try to prevent developers from creating root keys on the dev
@@ -244,7 +267,7 @@ def _cmd_keys(*args):  # pragma: no cover
 # This will be used when the application being build goes a little
 # beyond the basics. This is good!
 def _cmd_make_spec(*args):
-    check_repo(exit_on_error=True)
+    check_repo_ex(exit_on_error=True)
 
     ns = args[0]
     pyi_args = args[1]
@@ -255,7 +278,7 @@ def _cmd_make_spec(*args):
 # The pkg command will move, gather meta-data & sign all
 # packages within the pyu-data folder
 def _cmd_pkg(*args):
-    check_repo(exit_on_error=True)
+    check_repo_ex(exit_on_error=True)
 
     ns = args[0]
     cm = ConfigManager()
@@ -375,7 +398,7 @@ def _cmd_plugins(*args):
 
 # Upload the assets with the requested upload plugin
 def _cmd_upload(*args):  # pragma: no cover
-    check_repo(exit_on_error=True)
+    check_repo_ex(exit_on_error=True)
 
     ns = args[0]
 

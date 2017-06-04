@@ -36,9 +36,10 @@ def main():
     update = client.update_check(APPNAME, VERSION)
     if update is not None:
         success = update.download()
+        print('')
         if success is True:
             print('Update download successful')
-            print('Restarting')
+            print('Extracting & overwriting')
             update.extract_overwrite()
         else:
             print('Failed to download update')

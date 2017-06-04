@@ -61,13 +61,11 @@ class TestSetup(object):
         assert os.path.exists(os.path.join(pyu_data_dir, 'new'))
 
 
-@pytest.mark.usefixtures('cleandir')
 class TestExecutionExtraction(object):
 
-    @pytest.mark.parametrize("custom_dir, port", [])
-                             # [(True, 8000),])
-                             # [(True, 8000), (False, 8001)])
-    def test_execution_onefile_extract(self, datadir, simpleserver, pyu,
+    @pytest.mark.parametrize("custom_dir, port",
+                             [(True, 8000), (False, 8001)])
+    def test_execution_onefile_extract(self, cleandir, datadir, simpleserver, pyu,
                                        custom_dir, port):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
@@ -115,21 +113,30 @@ class TestExecutionExtraction(object):
                 # Allow enough time for update process to complete.
                 time.sleep(AUTO_UPDATE_PAUSE)
 
-            # Call again to check the output
-            out = subprocess.check_output(app_name, shell=True)
-            out = out.strip()
+            # Call the binary to ensure it's
+            # the updated binary
+            subprocess.call(app_name, shell=True)
 
             simpleserver.stop()
 
-            assert out == six.b('4.2')
+            output_file = 'version1.txt'
+            assert os.path.exists(output_file)
+            with open(output_file, 'r') as f:
+                output = f.read().strip()
+            assert output == '4.2'
+
+            if os.path.exists(app_name):
+                os.remove(app_name)
+
+            if os.path.exists(output_file):
+                os.remove(output_file)
 
 
-@pytest.mark.usefixtures('cleandir')
 class TestExecutionRestart(object):
 
     @pytest.mark.parametrize("custom_dir, port",
                              [(True, 8002), (False, 8003)])
-    def test_execution_one_file_restart(self, datadir, simpleserver, pyu,
+    def test_execution_one_file_restart(self, cleandir, datadir, simpleserver, pyu,
                                         custom_dir, port):
         data_dir = datadir['update_repo_restart']
         pyu.setup()
@@ -179,7 +186,14 @@ class TestExecutionRestart(object):
 
             simpleserver.stop()
 
-            assert os.path.exists('version2.txt')
-            with open('version2.txt', 'r') as f:
+            version_file = 'version2.txt'
+            assert os.path.exists(version_file)
+            with open(version_file, 'r') as f:
                 output = f.read().strip()
             assert output == '4.2'
+
+            if os.path.exists(app_name):
+                os.remove(app_name)
+
+            if os.path.exists(version_file):
+                os.remove(version_file)
