@@ -15,8 +15,8 @@ extra_scp = 'PyUpdater-scp-Plugin >= 3.0.5'
 setup(
     name='PyUpdater',
     version=versioneer.get_version(),
-    description='Simple App update framwork',
-    author='Johny Mo Swag',
+    description='Simple App Update Framworke',
+    author='JMSwag',
     author_email='johnymoswag@gmail.com',
     url='http://www.pyupdater.org',
     download_url=('https://github.com/JMSwag/Py'
