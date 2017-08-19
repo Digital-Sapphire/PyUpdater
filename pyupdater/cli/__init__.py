@@ -90,13 +90,13 @@ def _real_main(args, namespace_test_helper=None):  # pragma: no cover
 def dispatch_command(args, pyi_args=None, test=False):
     # Turns collect-debug-info into collect_debug_info
     cmd_str = "_cmd_" + args.command.replace('-', '_')
-    try:
+    if hasattr(commands, cmd_str):
         cmd = getattr(commands, cmd_str)
         # We are just making sure we can load the function
         if test:
             return True
         cmd(args, pyi_args)
-    except AttributeError:
+    else:
         # This should only get hit by misconfigured tests.
         # "Should" being the key word here :)
         log.error('Unknown Command: %s', cmd_str)
