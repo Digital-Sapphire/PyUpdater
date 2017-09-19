@@ -1,7 +1,15 @@
 # Changelog
 
-## v2.4.1 - Master
+## v2.4.2 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.4.1 - 2017/18/09
+
+###Fixed
+
+  - CLI
+    - Fix command detection @jameshilliard
 
 
 ## v2.4.0 - 2017/17/09
