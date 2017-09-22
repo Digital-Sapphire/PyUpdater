@@ -197,7 +197,7 @@ start "" "{}"
 DEL {}
 DEL "%~f0"
 """.format(self.updated_app, self.current_app,
-                self.current_app, self.vbs_file))
+           self.current_app, self.vbs_file))
 
         with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
@@ -289,6 +289,9 @@ class LibUpdate(object):
 
         # Weather or not the verify the https connection
         self.verify = data.get('verify', True)
+
+        # Extra headers to pass to urllib3
+        self.urllib3_headers = data.get('urllib3_headers')
 
         # The amount of times to retry a url before giving up
         self.max_download_retries = data.get('max_download_retries')
@@ -535,7 +538,8 @@ class LibUpdate(object):
             fd = FileDownloader(self.filename, self.update_urls,
                                 hexdigest=file_hash, verify=self.verify,
                                 progress_hooks=self.progress_hooks,
-                                max_download_retries=self.max_download_retries)
+                                max_download_retries=self.max_download_retries,
+                                urllb3_headers=self.urllib3_headers)
             result = fd.download_verify_write()
             if result:
                 log.debug('Download Complete')

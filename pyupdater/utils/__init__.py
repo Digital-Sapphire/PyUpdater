@@ -37,10 +37,12 @@ try:
 except ImportError:
     from collections import MutableMapping as DictMixin
 
+import certifi
 from dsdev_utils import paths
 from dsdev_utils import system
 from stevedore.extension import ExtensionManager
 import six
+import urllib3
 
 from pyupdater import settings
 
@@ -195,6 +197,11 @@ def check_repo():
         log.debug('PyUpdater config data folder is missing')
         repo = False
     return repo
+
+
+def get_http_pool():
+    return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
+                               ca_certs=certifi.where())
 
 
 def get_size_in_bytes(filename):

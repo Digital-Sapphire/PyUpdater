@@ -3,6 +3,10 @@
 ## v2.4.2 - Master
 ####* This version is not yet released and is under active development.
 
+###Added
+
+  - Client
+    - Basic Auth
 
 ## v2.4.1 - 2017/18/09
 

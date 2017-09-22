@@ -57,34 +57,41 @@ def get_hash(data):
     return hash_
 
 
+# ToDo: Remove in v3.0
+# Safe to delete without question. No dependencies.
 def get_http_pool(secure=True):
     if secure is True:
         return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
                                    ca_certs=certifi.where())
     else:
         return urllib3.PoolManager()
+# End ToDo
 
 
-# The FileDownloader object downloads files to memory and
-# verifies their hash.  If hash is verified data is either
-# written to disk to returned to calling object
-#
-# Args:
-#
-#     filename (str): The name of file to download
-#
-#     urls (list): List of urls to use for file download
-#
-# Kwargs:
-#
-#     hexdigest (str): The hash of the file to download
-#
-#     verify (bool) Meaning:
-#
-#         True: Verify https connection
-#
-#         False: Don't verify https connection
 class FileDownloader(object):
+    """The FileDownloader object downloads files to memory and
+    verifies their hash.  If hash is verified data is either
+    written to disk to returned to calling object
+
+    ######Args:
+
+    filename (str): The name of file to download
+
+    urls (list): List of urls to use for file download
+
+    ######Kwargs:
+
+    headers (str):
+
+    hexdigest (str): The hash of the file to download
+
+    verify (bool) Meaning:
+
+        True: Verify https connection
+
+        False: Don't verify https connection
+
+    """
 
     def __init__(self, *args, **kwargs):
         # We'll append the filename to one of the provided urls
@@ -132,10 +139,26 @@ class FileDownloader(object):
         # Total length of data to download.
         self.content_length = None
 
+        # Extra headers
+        self.headers = kwargs.get('urllb3_headers')
+
         if self.verify is True:
-            self.http_pool = get_http_pool()
+            self.http_pool = self._get_http_pool()
         else:
-            self.http_pool = get_http_pool(secure=False)
+            self.http_pool = self._get_http_pool(secure=False)
+
+    def _get_http_pool(self, secure=True):
+        if secure:
+            _http = urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
+                                        ca_certs=certifi.where())
+        else:
+            _http = urllib3.PoolManager()
+
+        if self.headers:
+            _headers = urllib3.util.make_headers(**self.headers)
+            _http.headers.update(_headers)
+        print(_http.headers)
+        return _http
 
     # Downloads file then verifies against provided hash
     # If hash verfies then writes data to disk
@@ -214,7 +237,7 @@ class FileDownloader(object):
             log.debug('Callbacks will not show time left '
                       'or percent downloaded.')
         if (self.content_length is None or
-                self.content_length > self.download_max_size):
+                    self.content_length > self.download_max_size):
             log.debug('Using file as storage since the file is too large')
             self.file_binary_type = 'file'
         else:
