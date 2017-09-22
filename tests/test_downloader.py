@@ -65,7 +65,7 @@ class TestData(object):
 @pytest.mark.usefixtue("cleandir")
 class TestBasicAuth(object):
 
-    def test_basic_auth(self, httpbin):
+    def test_basic_auth(self):
         headers = {'basic_auth': 'user:pass'}
         fd = FileDownloader('test', ['test'], urllb3_headers=headers)
         http = fd._get_http_pool(secure=True)
