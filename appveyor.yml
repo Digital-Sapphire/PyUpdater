@@ -66,7 +66,7 @@ cache:
 
 init:
     # Used to RDP into build worker
-    # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+    #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
     - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
     - "ECHO \"%APPVEYOR_SCHEDULED_BUILD%\""
 
@@ -115,7 +115,7 @@ build: none
 
 on_finish:
   # Used to RDP into build worker
-  # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 test_script:
     # Split tests into several subprocesses.
