@@ -3,8 +3,9 @@
 
 ##What is PyUpdater?
 
-An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
+An AutoUpdate library and toolkit that enables simple, secure & efficient shipment of app updates.
 
+This project wouldn't be possible without [Pyinstaller](https://github.com/pyinstaller/pyinstaller).
 ## Status
 
 [![](https://badge.fury.io/py/PyUpdater.svg)](http://badge.fury.io/py/PyUpdater)
@@ -13,29 +14,27 @@ An autoupdate framework for pyinstaller that enables simple, secure & efficient 
 [![](https://requires.io/github/JMSwag/PyUpdater/requirements.svg?branch=master)](https://requires.io/github/JMSwag/PyUpdater/requirements/?branch=master)
 [![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master)
 [![Coverage Status](https://coveralls.io/repos/github/JMSwag/PyUpdater/badge.svg?branch=master)](https://coveralls.io/github/JMSwag/PyUpdater?branch=master)
-[![Gitter](https://badges.gitter.im/pyupdater/Lobby.svg)](https://gitter.im/pyupdater/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ##Features
 
 - Easy Setup
+- Basic Auth support
 - Secured with EdDSA
-- Secure off line update
+- Cryptographically secure off line update
 - Release channels
-- Automatic generation & application of patch updates
-- Smart patch updates
-    - This method is only applied if the total size of patches is less than a full update.
+- Automatic patch update support
+- Intelligent update workflow
 - Asynchronous downloads
-- Update your application's assets.
-    - A bundled copy of ffmpeg for example
+- Update versioned external assets
 - Dual key verification
-    - If the repository key is compromised it is very easy to create a new one.
-- Get download progress with progress hooks a.k.a. callbacks
-    - Great for GUI applications.
-    - Super easy setup
-- Upload system based on a plugin architecture
-- I really feel like I'm missing something else
+    - An offline private key signs an application specific key pair.
+    - The application specific key pair is used to sign and verify update meta data.
+    - The client is shipped with the offline public key to bootstrap the verification process.
+- Download progress callback
+- Uploading to the cloud handled by plugins.
+    - S3 and SCP plugins available
 
 
 ##Limitations
 
-* No Pyinstaller onedir support
+* No Pyinstaller onedir support. (But may be comming soon!)

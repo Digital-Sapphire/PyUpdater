@@ -8,7 +8,7 @@ Do not change the name attribute in the spec file
 
 ###Version Numbers
 
-Version numbers should be in the format specified below. Supported release versions are alpha & beta. For shorthand you can use a & b respectively.
+Version numbers should be in the format specified below. Supported release versions are alpha and beta. For shorthand you can use a and b respectively.
 
 1.0
 
