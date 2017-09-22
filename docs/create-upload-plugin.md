@@ -16,16 +16,16 @@ class MyUploader(BaseUploader):
     author = 'Jane Doe'
 
     def init_config(self, config):
-        "Pyupdater will call this function when setting the uploader"
-        # config (dict): a dict with settings specific to this plugin
+        self.server_url = config["server_url"]
 
     def set_config(self, config):
-        "This method will be called when a user selects your plugin from the settings flag"
-        # config (dict): a dict with settings specific to this plugin
+        server_name = self.get_answer("Please enter server name\n--> ")
+        config["server_url"] = server_name
 
     def upload_file(self, filename):
-        "PyUpdater will call this function on every file that needs to be uploaded."
-        # filename (str): Absolute path to the file
+        # Make the magic happen
+        files = {'file': open(filename, 'rb')}
+        r = request.post(self.server_url, files=files)
 ```
 
 
@@ -47,14 +47,12 @@ The first way would be to request the information from the user. In your plugin 
 ```python
 # Saves the config to disk.
 def set_config(self, config):
-    
-    server_name = self.get_answer('Please enter the server name\n--> ')
-    
-    config["server_name"] = server_name
+    server_name = self.get_answer("Please enter server name\n--> ")
+    config["server_url"] = server_name
 
 # Will be called after the class is initialized.
 def init_config(self, config):
-    self.server_name = config["server_name"]
+    self.server_url = config["server_url"]
     
 ```
 
