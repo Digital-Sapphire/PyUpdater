@@ -22,6 +22,7 @@ setup(
     download_url=('https://github.com/JMSwag/Py'
                   'Updater/archive/master.zip'),
     license='MIT',
+    keywords='PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update',
     extras_require={
         's3': extra_s3,
         'scp': extra_scp,
