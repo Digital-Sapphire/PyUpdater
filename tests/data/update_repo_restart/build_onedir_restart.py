@@ -17,7 +17,7 @@ home_dir = os.path.dirname(os.path.abspath(__file__))
 def build(app):
     # Pyinstaller's --clean is not 'multiprocessing safe', let's use our own cache
     os.environ['PYINSTALLER_CONFIG_DIR'] = os.path.join(home_dir, '.cache')
-    cmd = ('pyupdater build -F --clean --path={} '
+    cmd = ('pyupdater build -D --clean --path={} '
            '--app-version={} {}'.format(home_dir, app[1], app[0]))
     os.system(cmd)
 
@@ -41,7 +41,7 @@ def main(use_custom_dir, port):
     # patch config_file for custom port number
     config_file = open('client_config.py', 'rt').read()
     config_file = re.sub(
-            'localhost:\d+', 'localhost:%s' % port, config_file)
+        'localhost:\d+', 'localhost:%s' % port, config_file)
     # patch config_file for use_custom_dir
     if use_custom_dir:
         config_file += '\n    USE_CUSTOM_DIR = True\n'

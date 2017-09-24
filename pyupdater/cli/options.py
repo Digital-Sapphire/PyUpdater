@@ -56,16 +56,6 @@ def _build_make_spec_commom(subparser):
     # --app-name
     subparser.add_argument('-n', '--name', help=argparse.SUPPRESS)
 
-    # Just capturing these argument.
-    # PyUpdater only supports onefile mode at the moment
-    subparser.add_argument('-D', '--onedir', action="store_true",
-                           help=argparse.SUPPRESS)
-
-    # Just capturing these argument.
-    # Will be added later to pyinstaller build command
-    subparser.add_argument('-F', '--onefile', action="store_true",
-                           help=argparse.SUPPRESS)
-
     # End of args override
 
 

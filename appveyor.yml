@@ -17,12 +17,6 @@ environment:
             PYTHON_VERSION: "2.7"
             PYTHON_ARCH: "32"
 
-          - JOB: "3.3 32-bit"
-            TOXENV: "py33"
-            PYTHON: "C:\\Python33"
-            PYTHON_VERSION: "3.3"
-            PYTHON_ARCH: "32"
-
           - JOB: "3.4 32-bit"
             TOXENV: "py34"
             PYTHON: "C:\\Python34"
@@ -52,11 +46,6 @@ environment:
             PYTHON: "C:\\Python36-x64"
             PYTHON_VERSION: "3.6"
             PYTHON_ARCH: "64"
-
-
-matrix:
-    allow_failures:
-        - PYTHON_VERSION: "3.6"
 
 
 cache:

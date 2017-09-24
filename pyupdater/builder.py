@@ -140,8 +140,6 @@ class Builder(object):  # pragma: no cover
                    app_info, spec_only=False):
         log.debug('App Info: %s', app_info)
 
-        # Ensure that onefile mode is passed
-        spec_args.append('-F')
         spec_args.append('--name={}'.format(temp_name))
         if spec_only is True:
             log.debug('*** User generated spec file ***')
