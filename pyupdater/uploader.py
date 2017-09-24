@@ -85,7 +85,8 @@ class Uploader(object):
 
             requested_uploader (string): Either s3 or scp
 
-            keep (bool): False to delete files after upload, True to keep files. Default False.
+            keep (bool): False to delete files after upload.
+                         True to keep files. Default False.
 
         """
         self.keep = keep

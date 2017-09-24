@@ -304,8 +304,10 @@ class LibUpdate(object):
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
         # patch update
+        cv = self.current_version
         self._current_archive_name = LibUpdate._get_filename(self.name,
-                                                             self.current_version,
+                                                             # PEP8
+                                                             cv,
                                                              self.platform,
                                                              self.easy_data)
 
@@ -456,7 +458,8 @@ class LibUpdate(object):
                             tfile.extractall()
                     except Exception as err:  # pragma: no cover
                         log.debug(err, exc_info=True)
-                        raise ClientError('Error reading gzip file', expected=True)
+                        raise ClientError('Error reading gzip file',
+                                          expected=True)
                 elif archive_ext == '.zip':
                     try:
                         with zipfile.ZipFile(self.filename, 'r') as zfile:
@@ -465,7 +468,8 @@ class LibUpdate(object):
                             zfile.extractall()
                     except Exception as err:  # pragma: no cover
                         log.debug(err, exc_info=True)
-                        raise ClientError('Error reading zip file', expected=True)
+                        raise ClientError('Error reading zip file',
+                                          expected=True)
                 else:
                     raise ClientError('Unknown filetype')
             else:

@@ -51,7 +51,8 @@ def setup_appname(config):  # pragma: no cover
     else:
         default = None
     config.APP_NAME = terminal.get_correct_answer('Please enter app name',
-                                                  required=True, default=default)
+                                                  required=True,
+                                                  default=default)
 
 
 def setup_client_config_path(config):  # pragma: no cover
@@ -127,7 +128,8 @@ def setup_urls(config):  # pragma: no cover
                                      'another url for backup?',
                                      default='no')
         if answer is True:
-            url = terminal.get_correct_answer('Enter another url.', required=True)
+            url = terminal.get_correct_answer('Enter another url.',
+                                              required=True)
             config.UPDATE_URLS.append(url)
         else:
             break
