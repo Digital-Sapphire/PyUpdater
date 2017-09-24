@@ -8,7 +8,7 @@
   - Client
     - Basic Auth
 
-## v2.4.1 - 2017/18/09
+## v2.4.1 - 2017/09/18
 
 ###Fixed
 
@@ -16,7 +16,7 @@
     - Fix command detection @jameshilliard
 
 
-## v2.4.0 - 2017/17/09
+## v2.4.0 - 2017/09/17
 
 ###Added
 
