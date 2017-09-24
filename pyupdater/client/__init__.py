@@ -89,7 +89,8 @@ class Client(object):
 
         if headers is not None:
             if not isinstance(headers, dict):
-                raise ClientError('headers argument must be a dict', expected=True)
+                raise ClientError('headers argument must be a dict',
+                                  expected=True)
 
         # String: Name of binary to update
         self.name = None

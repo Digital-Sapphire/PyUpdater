@@ -83,7 +83,8 @@ class PyUpdater(object):
 
             requested_uploader (str): upload service. i.e. s3, scp
 
-            keep (bool): False to delete files after upload, True to keep files. Default False.
+            keep (bool): False to delete files after upload.
+                         True to keep files. Default False.
 
         """
         self.up.set_uploader(requested_uploader, keep)

@@ -4,7 +4,6 @@ cache: pip
 
 python:
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
@@ -15,7 +14,6 @@ env: # important! Read the docs!! https://docs.travis-ci.com/user/customizing-th
 matrix:
 
   allow_failures:
-    - python: "3.6"
     - python: "nightly"
 
 install:
