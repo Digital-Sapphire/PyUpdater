@@ -37,7 +37,7 @@ import six
 
 from pyupdater.client import Client
 from pyupdater.client.updates import (gen_user_friendly_version,
-                                      get_highest_version)
+                                      _get_highest_version)
 from tconfig import TConfig
 
 
@@ -246,12 +246,12 @@ class TestChannelStrict(object):
 
     def test1(self):
         data = EasyAccessDict(self.version_data)
-        assert get_highest_version('Acme', 'mac', 'alpha',
-                                   data, strict=True) == '4.4.2.0.5'
-        assert get_highest_version('Acme', 'mac', 'beta',
-                                   data, strict=True) == '4.4.1.1.0'
-        assert get_highest_version('Acme', 'mac', 'stable',
-                                   data, strict=True) == '4.4.3.2.0'
+        assert _get_highest_version('Acme', 'mac', 'alpha',
+                                    data, strict=True) == '4.4.2.0.5'
+        assert _get_highest_version('Acme', 'mac', 'beta',
+                                    data, strict=True) == '4.4.1.1.0'
+        assert _get_highest_version('Acme', 'mac', 'stable',
+                                    data, strict=True) == '4.4.3.2.0'
 
 
 class TestChannelLessStrict(object):
@@ -274,8 +274,8 @@ class TestChannelLessStrict(object):
 
     def test1(self):
         data = EasyAccessDict(self.version_data)
-        assert get_highest_version('Acme', 'mac', 'alpha',
-                                   data, strict=False) == '4.4.3.2.0'
+        assert _get_highest_version('Acme', 'mac', 'alpha',
+                                    data, strict=False) == '4.4.3.2.0'
 
 
 class TestMissingStable(object):
@@ -295,5 +295,5 @@ class TestMissingStable(object):
 
     def test1(self):
         data = EasyAccessDict(self.version_data)
-        assert get_highest_version('Acme', 'mac', 'stable',
-                                   data, strict=True) is None
+        assert _get_highest_version('Acme', 'mac', 'stable',
+                                    data, strict=True) is None
