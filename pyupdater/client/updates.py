@@ -47,26 +47,26 @@ from pyupdater.utils.exceptions import ClientError
 log = logging.getLogger(__name__)
 
 
-def get_highest_version(name, plat, channel, easy_data, strict):
-    """Parses version file and returns the highest version number.
+def _get_highest_version(name, plat, channel, easy_data, strict):
+    # Parses version file and returns the highest version number.
+    #
+    #   Args:
+    #
+    #      name (str): name of file to search for updates
+    #
+    #      plat (str): the platform we are requesting for
+    #
+    #      channel (str): the release channel
+    #
+    #      easy_data (dict): data file to search
+    #
+    #      strict (bool): specify whether or not to take the channel
+    #                     into consideration
+    #
+    #   Returns:
+    #
+    #      (str) Highest version number
 
-        Args:
-
-           name (str): name of file to search for updates
-
-           plat (str): the platform we are requesting for
-
-           channel (str): the release channel
-
-           easy_data (dict): data file to search
-
-           strict (bool): specify whether or not to take the channel
-                          into consideration
-
-        Returns:
-
-           (str) Highest version number
-    """
     # We grab all keys and return the version corresponding to the
     # channel passed to this function
     version_key_alpha = '{}*{}*{}*{}'.format('latest', name, 'alpha', plat)
@@ -297,9 +297,9 @@ class LibUpdate(object):
         self.max_download_retries = data.get('max_download_retries')
 
         # The latest version available
-        self.latest = get_highest_version(self.name, self.platform,
-                                          self.channel, self.easy_data,
-                                          self.strict)
+        self.latest = _get_highest_version(self.name, self.platform,
+                                           self.channel, self.easy_data,
+                                           self.strict)
 
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
@@ -332,8 +332,11 @@ class LibUpdate(object):
     def is_downloaded(self):
         """Used to check if update has been downloaded.
 
-        ######Returns (bool): True - File is already downloaded.
-        False - File hasn't been downloaded.
+        ######Returns (bool):
+
+            True - File is already downloaded.
+
+            False - File has not been downloaded.
         """
         if self._is_downloading is True:
             return False
@@ -344,7 +347,7 @@ class LibUpdate(object):
 
         ######Args:
 
-        async (bool): Perform download in background thread
+            async (bool): Perform download in background thread
         """
         if async is True:
             if self._is_downloading is False:
@@ -363,7 +366,7 @@ class LibUpdate(object):
 
         ######Returns:
 
-        (bool) True - Extract successful. False - Extract failed.
+            (bool) True - Extract successful. False - Extract failed.
         """
         if get_system() == 'win':  # Tested elsewhere
             log.debug('Only supported on Unix like systems')
@@ -381,15 +384,15 @@ class LibUpdate(object):
 
             Args:
 
-                name (str): name of file to get full filename for
+                name (str): Name of file
 
-               version (str): version of file to get full filename for
+                version (str): Version of file to get full filename for
 
-               easy_data (dict): data file to search
+                easy_data (dict): Data file to search
 
             Returns:
 
-               (str) Filename with extension
+                (str) Filename with extension
         """
         filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, name,
                                                version, platform, 'filename')
@@ -399,19 +402,6 @@ class LibUpdate(object):
         return filename
 
     def _download(self):
-        """Will download the package update that was referenced
-        with check update.
-
-        Proxy method for method "_patch_update" & method "_full_update".
-
-        Returns:
-
-            (bool) Meanings:
-
-                True - Download successful
-
-                False - Download failed
-        """
         if self.name is not None:
             if self._is_downloaded() is True:  # pragma: no cover
                 self._download_status = True
@@ -565,7 +555,7 @@ class AppUpdate(LibUpdate):
 
     Args:
 
-    data (dict): Info dict
+        data (dict): Info dict
     """
 
     def __init__(self, data):
@@ -599,7 +589,7 @@ class AppUpdate(LibUpdate):
 
     # ToDo: Remove in v3.0
     def win_extract_overwrite(self):
-        """Overwrite current binary with update bianry on windows.
+        """Overwrite current binary with update binary on windows.
 
         Deprecated: Use extract_overwrite instead.
         """

@@ -7,6 +7,9 @@
 
   - Client
     - Basic Auth
+  
+  - Docs
+    - Helpful Esky migration hints. 
 
 ## v2.4.1 - 2017/09/18
 

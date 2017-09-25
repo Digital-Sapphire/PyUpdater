@@ -1,4 +1,4 @@
-#Basic PyUpdater repo layout.
+#PyUpdater Local Repository Layout.
 ```
 .
 ├── SuperApp.py

@@ -60,11 +60,15 @@ class Patcher(object):
 
         update_urls (list): List of urls to use for file download
 
-        verify (bool) Meaning:
+        verify (bool):
 
             True: Verify https connection
 
             False: Don't verify https connection
+
+        max_download_retries (int): Number of times to retry a download
+
+        urllib3_headers (dict): Headers to be used with http request
     """
 
     def __init__(self, **kwargs):

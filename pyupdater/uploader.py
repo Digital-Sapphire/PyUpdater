@@ -231,7 +231,7 @@ class BaseUploader(object):
             filename (str): file to upload
 
         Returns:
-            (bool) Meaning::
+            (bool):
 
                 True - Upload Successful
 

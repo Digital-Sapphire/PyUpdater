@@ -2,6 +2,8 @@ from setuptools import find_packages, setup
 
 import versioneer
 
+KEYWORDS = ('PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky '
+            'updater4pyi bbfreeze ccfreeze freeze cz_freeze')
 
 with open(u'requirements.txt', u'r') as f:
     required = f.read().splitlines()
@@ -22,7 +24,7 @@ setup(
     download_url=('https://github.com/JMSwag/Py'
                   'Updater/archive/master.zip'),
     license='MIT',
-    keywords='PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update',
+    keywords=KEYWORDS,
     extras_require={
         's3': extra_s3,
         'scp': extra_scp,

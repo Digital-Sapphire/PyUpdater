@@ -79,17 +79,19 @@ class FileDownloader(object):
 
     urls (list): List of urls to use for file download
 
+    hexdigest (str): The hash of the file to download
+
     ######Kwargs:
 
     headers (str):
 
     hexdigest (str): The hash of the file to download
 
-    verify (bool) Meaning:
+    verify (bool):
 
         True: Verify https connection
 
-        False: Don't verify https connection
+        False: Do not verify https connection
 
     """
 
@@ -160,17 +162,20 @@ class FileDownloader(object):
         print(_http.headers)
         return _http
 
-    # Downloads file then verifies against provided hash
-    # If hash verfies then writes data to disk
-    #
-    # Returns:
-    #
-    #     (bool) Meanings:
-    #
-    #         True - Hashes match or no hash was given during initialization.
-    #
-    #         False - Hashes don't match
     def download_verify_write(self):
+        """
+        Downloads file then verifies against provided hash
+        If hash verfies then writes data to disk
+
+        Returns:
+
+             (bool):
+
+                 True - Hashes match or no hash was given during initialization.
+
+                 False - Hashes don't match
+        """
+
         # Downloading data internally
         check = self._download_to_storage(check_hash=True)
         # If no hash is passed just write the file
@@ -188,7 +193,7 @@ class FileDownloader(object):
 
         Returns:
 
-            (data) Meanings:
+            (data):
 
                 Binary data - If hashes match or no hash was given during
                 initialization.

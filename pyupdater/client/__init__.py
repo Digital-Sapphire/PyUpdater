@@ -42,7 +42,7 @@ import six
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader as _FD
-from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
+from pyupdater.client.updates import AppUpdate, _get_highest_version, LibUpdate
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.exceptions import ClientError
 
@@ -65,18 +65,22 @@ class Client(object):
     """Used to check for updates & returns an updateobject if there
     is an update.
 
-    ######Kwargs:
+    ######Args:
 
     obj (instance): config object
 
+    ######Kwargs:
+
     refresh (bool): True - Refresh update manifest on object initialization.
-    False - Don't refresh update manifest on object initialization
+                    False - Don't refresh update manifest on object initialization
 
     progress_hooks (list): List of callbacks
 
     data_dir (str): Path to custom update folder
 
-    headers (dict): urllib3.utils.make_headers compatible dictionary
+    headers (dict): A urllib3.utils.make_headers compatible dictionary
+
+    test (bool): Used to initialize a test client
 
     """
     def __init__(self, obj, **kwargs):
@@ -128,9 +132,9 @@ class Client(object):
 
         ######Kwargs:
 
-        refresh (bool) Meaning: True - Refresh update manifest on object
-        initialization. False - Don't refresh update manifest on object
-        initialization
+        refresh (bool):
+            True - Refresh update manifest on object initialization.
+            False - Don't refresh update manifest on object initialization
 
         """
 
@@ -224,13 +228,13 @@ class Client(object):
 
         ######Returns:
 
-        (updateobject) Meanings:
+        (updateobject):
 
-        AppUpdate - Used to update current binary
+            AppUpdate - Used to update current binary
 
-        LibUpdate - Used to update external assets
+            LibUpdate - Used to update external assets
 
-        None - No Updates available
+            None - No Updates available
         """
         return self._update_check(name, version, channel, strict)
 
@@ -268,8 +272,8 @@ class Client(object):
             app = True
 
         log.debug('Checking for %s updates...', name)
-        latest = get_highest_version(name, self.platform, channel,
-                                     self.easy_data, strict)
+        latest = _get_highest_version(name, self.platform, channel,
+                                      self.easy_data, strict)
         if latest is None:
             # If None is returned get_highest_version could
             # not find the supplied name in the version file
