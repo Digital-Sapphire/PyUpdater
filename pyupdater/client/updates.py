@@ -47,26 +47,26 @@ from pyupdater.utils.exceptions import ClientError
 log = logging.getLogger(__name__)
 
 
-def get_highest_version(name, plat, channel, easy_data, strict):
-    """Parses version file and returns the highest version number.
+def _get_highest_version(name, plat, channel, easy_data, strict):
+    # Parses version file and returns the highest version number.
+    #
+    #   Args:
+    #
+    #      name (str): name of file to search for updates
+    #
+    #      plat (str): the platform we are requesting for
+    #
+    #      channel (str): the release channel
+    #
+    #      easy_data (dict): data file to search
+    #
+    #      strict (bool): specify whether or not to take the channel
+    #                     into consideration
+    #
+    #   Returns:
+    #
+    #      (str) Highest version number
 
-        Args:
-
-           name (str): name of file to search for updates
-
-           plat (str): the platform we are requesting for
-
-           channel (str): the release channel
-
-           easy_data (dict): data file to search
-
-           strict (bool): specify whether or not to take the channel
-                          into consideration
-
-        Returns:
-
-           (str) Highest version number
-    """
     # We grab all keys and return the version corresponding to the
     # channel passed to this function
     version_key_alpha = '{}*{}*{}*{}'.format('latest', name, 'alpha', plat)
@@ -166,8 +166,19 @@ class Restarter(object):
         os.execl(self.current_app, self.name)
 
     def _win_overwrite(self):
+        isFolder = os.path.isdir(self.updated_app)
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
-            bat.write("""
+            if isFolder:
+                bat.write("""
+@echo off
+echo Updating to latest version...
+ping 127.0.0.1 -n 5 -w 1000 > NUL
+robocopy "{}" "{}" /e /move /V /PURGE > NUL
+DEL {}
+DEL "%~f0"
+""".format(self.updated_app, self.current_app, self.vbs_file))
+            else:
+                bat.write("""
 @echo off
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
@@ -175,6 +186,7 @@ move /Y "{}" "{}" > NUL
 DEL {}
 DEL "%~f0"
 """.format(self.updated_app, self.current_app, self.vbs_file))
+
         with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
@@ -186,8 +198,24 @@ DEL "%~f0"
         os._exit(0)
 
     def _win_overwrite_restart(self):
+        isFolder = os.path.isdir(self.updated_app)
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
-            bat.write("""
+            if isFolder:
+                bat.write("""
+@echo off
+echo Updating to latest version...
+ping 127.0.0.1 -n 5 -w 1000 > NUL
+robocopy "{}" "{}" /e /move /V > NUL
+echo restarting...
+start "" "{}"
+DEL {}
+DEL "%~f0"
+""".format(self.updated_app, self.current_app,
+                    os.path.join(self.current_app,
+                                 '.'.join([self.name, 'exe'])),
+                    self.vbs_file))
+            else:
+                bat.write("""
 @echo off
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
@@ -197,8 +225,7 @@ start "" "{}"
 DEL {}
 DEL "%~f0"
 """.format(self.updated_app, self.current_app,
-                self.current_app, self.vbs_file))
-
+                    self.current_app, self.vbs_file))
         with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
@@ -290,19 +317,24 @@ class LibUpdate(object):
         # Weather or not the verify the https connection
         self.verify = data.get('verify', True)
 
+        # Extra headers to pass to urllib3
+        self.urllib3_headers = data.get('urllib3_headers')
+
         # The amount of times to retry a url before giving up
         self.max_download_retries = data.get('max_download_retries')
 
         # The latest version available
-        self.latest = get_highest_version(self.name, self.platform,
-                                          self.channel, self.easy_data,
-                                          self.strict)
+        self.latest = _get_highest_version(self.name, self.platform,
+                                           self.channel, self.easy_data,
+                                           self.strict)
 
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
         # patch update
+        cv = self.current_version
         self._current_archive_name = LibUpdate._get_filename(self.name,
-                                                             self.current_version,
+                                                             # PEP8
+                                                             cv,
                                                              self.platform,
                                                              self.easy_data)
 
@@ -327,8 +359,11 @@ class LibUpdate(object):
     def is_downloaded(self):
         """Used to check if update has been downloaded.
 
-        ######Returns (bool): True - File is already downloaded.
-        False - File hasn't been downloaded.
+        ######Returns (bool):
+
+            True - File is already downloaded.
+
+            False - File has not been downloaded.
         """
         if self._is_downloading is True:
             return False
@@ -339,7 +374,7 @@ class LibUpdate(object):
 
         ######Args:
 
-        async (bool): Perform download in background thread
+            async (bool): Perform download in background thread
         """
         if async is True:
             if self._is_downloading is False:
@@ -358,7 +393,7 @@ class LibUpdate(object):
 
         ######Returns:
 
-        (bool) True - Extract successful. False - Extract failed.
+            (bool) True - Extract successful. False - Extract failed.
         """
         if get_system() == 'win':  # Tested elsewhere
             log.debug('Only supported on Unix like systems')
@@ -376,15 +411,15 @@ class LibUpdate(object):
 
             Args:
 
-                name (str): name of file to get full filename for
+                name (str): Name of file
 
-               version (str): version of file to get full filename for
+                version (str): Version of file to get full filename for
 
-               easy_data (dict): data file to search
+                easy_data (dict): Data file to search
 
             Returns:
 
-               (str) Filename with extension
+                (str) Filename with extension
         """
         filename_key = '{}*{}*{}*{}*{}'.format(settings.UPDATES_KEY, name,
                                                version, platform, 'filename')
@@ -394,19 +429,6 @@ class LibUpdate(object):
         return filename
 
     def _download(self):
-        """Will download the package update that was referenced
-        with check update.
-
-        Proxy method for method "_patch_update" & method "_full_update".
-
-        Returns:
-
-            (bool) Meanings:
-
-                True - Download successful
-
-                False - Download failed
-        """
         if self.name is not None:
             if self._is_downloaded() is True:  # pragma: no cover
                 self._download_status = True
@@ -453,7 +475,8 @@ class LibUpdate(object):
                             tfile.extractall()
                     except Exception as err:  # pragma: no cover
                         log.debug(err, exc_info=True)
-                        raise ClientError('Error reading gzip file', expected=True)
+                        raise ClientError('Error reading gzip file',
+                                          expected=True)
                 elif archive_ext == '.zip':
                     try:
                         with zipfile.ZipFile(self.filename, 'r') as zfile:
@@ -462,7 +485,8 @@ class LibUpdate(object):
                             zfile.extractall()
                     except Exception as err:  # pragma: no cover
                         log.debug(err, exc_info=True)
-                        raise ClientError('Error reading zip file', expected=True)
+                        raise ClientError('Error reading zip file',
+                                          expected=True)
                 else:
                     raise ClientError('Unknown filetype')
             else:
@@ -535,7 +559,8 @@ class LibUpdate(object):
             fd = FileDownloader(self.filename, self.update_urls,
                                 hexdigest=file_hash, verify=self.verify,
                                 progress_hooks=self.progress_hooks,
-                                max_download_retries=self.max_download_retries)
+                                max_download_retries=self.max_download_retries,
+                                urllb3_headers=self.urllib3_headers)
             result = fd.download_verify_write()
             if result:
                 log.debug('Download Complete')
@@ -557,7 +582,7 @@ class AppUpdate(LibUpdate):
 
     Args:
 
-    data (dict): Info dict
+        data (dict): Info dict
     """
 
     def __init__(self, data):
@@ -591,7 +616,7 @@ class AppUpdate(LibUpdate):
 
     # ToDo: Remove in v3.0
     def win_extract_overwrite(self):
-        """Overwrite current binary with update bianry on windows.
+        """Overwrite current binary with update binary on windows.
 
         Deprecated: Use extract_overwrite instead.
         """
@@ -646,6 +671,10 @@ class AppUpdate(LibUpdate):
 
         # Remove current app to prevent errors when moving
         # update to new location
+        # if update_app is a directory, then we are updating a directory
+        if os.path.isdir(app_update):
+            shutil.rmtree(os.path.dirname(current_app))
+
         if os.path.exists(current_app):
             remove_any(current_app)
 
@@ -666,7 +695,7 @@ class AppUpdate(LibUpdate):
 
                 # We are making an assumption here that only 1
                 # executable will be in the MacOS folder.
-                current_app = os.path.join(mac_app_binary_dir, _file[0])
+                current_app = os.path.join(mac_app_binary_dir, sys.executable)
 
         r = Restarter(current_app, name=self.name)
         r.process()
@@ -679,7 +708,13 @@ class AppUpdate(LibUpdate):
         current_app = os.path.join(self._current_app_dir, exe_name)
         updated_app = os.path.join(self.update_folder, exe_name)
 
-        update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
+        # detect if is a folder
+        if (os.path.exists(os.path.join(self.update_folder, self.name))):
+            current_app = self._current_app_dir
+            updated_app = os.path.join(self.update_folder, self.name)
+
+        update_info = dict(data_dir=self.data_dir, updated_app=updated_app,
+                           name=self.name)
         r = Restarter(current_app, **update_info)
         r.process(win_restart=False)
 
@@ -687,10 +722,17 @@ class AppUpdate(LibUpdate):
         # Windows: Moves update to current directory of running
         #          application then restarts application using
         #          new update.
+
         exe_name = self.name + '.exe'
         current_app = os.path.join(self._current_app_dir, exe_name)
         updated_app = os.path.join(self.update_folder, exe_name)
 
-        update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
+        # detect if is a folder
+        if (os.path.exists(os.path.join(self.update_folder, self.name))):
+            current_app = self._current_app_dir
+            updated_app = os.path.join(self.update_folder, self.name)
+
+        update_info = dict(data_dir=self.data_dir, updated_app=updated_app,
+                           name=self.name)
         r = Restarter(current_app, **update_info)
         r.process()

@@ -4,7 +4,6 @@
 [![](https://requires.io/github/JMSwag/PyUpdater/requirements.svg?branch=master)](https://requires.io/github/JMSwag/PyUpdater/requirements/?branch=master)
 [![Code Health](https://landscape.io/github/JMSwag/PyUpdater/master/landscape.svg?style=flat)](https://landscape.io/github/JMSwag/PyUpdater/master)
 [![Coverage Status](https://coveralls.io/repos/github/JMSwag/PyUpdater/badge.svg?branch=master)](https://coveralls.io/github/JMSwag/PyUpdater?branch=master)
-[![Gitter](https://badges.gitter.im/pyupdater/Lobby.svg)](https://gitter.im/pyupdater/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # PyUpdater
 #### An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.

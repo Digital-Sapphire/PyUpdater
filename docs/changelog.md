@@ -1,7 +1,25 @@
 # Changelog
 
-## v2.4.0 - Master
+## v2.5.0 - Master
 ####* This version is not yet released and is under active development.
+
+###Added
+
+  - Client
+    - Basic Auth
+  
+  - Docs
+    - Helpful Esky migration hints. 
+
+## v2.4.1 - 2017/09/18
+
+###Fixed
+
+  - CLI
+    - Fix command detection @jameshilliard
+
+
+## v2.4.0 - 2017/09/17
 
 ###Added
 
@@ -22,23 +40,30 @@
   
   - Libs
     - appdirs 1.4.3
-    - urllib3 1.21.1
+    - urllib3 1.22
+    - six 1.11.0
 
 ###Fixed
 
   - CLI
     - Saving config changes when keypack isn't imported.
+  
+  - PyUpdater
+      - Failing test @jameshilliard
 
 ###Removed
 
   - PyUpdater
     - Unused code
+    - Flaky tests
+
 
 ## v2.3.2 - 2017/02/04
 
 ###Fixed
 
-  - Calling certain cli commands
+  - CLI
+      - Calling certain commands
 
 
 ## v2.3.1 - 2017/02/04

@@ -126,8 +126,10 @@ class PackageHandler(object):
         PackageHandler._cleanup(patch_manifest)
         pkg_manifest = self._add_patches_to_packages(pkg_manifest,
                                                      patches)
-        self.json_data = PackageHandler._update_version_file(self.json_data,
-                                                             pkg_manifest)
+        # PEP8
+        json_data = PackageHandler._update_version_file(self.json_data,
+                                                        pkg_manifest)
+        self.json_data = json_data
         self._write_json_to_file(self.json_data)
         self._write_config_to_file(self.config)
         self._move_packages(pkg_manifest)

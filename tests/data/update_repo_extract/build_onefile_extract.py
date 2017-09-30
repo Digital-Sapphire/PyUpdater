@@ -59,6 +59,7 @@ def main(use_custom_dir, port):
                                                                ext))
 
             if not os.path.exists(archive_path):
+                print("Archive did not build!")
                 sys.exit(1)
 
             # We extract the Acme binary here. When we call pyupdater pkg -P

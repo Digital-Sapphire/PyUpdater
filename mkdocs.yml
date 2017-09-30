@@ -20,6 +20,7 @@ pages:
 - Change Log: changelog.md
 - Extras:
     - Data Folder Layout: data-folder-layout.md
+    - Migrate From Esky: migrate-from-esky.md
     - Contributing: contributing.md
     - Downloads: downloads.md
     - License: license.md

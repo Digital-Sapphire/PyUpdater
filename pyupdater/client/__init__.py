@@ -42,8 +42,9 @@ import six
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader as _FD
-from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
+from pyupdater.client.updates import AppUpdate, _get_highest_version, LibUpdate
 from pyupdater.utils.config import Config as _Config
+from pyupdater.utils.exceptions import ClientError
 
 
 warnings.simplefilter('always', DeprecationWarning)
@@ -53,7 +54,7 @@ log = logging.getLogger(__name__)
 log_path = os.path.join(app_cwd, 'pyu.log')
 if os.path.exists(log_path):  # pragma: no cover
     ch = logging.FileHandler(os.path.join(app_cwd,
-                             'pyu.log'))
+                                          'pyu.log'))
     ch.setLevel(logging.DEBUG)
     ch.setFormatter(logging_formatter)
     log.addHandler(ch)
@@ -64,24 +65,37 @@ class Client(object):
     """Used to check for updates & returns an updateobject if there
     is an update.
 
-    ######Kwargs:
+    ######Args:
 
     obj (instance): config object
 
+    ######Kwargs:
+
     refresh (bool): True - Refresh update manifest on object initialization.
-    False - Don't refresh update manifest on object initialization
+                    False - Don't refresh update manifest on object initialization
 
     progress_hooks (list): List of callbacks
-    
+
     data_dir (str): Path to custom update folder
 
-    ######Returns:
+    headers (dict): A urllib3.utils.make_headers compatible dictionary
 
-    (obj): AppUpdate or LibUpdate
+    test (bool): Used to initialize a test client
 
     """
-    def __init__(self, obj=None, refresh=False,
-                 progress_hooks=None, test=False, data_dir=None):
+    def __init__(self, obj, **kwargs):
+
+        refresh = kwargs.get('refresh')
+        progress_hooks = kwargs.get('progress_hooks')
+        test = kwargs.get('test')
+        data_dir = kwargs.get('data_dir')
+        headers = kwargs.get('headers')
+
+        if headers is not None:
+            if not isinstance(headers, dict):
+                raise ClientError('headers argument must be a dict',
+                                  expected=True)
+
         # String: Name of binary to update
         self.name = None
 
@@ -105,8 +119,10 @@ class Client(object):
 
         # Client config obj with settings to find & verify updates
         if obj is not None:
+            obj.URLLIB3_HEADERS = headers
             self.init_app(obj, refresh, test, data_dir)
 
+    # ToDo: Remove in v3.0
     def init_app(self, obj, refresh=False, test=False, data_dir=None):
         """Sets up client with config values from obj
 
@@ -116,9 +132,9 @@ class Client(object):
 
         ######Kwargs:
 
-        refresh (bool) Meaning: True - Refresh update manifest on object
-        initialization. False - Don't refresh update manifest on object
-        initialization
+        refresh (bool):
+            True - Refresh update manifest on object initialization.
+            False - Don't refresh update manifest on object initialization
 
         """
 
@@ -180,11 +196,15 @@ class Client(object):
         # The name of the key file to download
         self.key_file = settings.KEY_FILE_FILENAME
 
+        # urllib3 headers
+        self.urllib3_headers = obj.URLLIB3_HEADERS
+
         # Creating data & update directories
         self._setup()
 
         if refresh is True:
             self.refresh()
+    # End ToDo
 
     def refresh(self):
         """Will download and verify the version manifest."""
@@ -208,13 +228,13 @@ class Client(object):
 
         ######Returns:
 
-        (updateobject) Meanings:
+        (updateobject):
 
-        AppUpdate - Used to update current binary
+            AppUpdate - Used to update current binary
 
-        LibUpdate - Used to update external assets
+            LibUpdate - Used to update external assets
 
-        None - No Updates available
+            None - No Updates available
         """
         return self._update_check(name, version, channel, strict)
 
@@ -252,8 +272,8 @@ class Client(object):
             app = True
 
         log.debug('Checking for %s updates...', name)
-        latest = get_highest_version(name, self.platform, channel,
-                                     self.easy_data, strict)
+        latest = _get_highest_version(name, self.platform, channel,
+                                      self.easy_data, strict)
         if latest is None:
             # If None is returned get_highest_version could
             # not find the supplied name in the version file
@@ -286,6 +306,7 @@ class Client(object):
             'verify': self.verify,
             'max_download_retries': self.max_download_retries,
             'progress_hooks': list(set(self.progress_hooks)),
+            'urllib3_headers': self.urllib3_headers,
         }
 
         # Return update object with which handles downloading,
@@ -389,7 +410,8 @@ class Client(object):
     def _get_manifest_from_http(self):
         log.debug('Downloading online version file')
         try:
-            fd = _FD(self.version_file, self.update_urls, verify=self.verify)
+            fd = _FD(self.version_file, self.update_urls, verify=self.verify,
+                     urllb3_headers=self.urllib3_headers)
             data = fd.download_verify_return()
             try:
                 decompressed_data = _gzip_decompress(data)
@@ -411,7 +433,8 @@ class Client(object):
     def _get_key_data(self):
         log.debug('Downloading key file')
         try:
-            fd = _FD(self.key_file, self.update_urls, verify=self.verify)
+            fd = _FD(self.key_file, self.update_urls, verify=self.verify,
+                     urllb3_headers=self.urllib3_headers)
             data = fd.download_verify_return()
             try:
                 decompressed_data = _gzip_decompress(data)

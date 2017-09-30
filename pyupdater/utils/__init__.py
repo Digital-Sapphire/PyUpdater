@@ -37,10 +37,12 @@ try:
 except ImportError:
     from collections import MutableMapping as DictMixin
 
+import certifi
 from dsdev_utils import paths
 from dsdev_utils import system
 from stevedore.extension import ExtensionManager
 import six
+import urllib3
 
 from pyupdater import settings
 
@@ -197,6 +199,11 @@ def check_repo():
     return repo
 
 
+def get_http_pool():
+    return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
+                               ca_certs=certifi.where())
+
+
 def get_size_in_bytes(filename):
     size = os.path.getsize(os.path.abspath(filename))
     log.debug('File size: %s bytes', size)
@@ -264,29 +271,36 @@ def make_archive(name, target, version):
         shutil.copy(target, temp_file)
     else:
         shutil.copytree(target, temp_file)
+        # renames the entry-point executable
+        file_ext = '.exe' if system.get_system() == 'win' else ''
+        src_executable = temp_file + os.sep + target + file_ext
+        dst_executable = temp_file + os.sep + name + file_ext
+        # is an osx bundle app so doen't need to fix the executable name
+        if (ext != '.app'):
+            shutil.move(src_executable, dst_executable)
+
+        # is a win folder so the manifest need to be renamed too
+        if (system.get_system() == 'win'):
+            src_manifest = src_executable + '.manifest'
+            dst_manifest = dst_executable + '.manifest'
+            shutil.move(src_manifest, dst_manifest)
 
     file_dir = os.path.dirname(os.path.abspath(target))
     filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
                                  system.get_system(), version)
-
     # Only use zip on windows.
     # Zip does not preserve file permissions on nix & mac
     # tar.gz creates full file path
     with paths.ChDir(file_dir):
+        ext = 'gztar'
         if system.get_system() == 'win':
-            ext = '.zip'
-            with zipfile.ZipFile(filename + ext, 'w') as zf:
-                zf.write(target, temp_file)
-        else:
-            ext = '.tar.gz'
-            with tarfile.open(filename + ext, 'w:gz',
-                              compresslevel=0) as tar:
-                tar.add(target, temp_file)
+            ext = 'zip'
+        output_filename = shutil.make_archive(filename, ext,
+                                              file_dir, temp_file)
 
     if os.path.exists(temp_file):
         paths.remove_any(temp_file)
 
-    output_filename = filename + ext
     log.debug('Archive output filename: %s', output_filename)
     return output_filename
 

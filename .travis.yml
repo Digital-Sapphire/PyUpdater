@@ -2,62 +2,24 @@ language: python
 sudo: false
 cache: pip
 
-matrix:
-  include:
-    - python: 2.7
-      os: linux
-      env: PYTHON=2.7
-    - python: 3.3
-      os: linux
-      env: PYTHON=3.3
-    - python: 3.4
-      os: linux
-      env: PYTHON=3.4
-    - python: 3.5
-      os: linux
-      env: PYTHON=3.5
-    - python: 3.6
-      os: linux
-      env: PYTHON=3.6
-    - python: nightly
-      os: linux
-      env: PYTHON=nightly
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "nightly"
 
-    # Mac
-    # - python: 2.7
-    #   os: osx
-    #   env: PYTHON=2.7
-    # - python: 3.3
-    #   os: osx
-    #   env: PYTHON=3.3
-    # - python: 3.4
-    #   os: osx
-    #   env: PYTHON=3.4
-    # - python: 3.5
-    #   os: osx
-    #   env: PYTHON=3.5
-    # - python: 3.6
-    #   os: osx
-    #   env: PYTHON=3.6
-    # - python: nightly
-    #   os: osx
-    #   env: PYTHON=nightly
+env: # important! Read the docs!! https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
+
+matrix:
 
   allow_failures:
-  - env: PYTHON=3.6
-  - env: PYTHON=nightly
-  # - os: osx
+    - python: "nightly"
 
 install:
-- export PATH="/home/travis/.pyenv/bin:$PATH"
-- eval "$(pyenv init -)"
-- eval "$(pyenv virtualenv-init -)"
-- curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer
-  | bash
-- pip install tox-travis coveralls
-- pip-accel install -r requirements.txt | cat
-script:
-- tox
+  - pip install tox-travis filelock
+
+script: tox
 after_success: coveralls
 deploy:
   provider: pypi

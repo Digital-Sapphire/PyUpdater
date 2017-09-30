@@ -40,9 +40,8 @@ from pyupdater.cli.helpers import (initial_setup,
                                    setup_patches,
                                    setup_plugin,
                                    setup_urls)
-from pyupdater.client.downloader import get_http_pool
 from pyupdater.key_handler.keys import Keys, KeyImporter
-from pyupdater.utils import check_repo, PluginManager
+from pyupdater.utils import check_repo, get_http_pool, PluginManager
 from pyupdater.utils.config import Config, ConfigManager
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
@@ -185,7 +184,7 @@ def _cmd_settings(*args):  # pragma: no cover
 # Initialize PyUpdater repo
 def _cmd_init(*args):  # pragma: no cover
     if not os.path.exists(os.path.join(settings.CONFIG_DATA_FOLDER,
-                          settings.CONFIG_FILE_USER)):
+                                       settings.CONFIG_FILE_USER)):
         # Load a basic config.
         config = Config()
 

@@ -17,12 +17,6 @@ environment:
             PYTHON_VERSION: "2.7"
             PYTHON_ARCH: "32"
 
-          - JOB: "3.3 32-bit"
-            TOXENV: "py33"
-            PYTHON: "C:\\Python33"
-            PYTHON_VERSION: "3.3"
-            PYTHON_ARCH: "32"
-
           - JOB: "3.4 32-bit"
             TOXENV: "py34"
             PYTHON: "C:\\Python34"
@@ -54,11 +48,6 @@ environment:
             PYTHON_ARCH: "64"
 
 
-matrix:
-    allow_failures:
-        - PYTHON_VERSION: "3.6"
-
-
 cache:
     # Cache created Python .whl packages to avoid compiling them again.
     # Wheels are built with --use-wheel to avoid recompiling already-built wheels.
@@ -66,7 +55,7 @@ cache:
 
 init:
     # Used to RDP into build worker
-    # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+    #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
     - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
     - "ECHO \"%APPVEYOR_SCHEDULED_BUILD%\""
 
@@ -90,7 +79,7 @@ install:
 
     # Create .whl packages from dependencies for possible caching.
     # First install 'wheel' package to be able create .whl files.
-    - "build.cmd pip install wheel tox"
+    - "build.cmd pip install wheel tox filelock"
 
     # Create c:/wheels if it does not exist.
     - ps: If ( -not (Test-Path C:/wheels) )  { mkdir C:/wheels }
@@ -115,7 +104,7 @@ build: none
 
 on_finish:
   # Used to RDP into build worker
-  # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 test_script:
     # Split tests into several subprocesses.

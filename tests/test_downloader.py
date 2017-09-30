@@ -63,6 +63,16 @@ class TestData(object):
 
 
 @pytest.mark.usefixtue("cleandir")
+class TestBasicAuth(object):
+
+    def test_basic_auth(self):
+        headers = {'basic_auth': 'user:pass'}
+        fd = FileDownloader('test', ['test'], urllb3_headers=headers)
+        http = fd._get_http_pool(secure=True)
+        assert http.request('GET', 'https://httpbin.org/basic-auth/user/pass').status == 200
+
+
+@pytest.mark.usefixtue("cleandir")
 class TestUrl(object):
 
     def test_bad_url(self):

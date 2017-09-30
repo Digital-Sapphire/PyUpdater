@@ -60,11 +60,15 @@ class Patcher(object):
 
         update_urls (list): List of urls to use for file download
 
-        verify (bool) Meaning:
+        verify (bool):
 
             True: Verify https connection
 
             False: Don't verify https connection
+
+        max_download_retries (int): Number of times to retry a download
+
+        urllib3_headers (dict): Headers to be used with http request
     """
 
     def __init__(self, **kwargs):
@@ -77,6 +81,7 @@ class Patcher(object):
         self.update_urls = kwargs.get('update_urls', [])
         self.verify = kwargs.get('verify', True)
         self.max_download_retries = kwargs.get('max_download_retries')
+        self.urllib3_headers = kwargs.get('urllib3_headers')
 
         # Progress hooks to be called
         self.progress_hooks = kwargs.get('progress_hooks', [])
@@ -279,7 +284,8 @@ class Patcher(object):
             # Initialize downloader
             fd = FileDownloader(p['patch_name'], p['patch_urls'],
                                 hexdigest=p['patch_hash'], verify=self.verify,
-                                max_download_retries=self.max_download_retries)
+                                max_download_retries=self.max_download_retries,
+                                urllb3_headers=self.urllib3_headers)
 
             # Attempt to download resource
             data = fd.download_verify_return()

@@ -30,7 +30,8 @@ def main():
     config = client_config.ClientConfig()
     if getattr(config, 'USE_CUSTOM_DIR', False):
         print("Using custom directory")
-        data_dir = os.path.join(os.path.dirname(sys.executable), '.update')
+        data_dir = os.path.join(os.path.dirname(
+            os.path.dirname(sys.executable)), '.update')
     client = Client(config, refresh=True,
                     progress_hooks=[cb], data_dir=data_dir)
     update = client.update_check(APPNAME, VERSION)

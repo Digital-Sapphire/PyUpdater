@@ -8,6 +8,7 @@
 
 * [pyupdater.client.AppUpdate](#pyupdaterclientappupdate)
 * [pyupdater.client.Client](#pyupdaterclientclient)
+* [pyupdater.client.ClientError](#pyupdaterclientclienterror)
 * [pyupdater.client.LibUpdate](#pyupdaterclientlibupdate)
 
 
@@ -24,7 +25,7 @@ pyupdater.client.Client.update_check
 
 Args:
 
-data (dict): Info dict
+    data (dict): Info dict
 
 #### Methods
 
@@ -38,7 +39,7 @@ Downloads update
 
 ######Args:
 
-async (bool): Perform download in background thread
+    async (bool): Perform download in background thread
 
 ##### AppUpdate.extract()
 
@@ -49,7 +50,7 @@ complete update.
 
 ######Returns:
 
-(bool) True - Extract successful. False - Extract failed.
+    (bool) True - Extract successful. False - Extract failed.
 
 ##### AppUpdate.extract_overwrite()
 
@@ -64,8 +65,11 @@ then restart the application using the updated binary.
 
 Used to check if update has been downloaded.
 
-######Returns (bool): True - File is already downloaded.
-False - File has not been downloaded.
+######Returns (bool):
+
+    True - File is already downloaded.
+
+    False - File has not been downloaded.
 
 ##### AppUpdate.restart()
 
@@ -86,20 +90,22 @@ Deprecated: Use extract_overwrite instead.
 Used to check for updates & returns an updateobject if there
 is an update.
 
-######Kwargs:
+######Args:
 
 obj (instance): config object
 
+######Kwargs:
+
 refresh (bool): True - Refresh update manifest on object initialization.
-False - Don't refresh update manifest on object initialization
+                False - Don't refresh update manifest on object initialization
 
 progress_hooks (list): List of callbacks
 
 data_dir (str): Path to custom update folder
 
-######Returns:
+headers (dict): A urllib3.utils.make_headers compatible dictionary
 
-(obj): AppUpdate or LibUpdate
+test (bool): Used to initialize a test client
 
 #### Methods
 
@@ -130,9 +136,9 @@ obj (instance): config object
 
 ######Kwargs:
 
-refresh (bool) Meaning: True - Refresh update manifest on object
-initialization. False - Don't refresh update manifest on object
-initialization
+refresh (bool):
+    True - Refresh update manifest on object initialization.
+    False - Don't refresh update manifest on object initialization
 
 ##### Client.refresh()
 
@@ -156,13 +162,23 @@ strict (bool):
 
 ######Returns:
 
-(updateobject) Meanings:
+(updateobject):
 
-AppUpdate - Used to update current binary
+    AppUpdate - Used to update current binary
 
-LibUpdate - Used to update external assets
+    LibUpdate - Used to update external assets
 
-None - No Updates available
+    None - No Updates available
+
+### pyupdater.client.ClientError
+
+Raised for Client exceptions
+
+#### Methods
+
+##### ClientError.format_traceback()
+
+
 
 ### pyupdater.client.LibUpdate
 
@@ -185,7 +201,7 @@ Downloads update
 
 ######Args:
 
-async (bool): Perform download in background thread
+    async (bool): Perform download in background thread
 
 ##### LibUpdate.extract()
 
@@ -196,12 +212,15 @@ complete update.
 
 ######Returns:
 
-(bool) True - Extract successful. False - Extract failed.
+    (bool) True - Extract successful. False - Extract failed.
 
 ##### LibUpdate.is_downloaded()
 
 Used to check if update has been downloaded.
 
-######Returns (bool): True - File is already downloaded.
-False - File has not been downloaded.
+######Returns (bool):
+
+    True - File is already downloaded.
+
+    False - File has not been downloaded.
 

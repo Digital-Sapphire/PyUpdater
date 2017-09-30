@@ -88,7 +88,8 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         # using noqa below so landscape.io will ignore it
         _pyi_makespec.__add_options(parser)  # noqa
         _pyi_log.__add_options(parser)  # noqa
-        _pyi_compat.__add_obsolete_options(parser)  # noqa
+        if hasattr(_pyi_compat, '__add_obsolete_options'):
+            _pyi_compat.__add_obsolete_options(parser)  # noqa
         # End hacking
         opts, args = parser.parse_args(pyi_args)
         # We are hacking into pyinstaller here & are aware of the risks
@@ -103,7 +104,8 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         # using noqa below so landscape.io will ignore it
         _pyi_makespec.__add_options(parser)  # noqa
         _pyi_log.__add_options(parser)  # noqa
-        _pyi_compat.__add_obsolete_options(parser)  # noqa
+        if hasattr(_pyi_compat, '__add_obsolete_options'):
+            _pyi_compat.__add_obsolete_options(parser)  # noqa
         # End hacking
         parser.add_argument('scriptname', nargs='+')
 
@@ -112,7 +114,8 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         # We call init because it loads logger into the global
         # namespace of the Pyinstaller.log module. logger is used
         # in the Pyinstaller.log.__process_options call
-        _pyi_log.init()
+        if hasattr(_pyi_log, 'init'):
+            _pyi_log.init()
         # We are hacking into pyinstaller here & are aware of the risks
         # using noqa below so landscape.io will ignore it
         _pyi_log.__process_options(parser, args)  # noqa

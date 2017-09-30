@@ -29,29 +29,22 @@ def main():
     data_dir = None
     config = client_config.ClientConfig()
     if getattr(config, 'USE_CUSTOM_DIR', False):
-        print("Using custom directory")
-        data_dir = os.path.join(os.path.dirname(sys.executable), '.update')
-    client = Client(config, refresh=True,
-                    progress_hooks=[cb], data_dir=data_dir)
+        data_dir = os.path.join(os.path.dirname(
+            os.path.dirname(sys.executable)), '.update')
+    client = Client(config,
+                    refresh=True, progress_hooks=[cb],
+                    data_dir=data_dir)
     update = client.update_check(APPNAME, VERSION)
     if update is not None:
-        print("We have an update")
-        retry_count = 0
-        while retry_count < 5:
-            success = update.download()
-            if success is True:
-                break
-            print("Retry Download. Count {}".format(retry_count + 1))
-            retry_count += 1
-
-        if success:
+        success = update.download()
+        print('')
+        if success is True:
             print('Update download successful')
-            print('Restarting')
-            update.extract_restart()
+            print('Extracting & overwriting')
+            update.extract_overwrite()
         else:
             print('Failed to download update')
-
-    print("Leaving main()")
+    return VERSION
 
 
 if __name__ == '__main__':
