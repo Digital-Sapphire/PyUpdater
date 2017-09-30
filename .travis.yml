@@ -17,7 +17,7 @@ matrix:
     - python: "nightly"
 
 install:
-  - pip install tox-travis
+  - pip install tox-travis filelock
 
 script: tox
 after_success: coveralls

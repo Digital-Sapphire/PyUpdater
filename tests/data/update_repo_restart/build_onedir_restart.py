@@ -33,7 +33,7 @@ def extract(filename):
 
 
 def main(use_custom_dir, port):
-    scripts = [('app_restart_01.py', '4.1'), ('app_restart_02.py', '4.2')]
+    scripts = [('app_restart_onedir.py', '4.1'), ('app_restart_02.py', '4.2')]
 
     # We use this flag to untar & move our binary to the
     # current working directory

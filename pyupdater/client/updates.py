@@ -166,8 +166,19 @@ class Restarter(object):
         os.execl(self.current_app, self.name)
 
     def _win_overwrite(self):
+        isFolder = os.path.isdir(self.updated_app)
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
-            bat.write("""
+            if isFolder:
+                bat.write("""
+@echo off
+echo Updating to latest version...
+ping 127.0.0.1 -n 5 -w 1000 > NUL
+robocopy "{}" "{}" /e /move /V /PURGE > NUL
+DEL {}
+DEL "%~f0"
+""".format(self.updated_app, self.current_app, self.vbs_file))
+            else:
+                bat.write("""
 @echo off
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
@@ -175,6 +186,7 @@ move /Y "{}" "{}" > NUL
 DEL {}
 DEL "%~f0"
 """.format(self.updated_app, self.current_app, self.vbs_file))
+
         with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
@@ -186,8 +198,24 @@ DEL "%~f0"
         os._exit(0)
 
     def _win_overwrite_restart(self):
+        isFolder = os.path.isdir(self.updated_app)
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
-            bat.write("""
+            if isFolder:
+                bat.write("""
+@echo off
+echo Updating to latest version...
+ping 127.0.0.1 -n 5 -w 1000 > NUL
+robocopy "{}" "{}" /e /move /V > NUL
+echo restarting...
+start "" "{}"
+DEL {}
+DEL "%~f0"
+""".format(self.updated_app, self.current_app,
+                    os.path.join(self.current_app,
+                                 '.'.join([self.name, 'exe'])),
+                    self.vbs_file))
+            else:
+                bat.write("""
 @echo off
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
@@ -197,8 +225,7 @@ start "" "{}"
 DEL {}
 DEL "%~f0"
 """.format(self.updated_app, self.current_app,
-           self.current_app, self.vbs_file))
-
+                    self.current_app, self.vbs_file))
         with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
@@ -644,6 +671,10 @@ class AppUpdate(LibUpdate):
 
         # Remove current app to prevent errors when moving
         # update to new location
+        # if update_app is a directory, then we are updating a directory
+        if os.path.isdir(app_update):
+            shutil.rmtree(os.path.dirname(current_app))
+
         if os.path.exists(current_app):
             remove_any(current_app)
 
@@ -664,7 +695,7 @@ class AppUpdate(LibUpdate):
 
                 # We are making an assumption here that only 1
                 # executable will be in the MacOS folder.
-                current_app = os.path.join(mac_app_binary_dir, _file[0])
+                current_app = os.path.join(mac_app_binary_dir, sys.executable)
 
         r = Restarter(current_app, name=self.name)
         r.process()
@@ -677,7 +708,13 @@ class AppUpdate(LibUpdate):
         current_app = os.path.join(self._current_app_dir, exe_name)
         updated_app = os.path.join(self.update_folder, exe_name)
 
-        update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
+        # detect if is a folder
+        if (os.path.exists(os.path.join(self.update_folder, self.name))):
+            current_app = self._current_app_dir
+            updated_app = os.path.join(self.update_folder, self.name)
+
+        update_info = dict(data_dir=self.data_dir, updated_app=updated_app,
+                           name=self.name)
         r = Restarter(current_app, **update_info)
         r.process(win_restart=False)
 
@@ -685,10 +722,17 @@ class AppUpdate(LibUpdate):
         # Windows: Moves update to current directory of running
         #          application then restarts application using
         #          new update.
+
         exe_name = self.name + '.exe'
         current_app = os.path.join(self._current_app_dir, exe_name)
         updated_app = os.path.join(self.update_folder, exe_name)
 
-        update_info = dict(data_dir=self.data_dir, updated_app=updated_app)
+        # detect if is a folder
+        if (os.path.exists(os.path.join(self.update_folder, self.name))):
+            current_app = self._current_app_dir
+            updated_app = os.path.join(self.update_folder, self.name)
+
+        update_info = dict(data_dir=self.data_dir, updated_app=updated_app,
+                           name=self.name)
         r = Restarter(current_app, **update_info)
         r.process()

@@ -81,7 +81,6 @@ def _real_main(args, namespace_test_helper=None):  # pragma: no cover
     else:
         # Used for tests
         args = namespace_test_helper
-
     dispatch_command(args, pyi_args)
 
 

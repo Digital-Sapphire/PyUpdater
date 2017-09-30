@@ -288,9 +288,9 @@ class FileDownloader(object):
             hash_.update(block)
 
             # Total data we've received so far
-            self.data = received_data
-            self.data += len(block)
-
+            
+            received_data += len(block)
+            
             # If content length is None we will return a static percent
             # -.-%
             percent = FileDownloader._calc_progress_percent(received_data,

@@ -79,7 +79,7 @@ install:
 
     # Create .whl packages from dependencies for possible caching.
     # First install 'wheel' package to be able create .whl files.
-    - "build.cmd pip install wheel tox"
+    - "build.cmd pip install wheel tox filelock"
 
     # Create c:/wheels if it does not exist.
     - ps: If ( -not (Test-Path C:/wheels) )  { mkdir C:/wheels }
