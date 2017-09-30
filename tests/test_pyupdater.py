@@ -490,7 +490,6 @@ class TestExecutionRestart(object):
                     time.sleep(AUTO_UPDATE_PAUSE)
 
             simpleserver.stop()
-
             assert os.path.exists(version_file)
             with open(version_file, 'r') as f:
                 output = f.read().strip()
