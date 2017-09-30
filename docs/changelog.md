@@ -9,7 +9,28 @@
     - Basic Auth
   
   - Docs
-    - Helpful Esky migration hints. 
+    - Helpful Esky migration tips
+    
+  - PyUpdater
+    - Pyinstaller onedir support
+  
+  - Tests
+    - Python 3.6
+    
+###Updated
+
+  - Docs
+    - API
+    - Plugin creation
+    - Repository Layout
+
+###Removed
+
+  - Docs
+    - Gitter Link
+  
+  - Tests
+    - Python 3.3 
 
 ## v2.4.1 - 2017/09/18
 

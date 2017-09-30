@@ -33,8 +33,3 @@ This project wouldn't be possible without [Pyinstaller](https://github.com/pyins
 - Download progress callback
 - Uploading to the cloud handled by plugins.
     - S3 and SCP plugins available
-
-
-##Limitations
-
-* No Pyinstaller onedir support. (But may be comming soon!)
