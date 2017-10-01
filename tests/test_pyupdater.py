@@ -196,62 +196,6 @@ class TestExecutionExtraction(object):
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
-            assert os.path.exists(output_file)
-            with open(output_file, 'r') as f:
-                output = f.read().strip()
-            assert output == '4.2'
-
-            if os.path.exists(app_name):
-                os.remove(app_name)
-
-            if os.path.exists(output_file):
-                os.remove(output_file)
-
-    @pytest.mark.parametrize("custom_dir, port",
-                             [pytest.param(True, 8002, marks=pytest.mark.xfail),
-                              pytest.param(False, 8003, marks=pytest.mark.xfail)])
-    def test_execution_one_dir_extract(self, cleandir, datadir, simpleserver, pyu,
-                                       custom_dir, port):
-        data_dir = datadir['update_repo_extract']
-        pyu.setup()
-
-        # We are moving all of the files from the deploy directory to the
-        # cwd. We will start a simple http server to use for updates
-        with ChDir(data_dir):
-            simpleserver.start(port)
-
-            cmd = 'python build_onefile_extract.py %s %s' % (custom_dir, port)
-            os.system(cmd)
-
-            # Moving all files from the deploy directory to the cwd
-            # since that is where we will start the simple server
-            deploy_dir = os.path.join('pyu-data', 'deploy')
-            assert os.path.exists(deploy_dir)
-            test_cwd = os.getcwd()
-            with ChDir(deploy_dir):
-                files = os.listdir(os.getcwd())
-                for f in files:
-                    if f == '.DS_Store':
-                        continue
-                    shutil.move(f, test_cwd)
-
-            app_name = 'Acme'
-            if sys.platform == 'win32':
-                app_name += '.exe'
-
-            with open('pyu.log', 'w') as f:
-                f.write('')
-
-            if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
-
-            if custom_dir:
-                # update with custom_dir is multiprocessing-safe
-                # create a dummy lock here to uniform the code
-                update_lock = multiprocessing.Lock()
-            else:
-                update_lock = UPDATE_LOCK
-
             output_file = 'version1.txt'
             with update_lock.acquire(LOCK_TIMEOUT, 5):
                 count = 0
@@ -270,7 +214,8 @@ class TestExecutionExtraction(object):
             subprocess.call(app_name, shell=True)
 
             simpleserver.stop()
-
+            # Detect if it was an overwrite error
+            assert os.path.exists(app_name)
             assert os.path.exists(output_file)
             with open(output_file, 'r') as f:
                 output = f.read().strip()
@@ -418,64 +363,6 @@ class TestExecutionRestart(object):
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
-            assert os.path.exists(version_file)
-            with open(version_file, 'r') as f:
-                output = f.read().strip()
-            assert output == '4.2'
-
-            if os.path.exists(app_name):
-                os.remove(app_name)
-
-            if os.path.exists(version_file):
-                os.remove(version_file)
-
-    @pytest.mark.parametrize("custom_dir, port",
-                             [pytest.param(True, 8006, marks=pytest.mark.xfail),
-                              pytest.param(False, 8007, marks=pytest.mark.xfail)])
-    def test_execution_one_dir_restart(self, cleandir, datadir, simpleserver, pyu,
-                                       custom_dir, port):
-        data_dir = datadir['update_repo_restart']
-        pyu.setup()
-
-        # We are moving all of the files from the deploy directory to the
-        # cwd. We will start a simple http server to use for updates
-        with ChDir(data_dir):
-            print("***** CWD *****")
-            print(os.path.abspath(data_dir))
-            simpleserver.start(port)
-
-            cmd = 'python build_onefile_restart.py %s %s' % (custom_dir, port)
-            os.system(cmd)
-
-            # Moving all files from the deploy directory to the cwd
-            # since that is where we will start the simple server
-            deploy_dir = os.path.join('pyu-data', 'deploy')
-            assert os.path.exists(deploy_dir)
-            test_cwd = os.getcwd()
-            with ChDir(deploy_dir):
-                files = os.listdir(os.getcwd())
-                for f in files:
-                    if f == '.DS_Store':
-                        continue
-                    shutil.move(f, test_cwd)
-
-            app_name = 'Acme'
-            if sys.platform == 'win32':
-                app_name += '.exe'
-
-            with open('pyu.log', 'w') as f:
-                f.write('')
-
-            if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
-
-            if custom_dir:
-                # update with custom_dir is multiprocessing-safe
-                # create a dummy lock here to uniform the code
-                update_lock = multiprocessing.Lock()
-            else:
-                update_lock = UPDATE_LOCK
-
             version_file = 'version2.txt'
             with update_lock.acquire(LOCK_TIMEOUT, 5):
                 count = 0
@@ -490,6 +377,8 @@ class TestExecutionRestart(object):
                     time.sleep(AUTO_UPDATE_PAUSE)
 
             simpleserver.stop()
+            # Detect if it was an overwrite error
+            assert os.path.exists(app_name)
             assert os.path.exists(version_file)
             with open(version_file, 'r') as f:
                 output = f.read().strip()

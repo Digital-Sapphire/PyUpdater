@@ -77,7 +77,7 @@ def _cmd_archive(*args):
         if not os.path.exists(name):
             log.error('%s does not exists', name)
             return
-        # Creating a pyupdater compatiable archive.
+        # Creating a pyupdater compatible archive.
         # See pyupdater.builder for more info.
         ex_lib = ExternalLib(name, version)
         ex_lib.archive()
@@ -139,7 +139,7 @@ def _cmd_settings(*args):  # pragma: no cover
     check_repo_ex(exit_on_error=True)
 
     ns = args[0]
-    # Used to specifiy if config needs to be saved
+    # Used to specify if config needs to be saved
     save_config = True
     cm = ConfigManager()
     config = cm.load_config()
@@ -149,7 +149,7 @@ def _cmd_settings(*args):  # pragma: no cover
     if ns.config_path is True:
         setup_client_config_path(config)
 
-    # Change the comapny name. This will effect the file path on the end users
+    # Change the company name. This will effect the file path on the end users
     # computer to place update files & meta data
     if ns.company is True:
         setup_company(config)

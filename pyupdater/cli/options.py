@@ -35,7 +35,7 @@ def make_subparser(parser):
     return subparsers
 
 
-def _build_make_spec_commom(subparser):
+def _build_make_spec_common(subparser):
     # Start of args override
 
     # This will be set to the pyu-data/new directory.
@@ -91,7 +91,7 @@ def add_build_parser(subparsers):
                               help='Will not delete executable '
                               'after archiving')
 
-    _build_make_spec_commom(build_parser)
+    _build_make_spec_common(build_parser)
 
 
 def add_clean_parser(subparsers):
@@ -130,7 +130,7 @@ def add_make_spec_parser(subparsers):
     make_spec_parser.add_argument('-k', '--keep', help=argparse.SUPPRESS)
     # End ToDo
 
-    _build_make_spec_commom(make_spec_parser)
+    _build_make_spec_common(make_spec_parser)
 
 
 def add_keys_parser(subparsers):

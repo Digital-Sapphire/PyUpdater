@@ -22,10 +22,6 @@ https://github.com/JMSwag/dsdev-utils/blob/master/LICENSE
 https://github.com/warner/python-ed25519/blob/master/LICENSE
 
 
-###esky
-https://github.com/cloudmatrix/esky/blob/master/LICENSE.txt
-
-
 ###Pyinstaller
 https://github.com/pyinstaller/pyinstaller/blob/develop/COPYING.txt
 

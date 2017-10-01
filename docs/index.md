@@ -5,7 +5,7 @@
 
 An AutoUpdate library and toolkit that enables simple, secure & efficient shipment of app updates.
 
-This project wouldn't be possible without [Pyinstaller](https://github.com/pyinstaller/pyinstaller).
+This project would not be possible without [Pyinstaller](https://github.com/pyinstaller/pyinstaller).
 ## Status
 
 [![](https://badge.fury.io/py/PyUpdater.svg)](http://badge.fury.io/py/PyUpdater)

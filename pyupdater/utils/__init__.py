@@ -275,12 +275,12 @@ def make_archive(name, target, version):
         file_ext = '.exe' if system.get_system() == 'win' else ''
         src_executable = temp_file + os.sep + target + file_ext
         dst_executable = temp_file + os.sep + name + file_ext
-        # is an osx bundle app so doen't need to fix the executable name
-        if (ext != '.app'):
+        # is an osx bundle app so does not need to fix the executable name
+        if ext != '.app':
             shutil.move(src_executable, dst_executable)
 
         # is a win folder so the manifest need to be renamed too
-        if (system.get_system() == 'win'):
+        if system.get_system() == 'win':
             src_manifest = src_executable + '.manifest'
             dst_manifest = dst_executable + '.manifest'
             shutil.move(src_manifest, dst_manifest)
@@ -314,7 +314,7 @@ def remove_dot_files(files):
 
     Returns:
 
-        (list): List of filenames with ".example" files removed.
+        (list): List of file names with ".example" files removed.
     """
     new_list = []
     for l in files:

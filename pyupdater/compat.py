@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # --------------------------------------------------------------------------
-# Optpare is deprecated. This will results in an error for the user.
+# Optparse is deprecated. This will results in an error for the user.
 # Users have to use PyInstaller > 3.0  or a Python version lower
 # than the version which removed optparse from the stdlib.
 try:

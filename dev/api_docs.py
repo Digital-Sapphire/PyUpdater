@@ -8,6 +8,7 @@ from __future__ import print_function
 # ------------------------------------------------------------------------------
 
 import inspect
+
 try:
     from inspect import getfullargspec as getargspec
 except ImportError:
@@ -152,8 +153,8 @@ def _iter_subpackages(package, subpackages):
 def _iter_vars(mod):
     """Iterate through a list of variables define in a module's
     public namespace."""
-    vars = sorted(var for var in dir(mod) if _is_public(var))
-    for var in vars:
+    _vars = sorted(var for var in dir(mod) if _is_public(var))
+    for var in _vars:
         yield getattr(mod, var)
 
 
@@ -233,7 +234,6 @@ def _link(name, anchor=None):
 
 
 def _generate_preamble(package, subpackages):
-
     yield "# API"
 
     yield _doc(_import_module(package))
@@ -254,7 +254,6 @@ def _generate_preamble(package, subpackages):
 
         # All public classes.
         for klass in _iter_classes(subpackage):
-
             # Class documentation.
             yield "* " + _link(_full_name(subpackage, klass))
 
@@ -290,10 +289,10 @@ def _generate_paragraphs(package, subpackages):
             for method in _iter_methods(klass, package):
                 yield '##### ' + _doc_method(klass, method)
 
-            # Uncomment to document properties.
-            # yield "#### Properties"
-            # for prop in _iter_properties(klass, package):
-            #     yield '##### ' + _doc_property(klass, prop)
+                # Uncomment to document properties.
+                # yield "#### Properties"
+                # for prop in _iter_properties(klass, package):
+                #     yield '##### ' + _doc_property(klass, prop)
 
 
 def _print_paragraph(paragraph):
@@ -320,17 +319,18 @@ def generate_api_doc(package, subpackages, path=None):
 def main():
     package = 'pyupdater'
     subpackages = [
-                   # 'cli',
-                   'client',
-                   # 'hooks',
-                   # 'key_handler',
-                   # 'package_handler',
-                   # 'utils',
-                   ]
+        # 'cli',
+        'client',
+        # 'hooks',
+        # 'key_handler',
+        # 'package_handler',
+        # 'utils',
+    ]
 
     curdir = op.dirname(op.realpath(__file__))
     path = op.join(curdir, '../docs/api.md')
     generate_api_doc(package, subpackages, path=path)
+
 
 if __name__ == '__main__':
     main()

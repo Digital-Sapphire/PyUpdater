@@ -121,7 +121,7 @@ class TestBuilder(object):
         add_build_parser(subparser)
         with pytest.raises(SystemExit):
             with io.open('app.py', 'w', encoding='utf-8') as f:
-                f.write('from __futute__ import print_function\n')
+                f.write('from __future__ import print_function\n')
                 f.write('print("Hello, World!")')
             opts, other = parser.parse_known_args(['build', 'app.py'])
             commands._cmd_build(opts, other)

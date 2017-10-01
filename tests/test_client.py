@@ -115,7 +115,7 @@ class TestSetup(object):
     def test_url_tuple_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
-        t_config.UPDATE_URLS = ('http://acme.com/update')
+        t_config.UPDATE_URLS = ('http://acme.com/update',)
         client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
@@ -136,7 +136,7 @@ class TestSetup(object):
     def test_urls_tuple_attr(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
-        t_config.UPDATE_URLS = ('http://acme.com/update')
+        t_config.UPDATE_URLS = ('http://acme.com/update',)
         client = Client(t_config, test=True)
         assert isinstance(client.update_urls, list)
 
@@ -175,7 +175,7 @@ class TestDownload(object):
             count += 1
         assert update.is_downloaded() is True
 
-    def test_multipule_async_calls(self, client):
+    def test_multiple_async_calls(self, client):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
         t_config.VERIFY_SERVER_CERT = False

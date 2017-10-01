@@ -26,6 +26,7 @@ class MyUploader(BaseUploader):
         # Make the magic happen
         files = {'file': open(filename, 'rb')}
         r = request.post(self.server_url, files=files)
+
 ```
 
 
@@ -50,10 +51,11 @@ def set_config(self, config):
     server_name = self.get_answer("Please enter server name\n--> ")
     config["server_url"] = server_name
 
+
 # Will be called after the class is initialized.
 def init_config(self, config):
     self.server_url = config["server_url"]
-    
+
 ```
 
 The second way would be env var.

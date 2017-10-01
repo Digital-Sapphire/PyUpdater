@@ -69,7 +69,9 @@ class TestBasicAuth(object):
         headers = {'basic_auth': 'user:pass'}
         fd = FileDownloader('test', ['test'], urllb3_headers=headers)
         http = fd._get_http_pool(secure=True)
-        assert http.request('GET', 'https://httpbin.org/basic-auth/user/pass').status == 200
+        sc = http.request('GET',
+                          'https://httpbin.org/basic-auth/user/pass').status
+        assert sc == 200
 
 
 @pytest.mark.usefixtue("cleandir")
@@ -97,7 +99,7 @@ class TestContentLength(object):
         data = FakeHeaders()
         assert fd._get_content_length(data) is None
 
-    def test_good_conent_length(self):
+    def test_good_content_length(self):
         fd = FileDownloader(FILENAME, URLS, hexdigest=FILE_HASH, verify=True)
         fd.download_verify_return()
         assert fd.content_length == 2387

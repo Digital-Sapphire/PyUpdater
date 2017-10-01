@@ -48,8 +48,8 @@ from tconfig import TConfig
 
 @pytest.fixture
 def cleandir():
-    newpath = tempfile.mkdtemp()
-    os.chdir(newpath)
+    new_path = tempfile.mkdtemp()
+    os.chdir(new_path)
 
 
 @pytest.fixture
@@ -111,7 +111,7 @@ def simpleserver():
 
         def start(self, port=None):
             if port is None:
-                raise
+                raise ValueError("Port cannot be None.")
             self.count += 1
             if self._server is not None:
                 return

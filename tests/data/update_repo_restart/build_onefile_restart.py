@@ -15,7 +15,8 @@ home_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def build(app):
-    # Pyinstaller's --clean is not 'multiprocessing safe', let's use our own cache
+    # Pyinstaller's --clean is not 'multiprocessing safe',
+    # let's use our own cache
     os.environ['PYINSTALLER_CONFIG_DIR'] = os.path.join(home_dir, '.cache')
     cmd = ('pyupdater build -F --clean --path={} '
            '--app-version={} {}'.format(home_dir, app[1], app[0]))

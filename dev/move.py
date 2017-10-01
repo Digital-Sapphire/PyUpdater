@@ -37,6 +37,7 @@ def main():
 
     shutil.rmtree(HTML_DIR)
 
+
 if __name__ == '__main__':
     main()
     print(u'Move complete')

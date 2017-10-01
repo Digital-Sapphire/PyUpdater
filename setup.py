@@ -17,7 +17,7 @@ extra_scp = 'PyUpdater-scp-Plugin >= 3.0.5'
 setup(
     name='PyUpdater',
     version=versioneer.get_version(),
-    description='Simple App Update Framworke',
+    description='Python Auto Update Library for Pyinstaller',
     author='JMSwag',
     author_email='johnymoswag@gmail.com',
     url='http://www.pyupdater.org',

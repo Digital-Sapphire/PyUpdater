@@ -41,6 +41,7 @@ def cb(status):
 def cb2(status):
     raise IndexError
 
+
 update_data = {
     'name': 'Acme',
     'current_filename': 'Acme-mac-4.1.tar.gz',

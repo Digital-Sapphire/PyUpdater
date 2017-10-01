@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 
 class KeyHandler(object):
-    """KeyHanlder object is used to manage keys used for signing updates
+    """KeyHandler object is used to manage keys used for signing updates
 
     Kwargs:
 

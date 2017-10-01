@@ -168,7 +168,7 @@ class Patcher(object):
         return status
 
     # We will take all versions.  Then append any version
-    # thats greater then the current version to the list
+    # that is greater then the current version to the list
     # of needed patches.
     def _get_patch_info(self):
         # Taking the list of needed patches and extracting the
@@ -206,8 +206,8 @@ class Patcher(object):
                 if patch_size is None:
                     # Since we are missing the patch size we cannot
                     # compare the total size of all patches to the size
-                    # of a full update. Used for backwards compat before
-                    # we added patch size to version manifest.
+                    # of a full update. Used for backwards compatibility
+                    # before we added patch size to version manifest.
                     fall_back = True
                 else:
                     try:
@@ -255,7 +255,7 @@ class Patcher(object):
             versions = map(Version, version_info.keys())
         except KeyError:  # pragma: no cover
             log.debug('No updates found in updates dict')
-            # Will cause error to be thrown in _get_pacth_info
+            # Will cause error to be thrown in _get_patch_info
             # which will cause patch update to return False
             versions = [1]
 
