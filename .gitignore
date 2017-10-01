@@ -16,12 +16,6 @@
 
 .idea
 
-build
-
-debug.txt
-
-dist
-
 MANIFEST
 
 .DS_Store
@@ -45,3 +39,7 @@ keypack.pyu
 private
 
 test.py
+
+.python-version
+
+coverage.xml

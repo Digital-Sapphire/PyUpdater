@@ -1,3 +1,4 @@
 include requirements.txt
 include versioneer.py
+include docs/license.md
 include pyupdater/_version.py

@@ -17,10 +17,10 @@ matrix:
     - python: "nightly"
 
 install:
-  - pip install tox-travis filelock
+  - pip install tox-travis filelock codecov coverage
 
 script: tox
-after_success: coveralls
+after_success: coverage combine; codecov
 deploy:
   provider: pypi
   user: JohnyMoSwag
