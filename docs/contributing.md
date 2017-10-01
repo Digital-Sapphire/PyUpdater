@@ -6,4 +6,3 @@
 - Squash commits into 1 commit
 - Check open issues for places to help
 - PR's are always welcome
-- Must pass CI before merging into develop

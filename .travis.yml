@@ -29,6 +29,6 @@ deploy:
   on:
     branch: master
     tags: true
-    distributions: sdist bdist bdist_wheel
+    distributions: sdist bdist_wheel
     repo: JMSwag/PyUpdater
-    condition: $PYTHON=3.5
+    condition: $$TRAVIS_PYTHON_VERSION=3.6

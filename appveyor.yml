@@ -60,15 +60,6 @@ init:
     - "ECHO \"%APPVEYOR_SCHEDULED_BUILD%\""
 
 install:
-    # - "ECHO Filesystem root:"
-    # - ps: "ls \"C:/\""
-
-    # - "ECHO Chocolatey tools:"
-    # - ps: "ls \"C:/Tools\""
-
-    # - "ECHO Installed SDKs:"
-    # - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
-
     # Check that we have the expected version and architecture for Python
     - "build.cmd %PYTHON%\\python.exe --version"
     - "build.cmd %PYTHON%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
@@ -83,9 +74,6 @@ install:
 
     # Create c:/wheels if it does not exist.
     - ps: If ( -not (Test-Path C:/wheels) )  { mkdir C:/wheels }
-
-    # - ECHO "Cached wheels:"
-    # - ps: "ls \"C:/wheels\""
 
     # Create .whl packages from dependencies for possible caching.
     # If some dependencies contain
