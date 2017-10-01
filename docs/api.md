@@ -96,8 +96,8 @@ obj (instance): config object
 
 ######Kwargs:
 
-refresh (bool): True - Refresh update manifest on object initialization.
-                False - Don't refresh update manifest on object initialization
+refresh (bool): True - Refresh update manifest on init
+                False - Don't refresh update manifest on init
 
 progress_hooks (list): List of callbacks
 
