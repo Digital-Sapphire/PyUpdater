@@ -571,8 +571,10 @@ class LibUpdate(object):
     def cleanup(self):
         """Cleans up old update archives for this app or asset"""
         log.debug('Beginning removal of old updates')
-        remove_previous_versions(self.update_folder,
-                                 self._current_archive_name)
+        rpv = remove_previous_versions
+        t = threading.Thread(target=rpv, args=(self.update_folder,
+                                               self._current_archive_name))
+        t.start()
 
 
 class AppUpdate(LibUpdate):
