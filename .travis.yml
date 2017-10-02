@@ -20,7 +20,7 @@ install:
   - pip install tox-travis filelock codecov coverage
 
 script: tox
-after_success: coverage combine; codecov
+after_success: codecov
 deploy:
   provider: pypi
   user: JohnyMoSwag
