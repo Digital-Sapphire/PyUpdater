@@ -59,8 +59,11 @@ class PackageHandler(object):
         app (instance): Config object
     """
     def __init__(self, config=None):
-        # References the pyu-data folder in the root of repo
-        self.data_dir = None
+        # Configuration data
+        self.config = None
+
+        # Version manifest file
+        self.version_data = None
 
         # Specifies if the config file needs to be loaded
         self.config_loaded = False
@@ -68,33 +71,24 @@ class PackageHandler(object):
         # Used to store config information
         self.db = Storage()
 
-        # Initialize app if config is available
-        if config is not None:
-            self.init_app(config)
-
-    def init_app(self, obj):
-        """Sets up client with config values from obj
-
-        Args:
-
-            obj (instance): config object
-
-        """
-        self.patches = obj.get('UPDATE_PATCHES', True)
-        if self.patches:
-            log.debug('Patch support enabled')
-            self.patch_support = True
+        if config:
+            # Support for creating patches
+            self.patch_support = config.get('UPDATE_PATCHES', True) is True
         else:
-            log.info('Patch support disabled')
             self.patch_support = False
+
+        # References the pyu-data folder in the root of repo
         self.data_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER)
         self.files_dir = os.path.join(self.data_dir, 'files')
         self.deploy_dir = os.path.join(self.data_dir, 'deploy')
         self.new_dir = os.path.join(self.data_dir, 'new')
         self.config_dir = os.path.join(os.getcwd(),
                                        settings.CONFIG_DATA_FOLDER)
-        self.config = None
-        self.json_data = None
+
+        if self.patch_support:
+            log.info('Patch support enabled')
+        else:
+            log.info('Patch support disabled')
 
         self.setup()
 
@@ -106,7 +100,7 @@ class PackageHandler(object):
     def _setup(self):
         self._setup_work_dirs()
         if self.config_loaded is False:
-            self.json_data = self._load_version_file()
+            self.version_data = self._load_version_file()
             self.config = self._load_config()
             self.config_loaded = True
 
@@ -116,8 +110,6 @@ class PackageHandler(object):
         all packages.  Updates the version file meta-data. Then writes
         version file back to disk.
         """
-        if self.data_dir is None:
-            raise PackageHandlerError('Must init first.', expected=True)
         # Getting a list of meta data from all packages in the
         # pyu-data/new directory. Also create a patch manifest
         # to create patches.
@@ -127,10 +119,10 @@ class PackageHandler(object):
         pkg_manifest = self._add_patches_to_packages(pkg_manifest,
                                                      patches)
         # PEP8
-        json_data = PackageHandler._update_version_file(self.json_data,
+        json_data = PackageHandler._update_version_file(self.version_data,
                                                         pkg_manifest)
-        self.json_data = json_data
-        self._write_json_to_file(self.json_data)
+        self.version_data = json_data
+        self._write_json_to_file(self.version_data)
         self._write_config_to_file(self.config)
         self._move_packages(pkg_manifest)
 
@@ -202,7 +194,7 @@ class PackageHandler(object):
                 # Add package hash
                 package.file_hash = gph(package.filename)
                 package.file_size = in_bytes(package.filename)
-                self.json_data = PackageHandler._update_file_list(self.json_data,
+                self.version_data = PackageHandler._update_file_list(self.version_data,
                                                                   package)
 
                 package_manifest.append(package)
@@ -218,7 +210,7 @@ class PackageHandler(object):
                     # Will check if source file for patch exists
                     # if so will return the path and number of patch
                     # to create. If missing source file None returned
-                    path = self._check_make_patch(self.json_data,
+                    path = self._check_make_patch(self.version_data,
                                                   package.name,
                                                   package.platform,
                                                   )

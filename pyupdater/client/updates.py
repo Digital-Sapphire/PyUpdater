@@ -247,6 +247,8 @@ class LibUpdate(object):
     """
 
     def __init__(self, data=None):
+        if data is None:
+            return
         # A key used in the version meta data dictionary
         self._updates_key = settings.UPDATES_KEY
 
@@ -266,11 +268,6 @@ class LibUpdate(object):
         # Returns a user friendly version string
         self._version = ""
 
-        # Initialize this object with a dict of various options
-        if data is not None:
-            self._init_app(data)
-
-    def _init_app(self, data):
         # Dictionary of config variables
         self.init_data = data
 
@@ -344,7 +341,9 @@ class LibUpdate(object):
         assert self.filename is not None
 
         # Used to remove version earlier than the current.
+        # ToDo: Run in background thread
         self.cleanup()
+        # End ToDo
 
     @property
     def version(self):

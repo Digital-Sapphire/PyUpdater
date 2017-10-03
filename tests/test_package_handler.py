@@ -88,11 +88,6 @@ class TestExecution(object):
         p = PackageHandler(config)
         p.process_packages()
 
-    def test_process_packages_fail(self):
-        with pytest.raises(PackageHandlerError):
-            p = PackageHandler()
-            p.process_packages()
-
 
 @pytest.mark.usefixtures('cleandir')
 class TestPackage(object):
