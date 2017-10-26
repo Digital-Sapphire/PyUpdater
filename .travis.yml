@@ -12,9 +12,20 @@ python:
 env: # important! Read the docs!! https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
 
 matrix:
-
+  fast_finish: true
   allow_failures:
     - python: "nightly"
+  include:
+    - os: osx
+      language: generic
+      python: "3.6"
+      install:
+        - brew update
+        - brew install python3
+        - python3 -m venv venv
+        - source venv/bin/activate
+        - pip3 install tox-travis
+      script: tox
 
 install:
   - pip install tox-travis filelock
