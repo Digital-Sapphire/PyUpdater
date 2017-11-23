@@ -1,5 +1,5 @@
-# --------------------------------------------------------------------------
-# Copyright (c) 2016 Digital Sapphire
+# ------------------------------------------------------------------------------
+# Copyright (c) 2015-2017 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -21,7 +21,7 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 
 import io
@@ -87,11 +87,6 @@ class TestExecution(object):
         config.from_object(t_config)
         p = PackageHandler(config)
         p.process_packages()
-
-    def test_process_packages_fail(self):
-        with pytest.raises(PackageHandlerError):
-            p = PackageHandler()
-            p.process_packages()
 
 
 @pytest.mark.usefixtures('cleandir')

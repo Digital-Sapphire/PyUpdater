@@ -28,10 +28,10 @@ matrix:
       script: tox
   
 install:
-  - pip install tox-travis filelock
+  - pip install tox-travis filelock codecov coverage
 
 script: tox
-after_success: coveralls
+after_success: codecov
 deploy:
   provider: pypi
   user: JohnyMoSwag

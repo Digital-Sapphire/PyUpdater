@@ -1,4 +1,4 @@
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Copyright (c) 2015-2017 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -21,7 +21,7 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 import io
 import logging
@@ -247,6 +247,8 @@ class LibUpdate(object):
     """
 
     def __init__(self, data=None):
+        if data is None:
+            return
         # A key used in the version meta data dictionary
         self._updates_key = settings.UPDATES_KEY
 
@@ -266,11 +268,6 @@ class LibUpdate(object):
         # Returns a user friendly version string
         self._version = ""
 
-        # Initialize this object with a dict of various options
-        if data is not None:
-            self._init_app(data)
-
-    def _init_app(self, data):
         # Dictionary of config variables
         self.init_data = data
 
@@ -344,7 +341,9 @@ class LibUpdate(object):
         assert self.filename is not None
 
         # Used to remove version earlier than the current.
+        # ToDo: Run in background thread
         self.cleanup()
+        # End ToDo
 
     @property
     def version(self):
@@ -572,8 +571,10 @@ class LibUpdate(object):
     def cleanup(self):
         """Cleans up old update archives for this app or asset"""
         log.debug('Beginning removal of old updates')
-        remove_previous_versions(self.update_folder,
-                                 self._current_archive_name)
+        rpv = remove_previous_versions
+        t = threading.Thread(target=rpv, args=(self.update_folder,
+                                               self._current_archive_name))
+        t.start()
 
 
 class AppUpdate(LibUpdate):
