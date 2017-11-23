@@ -31,6 +31,7 @@ import zipfile
 
 from dsdev_utils.system import get_system
 
+
 log = logging.getLogger()
 
 cmd1 = 'pyupdater pkg -P'
@@ -42,8 +43,8 @@ def build(app):
     # Pyinstaller's --clean is not 'multiprocessing safe',
     # let's use our own cache
     os.environ['PYINSTALLER_CONFIG_DIR'] = os.path.join(home_dir, '.cache')
-    cmd = ('pyupdater build -D --clean --path={} '
-           '--app-version={} {}'.format(home_dir, app[1], app[0]))
+    cmd = ('pyupdater build -D {} --clean --path={} '
+           '--app-version={} {}'.format(app[2], home_dir, app[1], app[0]))
     os.system(cmd)
 
 
@@ -57,8 +58,11 @@ def extract(filename):
     archive.extractall()
 
 
-def main(use_custom_dir, port):
-    scripts = [('app_restart_onedir.py', '4.1'), ('app_restart_02.py', '4.2')]
+def main(use_custom_dir, port, windowed):
+    scripts = [('app_restart_onedir.py', '4.1',
+                '--windowed' if windowed else ''),
+               ('app_restart_02.py', '4.2',
+                '--windowed' if windowed else '')]
 
     # We use this flag to untar & move our binary to the
     # current working directory
@@ -103,7 +107,7 @@ def main(use_custom_dir, port):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print('usage: %s <use_custom_dir> <port>' % sys.argv[0])
+    if len(sys.argv) != 4:
+        print('usage: %s <use_custom_dir> <port> <windowed>' % sys.argv[0])
     else:
-        main(sys.argv[1] == 'True', sys.argv[2])
+        main(sys.argv[1] == 'True', sys.argv[2], sys.argv[3] == 'True')

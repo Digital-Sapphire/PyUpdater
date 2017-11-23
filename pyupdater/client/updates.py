@@ -649,7 +649,6 @@ class AppUpdate(LibUpdate):
         if get_system() == 'mac':
             if self._current_app_dir.endswith('MacOS') is True:
                 log.debug('Looks like we\'re dealing with a Mac Gui')
-
                 temp_dir = get_mac_dot_app_dir(self._current_app_dir)
                 self._current_app_dir = temp_dir
 
@@ -674,7 +673,10 @@ class AppUpdate(LibUpdate):
         # update to new location
         # if update_app is a directory, then we are updating a directory
         if os.path.isdir(app_update):
-            shutil.rmtree(os.path.dirname(current_app))
+            if (os.path.isdir(current_app)):
+                shutil.rmtree(current_app)
+            else:
+                shutil.rmtree(os.path.dirname(current_app))
 
         if os.path.exists(current_app):
             remove_any(current_app)

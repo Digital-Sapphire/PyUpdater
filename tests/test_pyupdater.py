@@ -63,10 +63,11 @@ class TestSetup(object):
 
 class TestExecutionExtraction(object):
 
-    @pytest.mark.parametrize("custom_dir, port",
-                             [(True, 8000), (False, 8001)])
+    @pytest.mark.parametrize("custom_dir, port, windowed",
+                             [(True, 8000, True), (True, 8001, False),
+                              (False, 8002, True), (False, 8003, False)])
     def test_execution_one_file_extract(self, cleandir, datadir, simpleserver,
-                                        pyu, custom_dir, port):
+                                        pyu, custom_dir, port,windowed):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
 
@@ -75,7 +76,7 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            cmd = 'python build_onefile_extract.py %s %s' % (custom_dir, port)
+            cmd = 'python build_onefile_extract.py %s %s %s' % (custom_dir, port,windowed)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -97,8 +98,13 @@ class TestExecutionExtraction(object):
             with open('pyu.log', 'w') as f:
                 f.write('')
 
+            app_run_command = app_name
             if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
+                app_run_command = './{}'.format(app_name)
+            
+            if (sys.platform == 'darwin' and windowed):
+                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,app_name)
+                app_name='{}.app'.format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
@@ -116,7 +122,7 @@ class TestExecutionExtraction(object):
                 count = 0
                 while count < 5:
                     # Call the binary to self update
-                    subprocess.call(app_name, shell=True)
+                    subprocess.call(app_run_command, shell=True)
                     if os.path.exists(output_file):
                         break
                     count += 1
@@ -126,10 +132,11 @@ class TestExecutionExtraction(object):
 
             # Call the binary to ensure it's
             # the updated binary
-            subprocess.call(app_name, shell=True)
+            subprocess.call(app_run_command, shell=True)
 
             simpleserver.stop()
             # Detect if it was an overwrite error
+            
             assert os.path.exists(app_name)
             assert os.path.exists(output_file)
             with open(output_file, 'r') as f:
@@ -137,16 +144,19 @@ class TestExecutionExtraction(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                os.remove(app_name)
+                if (os.path.isdir(app_name)):
+                    shutil.rmtree(app_name)
+                else:
+                    os.remove(app_name)
 
             if os.path.exists(output_file):
                 os.remove(output_file)
 
-    @pytest.mark.parametrize("custom_dir, port",
-                             [(True, 8002),
-                              (False, 8003)])
+    @pytest.mark.parametrize("custom_dir, port, windowed",
+                             [(True, 8004, True), (True, 8005, False),
+                              (False, 8006, True), (False, 8007, False)])
     def test_execution_one_dir_extract(self, cleandir, datadir, simpleserver,
-                                       pyu, custom_dir, port):
+                                       pyu, custom_dir, port, windowed):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
 
@@ -155,7 +165,8 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            cmd = 'python build_onedir_extract.py %s %s' % (custom_dir, port)
+            cmd = 'python build_onedir_extract.py %s %s %s' % (custom_dir,
+                                                               port, windowed)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -171,19 +182,38 @@ class TestExecutionExtraction(object):
                     shutil.move(f, test_cwd)
 
             dir_name = 'Acme'
-            app_name = dir_name
+            if (not os.path.exists(dir_name)):
+                dir_name = dir_name+'.app'
+
             assert os.path.exists(dir_name)
             assert os.path.isdir(dir_name)
+
+            with open('pyu.log', 'w') as f:
+                f.write('')
+
+            app_name = 'Acme'
+            if (sys.platform == 'darwin' and windowed):
+                pass
+            else:
+                app_name = os.path.join(dir_name, app_name)
+
+            if sys.platform != 'win32':
+                app_name = './{}'.format(app_name)
+
             if sys.platform == 'win32':
                 app_name += '.exe'
 
             with open('pyu.log', 'w') as f:
                 f.write('')
 
-            app_name = os.path.join(dir_name, app_name)
-
+            app_run_command = app_name
             if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
+                app_run_command = './{}'.format(app_name)
+
+            if (sys.platform == 'darwin' and windowed):
+                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
+                                                                      app_name)
+                app_name = '{}.app'.format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
@@ -201,7 +231,7 @@ class TestExecutionExtraction(object):
                 count = 0
                 while count < 5:
                     # Call the binary to self update
-                    subprocess.call(app_name, shell=True)
+                    subprocess.call(app_run_command, shell=True)
                     if os.path.exists(output_file):
                         break
                     count += 1
@@ -211,7 +241,7 @@ class TestExecutionExtraction(object):
 
             # Call the binary to ensure it's
             # the updated binary
-            subprocess.call(app_name, shell=True)
+            subprocess.call(app_run_command, shell=True)
 
             simpleserver.stop()
             # Detect if it was an overwrite error
@@ -222,7 +252,10 @@ class TestExecutionExtraction(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                shutil.rmtree(os.path.dirname(app_name))
+                if (os.path.isdir(app_name)):
+                    shutil.rmtree(app_name)
+                else:
+                    shutil.rmtree(os.path.dirname(app_name))
 
             if os.path.exists(output_file):
                 os.remove(output_file)
@@ -230,10 +263,11 @@ class TestExecutionExtraction(object):
 
 class TestExecutionRestart(object):
 
-    @pytest.mark.parametrize("custom_dir, port",
-                             [(True, 8004), (False, 8005)])
+    @pytest.mark.parametrize("custom_dir, port, windowed",
+                             [(True, 8008, True), (False, 8009, True),
+                              (True, 8010, False), (False, 8011, False)])
     def test_execution_one_file_restart(self, cleandir, datadir, simpleserver,
-                                        pyu, custom_dir, port):
+                                        pyu, custom_dir, port, windowed):
         data_dir = datadir['update_repo_restart']
         pyu.setup()
 
@@ -244,7 +278,8 @@ class TestExecutionRestart(object):
             print(os.path.abspath(data_dir))
             simpleserver.start(port)
 
-            cmd = 'python build_onefile_restart.py %s %s' % (custom_dir, port)
+            cmd = 'python build_onefile_restart.py %s %s %s' % (custom_dir,
+                                                                port, windowed)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -266,8 +301,14 @@ class TestExecutionRestart(object):
             with open('pyu.log', 'w') as f:
                 f.write('')
 
+            app_run_command = app_name
             if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
+                app_run_command = './{}'.format(app_name)
+
+            if (sys.platform == 'darwin' and windowed):
+                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
+                                                                      app_name)
+                app_name = '{}.app'.format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
@@ -285,7 +326,7 @@ class TestExecutionRestart(object):
                 count = 0
                 while count < 5:
                     # Call the binary to self update
-                    subprocess.call(app_name, shell=True)
+                    subprocess.call(app_run_command, shell=True)
                     if os.path.exists(version_file):
                         break
                     count += 1
@@ -302,16 +343,19 @@ class TestExecutionRestart(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                os.remove(app_name)
+                if (os.path.isdir(app_name)):
+                    shutil.rmtree(app_name)
+                else:
+                    os.remove(app_name)
 
             if os.path.exists(version_file):
                 os.remove(version_file)
 
-    @pytest.mark.parametrize("custom_dir, port",
-                             [(True, 8006),
-                              (False, 8007)])
+    @pytest.mark.parametrize("custom_dir, port, windowed",
+                             [(True, 8012, True), (False, 8013, True),
+                              (True, 8014, False), (False, 8015, False)])
     def test_execution_one_dir_restart(self, cleandir, datadir, simpleserver,
-                                       pyu, custom_dir, port):
+                                       pyu, custom_dir, port, windowed):
         data_dir = datadir['update_repo_restart']
         pyu.setup()
 
@@ -322,7 +366,8 @@ class TestExecutionRestart(object):
             print(os.path.abspath(data_dir))
             simpleserver.start(port)
 
-            cmd = 'python build_onedir_restart.py %s %s' % (custom_dir, port)
+            cmd = 'python build_onedir_restart.py %s %s %s' % (custom_dir,
+                                                               port, windowed)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -338,19 +383,38 @@ class TestExecutionRestart(object):
                     shutil.move(f, test_cwd)
 
             dir_name = 'Acme'
-            app_name = dir_name
+            if (not os.path.exists(dir_name)):
+                dir_name = dir_name+'.app'
+
             assert os.path.exists(dir_name)
             assert os.path.isdir(dir_name)
+
+            with open('pyu.log', 'w') as f:
+                f.write('')
+
+            app_name = 'Acme'
+            if (sys.platform == 'darwin' and windowed):
+                pass
+            else:
+                app_name = os.path.join(dir_name, app_name)
+
+            if sys.platform != 'win32':
+                app_name = './{}'.format(app_name)
+
             if sys.platform == 'win32':
                 app_name += '.exe'
 
             with open('pyu.log', 'w') as f:
                 f.write('')
 
-            app_name = os.path.join(dir_name, app_name)
-
+            app_run_command = app_name
             if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
+                app_run_command = './{}'.format(app_name)
+
+            if (sys.platform == 'darwin' and windowed):
+                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
+                                                                      app_name)
+                app_name = '{}.app'.format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
@@ -368,7 +432,7 @@ class TestExecutionRestart(object):
                 count = 0
                 while count < 5:
                     # Call the binary to self update
-                    subprocess.call(app_name, shell=True)
+                    subprocess.call(app_run_command, shell=True)
                     if os.path.exists(version_file):
                         break
                     count += 1
@@ -385,7 +449,10 @@ class TestExecutionRestart(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                shutil.rmtree(os.path.dirname(app_name))
+                if (os.path.isdir(app_name)):
+                    shutil.rmtree(app_name)
+                else:
+                    shutil.rmtree(os.path.dirname(app_name))
 
             if os.path.exists(version_file):
                 os.remove(version_file)

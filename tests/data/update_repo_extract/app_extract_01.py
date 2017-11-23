@@ -27,6 +27,7 @@ import os
 import sys
 
 from pyupdater.client import Client
+from dsdev_utils.paths import get_mac_dot_app_dir
 
 import client_config
 
@@ -53,7 +54,13 @@ def main():
     data_dir = None
     config = client_config.ClientConfig()
     if getattr(config, 'USE_CUSTOM_DIR', False):
-        data_dir = os.path.join(os.path.dirname(sys.executable), '.update')
+        if (sys.platform == 'darwin' and os.path.dirname(sys.executable
+                                                         ).endswith('MacOS')):
+            data_dir = os.path.join(get_mac_dot_app_dir(os.path.dirname(
+                sys.executable)), '.update')
+        else:
+            data_dir = os.path.join(os.path.dirname(os.path.dirname(
+                sys.executable)), '.update')
     client = Client(config,
                     refresh=True, progress_hooks=[cb],
                     data_dir=data_dir)
