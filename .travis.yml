@@ -25,7 +25,7 @@ matrix:
         - python3 -m venv venv
         - source venv/bin/activate
         - pip3 install tox-travis
-      script: tox
+      script: "tox -vv"
   
 install:
   - pip install tox-travis filelock codecov coverage
