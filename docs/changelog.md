@@ -1,12 +1,21 @@
 # Changelog
 
-## v2.5.1 - Master
+## v2.5.2 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.5.1 - 2017/11/24
+
+###Fixed
+
+  - Client
+    - Removal of applications other than the one being updated (mac)
 
 ###Updated
 
   - Client
     - Remove old archives in background thread
+
 
 ## v2.5.0 - 2017/09/30
 
@@ -38,6 +47,7 @@
   
   - Tests
     - Python 3.3 
+
 
 ## v2.4.1 - 2017/09/18
 
