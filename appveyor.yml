@@ -86,7 +86,7 @@ install:
     # available on PyPI.
     # TODO: remove out-of-date wheels to avoid overflowing the build cache
     - "build.cmd pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r requirements.txt"
-    - "build.cmd pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r dev/requirements.txt"
+    - 
 #
 build: none
 
