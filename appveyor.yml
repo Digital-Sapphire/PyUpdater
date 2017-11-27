@@ -1,7 +1,5 @@
 version: '{branch}-{build}'
 
-shallow_clone: true
-
 environment:
 
     PYU_AWS_ID:
@@ -70,7 +68,7 @@ install:
 
     # Create .whl packages from dependencies for possible caching.
     # First install 'wheel' package to be able create .whl files.
-    - "build.cmd pip install wheel tox filelock codecov"
+    - "build.cmd pip install wheel tox filelock codecov coverage"
 
     # Create c:/wheels if it does not exist.
     - ps: If ( -not (Test-Path C:/wheels) )  { mkdir C:/wheels }
@@ -96,7 +94,6 @@ on_finish:
 
 test_script:
     # Split tests into several subprocesses.
+    - choco install codecov
     - "build.cmd tox"
-
-after_test:
-  - "build.cmd codecov"
+    - codecov -f coverage.xml
