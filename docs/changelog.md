@@ -4,6 +4,12 @@
 ####* This version is not yet released and is under active development.
 
 
+###Fixed
+
+  - Client
+    - Headers printed to console
+
+
 ## v2.5.1 - 2017/11/24
 
 ###Fixed

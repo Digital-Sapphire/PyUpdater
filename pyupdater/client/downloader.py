@@ -159,7 +159,7 @@ class FileDownloader(object):
         if self.headers:
             _headers = urllib3.util.make_headers(**self.headers)
             _http.headers.update(_headers)
-        print(_http.headers)
+        log.debug(_http.headers)
         return _http
 
     def download_verify_write(self):
