@@ -8,6 +8,7 @@
 
   - Client
     - Headers printed to console
+    - FileNotFoundError
 
 
 ## v2.5.1 - 2017/11/24
