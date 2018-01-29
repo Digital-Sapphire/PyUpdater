@@ -160,8 +160,15 @@ class Patcher(object):
                     status = False
                 else:
                     # Read binary into memory to begin patching
-                    with open(self.current_filename, 'rb') as f:
-                        self.og_binary = f.read()
+                    try:
+                        with open(self.current_filename, 'rb') as f:
+                            self.og_binary = f.read()
+                    except FileNotFoundError:
+                        status = False
+                        log.debug("Current archive missing")
+                    except Exception as err:
+                        status = False
+                        log.debug(err, exc_info=True)
 
         if status:
             log.debug('Binary found and verified')
