@@ -9,6 +9,7 @@
   - Client
     - Headers printed to console
     - FileNotFoundError
+    - More informative error for progress_hooks containers
 
 
 ## v2.5.1 - 2017/11/24

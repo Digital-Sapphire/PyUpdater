@@ -114,7 +114,8 @@ class Client(object):
         # LIst: Progress hooks to be called
         self.progress_hooks = []
         if progress_hooks is not None:
-            assert isinstance(progress_hooks, list) is True
+            if not isinstance(progress_hooks, list):
+                raise SyntaxError('progress_hooks must be provided as a list.')
             self.progress_hooks += progress_hooks
 
         # Client config obj with settings to find & verify updates
