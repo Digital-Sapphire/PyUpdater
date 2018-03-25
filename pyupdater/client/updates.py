@@ -23,11 +23,13 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
+import ctypes
 import io
 import logging
 import os
 import shutil
 import subprocess
+import uuid
 import sys
 import tarfile
 import threading
@@ -45,6 +47,54 @@ from pyupdater.utils.exceptions import ClientError
 
 
 log = logging.getLogger(__name__)
+
+
+def file_require_admin(file_path):
+    dir_name, exe_file = os.path.split(file_path)
+    cmd = 'cd "{}" && copy "{}" /Y /B +,,'.format(dir_name, exe_file)
+    process = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    output = []
+    for line in process.stdout:
+        output.append(line)
+    return "Access is denied" in " ".join(output)
+
+
+def dir_requires_admin(dir):
+    """
+    Checks if a dir required admin permissions to write.
+    """
+    dummy_filepath = os.path.join(dir, str(uuid.uuid4()))
+    try:
+        with open(dummy_filepath, 'w'):
+            pass
+        os.remove(dummy_filepath)
+        return False
+    except IOError:
+        return True
+
+
+def win_run(command, args, admin=False):
+    """
+    In windows run a command, optionally as admin.
+    """
+    if admin:
+        import win32con
+        from win32com.shell.shell import ShellExecuteEx
+        from win32com.shell import shellcon
+        ShellExecuteEx(
+            nShow=win32con.SW_SHOWNORMAL,
+            fMask=shellcon.SEE_MASK_NOCLOSEPROCESS,
+            lpVerb='runas',
+            lpFile=command,
+            lpParameters=u' '.join('"{}"'.format(arg) for arg in args)
+        )
+    else:
+        return subprocess.Popen([command] + args)
 
 
 def _get_highest_version(name, plat, channel, easy_data, strict):
@@ -141,6 +191,8 @@ def gen_user_friendly_version(internal_version):
 class Restarter(object):
 
     def __init__(self, current_app, **kwargs):
+        log.debug(kwargs) # TODO: Remove
+        log.debug(current_app) # TODO: Remove
         self.current_app = current_app
         self.name = kwargs.get('name', "")
         log.debug('Current App: %s', self.current_app)
@@ -167,6 +219,8 @@ class Restarter(object):
 
     def _win_overwrite(self):
         isFolder = os.path.isdir(self.updated_app)
+        needs_admin = file_require_admin(self.current_app)
+        log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w') as bat:
             if isFolder:
                 bat.write("""
@@ -193,12 +247,13 @@ DEL "%~f0"
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
-        args = ['wscript.exe', self.vbs_file, self.bat_file]
-        subprocess.Popen(args)
+        win_run('wscript.exe', [self.vbs_file, self.bat_file], admin=needs_admin)
         os._exit(0)
 
     def _win_overwrite_restart(self):
         isFolder = os.path.isdir(self.updated_app)
+        needs_admin = file_require_admin(self.current_app)
+        log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w') as bat:
             if isFolder:
                 bat.write("""
@@ -232,8 +287,7 @@ DEL "%~f0"
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
-        args = ['wscript.exe', self.vbs_file, self.bat_file]
-        subprocess.Popen(args)
+        win_run('wscript.exe', [self.vbs_file, self.bat_file], admin=needs_admin)
         os._exit(0)
 
 
