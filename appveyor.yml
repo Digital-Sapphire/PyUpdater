@@ -15,12 +15,6 @@ environment:
             PYTHON_VERSION: "2.7"
             PYTHON_ARCH: "32"
 
-          - JOB: "3.4 32-bit"
-            TOXENV: "py34"
-            PYTHON: "C:\\Python34"
-            PYTHON_VERSION: "3.4"
-            PYTHON_ARCH: "32"
-
           - JOB: "3.5 32-bit"
             TOXENV: "py35"
             PYTHON: "C:\\Python35"
