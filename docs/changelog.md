@@ -10,6 +10,7 @@
     - Headers printed to console
     - FileNotFoundError
     - More informative error for progress_hooks containers
+    - Update failures on chinese version of windows
 
 
 ## v2.5.1 - 2017/11/24
