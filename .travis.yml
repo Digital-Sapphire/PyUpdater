@@ -31,8 +31,13 @@ matrix:
     python: "2.7"
     env: "TOXENV=py27"
     install:
-      - pip install tox-travis filelock codecov coverage
-    script: tox 
+      - brew update
+      - brew uninstall python
+      - brew install python@2
+      - python2 -m virtualenv venv
+      - source venv/bin/activate
+      - pip2 install tox-travis filelock codecov coverage
+    script: tox
 
 
 install:
