@@ -190,8 +190,6 @@ def gen_user_friendly_version(internal_version):
 class Restarter(object):
 
     def __init__(self, current_app, **kwargs):
-        log.debug(kwargs) # TODO: Remove
-        log.debug(current_app) # TODO: Remove
         self.current_app = current_app
         self.name = kwargs.get('name', "")
         log.debug('Current App: %s', self.current_app)
