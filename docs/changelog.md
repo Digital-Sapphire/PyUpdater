@@ -1,7 +1,14 @@
 # Changelog
 
-## v2.5.3 - Master
+## v2.5.4 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v2.5.3 - 2018/03/30
+
+###Fixed
+
+  - Deployment issue
 
 
 ## v2.5.2 - 2018/03/30
