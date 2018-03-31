@@ -23,7 +23,6 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
-import ctypes
 import io
 import logging
 import os
@@ -218,11 +217,14 @@ class Restarter(object):
         os.execl(self.current_app, self.name)
 
     def _win_overwrite(self):
-        isFolder = os.path.isdir(self.updated_app)
-        needs_admin = file_require_admin(self.current_app)
+        is_folder = os.path.isdir(self.updated_app)
+        if is_folder:
+            needs_admin = dir_requires_admin(self.updated_app) or file_require_admin(self.current_app)
+        else:
+            needs_admin = file_require_admin(self.current_app)
         log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w') as bat:
-            if isFolder:
+            if is_folder:
                 bat.write("""
 @echo off
 echo Updating to latest version...
@@ -251,11 +253,14 @@ DEL "%~f0"
         os._exit(0)
 
     def _win_overwrite_restart(self):
-        isFolder = os.path.isdir(self.updated_app)
-        needs_admin = file_require_admin(self.current_app)
+        is_folder = os.path.isdir(self.updated_app)
+        if is_folder:
+            needs_admin = dir_requires_admin(self.updated_app) or file_require_admin(self.current_app)
+        else:
+            needs_admin = file_require_admin(self.current_app)
         log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w') as bat:
-            if isFolder:
+            if is_folder:
                 bat.write("""
 @echo off
 echo Updating to latest version...
