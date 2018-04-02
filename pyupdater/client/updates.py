@@ -171,6 +171,7 @@ class Restarter(object):
             if isFolder:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 robocopy "{}" "{}" /e /move /V /PURGE > NUL
@@ -180,6 +181,7 @@ DEL "%~f0"
             else:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 move /Y "{}" "{}" > NUL
@@ -203,6 +205,7 @@ DEL "%~f0"
             if isFolder:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 robocopy "{}" "{}" /e /move /V > NUL
@@ -217,6 +220,7 @@ DEL "%~f0"
             else:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 move /Y "{}" "{}" > NUL
