@@ -167,7 +167,7 @@ class Restarter(object):
 
     def _win_overwrite(self):
         isFolder = os.path.isdir(self.updated_app)
-        with io.open(self.bat_file, 'w') as bat:
+        with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             if isFolder:
                 bat.write("""
 @echo off
@@ -187,7 +187,7 @@ DEL "{}"
 DEL "%~f0"
 """.format(self.updated_app, self.current_app, self.vbs_file))
 
-        with io.open(self.vbs_file, 'w') as vbs:
+        with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
@@ -199,7 +199,7 @@ DEL "%~f0"
 
     def _win_overwrite_restart(self):
         isFolder = os.path.isdir(self.updated_app)
-        with io.open(self.bat_file, 'w') as bat:
+        with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             if isFolder:
                 bat.write("""
 @echo off
@@ -226,7 +226,7 @@ DEL "{}"
 DEL "%~f0"
 """.format(self.updated_app, self.current_app,
                     self.current_app, self.vbs_file))
-        with io.open(self.vbs_file, 'w') as vbs:
+        with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
