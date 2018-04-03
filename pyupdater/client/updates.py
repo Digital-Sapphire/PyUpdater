@@ -51,9 +51,11 @@ log = logging.getLogger(__name__)
 def file_require_admin(file_path):
     dir_name, exe_file = os.path.split(file_path)
     cmd = 'cd "{}" && copy "{}" /Y /B +,,'.format(dir_name, exe_file)
+    devnull = open(os.devnull, 'wb')
     process = subprocess.Popen(
         cmd,
         shell=True,
+        stdin=devnull,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT
     )
