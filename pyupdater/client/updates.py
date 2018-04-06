@@ -51,8 +51,14 @@ log = logging.getLogger(__name__)
 def file_require_admin(file_path):
     dir_name, exe_file = os.path.split(file_path)
     cmd = 'cd "{}" && copy "{}" /Y /B +,,'.format(dir_name, exe_file)
-    out = os.popen4(cmd)[1]
-    output = out.read()
+    process = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    output = process.stdout.read()
     return "Access is denied" in output
 
 
