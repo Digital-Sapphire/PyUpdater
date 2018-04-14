@@ -288,9 +288,9 @@ class FileDownloader(object):
             hash_.update(block)
 
             # Total data we've received so far
-            
+
             received_data += len(block)
-            
+
             # If content length is None we will return a static percent
             # -.-%
             percent = FileDownloader._calc_progress_percent(received_data,
@@ -358,7 +358,6 @@ class FileDownloader(object):
         data = None
         max_download_retries = self.max_download_retries
         for url in self.urls:
-
             # Create url for resource
             file_url = url + url_quote(self.filename)
             log.debug('Url for request: %s', file_url)
@@ -377,7 +376,11 @@ class FileDownloader(object):
                 # to help fix other http related issues
                 log.debug(str(e), exc_info=True)
             else:
-                break
+                if data.status != 200:
+                    log.debug("Received a non-200 response %d", data.status)
+                    data = None
+                else:
+                    break
 
         if data is not None:
             log.debug('Resource URL: %s', file_url)
