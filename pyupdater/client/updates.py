@@ -50,7 +50,7 @@ log = logging.getLogger(__name__)
 
 def file_require_admin(file_path):
     try:
-        with open(file_path, "a"):
+        with open(file_path.decode('utf-8'), "a"):
             pass
         return False
     except IOError as e:
