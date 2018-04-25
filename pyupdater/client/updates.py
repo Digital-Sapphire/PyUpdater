@@ -58,7 +58,7 @@ def file_require_admin(file_path):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT
     )
-    output = process.stdout.read()
+    output = process.stdout.read().decode("utf-8")
     return "Access is denied" in output
 
 
