@@ -49,17 +49,12 @@ log = logging.getLogger(__name__)
 
 
 def file_require_admin(file_path):
-    dir_name, exe_file = os.path.split(file_path)
-    cmd = 'cd "{}" && copy "{}" /Y /B +,,'.format(dir_name, exe_file)
-    process = subprocess.Popen(
-        cmd,
-        shell=True,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT
-    )
-    output = process.stdout.read().decode("utf-8")
-    return "Access is denied" in output
+    try:
+        with open(file_path, "a"):
+            pass
+        return False
+    except IOError as e:
+        return e.errno == 13
 
 
 def dir_requires_admin(dir):
