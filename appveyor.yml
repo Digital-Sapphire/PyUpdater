@@ -58,7 +58,7 @@ install:
 
     # Upgrade to the latest version of pip to avoid it displaying warnings
     # about it being out of date.
-    - "build.cmd %PYTHON%\\python.exe -m pip install -U pip"
+    - "build.cmd %PYTHON%\\python.exe -m pip install -U pip==9.0.3"
 
     # Create .whl packages from dependencies for possible caching.
     # First install 'wheel' package to be able create .whl files.
@@ -78,7 +78,7 @@ install:
     # available on PyPI.
     # TODO: remove out-of-date wheels to avoid overflowing the build cache
     - "build.cmd pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r requirements.txt"
-    - 
+    -
 #
 build: none
 
