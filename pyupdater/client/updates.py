@@ -368,14 +368,14 @@ class LibUpdate(object):
             return False
         return self._is_downloaded()
 
-    def download(self, async=False):
+    def download(self, async_download=False):
         """Downloads update
 
         ######Args:
 
-            async (bool): Perform download in background thread
+            async_download (bool): Perform download in background thread
         """
-        if async is True:
+        if async_download is True:
             if self._is_downloading is False:
                 self._is_downloading = True
                 threading.Thread(target=self._download).start()

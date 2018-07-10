@@ -38,7 +38,7 @@ Example of async download:
 ```
 app_update = client.update_check(APP_NAME, APP_VERSION)
 if app_update:
-    app_update.download(async=True)
+    app_update.download(async_download=True)
 
 # To check the status of the download
 # Returns a boolean
