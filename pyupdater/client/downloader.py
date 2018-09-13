@@ -123,6 +123,9 @@ class FileDownloader(object):
         # Max attempts to download resource
         self.max_download_retries = kwargs.get('max_download_retries')
 
+        # Download timeout
+        self.download_timeout = kwargs.get('download_timeout')
+
         # Progress hooks to be called
         self.progress_hooks = kwargs.get('progress_hooks', [])
 
@@ -357,6 +360,7 @@ class FileDownloader(object):
     def _create_response(self):
         data = None
         max_download_retries = self.max_download_retries
+        download_timeout = self.download_timeout
         for url in self.urls:
 
             # Create url for resource
@@ -365,7 +369,8 @@ class FileDownloader(object):
             try:
                 data = self.http_pool.urlopen('GET', file_url,
                                               preload_content=False,
-                                              retries=max_download_retries)
+                                              retries=max_download_retries,
+                                              timeout=download_timeout)
             except urllib3.exceptions.SSLError:
                 log.debug('SSL cert not verified')
                 continue

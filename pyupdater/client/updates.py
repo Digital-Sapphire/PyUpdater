@@ -324,6 +324,9 @@ class LibUpdate(object):
         # The amount of times to retry a url before giving up
         self.max_download_retries = data.get('max_download_retries')
 
+        # Download timeout
+        self.download_timeout = data.get("download_timeout")
+
         # The latest version available
         self.latest = _get_highest_version(self.name, self.platform,
                                            self.channel, self.easy_data,
@@ -563,7 +566,8 @@ class LibUpdate(object):
                                 hexdigest=file_hash, verify=self.verify,
                                 progress_hooks=self.progress_hooks,
                                 max_download_retries=self.max_download_retries,
-                                urllb3_headers=self.urllib3_headers)
+                                urllb3_headers=self.urllib3_headers,
+                                download_timeout=self.download_timeout)
             result = fd.download_verify_write()
             if result:
                 log.debug('Download Complete')

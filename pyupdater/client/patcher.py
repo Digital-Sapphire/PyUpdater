@@ -81,6 +81,7 @@ class Patcher(object):
         self.update_urls = kwargs.get('update_urls', [])
         self.verify = kwargs.get('verify', True)
         self.max_download_retries = kwargs.get('max_download_retries')
+        self.download_timeout = kwargs.get('download_timeout')
         self.urllib3_headers = kwargs.get('urllib3_headers')
 
         # Progress hooks to be called
@@ -292,7 +293,8 @@ class Patcher(object):
             fd = FileDownloader(p['patch_name'], p['patch_urls'],
                                 hexdigest=p['patch_hash'], verify=self.verify,
                                 max_download_retries=self.max_download_retries,
-                                urllb3_headers=self.urllib3_headers)
+                                urllb3_headers=self.urllib3_headers,
+                                download_timeout=self.download_timeout)
 
             # Attempt to download resource
             data = fd.download_verify_return()

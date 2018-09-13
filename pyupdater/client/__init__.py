@@ -191,6 +191,9 @@ class Client(object):
         # Max number of download retries
         self.max_download_retries = config.get('MAX_DOWNLOAD_RETRIES')
 
+        # Download timeout
+        self.download_timeout = config.get('DOWNLOAD_TIMEOUT', 30)
+
         # The name of the version file to download
         self.version_file = settings.VERSION_FILE_FILENAME
 
@@ -308,6 +311,7 @@ class Client(object):
             'max_download_retries': self.max_download_retries,
             'progress_hooks': list(set(self.progress_hooks)),
             'urllib3_headers': self.urllib3_headers,
+            'download_timeout': self.download_timeout,
         }
 
         # Return update object with which handles downloading,
