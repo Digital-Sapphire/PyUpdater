@@ -34,11 +34,11 @@ app_update = client.update_check(APP_NAME, APP_VERSION, channel='beta')
 app_update = client.update_check(APP_NAME, APP_VERSION)
 ```
 
-Example of async download:
+Example of background download:
 ```
 app_update = client.update_check(APP_NAME, APP_VERSION)
 if app_update:
-    app_update.download(async=True)
+    app_update.download(background=True)
 
 # To check the status of the download
 # Returns a boolean

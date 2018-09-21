@@ -43,3 +43,5 @@ test.py
 .python-version
 
 coverage.xml
+
+.pytest_cache

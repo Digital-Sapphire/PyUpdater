@@ -23,25 +23,32 @@ matrix:
       - brew upgrade python
       - python3 -m venv venv
       - source venv/bin/activate
-      - pip3 install tox-travis filelock codecov coverage
-    script: tox
+      - pip3 install -r tests/requirements.txt
+      - pip3 install -r requirements.txt
+      - pip3 install -e .
+    script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
   - os: osx
     language: generic
     python: "2.7"
     env: "TOXENV=py27"
     install:
       - brew update
-      - brew uninstall python
+      - brew uninstall --ignore-dependencies python
       - brew install python@2
+      - pip2 install virtualenv
       - python2 -m virtualenv venv
       - source venv/bin/activate
-      - pip2 install tox-travis filelock codecov coverage
-    script: tox
+      - pip2 install -r tests/requirements.txt
+      - pip2 install -r requirements.txt
+      - pip2 install -e .
+    script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
 
 
 install:
-  - pip install tox-travis filelock codecov coverage
-script: tox
+  - pip install -r tests/requirements.txt
+  - pip install -r requirements.txt
+  - pip install -e .
+script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
 after_success: codecov
 deploy:
   provider: pypi

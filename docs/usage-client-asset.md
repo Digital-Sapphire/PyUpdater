@@ -62,7 +62,7 @@ if lib_update is not None:
 ####We can also download in a background thread.
 ```
 if lib_update is not None:
-    lib_update.download(async=True)
+    lib_update.download(background=True)
 ```
 
 ###Step 6a - Extract
