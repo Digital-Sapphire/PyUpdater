@@ -201,7 +201,7 @@ Downloads update
 
 ######Args:
 
-    async (bool): Perform download in background thread
+    async_download (bool): Perform download in background thread
 
 ##### LibUpdate.extract()
 
