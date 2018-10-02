@@ -2,7 +2,7 @@ site_name: PyUpdater
 site_url: http://www.pyupdater.org
 site_description: Pyinstaller Auto-Update Framework
 google_analytics: ['UA-76455631-6', 'www.pyupdater.org']
-pages:
+nav:
 - Home: index.md
 - User Guide:
     - Installation: installation.md
