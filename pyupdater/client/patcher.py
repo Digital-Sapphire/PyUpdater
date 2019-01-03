@@ -23,12 +23,11 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals, print_function
-
 import logging
 import os
+import tempfile
 
 import bsdiff4
-
 from dsdev_utils.crypto import get_package_hashes
 from dsdev_utils.helpers import EasyAccessDict, Version
 from dsdev_utils.paths import ChDir, remove_any
@@ -287,15 +286,19 @@ class Patcher(object):
         percent = 0
         total = len(self.patch_data)
 
-        for p in self.patch_data:
-            # Initialize downloader
-            fd = FileDownloader(p['patch_name'], p['patch_urls'],
-                                hexdigest=p['patch_hash'], verify=self.verify,
-                                max_download_retries=self.max_download_retries,
-                                urllb3_headers=self.urllib3_headers)
+        temp_dir = tempfile.gettempdir()
 
-            # Attempt to download resource
-            data = fd.download_verify_return()
+        for p in self.patch_data:
+            # Don't write temp files to cwd
+            with ChDir(temp_dir):
+                fd = FileDownloader(p['patch_name'], p['patch_urls'],
+                                    hexdigest=p['patch_hash'], verify=self.verify,
+                                    max_download_retries=self.max_download_retries,
+                                    urllb3_headers=self.urllib3_headers)
+
+                # Attempt to download resource
+                data = fd.download_verify_return()
+
             percent = int((float(downloaded + 1) / float(total)) * 100)
             percent = '{0:.1f}'.format(percent)
             if data is not None:

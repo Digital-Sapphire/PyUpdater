@@ -33,7 +33,7 @@ with open(u'requirements.txt', u'r') as f:
     required = f.read().splitlines()
 
 # ToDo: Remove in PyUpdater 3.0
-extra_patch = 'bsdiff4 == 1.1.4'
+extra_patch = 'bsdiff4 == 1.1.5'
 # End ToDo
 extra_s3 = 'PyUpdater-s3-Plugin >= 3.0.6'
 extra_scp = 'PyUpdater-scp-Plugin >= 3.0.5'

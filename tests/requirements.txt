@@ -1,0 +1,9 @@
+codecov>=1.4.0
+coverage
+filelock
+pytest
+pytest-datadir==0.2.0
+pytest-cov
+pytest-xdist
+pytest-remove-stale-bytecode
+wheel

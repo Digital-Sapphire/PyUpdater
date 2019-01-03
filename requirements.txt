@@ -1,5 +1,5 @@
 appdirs >= 1.4.0
-bsdiff4 == 1.1.4
+bsdiff4 == 1.1.5
 certifi >= 2016.9.26
 dsdev-utils >= 0.9.6
 ed25519 == 1.4

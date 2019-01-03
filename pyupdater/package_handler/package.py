@@ -49,7 +49,7 @@ def parse_platform(name):
     """
     log.debug('Parsing "%s" for platform info', name)
     try:
-        re_str = r'-(?P<platform>arm[6]?[4]|mac|nix[6]?[4]?|win)-'
+        re_str = r'-(?P<platform>arm(64)?|mac|nix(64)?|win)-'
         data = re.compile(re_str).search(name)
         platform_name = data.groupdict()['platform']
         log.debug('Platform name is: %s', platform_name)

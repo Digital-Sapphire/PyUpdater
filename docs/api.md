@@ -33,13 +33,13 @@ Args:
 
 Cleans up old update archives for this app or asset
 
-##### AppUpdate.download(async=False)
+##### AppUpdate.download(background=False)
 
 Downloads update
 
 ######Args:
 
-    async (bool): Perform download in background thread
+    background (bool): Perform download in background thread
 
 ##### AppUpdate.extract()
 
@@ -144,7 +144,7 @@ refresh (bool):
 
 Will download and verify the version manifest.
 
-##### Client.update_check(name, version, channel=u'stable', strict=True)
+##### Client.update_check(name, version, channel='stable', strict=True)
 
 Checks for available updates
 
@@ -195,13 +195,13 @@ data (dict): Info dict
 
 Cleans up old update archives for this app or asset
 
-##### LibUpdate.download(async=False)
+##### LibUpdate.download(background=False)
 
 Downloads update
 
 ######Args:
 
-    async (bool): Perform download in background thread
+    background (bool): Perform download in background thread
 
 ##### LibUpdate.extract()
 

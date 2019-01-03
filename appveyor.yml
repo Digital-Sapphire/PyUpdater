@@ -39,17 +39,16 @@ environment:
             PYTHON_VERSION: "3.6"
             PYTHON_ARCH: "64"
 
-
-cache:
-    # Cache created Python .whl packages to avoid compiling them again.
-    # Wheels are built with --use-wheel to avoid recompiling already-built wheels.
-    - C:\wheels
-
 init:
     # Used to RDP into build worker
     #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
     - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
     - "ECHO \"%APPVEYOR_SCHEDULED_BUILD%\""
+
+    - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
+        https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
+        Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
+        throw "There are newer queued builds for this pull request, failing early." }
 
 install:
     # Check that we have the expected version and architecture for Python
@@ -58,27 +57,11 @@ install:
 
     # Upgrade to the latest version of pip to avoid it displaying warnings
     # about it being out of date.
-    - "build.cmd %PYTHON%\\python.exe -m pip install -U pip==9.0.3"
+    - "build.cmd %PYTHON%\\python.exe -m pip install -U pip"
 
-    # Create .whl packages from dependencies for possible caching.
-    # First install 'wheel' package to be able create .whl files.
-    - "build.cmd pip install wheel tox filelock codecov coverage"
-
-    # Create c:/wheels if it does not exist.
-    - ps: If ( -not (Test-Path C:/wheels) )  { mkdir C:/wheels }
-
-    # Create .whl packages from dependencies for possible caching.
-    # If some dependencies contain
-    # compiled extensions and are not provided as pre-built wheel packages,
-    # pip will build them from source using the MSVC compiler matching the
-    # target Python version and architecture
-    # If we have previously built a wheel and stored it in C:/wheels,
-    # the --find-links option will find the previously built wheel and
-    # skip rebuilding it. The wheel will still be rebuilt if a newer version is
-    # available on PyPI.
-    # TODO: remove out-of-date wheels to avoid overflowing the build cache
-    - "build.cmd pip wheel --use-wheel --wheel-dir C:/wheels --find-links c:/wheels -r requirements.txt"
-    -
+    - "build.cmd pip install -r requirements.txt -U"
+    - "build.cmd pip install -r tests/requirements.txt -U"
+    - "build.cmd pip install -e ."
 #
 build: none
 
@@ -89,5 +72,5 @@ on_finish:
 test_script:
     # Split tests into several subprocesses.
     - choco install codecov
-    - "build.cmd tox"
+    - "build.cmd py.test -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append"
     - codecov -f coverage.xml

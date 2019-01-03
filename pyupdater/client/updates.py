@@ -224,10 +224,11 @@ class Restarter(object):
         else:
             needs_admin = file_require_admin(self.current_app)
         log.debug('Admin required to update={}'.format(needs_admin))
-        with io.open(self.bat_file, 'w') as bat:
+        with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             if is_folder:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 robocopy "{}" "{}" /e /move /V /PURGE > NUL
@@ -237,6 +238,7 @@ DEL "%~f0"
             else:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 move /Y "{}" "{}" > NUL
@@ -244,7 +246,7 @@ DEL "{}"
 DEL "%~f0"
 """.format(self.updated_app, self.current_app, self.vbs_file))
 
-        with io.open(self.vbs_file, 'w') as vbs:
+        with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
@@ -260,10 +262,11 @@ DEL "%~f0"
         else:
             needs_admin = file_require_admin(self.current_app)
         log.debug('Admin required to update={}'.format(needs_admin))
-        with io.open(self.bat_file, 'w') as bat:
+        with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             if is_folder:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 robocopy "{}" "{}" /e /move /V > NUL
@@ -278,6 +281,7 @@ DEL "%~f0"
             else:
                 bat.write("""
 @echo off
+chcp 65001
 echo Updating to latest version...
 ping 127.0.0.1 -n 5 -w 1000 > NUL
 move /Y "{}" "{}" > NUL
@@ -287,7 +291,7 @@ DEL "{}"
 DEL "%~f0"
 """.format(self.updated_app, self.current_app,
                     self.current_app, self.vbs_file))
-        with io.open(self.vbs_file, 'w') as vbs:
+        with io.open(self.vbs_file, 'w', encoding='utf-8') as vbs:
             # http://www.howtogeek.com/131597/can-i-run-a-windows-batch-
             # file-without-a-visible-command-prompt/
             vbs.write('CreateObject("Wscript.Shell").Run """" '
@@ -428,14 +432,14 @@ class LibUpdate(object):
             return False
         return self._is_downloaded()
 
-    def download(self, async=False):
+    def download(self, background=False):
         """Downloads update
 
         ######Args:
 
-            async (bool): Perform download in background thread
+            background (bool): Perform download in background thread
         """
-        if async is True:
+        if background is True:
             if self._is_downloading is False:
                 self._is_downloading = True
                 threading.Thread(target=self._download).start()

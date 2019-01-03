@@ -1,5 +1,5 @@
 memory_profiler
-mkdocs == 0.16.3
+mkdocs == 1.0.4
 mkdocs-material
 PyUpdater-s3-Plugin
 tox

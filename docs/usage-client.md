@@ -62,7 +62,7 @@ if app_update is not None:
 ####We can also download in a background thread.
 ```
 if app_update is not None:
-    app_update.download(async=True)
+    app_update.download(background=True)
 ```
 
 ###Step 6a - Overwrite

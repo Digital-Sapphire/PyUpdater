@@ -34,11 +34,11 @@ app_update = client.update_check(APP_NAME, APP_VERSION, channel='beta')
 app_update = client.update_check(APP_NAME, APP_VERSION)
 ```
 
-Example of async download:
+Example of background download:
 ```
 app_update = client.update_check(APP_NAME, APP_VERSION)
 if app_update:
-    app_update.download(async=True)
+    app_update.download(background=True)
 
 # To check the status of the download
 # Returns a boolean
@@ -68,3 +68,14 @@ client = Client(ClientConfig())
 client.add_progress_hook(log_progress)
 client.add_progress_hook(progress)
 ```
+
+###Using basic authentication
+
+Basic authentication is an easy way to prevent unauthorized people from downloading your app from your update server.
+
+Once you've configured your web server to require basic authentication from clients accessing your update repository, modify your update client code like this:
+```
+headers = urllib3.util.make_headers(basic_auth='username:password')
+client = Client(ClientConfig(), headers=headers)
+````
+Other headers can be sent in the same way, if you want.
