@@ -44,8 +44,6 @@ if sys.platform == 'win32':
 LOCK_TIMEOUT = 5*60  # ten minutes timeout
 APP_NAME = 'Acme'
 
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 @pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
 class TestSetup(object):
