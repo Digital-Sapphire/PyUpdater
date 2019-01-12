@@ -29,7 +29,7 @@ import gzip
 import json
 import logging
 import os
-import ed25519
+from pure25519 import ed25519_oop as ed25519
 import six
 
 from pyupdater import settings
