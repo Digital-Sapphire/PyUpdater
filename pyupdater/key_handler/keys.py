@@ -30,7 +30,7 @@ import json
 import os
 
 from appdirs import user_data_dir
-import ed25519
+from pure25519 import ed25519_oop as ed25519
 import six
 
 from pyupdater import settings
