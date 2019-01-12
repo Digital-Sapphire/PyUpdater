@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 
 import json
 
-import ed25519
+from pure25519 import ed25519_oop as ed25519
 import pytest
 import six
 
