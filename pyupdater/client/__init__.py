@@ -37,7 +37,7 @@ from dsdev_utils.helpers import (EasyAccessDict as _EAD,
 from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import app_cwd, ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
-import ed25519
+from pure25519 import ed25519_oop as ed25519
 import six
 
 from pyupdater import settings, __version__
