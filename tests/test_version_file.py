@@ -31,7 +31,7 @@ import pytest
 import six
 
 
-if sys.maxsize > 2**32 and sys.platform == 'win32'
+if sys.maxsize > 2**32 and sys.platform == 'win32':
     from pure25519 import ed25519_oop as ed25519
 else:
     import ed25519
