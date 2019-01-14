@@ -24,6 +24,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 
+import struct
 import sys
 
 APP_NAME = 'PyUpdater'
@@ -65,4 +66,4 @@ VERSION_FILE_FILENAME = 'versions.gz'
 KEY_FILE_FILENAME = 'keys.gz'
 
 # Is PyUpdater running on 64-bit Windows?
-WINDOWS_64BIT = sys.maxsize > 2**32 and sys.platform == 'win32'
+WINDOWS_64BIT = sys.platform == 'win32' and struct.calcsize('P') == 64
