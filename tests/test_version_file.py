@@ -32,7 +32,7 @@ import pytest
 import six
 
 
-if sys.platform == 'win32' and struct.calcsize('P') == 64:
+if sys.platform == 'win32' and struct.calcsize('P') == 8:
     from pure25519 import ed25519_oop as ed25519
 else:
     import ed25519

@@ -32,7 +32,7 @@ import versioneer
 KEYWORDS = ('PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky '
             'updater4pyi bbfreeze ccfreeze freeze cz_freeze')
 
-windows_64bit = sys.platform == 'win32' and struct.calcsize('P') == 64
+windows_64bit = sys.platform == 'win32' and struct.calcsize('P') == 8
 
 required = []
 with open(u'requirements.txt', u'r') as f:
