@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
-import platform
+import sys
 
 from setuptools import find_packages, setup
 
@@ -31,9 +31,7 @@ import versioneer
 KEYWORDS = ('PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky '
             'updater4pyi bbfreeze ccfreeze freeze cz_freeze')
 
-architecture = platform.architecture()
-windows_64bit = (architecture[0] == '64bit'
-                 and architecture[1].startswith('Windows'))
+windows_64bit = sys.maxsize > 2**32 and sys.platform == 'win32'
 
 with open(u'requirements.txt', u'r') as f:
     required = []
