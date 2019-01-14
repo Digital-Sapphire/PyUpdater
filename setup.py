@@ -23,6 +23,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 import sys
+import struct
 
 from setuptools import find_packages, setup
 
@@ -31,10 +32,10 @@ import versioneer
 KEYWORDS = ('PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky '
             'updater4pyi bbfreeze ccfreeze freeze cz_freeze')
 
-windows_64bit = sys.maxsize > 2**32 and sys.platform == 'win32'
+windows_64bit = sys.platform == 'win32' and struct.calcsize('P') == 64
 
+required = []
 with open(u'requirements.txt', u'r') as f:
-    required = []
     for line in f:
         if windows_64bit and line.startswith('ed25519'):
             line = 'pure25519 == 0.0.1'
