@@ -24,7 +24,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 
-import platform
+import sys
 
 APP_NAME = 'PyUpdater'
 APP_AUTHOR = 'Digital Sapphire'
@@ -65,6 +65,4 @@ VERSION_FILE_FILENAME = 'versions.gz'
 KEY_FILE_FILENAME = 'keys.gz'
 
 # Is PyUpdater running on 64-bit Windows?
-architecture = platform.architecture()
-WINDOWS_64BIT = (architecture[0] == '64bit'
-                 and architecture[1].startswith('Windows'))
+WINDOWS_64BIT = sys.maxsize > 2**32 and sys.platform == 'win32'
