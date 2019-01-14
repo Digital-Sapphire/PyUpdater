@@ -59,9 +59,9 @@ install:
     # about it being out of date.
     - "build.cmd %PYTHON%\\python.exe -m pip install -U pip"
 
-    - "build.cmd pip install -r requirements.txt -U"
-    - "build.cmd pip install -r tests/requirements.txt -U"
-    - "build.cmd pip install -e ."
+    - "build.cmd %PYTHON%\\python.exe -m pip install -r requirements.txt -U"
+    - "build.cmd %PYTHON%\\python.exe -m pip install -r tests/requirements.txt -U"
+    - "build.cmd %PYTHON%\\python.exe -m pip install -e ."
 #
 build: none
 
@@ -72,5 +72,5 @@ on_finish:
 test_script:
     # Split tests into several subprocesses.
     - choco install codecov
-    - "build.cmd py.test -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append"
+    - "build.cmd %PYTHON%\\python.exe -m pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append"
     - codecov -f coverage.xml
