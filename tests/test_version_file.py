@@ -25,11 +25,17 @@
 from __future__ import unicode_literals
 
 import json
+import platform
 
-from pure25519 import ed25519_oop as ed25519
 import pytest
 import six
 
+architecture = platform.architecture()
+
+if architecture[0] == '64bit' and architecture[1].startswith('Windows'):
+    from pure25519 import ed25519_oop as ed25519
+else:
+    import ed25519
 
 @pytest.mark.usefixtures('cleandir')
 class TestVersionFile(object):

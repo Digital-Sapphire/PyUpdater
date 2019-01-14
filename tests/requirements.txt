@@ -1,7 +1,6 @@
 codecov>=1.4.0
 coverage
 filelock
-pure25519 == 0.0.1
 pytest >= 3.6.0
 pytest-datadir==0.2.0
 pytest-cov
