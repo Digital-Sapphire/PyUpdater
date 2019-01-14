@@ -38,7 +38,7 @@ windows_64bit = (architecture[0] == '64bit'
 with open(u'requirements.txt', u'r') as f:
     required = []
     for line in f:
-        if windows_64bit and line.startwith('ed25519'):
+        if windows_64bit and line.startswith('ed25519'):
             line = 'pure25519 == 0.0.1'
         required.append(line)
 
