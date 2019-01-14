@@ -25,13 +25,14 @@
 from __future__ import unicode_literals
 
 import json
+import struct
 import sys
 
 import pytest
 import six
 
 
-if sys.maxsize > 2**32 and sys.platform == 'win32':
+if sys.platform == 'win32' and struct.calcsize('P') == 64:
     from pure25519 import ed25519_oop as ed25519
 else:
     import ed25519
