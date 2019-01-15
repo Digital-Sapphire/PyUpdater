@@ -8,36 +8,37 @@ environment:
     PYU_AWS_SECRET:
         secure: E8Lyi89ePr8Zk7HC5eTdSDYwUeQY2gow7g3A3+scRAgsAU0gm/A4DWaA/0IY2DJC
 
+    global:
+        # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+        # /E:ON and /V:ON options are not enabled in the batch script intepreter
+        # See: http://stackoverflow.com/a/13751649/163740
+        CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
+
     matrix:
-          - JOB: "2.7 32-bit"
-            TOXENV: "py27"
-            PYTHON: "C:\\Python27"
-            PYTHON_VERSION: "2.7"
-            PYTHON_ARCH: "32"
+        - JOB: "2.7 32-bit"
+        PYTHON: "C:\\Python27"
+        PYTHON_VERSION: "2.7"
+        PYTHON_ARCH: "32"
 
-          - JOB: "3.5 32-bit"
-            TOXENV: "py35"
-            PYTHON: "C:\\Python35"
-            PYTHON_VERSION: "3.5"
-            PYTHON_ARCH: "32"
+        - JOB: "3.5 32-bit"
+        PYTHON: "C:\\Python35"
+        PYTHON_VERSION: "3.5"
+        PYTHON_ARCH: "32"
 
-          - JOB: "3.5 64-bit"
-            TOXENV: "py35"
-            PYTHON: "C:\\Python35-x64"
-            PYTHON_VERSION: "3.5"
-            PYTHON_ARCH: "64"
+        - JOB: "3.5 64-bit"
+        PYTHON: "C:\\Python35-x64"
+        PYTHON_VERSION: "3.5"
+        PYTHON_ARCH: "64"
 
-          - JOB: "3.6 32-bit"
-            TOXENV: "py36"
-            PYTHON: "C:\\Python36"
-            PYTHON_VERSION: "3.6"
-            PYTHON_ARCH: "32"
+        - JOB: "3.6 32-bit"
+        PYTHON: "C:\\Python36"
+        PYTHON_VERSION: "3.6"
+        PYTHON_ARCH: "32"
 
-          - JOB: "3.6 64-bit"
-            TOXENV: "py36"
-            PYTHON: "C:\\Python36-x64"
-            PYTHON_VERSION: "3.6"
-            PYTHON_ARCH: "64"
+        - JOB: "3.6 64-bit""
+        PYTHON: "C:\\Python36-x64"
+        PYTHON_VERSION: "3.6"
+        PYTHON_ARCH: "64"
 
 init:
     # Used to RDP into build worker
@@ -51,18 +52,27 @@ init:
         throw "There are newer queued builds for this pull request, failing early." }
 
 install:
+    # Install Python (from the official .msi of https://python.org) and pip when
+    # not already installed.
+    - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+
+    # Prepend newly installed Python to the PATH of this build (this cannot be
+    # done from inside the powershell script as it would require to restart
+    # the parent CMD process).
+    - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
     # Check that we have the expected version and architecture for Python
-    - "build.cmd %PYTHON%\\python.exe --version"
-    - "build.cmd %PYTHON%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
+    - "python --version"
+    - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
     # Upgrade to the latest version of pip to avoid it displaying warnings
     # about it being out of date.
-    - "build.cmd %PYTHON%\\python.exe -m pip install -U pip"
+    - "python -m pip install --upgrade pip"
 
-    - "build.cmd %PYTHON%\\python.exe -m pip install -r requirements.txt -U"
-    - "build.cmd %PYTHON%\\python.exe -m pip install -r tests/requirements.txt -U"
-    - "build.cmd %PYTHON%\\python.exe -m pip install -e ."
-#
+    - "%CMD_IN_ENV% pip install -r requirements.txt -U"
+    - "%CMD_IN_ENV% pip install -r tests/requirements.txt -U"
+    - "%CMD_IN_ENV% pip install -e ."
+
 build: none
 
 on_finish:
@@ -72,5 +82,5 @@ on_finish:
 test_script:
     # Split tests into several subprocesses.
     - choco install codecov
-    - "build.cmd %PYTHON%\\python.exe -m pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append"
+    - "py.test -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append"
     - codecov -f coverage.xml
