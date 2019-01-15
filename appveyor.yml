@@ -8,12 +8,6 @@ environment:
     PYU_AWS_SECRET:
         secure: E8Lyi89ePr8Zk7HC5eTdSDYwUeQY2gow7g3A3+scRAgsAU0gm/A4DWaA/0IY2DJC
 
-    global:
-        # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
-        # /E:ON and /V:ON options are not enabled in the batch script intepreter
-        # See: http://stackoverflow.com/a/13751649/163740
-        CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
-
     matrix:
         - JOB: "2.7 32-bit"
           PYTHON: "C:\\Python27"
@@ -68,10 +62,11 @@ install:
     # Upgrade to the latest version of pip to avoid it displaying warnings
     # about it being out of date.
     - "python -m pip install --upgrade pip"
+    - "pip --version"
 
-    - "%CMD_IN_ENV% pip install -r requirements.txt -U"
-    - "%CMD_IN_ENV% pip install -r tests/requirements.txt -U"
-    - "%CMD_IN_ENV% pip install -e ."
+    - "pip install -r requirements.txt -U"
+    - "pip install -r tests/requirements.txt -U"
+    - "pip install -e ."
 
 build: none
 
