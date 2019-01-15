@@ -16,29 +16,29 @@ environment:
 
     matrix:
         - JOB: "2.7 32-bit"
-        PYTHON: "C:\\Python27"
-        PYTHON_VERSION: "2.7"
-        PYTHON_ARCH: "32"
+          PYTHON: "C:\\Python27"
+          PYTHON_VERSION: "2.7"
+          PYTHON_ARCH: "32"
 
         - JOB: "3.5 32-bit"
-        PYTHON: "C:\\Python35"
-        PYTHON_VERSION: "3.5"
-        PYTHON_ARCH: "32"
+          PYTHON: "C:\\Python35"
+          PYTHON_VERSION: "3.5"
+          PYTHON_ARCH: "32"
 
         - JOB: "3.5 64-bit"
-        PYTHON: "C:\\Python35-x64"
-        PYTHON_VERSION: "3.5"
-        PYTHON_ARCH: "64"
+          PYTHON: "C:\\Python35-x64"
+          PYTHON_VERSION: "3.5"
+          PYTHON_ARCH: "64"
 
         - JOB: "3.6 32-bit"
-        PYTHON: "C:\\Python36"
-        PYTHON_VERSION: "3.6"
-        PYTHON_ARCH: "32"
+          PYTHON: "C:\\Python36"
+          PYTHON_VERSION: "3.6"
+          PYTHON_ARCH: "32"
 
         - JOB: "3.6 64-bit""
-        PYTHON: "C:\\Python36-x64"
-        PYTHON_VERSION: "3.6"
-        PYTHON_ARCH: "64"
+          PYTHON: "C:\\Python36-x64"
+          PYTHON_VERSION: "3.6"
+          PYTHON_ARCH: "64"
 
 init:
     # Used to RDP into build worker
