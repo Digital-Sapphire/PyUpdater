@@ -34,7 +34,7 @@ matrix:
     install:
       - brew update
       - brew uninstall --ignore-dependencies python
-      - brew install python@2
+      - brew upgrade python@2
       - pip2 install virtualenv
       - python2 -m virtualenv venv
       - source venv/bin/activate
