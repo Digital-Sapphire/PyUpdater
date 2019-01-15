@@ -35,7 +35,7 @@ environment:
           PYTHON_VERSION: "3.6"
           PYTHON_ARCH: "32"
 
-        - JOB: "3.6 64-bit""
+        - JOB: "3.6 64-bit"
           PYTHON: "C:\\Python36-x64"
           PYTHON_VERSION: "3.6"
           PYTHON_ARCH: "64"
