@@ -59,7 +59,7 @@ def file_require_admin(file_path):
             return e.errno == 13
     elif six.PY3:
         try:
-            with open(file_path.decode('utf-8'), "a"):
+            with open(file_path, "a"):
                 pass
             return False
         except PermissionError:
