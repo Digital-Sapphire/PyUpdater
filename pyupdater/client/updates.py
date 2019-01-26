@@ -49,7 +49,16 @@ from pyupdater.utils.exceptions import ClientError
 log = logging.getLogger(__name__)
 
 
-def file_require_admin(file_path):
+def requires_admin(path):
+    if os.path.isdir(path):
+        return dir_requires_admin(path)
+    elif os.path.isfile(path):
+        return file_requires_admin(path)
+    else:
+        raise ValueError('requires_admin needs dir or file.')
+
+
+def file_requires_admin(file_path):
     if six.PY2:
         try:
             with open(file_path.decode('utf-8'), "a"):
@@ -220,9 +229,9 @@ class Restarter(object):
     def _win_overwrite(self):
         is_folder = os.path.isdir(self.updated_app)
         if is_folder:
-            needs_admin = dir_requires_admin(self.updated_app) or file_require_admin(self.current_app)
+            needs_admin = requires_admin(self.updated_app) or requires_admin(self.current_app)
         else:
-            needs_admin = file_require_admin(self.current_app)
+            needs_admin = requires_admin(self.current_app)
         log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             if is_folder:
@@ -258,9 +267,9 @@ DEL "%~f0"
     def _win_overwrite_restart(self):
         is_folder = os.path.isdir(self.updated_app)
         if is_folder:
-            needs_admin = dir_requires_admin(self.updated_app) or file_require_admin(self.current_app)
+            needs_admin = requires_admin(self.updated_app) or requires_admin(self.current_app)
         else:
-            needs_admin = file_require_admin(self.current_app)
+            needs_admin = requires_admin(self.current_app)
         log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
             if is_folder:
