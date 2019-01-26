@@ -101,10 +101,10 @@ class TestExecutionExtraction(object):
             app_run_command = app_name
             if sys.platform != 'win32':
                 app_run_command = './{}'.format(app_name)
-            
+
             if (sys.platform == 'darwin' and windowed):
                 app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,app_name)
-                app_name='{}.app'.format(app_name)
+                app_name = '{}.app'.format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
@@ -136,7 +136,7 @@ class TestExecutionExtraction(object):
 
             simpleserver.stop()
             # Detect if it was an overwrite error
-            
+
             assert os.path.exists(app_name)
             assert os.path.exists(output_file)
             with open(output_file, 'r') as f:

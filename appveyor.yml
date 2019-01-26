@@ -82,5 +82,10 @@ on_finish:
 test_script:
     # Split tests into several subprocesses.
     - choco install codecov
+<<<<<<< HEAD
     - "py.test -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append"
     - codecov -f coverage.xml
+=======
+    - "build.cmd py.test -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append"
+    - codecov -f coverage.xml
+>>>>>>> 575041f44457a9548af05fb0d76106d58f0c1905
