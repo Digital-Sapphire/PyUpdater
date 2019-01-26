@@ -1,11 +1,7 @@
 codecov>=1.4.0
 coverage
 filelock
-<<<<<<< HEAD
-pytest >= 3.6.0
-=======
 pytest>=3.6.0
->>>>>>> 575041f44457a9548af05fb0d76106d58f0c1905
 pytest-datadir==0.2.0
 pytest-cov
 pytest-xdist
