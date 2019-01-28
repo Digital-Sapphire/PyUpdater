@@ -25,10 +25,17 @@
 from __future__ import unicode_literals
 
 import json
+import struct
+import sys
 
-import ed25519
 import pytest
 import six
+
+
+if sys.platform == 'win32' and struct.calcsize('P') == 8:
+    from pure25519 import ed25519_oop as ed25519
+else:
+    import ed25519
 
 
 @pytest.mark.usefixtures('cleandir')

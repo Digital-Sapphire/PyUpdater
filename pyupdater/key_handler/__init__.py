@@ -29,12 +29,15 @@ import gzip
 import json
 import logging
 import os
-import ed25519
 import six
 
 from pyupdater import settings
 from pyupdater.utils.storage import Storage
 
+if settings.WINDOWS_64BIT:
+    from pure25519 import ed25519_oop as ed25519
+else:
+    import ed25519
 
 log = logging.getLogger(__name__)
 

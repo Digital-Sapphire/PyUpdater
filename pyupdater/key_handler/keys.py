@@ -30,13 +30,16 @@ import json
 import os
 
 from appdirs import user_data_dir
-import ed25519
 import six
 
 from pyupdater import settings
 from pyupdater.utils.exceptions import KeyHandlerError
 from pyupdater.utils.storage import Storage
 
+if settings.WINDOWS_64BIT:
+    from pure25519 import ed25519_oop as ed25519
+else:
+    import ed25519
 
 log = logging.getLogger(__name__)
 
