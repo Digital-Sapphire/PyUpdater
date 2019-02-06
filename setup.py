@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
+import sys
+import struct
+
 from setuptools import find_packages, setup
 
 import versioneer
@@ -29,8 +32,14 @@ import versioneer
 KEYWORDS = ('PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky '
             'updater4pyi bbfreeze ccfreeze freeze cz_freeze')
 
+windows_64bit = sys.platform == 'win32' and struct.calcsize('P') == 8
+
+required = []
 with open(u'requirements.txt', u'r') as f:
-    required = f.read().splitlines()
+    for line in f:
+        if windows_64bit and line.startswith('ed25519'):
+            line = 'pure25519 == 0.0.1'
+        required.append(line)
 
 # ToDo: Remove in PyUpdater 3.0
 extra_patch = 'bsdiff4 == 1.1.5'

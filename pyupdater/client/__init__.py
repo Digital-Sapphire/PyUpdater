@@ -37,7 +37,6 @@ from dsdev_utils.helpers import (EasyAccessDict as _EAD,
 from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import app_cwd, ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
-import ed25519
 import six
 
 from pyupdater import settings, __version__
@@ -46,6 +45,10 @@ from pyupdater.client.updates import AppUpdate, _get_highest_version, LibUpdate
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.exceptions import ClientError
 
+if settings.WINDOWS_64BIT:
+    from pure25519 import ed25519_oop as ed25519
+else:
+    import ed25519
 
 warnings.simplefilter('always', DeprecationWarning)
 

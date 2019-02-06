@@ -24,6 +24,9 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 
+import struct
+import sys
+
 APP_NAME = 'PyUpdater'
 APP_AUTHOR = 'Digital Sapphire'
 
@@ -61,3 +64,6 @@ UPDATE_FOLDER = 'update'
 # Name of version file place in online repo
 VERSION_FILE_FILENAME = 'versions.gz'
 KEY_FILE_FILENAME = 'keys.gz'
+
+# Is PyUpdater running on 64-bit Windows?
+WINDOWS_64BIT = sys.platform == 'win32' and struct.calcsize('P') == 8
