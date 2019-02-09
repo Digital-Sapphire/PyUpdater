@@ -23,8 +23,8 @@ matrix:
       - brew upgrade python
       - python3 -m venv venv
       - source venv/bin/activate
+      - pip3 install --upgrade pip 
       - pip3 install -r tests/requirements.txt
-      - pip3 install -r requirements.txt
       - pip3 install -e .
     script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
   - os: osx
@@ -38,15 +38,15 @@ matrix:
       - pip2 install virtualenv
       - python2 -m virtualenv venv
       - source venv/bin/activate
+      - pip2 install --upgrade pip
       - pip2 install -r tests/requirements.txt
-      - pip2 install -r requirements.txt
       - pip2 install -e .
     script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
 
 
 install:
+  - pip install --upgrade pip
   - pip install -r tests/requirements.txt
-  - pip install -r requirements.txt
   - pip install -e .
 script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
 after_success: codecov
