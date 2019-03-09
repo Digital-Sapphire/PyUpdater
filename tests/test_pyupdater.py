@@ -67,7 +67,7 @@ class TestExecutionExtraction(object):
                              [(True, 8000, True), (True, 8001, False),
                               (False, 8002, True), (False, 8003, False)])
     def test_execution_one_file_extract(self, cleandir, datadir, simpleserver,
-                                        pyu, custom_dir, port,windowed):
+                                        pyu, custom_dir, port, windowed):
         data_dir = datadir['update_repo_extract']
         pyu.setup()
 
@@ -76,7 +76,7 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            cmd = 'python build_onefile_extract.py %s %s %s' % (custom_dir, port,windowed)
+            cmd = 'python build_onefile_extract.py %s %s %s' % (custom_dir, port, windowed)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -101,10 +101,10 @@ class TestExecutionExtraction(object):
             app_run_command = app_name
             if sys.platform != 'win32':
                 app_run_command = './{}'.format(app_name)
-            
+
             if (sys.platform == 'darwin' and windowed):
-                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,app_name)
-                app_name='{}.app'.format(app_name)
+                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name, app_name)
+                app_name = '{}.app'.format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
@@ -136,7 +136,7 @@ class TestExecutionExtraction(object):
 
             simpleserver.stop()
             # Detect if it was an overwrite error
-            
+
             assert os.path.exists(app_name)
             assert os.path.exists(output_file)
             with open(output_file, 'r') as f:

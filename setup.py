@@ -40,7 +40,6 @@ with open(u'requirements.txt', u'r') as f:
         if windows_64bit and line.startswith('ed25519'):
             line = 'pure25519 == 0.0.1'
         required.append(line)
-
 # ToDo: Remove in PyUpdater 3.0
 extra_patch = 'bsdiff4 == 1.1.5'
 # End ToDo

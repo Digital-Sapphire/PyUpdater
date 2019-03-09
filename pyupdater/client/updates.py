@@ -28,10 +28,12 @@ import logging
 import os
 import shutil
 import subprocess
+import uuid
 import sys
 import tarfile
 import threading
 import zipfile
+import six
 
 from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
@@ -45,6 +47,69 @@ from pyupdater.utils.exceptions import ClientError
 
 
 log = logging.getLogger(__name__)
+
+
+def requires_admin(path):
+    """Check if a dir or a file requires admin permissions write/change."""
+    if os.path.isdir(path):
+        return dir_requires_admin(path)
+    elif os.path.isfile(path):
+        return file_requires_admin(path)
+    else:
+        raise ValueError('requires_admin needs dir or file.')
+
+
+def file_requires_admin(file_path):
+    """Check if a file requires admin permissions change."""
+    if six.PY2:
+        try:
+            with open(file_path.decode('utf-8'), "a"):
+                pass
+            return False
+        except IOError as e:
+            return e.errno == 13
+    elif six.PY3:
+        try:
+            with open(file_path, "a"):
+                pass
+            return False
+        except PermissionError:
+            return True
+
+
+def dir_requires_admin(dir):
+    """
+    Check if a dir required admin permissions to write.
+    If dir is a file test it's directory.
+    """
+    dir = os.path.dirname(dir)
+    dummy_filepath = os.path.join(dir, str(uuid.uuid4()))
+    try:
+        with open(dummy_filepath, 'w'):
+            pass
+        os.remove(dummy_filepath)
+        return False
+    except IOError:
+        return True
+
+
+def win_run(command, args, admin=False):
+    """
+    In windows run a command, optionally as admin.
+    """
+    if admin:
+        import win32con
+        from win32com.shell.shell import ShellExecuteEx
+        from win32com.shell import shellcon
+        ShellExecuteEx(
+            nShow=win32con.SW_SHOWNORMAL,
+            fMask=shellcon.SEE_MASK_NOCLOSEPROCESS,
+            lpVerb='runas',
+            lpFile=command,
+            lpParameters=u' '.join('"{}"'.format(arg) for arg in args)
+        )
+    else:
+        return subprocess.Popen([command] + args)
 
 
 def _get_highest_version(name, plat, channel, easy_data, strict):
@@ -166,9 +231,15 @@ class Restarter(object):
         os.execl(self.current_app, self.name)
 
     def _win_overwrite(self):
-        isFolder = os.path.isdir(self.updated_app)
+        is_folder = os.path.isdir(self.updated_app)
+        if is_folder:
+            needs_admin = (requires_admin(self.updated_app)
+                           or dir_requires_admin(self.current_app))
+        else:
+            needs_admin = dir_requires_admin(self.current_app)
+        log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
-            if isFolder:
+            if is_folder:
                 bat.write("""
 @echo off
 chcp 65001
@@ -195,14 +266,19 @@ DEL "%~f0"
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
-        args = ['wscript.exe', self.vbs_file, self.bat_file]
-        subprocess.Popen(args)
+        win_run('wscript.exe', [self.vbs_file, self.bat_file], admin=needs_admin)
         os._exit(0)
 
     def _win_overwrite_restart(self):
-        isFolder = os.path.isdir(self.updated_app)
+        is_folder = os.path.isdir(self.updated_app)
+        if is_folder:
+            needs_admin = (requires_admin(self.updated_app)
+                           or dir_requires_admin(self.current_app))
+        else:
+            needs_admin = dir_requires_admin(self.current_app)
+        log.debug('Admin required to update={}'.format(needs_admin))
         with io.open(self.bat_file, 'w', encoding='utf-8') as bat:
-            if isFolder:
+            if is_folder:
                 bat.write("""
 @echo off
 chcp 65001
@@ -236,8 +312,7 @@ DEL "%~f0"
             vbs.write('CreateObject("Wscript.Shell").Run """" '
                       '& WScript.Arguments(0) & """", 0, False')
         log.debug('Starting update batch file')
-        args = ['wscript.exe', self.vbs_file, self.bat_file]
-        subprocess.Popen(args)
+        win_run('wscript.exe', [self.vbs_file, self.bat_file], admin=needs_admin)
         os._exit(0)
 
 
