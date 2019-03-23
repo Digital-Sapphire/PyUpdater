@@ -1,7 +1,18 @@
 # Changelog
 
-## v2.5.4 - Master
+## v3.0.0 - Master
 ####* This version is not yet released and is under active development.
+
+###Updated
+
+  - Client
+    - Ability to elevate privileges on windows
+    - AppUpdate.download(async=True) is now AppUpdate.download(background=True)
+
+###Fixed
+
+  - CLI
+    - Out of memory error on windows
 
 
 ## v2.5.3 - 2018/03/30
