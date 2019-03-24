@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2017 Digital Sapphire
+# Copyright (c) 2015-2019 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -23,9 +23,9 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
-
 import struct
 import sys
+
 
 APP_NAME = 'PyUpdater'
 APP_AUTHOR = 'Digital Sapphire'
