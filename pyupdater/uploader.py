@@ -48,19 +48,10 @@ class Uploader(object):
 
             config (instance): config object
     """
-    def __init__(self, config=None):
+    def __init__(self, config):
         # Specifies whether to keep a file after uploading
         self.keep = False
-        if config:
-            self.init(config)
 
-    def init(self, obj):
-        """Sets up client with config values from obj
-
-        Args:
-
-            obj (instance): config object
-        """
         data_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER)
         self.deploy_dir = os.path.join(data_dir, 'deploy')
 
@@ -71,11 +62,22 @@ class Uploader(object):
         self.files = []
 
         # Extension Manager
-        # ToDo: Make this a more descriptive variable name
-        self.mgr = PluginManager(obj)
+        self.plg_mgr = PluginManager(config)
+
+    def _get_files_to_upload(self):
+        try:
+            _files = os.listdir(self.deploy_dir)
+        except OSError:
+            _files = []
+
+        files = []
+        for f in _files:
+            files.append(os.path.join(self.deploy_dir, f))
+
+        self.files = remove_dot_files(files)
 
     def get_plugin_names(self):
-        return self.mgr.get_plugin_names()
+        return self.plg_mgr.get_plugin_names()
 
     def set_uploader(self, requested_uploader, keep=False):
         """Sets the named upload plugin.
@@ -93,41 +95,30 @@ class Uploader(object):
             raise UploaderError('Must pass str to set_uploader',
                                 expected=True)
 
-        self.uploader = self.mgr.get_plugin(requested_uploader, init=True)
+        self.uploader = self.plg_mgr.get_plugin(requested_uploader, init=True)
         if self.uploader is None:
-            log.debug('PLUGIN_NAMESPACE: %s', self.mgr.PLUGIN_NAMESPACE)
+            log.debug('PLUGIN_NAMESPACE: %s', self.plg_mgr.PLUGIN_NAMESPACE)
             raise UploaderPluginError('Requested uploader is not installed',
                                       expected=True)
 
         msg = 'Requested uploader: {}'.format(requested_uploader)
         log.debug(msg)
 
-        # ToDo: Move this into it's own function.
-        #            Call this new function in the upload method
-        try:
-            _files = os.listdir(self.deploy_dir)
-        except OSError:
-            _files = []
-
-        files = []
-        for f in _files:
-            files.append(os.path.join(self.deploy_dir, f))
-
-        self.files = remove_dot_files(files)
-        # End ToDo
-
     def upload(self):
         """Uploads all files in file_list"""
+        self._get_files_to_upload()
+
         failed_uploads = []
-        self.files_completed = 1
-        self.file_count = len(self.files)
+        files_completed = 1
+        file_count = len(self.files)
         log.info('Plugin: %s', self.uploader.name)
         log.info('Author: %s', self.uploader.author)
+
         for f in self.files:
             basename = os.path.basename(f)
             msg = '\n\nUploading: {}' .format(basename)
-            msg2 = ' - File {} of {}\n'.format(self.files_completed,
-                                               self.file_count)
+            msg2 = ' - File {} of {}\n'.format(files_completed,
+                                               file_count)
             print(msg + msg2)
             complete = self.uploader.upload_file(f)
 
@@ -135,12 +126,14 @@ class Uploader(object):
                 log.debug('%s uploaded successfully', basename)
                 if self.keep is False:
                     remove_any(f)
-                self.files_completed += 1
+                files_completed += 1
             else:
                 log.debug('%s failed to upload.  will retry', basename)
                 failed_uploads.append(f)
+
         if len(failed_uploads) > 0:
             failed_uploads = self._retry_upload(failed_uploads)
+
         if len(failed_uploads) < 1:
             print("\nUpload Complete")
             return True
@@ -158,9 +151,8 @@ class Uploader(object):
         failed_count = len(retry)
         count = 1
         for f in retry:
-            msg = '\n\nRetyring: {} - File {} of {}\n'.format(f, count,
-                                                              failed_count)
-            print(msg)
+            msg = 'Retyring: {} - File {} of {}'.format(f, count, failed_count)
+            log.info(msg)
             complete = self.uploader.upload_file(f)
             if complete:
                 log.debug('%s uploaded on retry', f)

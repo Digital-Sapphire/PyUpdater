@@ -27,6 +27,7 @@ import gzip
 import json
 import logging
 import os
+import tempfile
 import warnings
 
 import appdirs
@@ -56,12 +57,16 @@ warnings.simplefilter('always', DeprecationWarning)
 log = logging.getLogger(__name__)
 log_path = os.path.join(app_cwd, 'pyu.log')
 if os.path.exists(log_path):  # pragma: no cover
-    ch = logging.FileHandler(os.path.join(app_cwd,
-                                          'pyu.log'))
+    ch = logging.FileHandler(os.path.join(app_cwd, 'pyu.log'))
     ch.setLevel(logging.DEBUG)
     ch.setFormatter(logging_formatter)
     log.addHandler(ch)
 log.debug('PyUpdater Version %s', __version__)
+
+
+# Mostly used for testing purposes
+class DefaultClientConfig(object):
+    DATA_DIR = tempfile.gettempdir()
 
 
 class Client(object):
@@ -87,10 +92,12 @@ class Client(object):
 
     """
     def __init__(self, obj, **kwargs):
+        if obj is None:
+            obj = DefaultClientConfig()
 
-        refresh = kwargs.get('refresh')
+        refresh = kwargs.get('refresh', False)
         progress_hooks = kwargs.get('progress_hooks')
-        test = kwargs.get('test')
+        test = kwargs.get('test', False)
         data_dir = kwargs.get('data_dir')
         headers = kwargs.get('headers')
 
@@ -121,26 +128,7 @@ class Client(object):
                 raise SyntaxError('progress_hooks must be provided as a list.')
             self.progress_hooks += progress_hooks
 
-        # Client config obj with settings to find & verify updates
-        if obj is not None:
-            obj.URLLIB3_HEADERS = headers
-            self.init_app(obj, refresh, test, data_dir)
-
-    # ToDo: Remove in v3.0
-    def init_app(self, obj, refresh=False, test=False, data_dir=None):
-        """Sets up client with config values from obj
-
-        ######Args:
-
-        obj (instance): config object
-
-        ######Kwargs:
-
-        refresh (bool):
-            True - Refresh update manifest on object initialization.
-            False - Don't refresh update manifest on object initialization
-
-        """
+        obj.URLLIB3_HEADERS = headers
 
         # A super dict used to save config info & be dot accessed
         config = _Config()
@@ -192,7 +180,7 @@ class Client(object):
         self.verify = config.get('VERIFY_SERVER_CERT', True)
 
         # Max number of download retries
-        self.max_download_retries = config.get('MAX_DOWNLOAD_RETRIES')
+        self.max_download_retries = config.get('MAX_DOWNLOAD_RETRIES', 3)
 
         # The name of the version file to download
         self.version_file = settings.VERSION_FILE_FILENAME
@@ -208,7 +196,6 @@ class Client(object):
 
         if refresh is True:
             self.refresh()
-    # End ToDo
 
     def refresh(self):
         """Will download and verify the version manifest."""

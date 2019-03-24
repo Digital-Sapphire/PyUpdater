@@ -27,6 +27,12 @@ environment:
           PYTHON_VERSION: "3.6"
           PYTHON_ARCH: "64"
 
+        - JOB: "3.7 64-bit"
+          TOXENV: "py37"
+          PYTHON: "C:\\Python37-x64"
+          PYTHON_VERSION: "3.7"
+          PYTHON_ARCH: "64"
+
 init:
     # Used to RDP into build worker
     #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -39,10 +45,6 @@ init:
         throw "There are newer queued builds for this pull request, failing early." }
 
 install:
-    # Install Python (from the official .msi of https://python.org) and pip when
-    # not already installed.
-    - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
-
     # Prepend newly installed Python to the PATH of this build (this cannot be
     # done from inside the powershell script as it would require to restart
     # the parent CMD process).

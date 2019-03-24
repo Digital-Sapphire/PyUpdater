@@ -123,13 +123,6 @@ def remove_previous_versions(directory, filename):
                 log.debug('Current version: %s', current_version)
 
 
-# ToDo: Remove in version 3.0
-def cleanup_old_archives(filename=None, directory=None):
-    """Removes previous version of named file"""
-    remove_previous_versions(directory, filename)
-# End Todo
-
-
 class Patch(object):
     """Holds information for patch file.
 
@@ -184,8 +177,7 @@ class Package(object):
         # Tests on homepage: https://github.com/JMSwag/PyUpdater
         # Zip doesn't keep +x permissions. Only using gz for now.
         self.supported_extensions = ['.zip', '.gz']
-        # ToDo: May need to add more files to ignore
-        self.ignored_files = ['.DS_Store', ]
+        self.ignored_files = ['.DS_Store']
         self.extract_info(filename)
 
     def extract_info(self, package):
@@ -244,8 +236,9 @@ class Package(object):
     def _parse_package_name(self, package):
         # Returns package name from update archive name
         # Changes appname-platform-version to appname
-        # ToDo: May need to update regex if support for app names with
-        #       hyphens in them are requested. Example "My-App"
+        #
+        # May need to update regex if support for app names with
+        # hyphens in them are requested. Example "My-App"
         log.debug('Package name: %s', package)
         basename = os.path.basename(package)
 

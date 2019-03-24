@@ -2,46 +2,48 @@ language: python
 sudo: false
 cache: pip
 
-python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
-  - "nightly"
-
 matrix:
   fast_finish: true
   allow_failures:
-    - python: "nightly"
+    - python: nightly
 
   include:
-  - os: osx
-    language: generic
-    python: "3.6"
-    env: "TOXENV=py36"
-    install:
-      - brew update
-      - brew upgrade python
-      - python3 -m venv venv
-      - source venv/bin/activate
-      - pip3 install --upgrade pip 
-      - pip3 install -r tests/requirements.txt
-      - pip3 install -e .
-    script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
-  - os: osx
-    language: generic
-    python: "2.7"
-    env: "TOXENV=py27"
-    install:
-      - brew update
-      - brew uninstall --ignore-dependencies python
-      - brew upgrade python@2
-      - pip2 install virtualenv
-      - python2 -m virtualenv venv
-      - source venv/bin/activate
-      - pip2 install --upgrade pip
-      - pip2 install -r tests/requirements.txt
-      - pip2 install -e .
-    script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
+    - python: 2.7
+    - python: 3.4
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7
+      dist: xenial
+      sudo: true
+    - python: nightly
+    - os: osx
+      language: generic
+      python: "3.7"
+      env: "TOXENV=py37"
+      install:
+        - brew update
+        - brew upgrade python
+        - python3 -m venv venv
+        - source venv/bin/activate
+        - pip3 install --upgrade pip
+        - pip3 install -r tests/requirements.txt
+        - pip3 install -e .
+      script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
+    - os: osx
+      language: generic
+      python: "2.7"
+      env: "TOXENV=py27"
+      install:
+        - brew update
+        - brew uninstall --ignore-dependencies python
+        - brew upgrade python@2
+        - pip2 install virtualenv
+        - python2 -m virtualenv venv
+        - source venv/bin/activate
+        - pip2 install --upgrade pip
+        - pip2 install -r tests/requirements.txt
+        - pip2 install -e .
+      script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
 
 
 install:

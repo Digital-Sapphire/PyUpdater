@@ -67,9 +67,6 @@ def add_archive_parser(subparsers):
                                            usage='%(prog)s [opts] filename')
     archive_parser.add_argument('--name', required=True, help='Name of the '
                                 'asset to archive')
-    # ToDo: Remove in v3.0
-    archive_parser.add_argument('--target-name', help='* Warnin'
-                                'g * Deprecated')
     archive_parser.add_argument('--version', required=True, help='Version of '
                                 'file')
     archive_parser.add_argument('-k', '--keep', action='store_true',
@@ -124,12 +121,6 @@ def add_make_spec_parser(subparsers):
                                              usage='%(prog)s <script> '
                                              '[opts]')
 
-    # ToDo: Remove in v3.0
-    make_spec_parser.add_argument('--clean', help=argparse.SUPPRESS)
-    make_spec_parser.add_argument('--app-version', help=argparse.SUPPRESS)
-    make_spec_parser.add_argument('-k', '--keep', help=argparse.SUPPRESS)
-    # End ToDo
-
     _build_make_spec_common(make_spec_parser)
 
 
@@ -140,12 +131,7 @@ def add_keys_parser(subparsers):
                              action='store_true', dest='import_keys')
     keys_parser.add_argument('-c', '--create', help='Creates keypack. Should '
                              'only be used on your off-line machine',
-                             action='store_true',)
-    # ToDo: Remove in v 3.0
-    keys_parser.add_argument('-y', '--yes', help='[Deprecated] Will run '
-                             'command without conformation prompt',
                              action='store_true')
-    # End ToDo
 
 
 def add_package_parser(subparsers):

@@ -94,7 +94,6 @@ class Patcher(object):
         # binary blob of original archive to patch
         self.og_binary = None
 
-        # ToDo: Update tests with linux archives.
         # Used for testing.
         self.platform = kwargs.get('platform', _PLATFORM)
 

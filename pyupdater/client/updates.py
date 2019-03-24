@@ -420,9 +420,7 @@ class LibUpdate(object):
         assert self.filename is not None
 
         # Used to remove version earlier than the current.
-        # ToDo: Run in background thread
         self.cleanup()
-        # End ToDo
 
     @property
     def version(self):
@@ -693,35 +691,6 @@ class AppUpdate(LibUpdate):
                 self._overwrite()
         except ClientError as err:
             log.debug(err, exc_info=True)
-
-    # ToDo: Remove in v3.0
-    def win_extract_overwrite(self):
-        """Overwrite current binary with update binary on windows.
-
-        Deprecated: Use extract_overwrite instead.
-        """
-        self._win_overwrite()
-    # End ToDo
-
-    # ToDo: Remove in v3.0
-    def restart(self):  # pragma: no cover
-        """Will overwrite old binary with updated binary and
-        restart the application using the updated binary.
-        Not supported on windows.
-
-        Deprecated: Used extract_restart instead.
-        """
-        # On windows we write a batch file to move the update
-        # binary to the correct location and restart app.
-        if get_system() == 'win':
-            log.debug('Only supported on Unix like systems')
-            return
-        try:
-            self._overwrite()
-            self._restart()
-        except ClientError as err:
-            log.debug(err, exc_info=True)
-    # End ToDo
 
     def _overwrite(self):
         # Unix: Overwrites the running applications binary
