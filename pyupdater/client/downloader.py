@@ -56,17 +56,6 @@ def get_hash(data):
     return hash_
 
 
-# ToDo: Remove in v3.0
-# Safe to delete without question. No dependencies.
-def get_http_pool(secure=True):
-    if secure is True:
-        return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
-                                   ca_certs=certifi.where())
-    else:
-        return urllib3.PoolManager()
-# End ToDo
-
-
 class FileDownloader(object):
     """The FileDownloader object downloads files to memory and
     verifies their hash.  If hash is verified data is either

@@ -40,9 +40,7 @@ with open(u'requirements.txt', u'r') as f:
         if windows_64bit and line.startswith('ed25519'):
             line = 'pure25519 == 0.0.1'
         required.append(line)
-# ToDo: Remove in PyUpdater 3.0
-extra_patch = 'bsdiff4 == 1.1.5'
-# End ToDo
+
 extra_s3 = 'PyUpdater-s3-Plugin >= 3.0.6'
 extra_scp = 'PyUpdater-scp-Plugin >= 3.0.5'
 
@@ -60,9 +58,6 @@ setup(
     extras_require={
         's3': extra_s3,
         'scp': extra_scp,
-        # ToDo: Remove in PyUpdater 3.0
-        'patch': extra_patch,
-        # End ToDo
         'all': [extra_s3, extra_scp]
     },
     zip_safe=False,

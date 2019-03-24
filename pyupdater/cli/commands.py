@@ -301,14 +301,6 @@ def _cmd_pkg(*args):
         log.info('Signing packages complete')
 
 
-# ToDo: Remove in v3.0
-# I wanted to make the commands uniform to enable the usage of
-# dispatch_command in pyupdater.cli
-def upload_debug_info(*args):
-    _cmd_collect_debug_info(*args)
-# End ToDo
-
-
 # Uploads the debug logs to a private github gist
 def _cmd_collect_debug_info(*args):  # pragma: no cover
     log.info('Starting log export')

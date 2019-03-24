@@ -181,7 +181,7 @@ class TestMakeSpec(object):
         with io.open('app.py', 'w', encoding='utf-8') as f:
             f.write('print "Hello World"')
         opts, other = parser.parse_known_args(['make-spec', '-F',
-                                              '--app-version=0.1.0', 'app.py'])
+                                               'app.py'])
         commands._cmd_make_spec(opts, other)
 
     def test_execution(self, parser, pyu):
@@ -206,17 +206,3 @@ class TestPkg(object):
         cmd = ['pkg', '-P', '-S']
         opts, other = parser.parse_known_args(cmd)
         commands._cmd_pkg(opts)
-
-
-# @pytest.mark.usefixtures('cleandir')
-# class TestUpload(object):
-
-#     def test_upload_execution(self, parser, pyu):
-#         subparser = make_subparser(parser)
-#         add_upload_parser(subparser)
-#         pyu.update_config(pyu.config)
-#         pyu.setup()
-#         cmd = ['upload', '-h']
-#         opts, other = parser.parse_known_args(cmd)
-#         with pytest.raises(SystemExit):
-#             commands._cmd_upload(opts)

@@ -41,9 +41,7 @@ from dsdev_utils.paths import ChDir
 from pyupdater import settings
 from pyupdater.package_handler.package import (remove_previous_versions,
                                                Package, Patch)
-from pyupdater.utils import (get_size_in_bytes as in_bytes,
-                             remove_dot_files)
-from pyupdater.utils.exceptions import PackageHandlerError
+from pyupdater.utils import get_size_in_bytes as in_bytes, remove_dot_files
 from pyupdater.utils.storage import Storage
 
 log = logging.getLogger(__name__)
@@ -228,12 +226,10 @@ class PackageHandler(object):
                     else:
                         log.warning('No source file to patch from')
 
-        # ToDo: Expose this & remove "pragma: no cover" once done
         if report_errors is True:  # pragma: no cover
             log.warning('Bad package & reason for being naughty:')
             for b in bad_packages:
                 log.warning(b.name, b.info['reason'])
-        # End ToDo
 
         return package_manifest, patch_manifest
 

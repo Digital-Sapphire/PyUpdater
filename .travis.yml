@@ -6,6 +6,7 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
+  - "3.7"
   - "nightly"
 
 matrix:
@@ -16,8 +17,8 @@ matrix:
   include:
   - os: osx
     language: generic
-    python: "3.6"
-    env: "TOXENV=py36"
+    python: "3.7"
+    env: "TOXENV=py37"
     install:
       - brew update
       - brew upgrade python
