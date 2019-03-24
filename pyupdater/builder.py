@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2017 Digital Sapphire
+# Copyright (c) 2015-2019 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -29,18 +29,17 @@ import os
 import sys
 import time
 
-from pyupdater import settings
-from pyupdater.hooks import get_hook_dir
-from pyupdater.pyinstaller_compat import pyi_makespec
-from pyupdater.utils import (create_asset_archive,
-                             make_archive)
-from pyupdater.utils.config import ConfigManager
-
 from dsdev_utils.exceptions import VersionError
 from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.system import get_system
 from PyInstaller.__main__ import run as pyi_build
+
+from pyupdater import settings
+from pyupdater.hooks import get_hook_dir
+from pyupdater.pyinstaller_compat import pyi_makespec
+from pyupdater.utils import create_asset_archive, make_archive
+from pyupdater.utils.config import ConfigManager
 
 
 log = logging.getLogger(__name__)
