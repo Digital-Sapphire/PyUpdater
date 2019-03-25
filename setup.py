@@ -42,7 +42,7 @@ with open(u'requirements.txt', u'r') as f:
         required.append(line)
 
 extra_s3 = 'PyUpdater-s3-Plugin >= 3.0.6'
-extra_scp = 'PyUpdater-scp-Plugin >= 3.0.5'
+extra_scp = 'PyUpdater-scp-Plugin >= 3.0.12'
 
 setup(
     name='PyUpdater',

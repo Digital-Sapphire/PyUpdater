@@ -41,8 +41,9 @@ else:
 @pytest.mark.usefixtures('cleandir')
 class TestVersionFile(object):
 
-    def test_signature(self, datadir):
-        version_data = json.loads(datadir.read('version.json'))
+    def test_signature(self, shared_datadir):
+        json_raw = (shared_datadir / 'version.json').read_text()
+        version_data = json.loads(json_raw)
 
         sig = version_data['signature']
         del version_data['signature']
@@ -52,7 +53,7 @@ class TestVersionFile(object):
         else:
             version_data = data
 
-        public_key = ed25519.VerifyingKey(datadir.read('jms.pub'),
-                                          encoding='base64')
+        jms_pub = (shared_datadir / 'jms.pub').read_text()
+        public_key = ed25519.VerifyingKey(jms_pub, encoding='base64')
 
         public_key.verify(sig, version_data, encoding='base64')

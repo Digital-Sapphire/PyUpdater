@@ -23,8 +23,6 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals, print_function
-
-import io
 import json
 import os
 
@@ -33,7 +31,7 @@ import pytest
 from pyupdater.client.patcher import Patcher
 
 
-def cb(status):
+def cb1(status):
     pass
 
 
@@ -50,7 +48,7 @@ update_data = {
     'update_folder': None,
     'update_urls': ['https://pyu-tester.s3.amazonaws.com/'],
     'platform': 'mac',
-    'progress_hooks': [cb, cb2]
+    'progress_hooks': [cb1, cb2]
     }
 
 
@@ -61,8 +59,8 @@ class TestFails(object):
     base_binary = 'Acme-mac-4.1.tar.gz'
 
     @pytest.fixture
-    def json_data(self, datadir):
-        version_data_str = datadir.read('version.json')
+    def json_data(self, shared_datadir):
+        version_data_str = (shared_datadir / 'version.json').read_text()
         return json.loads(version_data_str)
 
     def test_no_base_binary(self, json_data):
@@ -73,23 +71,17 @@ class TestFails(object):
         p = Patcher(**data)
         assert p.start() is False
 
-    def test_bad_hash_current_version(self, datadir, json_data):
-        # pytest-datadir copies the file on access
-        datadir[self.base_binary]
-
+    def test_bad_hash_current_version(self, shared_datadir, json_data):
         data = update_data.copy()
-        data['update_folder'] = datadir.tmpdir
+        data['update_folder'] = str(shared_datadir)
         data['json_data'] = json_data
         data['current_file_hash'] = 'Thisisabadhash'
         p = Patcher(**data)
         assert p.start() is False
 
-    def test_missing_version(self, datadir, json_data):
-        # pytest-datadir copies the file on access
-        datadir[self.base_binary]
-
+    def test_missing_version(self, shared_datadir, json_data):
         data = update_data.copy()
-        data['update_folder'] = datadir.tmpdir
+        data['update_folder'] = str(shared_datadir)
         data['json_data'] = json_data
         data['latest_version'] = '0.0.4.2.0'
         p = Patcher(**data)
@@ -103,21 +95,18 @@ class TestExecution(object):
     base_binary = 'Acme-mac-4.1.tar.gz'
 
     @pytest.fixture
-    def json_data(self, datadir):
-        version_data_str = datadir.read('version.json')
+    def json_data(self, shared_datadir):
+        version_data_str = (shared_datadir / 'version.json').read_text()
         return json.loads(version_data_str)
 
-    def test_execution(self, datadir, json_data):
-        # pytest-datadir copies the file on access
-        datadir[self.base_binary]
-
+    def test_execution(self, shared_datadir, json_data):
         data = update_data.copy()
-        data['update_folder'] = datadir.tmpdir
+        data['update_folder'] = str(shared_datadir)
         data['json_data'] = json_data
         p = Patcher(**data)
         assert p.start() is True
 
-    def test_execution_callback(self, datadir, json_data):
+    def test_execution_callback(self, shared_datadir, json_data):
 
         def cb(status):
             assert 'downloaded' in status.keys()
@@ -125,11 +114,8 @@ class TestExecution(object):
             assert 'status' in status.keys()
             assert 'percent_complete' in status.keys()
 
-        # pytest-datadir copies the file on access
-        datadir[self.base_binary]
-
         data = update_data.copy()
-        data['update_folder'] = datadir.tmpdir
+        data['update_folder'] = str(shared_datadir)
         data['json_data'] = json_data
         data['progress_hooks'] = [cb]
         p = Patcher(**data)
