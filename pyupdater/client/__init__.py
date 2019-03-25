@@ -31,12 +31,12 @@ import tempfile
 import warnings
 
 import appdirs
-from dsdev_utils.app import FROZEN
+from dsdev_utils.app import app_cwd, FROZEN
 from dsdev_utils.helpers import (EasyAccessDict as _EAD,
                                  gzip_decompress as _gzip_decompress,
                                  Version as _Version)
 from dsdev_utils.logger import logging_formatter
-from dsdev_utils.paths import app_cwd, ChDir as _ChDir
+from dsdev_utils.paths import ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
 import six
 
