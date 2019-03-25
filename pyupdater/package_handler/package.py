@@ -26,6 +26,8 @@ from __future__ import unicode_literals
 import logging
 import os
 import re
+import six
+import sys
 
 from dsdev_utils.exceptions import VersionError
 from dsdev_utils.helpers import Version
@@ -165,6 +167,9 @@ class Package(object):
     name_regex = re.compile(r'(?P<name>[\w -]+)-[arm|mac|nix|win]')
 
     def __init__(self, filename):
+        if six.PY2 or sys.version_info[1] in [4, 5]:
+            filename = str(filename)
+
         self.name = None
         self.version = None
         self.filename = os.path.basename(filename)

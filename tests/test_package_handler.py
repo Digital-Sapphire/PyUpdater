@@ -92,9 +92,9 @@ class TestExecution(object):
 @pytest.mark.usefixtures('cleandir')
 class TestPackage(object):
 
-    def test_package_1(self, datadir):
+    def test_package_1(self, shared_datadir):
         test_file = 'Acme-mac-4.1.tar.gz'
-        p1 = Package(datadir[test_file])
+        p1 = Package(shared_datadir / test_file)
 
         assert p1.name == 'Acme'
         assert p1.version == '4.1.0.2.0'
@@ -103,9 +103,9 @@ class TestPackage(object):
         assert p1.channel == 'stable'
         assert p1.info['status'] is True
 
-    def test_package_name_with_spaces(self, datadir):
+    def test_package_name_with_spaces(self, shared_datadir):
         test_file = 'with spaces-nix-0.0.1b1.zip'
-        p1 = Package(datadir[test_file])
+        p1 = Package(shared_datadir / test_file)
 
         assert p1.name == 'with spaces'
         assert p1.version == '0.0.1.1.1'
@@ -114,9 +114,9 @@ class TestPackage(object):
         assert p1.channel == 'beta'
         assert p1.info['status'] is True
 
-    def test_package_alpha(self, datadir):
+    def test_package_alpha(self, shared_datadir):
         test_file = 'with spaces-win-0.0.1a2.zip'
-        p1 = Package(datadir[test_file])
+        p1 = Package(shared_datadir / test_file)
 
         assert p1.name == 'with spaces'
         assert p1.version == '0.0.1.0.2'
@@ -131,9 +131,9 @@ class TestPackage(object):
         p = Package('.DS_Store')
         assert p.info['status'] is False
 
-    def test_package_bad_extension(self, datadir):
+    def test_package_bad_extension(self, shared_datadir):
         test_file_2 = 'pyu-win-0.0.2.bzip2'
-        p2 = Package(datadir[test_file_2])
+        p2 = Package(shared_datadir / test_file_2)
 
         assert p2.filename == test_file_2
         assert p2.name is None
@@ -142,12 +142,12 @@ class TestPackage(object):
         assert p2.info['reason'] == ('Not a supported archive format: '
                                      '{}'.format(test_file_2))
 
-    def test_package_bad_version(self, datadir):
-        p = Package(datadir['pyu-win-1.tar.gz'])
+    def test_package_bad_version(self, shared_datadir):
+        p = Package(shared_datadir / 'pyu-win-1.tar.gz')
         assert p.info['reason'] == 'Package version not formatted correctly'
 
-    def test_package_bad_platform(self, datadir):
-        p = Package(datadir['pyu-wi-1.1.tar.gz'])
+    def test_package_bad_platform(self, shared_datadir):
+        p = Package(shared_datadir / 'pyu-wi-1.1.tar.gz')
         assert p.info['reason'] == 'Package platform not formatted correctly'
 
 

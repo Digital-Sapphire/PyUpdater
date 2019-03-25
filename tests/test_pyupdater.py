@@ -41,7 +41,7 @@ AUTO_UPDATE_PAUSE = 30
 if sys.platform == 'win32':
     AUTO_UPDATE_PAUSE += 10
 
-LOCK_TIMEOUT = 5*60  # ten minutes timeout
+LOCK_TIMEOUT = 5 * 60  # ten minutes timeout
 APP_NAME = 'Acme'
 
 
@@ -66,9 +66,10 @@ class TestExecutionExtraction(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8000, True), (True, 8001, False),
                               (False, 8002, True), (False, 8003, False)])
-    def test_execution_one_file_extract(self, cleandir, datadir, simpleserver,
-                                        pyu, custom_dir, port, windowed):
-        data_dir = datadir['update_repo_extract']
+    def test_execution_one_file_extract(self, cleandir, shared_datadir,
+                                        simpleserver, pyu, custom_dir, port,
+                                        windowed):
+        data_dir = shared_datadir / 'update_repo_extract'
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
@@ -76,7 +77,8 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            cmd = 'python build_onefile_extract.py %s %s %s' % (custom_dir, port, windowed)
+            cmd = 'python build_onefile_extract.py %s %s %s' % (custom_dir,
+                                                                port, windowed)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -103,7 +105,8 @@ class TestExecutionExtraction(object):
                 app_run_command = './{}'.format(app_name)
 
             if (sys.platform == 'darwin' and windowed):
-                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name, app_name)
+                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
+                                                                      app_name)
                 app_name = '{}.app'.format(app_name)
 
             if custom_dir:
@@ -155,9 +158,10 @@ class TestExecutionExtraction(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8004, True), (True, 8005, False),
                               (False, 8006, True), (False, 8007, False)])
-    def test_execution_one_dir_extract(self, cleandir, datadir, simpleserver,
-                                       pyu, custom_dir, port, windowed):
-        data_dir = datadir['update_repo_extract']
+    def test_execution_one_dir_extract(self, cleandir, shared_datadir,
+                                       simpleserver, pyu, custom_dir, port,
+                                       windowed):
+        data_dir = shared_datadir / 'update_repo_extract'
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
@@ -266,16 +270,15 @@ class TestExecutionRestart(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8008, True), (False, 8009, True),
                               (True, 8010, False), (False, 8011, False)])
-    def test_execution_one_file_restart(self, cleandir, datadir, simpleserver,
-                                        pyu, custom_dir, port, windowed):
-        data_dir = datadir['update_repo_restart']
+    def test_execution_one_file_restart(self, cleandir, shared_datadir,
+                                        simpleserver, pyu, custom_dir, port,
+                                        windowed):
+        data_dir = shared_datadir / 'update_repo_restart'
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
         with ChDir(data_dir):
-            print("***** CWD *****")
-            print(os.path.abspath(data_dir))
             simpleserver.start(port)
 
             cmd = 'python build_onefile_restart.py %s %s %s' % (custom_dir,
@@ -354,16 +357,15 @@ class TestExecutionRestart(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8012, True), (False, 8013, True),
                               (True, 8014, False), (False, 8015, False)])
-    def test_execution_one_dir_restart(self, cleandir, datadir, simpleserver,
-                                       pyu, custom_dir, port, windowed):
-        data_dir = datadir['update_repo_restart']
+    def test_execution_one_dir_restart(self, cleandir, shared_datadir,
+                                       simpleserver, pyu, custom_dir, port,
+                                       windowed):
+        data_dir = shared_datadir / 'update_repo_restart'
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
         # cwd. We will start a simple http server to use for updates
         with ChDir(data_dir):
-            print("***** CWD *****")
-            print(os.path.abspath(data_dir))
             simpleserver.start(port)
 
             cmd = 'python build_onedir_restart.py %s %s %s' % (custom_dir,
