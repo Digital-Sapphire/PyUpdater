@@ -228,7 +228,7 @@ class Restarter(object):
             self._restart()
 
     def _restart(self):
-        os.execl(self.current_app, self.name)
+        os.execl(self.current_app, self.name, *sys.argv[1:])
 
     def _win_overwrite(self):
         is_folder = os.path.isdir(self.updated_app)
