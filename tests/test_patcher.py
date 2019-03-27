@@ -79,6 +79,7 @@ class TestFails(object):
         p = Patcher(**data)
         assert p.start() is False
 
+    @pytest.mark.run(order=8)
     def test_missing_version(self, shared_datadir, json_data):
         data = update_data.copy()
         data['update_folder'] = str(shared_datadir)
@@ -99,6 +100,7 @@ class TestExecution(object):
         version_data_str = (shared_datadir / 'version.json').read_text()
         return json.loads(version_data_str)
 
+    @pytest.mark.run(order=7)
     def test_execution(self, shared_datadir, json_data):
         data = update_data.copy()
         data['update_folder'] = str(shared_datadir)

@@ -159,7 +159,8 @@ class TestDownload(object):
         assert update.download() is True
         assert update.is_downloaded() is True
 
-    def test_async_http(self):
+    @pytest.mark.run(order=5)
+    def test_background_http(self):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
         client = Client(t_config, refresh=True, test=True)
@@ -175,7 +176,8 @@ class TestDownload(object):
             count += 1
         assert update.is_downloaded() is True
 
-    def test_multiple_async_calls(self, client):
+    @pytest.mark.run(order=6)
+    def test_multiple_background_calls(self, client):
         t_config = TConfig()
         t_config.DATA_DIR = os.getcwd()
         t_config.VERIFY_SERVER_CERT = False

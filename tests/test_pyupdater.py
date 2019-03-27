@@ -66,6 +66,7 @@ class TestExecutionExtraction(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8000, True), (True, 8001, False),
                               (False, 8002, True), (False, 8003, False)])
+    @pytest.mark.run(order=2)
     def test_execution_one_file_extract(self, cleandir, shared_datadir,
                                         simpleserver, pyu, custom_dir, port,
                                         windowed):
@@ -158,6 +159,7 @@ class TestExecutionExtraction(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8004, True), (True, 8005, False),
                               (False, 8006, True), (False, 8007, False)])
+    @pytest.mark.run(order=1)
     def test_execution_one_dir_extract(self, cleandir, shared_datadir,
                                        simpleserver, pyu, custom_dir, port,
                                        windowed):
@@ -270,6 +272,7 @@ class TestExecutionRestart(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8008, True), (False, 8009, True),
                               (True, 8010, False), (False, 8011, False)])
+    @pytest.mark.run(order=4)
     def test_execution_one_file_restart(self, cleandir, shared_datadir,
                                         simpleserver, pyu, custom_dir, port,
                                         windowed):
@@ -357,6 +360,7 @@ class TestExecutionRestart(object):
     @pytest.mark.parametrize("custom_dir, port, windowed",
                              [(True, 8012, True), (False, 8013, True),
                               (True, 8014, False), (False, 8015, False)])
+    @pytest.mark.run(order=3)
     def test_execution_one_dir_restart(self, cleandir, shared_datadir,
                                        simpleserver, pyu, custom_dir, port,
                                        windowed):
