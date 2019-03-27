@@ -6,7 +6,6 @@ matrix:
   fast_finish: true
   allow_failures:
     - python: nightly
-    - os: osx
 
   include:
     - python: 2.7
