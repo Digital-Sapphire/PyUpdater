@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2017 Digital Sapphire
+# Copyright (c) 2015-2019 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -27,14 +27,25 @@ import os
 
 import pytest
 
-from pyupdater.key_handler.keys import Keys
+from pyupdater.key_handler.keys import KeyImporter, Keys
 
 
 @pytest.mark.usefixtures("cleandir")
-class TestKeyPack(object):
+class TestKeys(object):
 
     def test_create_keypack(self):
         k = Keys(test=True)
         for name in ['one', 'two', 'three']:
             assert k.make_keypack(name) is True
         assert os.path.exists(k.data_dir) is True
+
+    def test_key_importer(self):
+        k = Keys(test=True)
+        k.make_keypack('one')
+
+        ki = KeyImporter()
+        assert ki.start() is True
+
+    def test_key_importer_fail(self):
+        ki = KeyImporter()
+        assert ki.start() is False

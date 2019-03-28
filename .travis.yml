@@ -18,8 +18,12 @@ matrix:
     - os: osx
       language: generic
       python: "3.7"
+      env: "HOMEBREW_NO_INSTALL_CLEANUP=1"
       install:
         - brew update
+        - brew pin numpy
+        - brew pin gdal
+        - brew pin postgis
         - brew upgrade python
         - python3 -m venv venv
         - source venv/bin/activate
@@ -30,9 +34,17 @@ matrix:
     - os: osx
       language: generic
       python: "2.7"
+      env: "HOMEBREW_NO_INSTALL_CLEANUP=1"
       install:
         - brew update
         - brew uninstall --ignore-dependencies python
+        - brew pin geos
+        - brew pin libxml2
+        - brew pin libspatialite
+        - brew pin gdal
+        - brew pin mercurial
+        - brew pin numpy
+        - brew pin postgis
         - brew upgrade python@2
         - pip2 install virtualenv
         - python2 -m virtualenv venv

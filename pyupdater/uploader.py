@@ -48,7 +48,7 @@ class Uploader(object):
 
             config (instance): config object
     """
-    def __init__(self, config):
+    def __init__(self, config, plugins=None):
         # Specifies whether to keep a file after uploading
         self.keep = False
 
@@ -62,19 +62,22 @@ class Uploader(object):
         self.files = []
 
         # Extension Manager
-        self.plg_mgr = PluginManager(config)
+        self.plg_mgr = PluginManager(config, plugins)
 
-    def _get_files_to_upload(self):
-        try:
-            _files = os.listdir(self.deploy_dir)
-        except OSError:
-            _files = []
+    def _get_files_to_upload(self, files=None):
+        if files:
+            self.files = files
+        else:
+            try:
+                _files = os.listdir(self.deploy_dir)
+            except OSError:
+                _files = []
 
-        files = []
-        for f in _files:
-            files.append(os.path.join(self.deploy_dir, f))
+            files = []
+            for f in _files:
+                files.append(os.path.join(self.deploy_dir, f))
 
-        self.files = remove_dot_files(files)
+            self.files = remove_dot_files(files)
 
     def get_plugin_names(self):
         return self.plg_mgr.get_plugin_names()
@@ -104,9 +107,9 @@ class Uploader(object):
         msg = 'Requested uploader: {}'.format(requested_uploader)
         log.debug(msg)
 
-    def upload(self):
+    def upload(self, files=None):
         """Uploads all files in file_list"""
-        self._get_files_to_upload()
+        self._get_files_to_upload(files)
 
         failed_uploads = []
         files_completed = 1

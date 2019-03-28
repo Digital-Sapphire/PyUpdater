@@ -3,7 +3,7 @@ from __future__ import print_function
 import os
 import shutil
 
-from dsdev_utils.paths import ChDir
+from dsdev_utils.paths import ChDir, remove_any
 
 HTML_DIR = os.path.join(os.getcwd(), 'site')
 DEST_DIR = os.path.join(os.path.expanduser(u'~'), u'Sync',
@@ -18,10 +18,8 @@ def main():
                 continue
             elif f in [u'hostess.json', 'Staticfile']:
                 continue
-            elif os.path.isfile(f):
-                os.remove(f)
-            elif os.path.isdir(f):
-                shutil.rmtree(f, ignore_errors=True)
+            else:
+                remove_any(f)
 
     with ChDir(HTML_DIR):
         files = os.listdir(os.getcwd())

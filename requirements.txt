@@ -1,7 +1,7 @@
 appdirs >= 1.4.3
 bsdiff4 == 1.1.5
 certifi >= 2019.3.9
-dsdev-utils >= 1.0.1
+dsdev-utils >= 1.0.2
 ed25519 == 1.4
 pyinstaller >= 3.0
 pywin32 == 224; platform_system == 'Windows'

@@ -51,16 +51,21 @@ log = logging.getLogger(__name__)
 
 class PluginManager(object):
 
-    PLUGIN_NAMESPACE = 'pyupdater.plugins'
+    PLUGIN_NAMESPACES = ['pyupdater.plugins.upload', 'pyupdater.plugins']
 
-    def __init__(self, config):
-        plugins_namespace = ExtensionManager(self.PLUGIN_NAMESPACE,
-                                             invoke_on_load=True)
-        plugins = []
-        for p in plugins_namespace.extensions:
-            plugins.append(p.obj)
+    def __init__(self, config, plugins=None):
+        if isinstance(plugins, list):
+            _all_plugins = plugins
+        else:
+            _all_plugins = []
+
+            for pn in self.PLUGIN_NAMESPACES:
+                namespace = ExtensionManager(pn, invoke_on_load=True)
+                for p in namespace.extensions:
+                    _all_plugins.append(p.obj)
+
         # Sorting by name then author
-        plugins = sorted(plugins, key=lambda x: (x.name, x.author))
+        plugins = sorted(_all_plugins, key=lambda x: (x.name, x.author))
 
         # Used as a counter when creating names to plugin
         # User may have multiple plugins with the same
@@ -129,21 +134,25 @@ class PluginManager(object):
         # Load all available plugin configs from
         # app_config['PLUGIN_CONFIGS']
         configs = self._get_config(config)
+
         # Get the requested plugin
         plugin = self.get_plugin(name)
+
         # Create the key to retrieve this plugins config
         config_key = '{}-{}'.format(plugin.name.lower(), plugin.author)
+
         # Get the config for this plugin
         plugin_config = configs.get(config_key)
         if plugin_config is None:
             plugin_config = {}
             configs[config_key] = plugin_config
-        # Get the plugin its config dict for updating
+
+        # Give the plugin its config dict for updating
         try:
             plugin.set_config(plugin_config)
         except Exception as err:
             log.error('There was an error during configuration '
-                      'of %s crated by %s', plugin.name, plugin.author)
+                      'of %s created by %s', plugin.name, plugin.author)
             log.debug(err, exc_info=True)
 
     def get_plugin_names(self):

@@ -87,7 +87,7 @@ def dir_requires_admin(dir):
     try:
         with open(dummy_filepath, 'w'):
             pass
-        os.remove(dummy_filepath)
+        remove_any(dummy_filepath)
         return False
     except IOError:
         return True

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2017 Digital Sapphire
+# Copyright (c) 2015-2019 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -23,16 +23,16 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import print_function, unicode_literals
-
+import os
 import shutil
 import subprocess
-import os
 import sys
 import time
-import filelock
-from dsdev_utils.paths import ChDir
-import pytest
+
 import appdirs
+from dsdev_utils.paths import ChDir, remove_any
+import filelock
+import pytest
 
 from pyupdater import PyUpdater
 from tconfig import TConfig
@@ -64,8 +64,8 @@ class TestSetup(object):
 class TestExecutionExtraction(object):
 
     @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 8000, True), (True, 8001, False),
-                              (False, 8002, True), (False, 8003, False)])
+                             [(True, 9000, True), (True, 9001, False),
+                              (False, 9002, True), (False, 9003, False)])
     @pytest.mark.run(order=2)
     def test_execution_one_file_extract(self, cleandir, shared_datadir,
                                         simpleserver, pyu, custom_dir, port,
@@ -105,7 +105,7 @@ class TestExecutionExtraction(object):
             if sys.platform != 'win32':
                 app_run_command = './{}'.format(app_name)
 
-            if (sys.platform == 'darwin' and windowed):
+            if sys.platform == 'darwin' and windowed:
                 app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
                                                                       app_name)
                 app_name = '{}.app'.format(app_name)
@@ -148,17 +148,17 @@ class TestExecutionExtraction(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                if (os.path.isdir(app_name)):
-                    shutil.rmtree(app_name)
+                if os.path.isdir(app_name):
+                    remove_any(app_name)
                 else:
-                    os.remove(app_name)
+                    remove_any(app_name)
 
             if os.path.exists(output_file):
-                os.remove(output_file)
+                remove_any(output_file)
 
     @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 8004, True), (True, 8005, False),
-                              (False, 8006, True), (False, 8007, False)])
+                             [(True, 9004, True), (True, 9005, False),
+                              (False, 9006, True), (False, 9007, False)])
     @pytest.mark.run(order=1)
     def test_execution_one_dir_extract(self, cleandir, shared_datadir,
                                        simpleserver, pyu, custom_dir, port,
@@ -188,7 +188,7 @@ class TestExecutionExtraction(object):
                     shutil.move(f, test_cwd)
 
             dir_name = 'Acme'
-            if (not os.path.exists(dir_name)):
+            if not os.path.exists(dir_name):
                 dir_name = dir_name+'.app'
 
             assert os.path.exists(dir_name)
@@ -198,7 +198,7 @@ class TestExecutionExtraction(object):
                 f.write('')
 
             app_name = 'Acme'
-            if (sys.platform == 'darwin' and windowed):
+            if sys.platform == 'darwin' and windowed:
                 pass
             else:
                 app_name = os.path.join(dir_name, app_name)
@@ -216,7 +216,7 @@ class TestExecutionExtraction(object):
             if sys.platform != 'win32':
                 app_run_command = './{}'.format(app_name)
 
-            if (sys.platform == 'darwin' and windowed):
+            if sys.platform == 'darwin' and windowed:
                 app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
                                                                       app_name)
                 app_name = '{}.app'.format(app_name)
@@ -258,20 +258,20 @@ class TestExecutionExtraction(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                if (os.path.isdir(app_name)):
-                    shutil.rmtree(app_name)
+                if os.path.isdir(app_name):
+                    remove_any(app_name)
                 else:
-                    shutil.rmtree(os.path.dirname(app_name))
+                    remove_any(os.path.dirname(app_name))
 
             if os.path.exists(output_file):
-                os.remove(output_file)
+                remove_any(output_file)
 
 
 class TestExecutionRestart(object):
 
     @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 8008, True), (False, 8009, True),
-                              (True, 8010, False), (False, 8011, False)])
+                             [(True, 9008, True), (False, 9009, True),
+                              (True, 9010, False), (False, 9011, False)])
     @pytest.mark.run(order=4)
     def test_execution_one_file_restart(self, cleandir, shared_datadir,
                                         simpleserver, pyu, custom_dir, port,
@@ -311,7 +311,7 @@ class TestExecutionRestart(object):
             if sys.platform != 'win32':
                 app_run_command = './{}'.format(app_name)
 
-            if (sys.platform == 'darwin' and windowed):
+            if sys.platform == 'darwin' and windowed:
                 app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
                                                                       app_name)
                 app_name = '{}.app'.format(app_name)
@@ -349,17 +349,17 @@ class TestExecutionRestart(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                if (os.path.isdir(app_name)):
-                    shutil.rmtree(app_name)
+                if os.path.isdir(app_name):
+                    remove_any(app_name)
                 else:
-                    os.remove(app_name)
+                    remove_any(app_name)
 
             if os.path.exists(version_file):
-                os.remove(version_file)
+                remove_any(version_file)
 
     @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 8012, True), (False, 8013, True),
-                              (True, 8014, False), (False, 8015, False)])
+                             [(True, 9012, True), (False, 9013, True),
+                              (True, 9014, False), (False, 9015, False)])
     @pytest.mark.run(order=3)
     def test_execution_one_dir_restart(self, cleandir, shared_datadir,
                                        simpleserver, pyu, custom_dir, port,
@@ -389,7 +389,7 @@ class TestExecutionRestart(object):
                     shutil.move(f, test_cwd)
 
             dir_name = 'Acme'
-            if (not os.path.exists(dir_name)):
+            if not os.path.exists(dir_name):
                 dir_name = dir_name+'.app'
 
             assert os.path.exists(dir_name)
@@ -399,7 +399,7 @@ class TestExecutionRestart(object):
                 f.write('')
 
             app_name = 'Acme'
-            if (sys.platform == 'darwin' and windowed):
+            if sys.platform == 'darwin' and windowed:
                 pass
             else:
                 app_name = os.path.join(dir_name, app_name)
@@ -417,7 +417,7 @@ class TestExecutionRestart(object):
             if sys.platform != 'win32':
                 app_run_command = './{}'.format(app_name)
 
-            if (sys.platform == 'darwin' and windowed):
+            if sys.platform == 'darwin' and windowed:
                 app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
                                                                       app_name)
                 app_name = '{}.app'.format(app_name)
@@ -455,10 +455,10 @@ class TestExecutionRestart(object):
             assert output == '4.2'
 
             if os.path.exists(app_name):
-                if (os.path.isdir(app_name)):
-                    shutil.rmtree(app_name)
+                if os.path.isdir(app_name):
+                    remove_any(app_name)
                 else:
-                    shutil.rmtree(os.path.dirname(app_name))
+                    remove_any(os.path.dirname(app_name))
 
             if os.path.exists(version_file):
-                os.remove(version_file)
+                remove_any(version_file)
