@@ -51,16 +51,21 @@ log = logging.getLogger(__name__)
 
 class PluginManager(object):
 
-    PLUGIN_NAMESPACE = 'pyupdater.plugins'
+    PLUGIN_NAMESPACES = ['pyupdater.plugins.upload', 'pyupdater.plugins']
 
-    def __init__(self, config):
-        plugins_namespace = ExtensionManager(self.PLUGIN_NAMESPACE,
-                                             invoke_on_load=True)
-        plugins = []
-        for p in plugins_namespace.extensions:
-            plugins.append(p.obj)
+    def __init__(self, config, plugins=None):
+        if isinstance(plugins, list):
+            _all_plugins = plugins
+        else:
+            _all_plugins = []
+
+            for pn in self.PLUGIN_NAMESPACES:
+                namespace = ExtensionManager(pn, invoke_on_load=True)
+                for p in namespace.extensions:
+                    _all_plugins.append(p.obj)
+
         # Sorting by name then author
-        plugins = sorted(plugins, key=lambda x: (x.name, x.author))
+        plugins = sorted(_all_plugins, key=lambda x: (x.name, x.author))
 
         # Used as a counter when creating names to plugin
         # User may have multiple plugins with the same
