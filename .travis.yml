@@ -18,6 +18,7 @@ matrix:
     - os: osx
       language: generic
       python: "3.7"
+      env: "HOMEBREW_NO_INSTALL_CLEANUP=1"
       install:
         - brew update
         - brew upgrade python
@@ -30,6 +31,7 @@ matrix:
     - os: osx
       language: generic
       python: "2.7"
+      env: "HOMEBREW_NO_INSTALL_CLEANUP=1"
       install:
         - brew update
         - brew uninstall --ignore-dependencies python
