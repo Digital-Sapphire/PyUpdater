@@ -29,6 +29,7 @@ import os
 import pytest
 import six
 
+from pyupdater import settings
 from pyupdater.utils.config import Config
 from pyupdater.utils import (check_repo, create_asset_archive, make_archive,
                              PluginManager, remove_dot_files, run
@@ -128,18 +129,29 @@ class TestUtils(object):
 
     def test_plugin_config(self):
 
-        class Plugin(object):
+        class TPlugin(object):
             name = 'test'
             author = 'test1'
+            bucket = ''
 
-        plugin = Plugin()
-        pm = PluginManager(Config(), plugins=[plugin])
+            def init_config(self, config):
+                self.bucket = config.get("bucket", "bad")
 
-        config = pm.get_plugin_settings(plugin)
+        master_config = Config()
 
-        config['bucket'] = 'test_bucket'
+        master_config['PLUGIN_CONFIGS'] = {
+            "test-test1": {
+                "bucket": "test_bucket"
+            }
+        }
 
-        pm.config_plugin('test', config)
+        pm = PluginManager(master_config, plugins=[TPlugin()])
 
-        assert pm.get_plugin_settings(plugin)['bucket'] == 'test_bucket'
+        p = pm.get_plugin('test', False)
+        assert p.bucket == ''
+
+        p = pm.get_plugin('test', True)
+        assert p.bucket == 'test_bucket'
+
+
 

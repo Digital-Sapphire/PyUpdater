@@ -147,12 +147,12 @@ class PluginManager(object):
             plugin_config = {}
             configs[config_key] = plugin_config
 
-        # Get the plugin its config dict for updating
+        # Give the plugin its config dict for updating
         try:
             plugin.set_config(plugin_config)
         except Exception as err:
             log.error('There was an error during configuration '
-                      'of %s crated by %s', plugin.name, plugin.author)
+                      'of %s created by %s', plugin.name, plugin.author)
             log.debug(err, exc_info=True)
 
     def get_plugin_names(self):
