@@ -23,6 +23,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 import os
+import sys
 
 from dsdev_utils.paths import ChDir
 import pytest
@@ -96,7 +97,7 @@ class TestUploader(object):
         # Don't mind the name, should only contain 1 plugin
         upload_plugins = [u for u in uploaders if u.name == upload_plugin_type]
 
-        if six.PY2:
+        if six.PY2 or sys.version_info[1] in [4, 5]:
             data_dir = str(shared_datadir)
         else:
             data_dir = shared_datadir

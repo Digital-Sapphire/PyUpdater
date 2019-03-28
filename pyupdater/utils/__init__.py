@@ -134,15 +134,19 @@ class PluginManager(object):
         # Load all available plugin configs from
         # app_config['PLUGIN_CONFIGS']
         configs = self._get_config(config)
+
         # Get the requested plugin
         plugin = self.get_plugin(name)
+
         # Create the key to retrieve this plugins config
         config_key = '{}-{}'.format(plugin.name.lower(), plugin.author)
+
         # Get the config for this plugin
         plugin_config = configs.get(config_key)
         if plugin_config is None:
             plugin_config = {}
             configs[config_key] = plugin_config
+
         # Get the plugin its config dict for updating
         try:
             plugin.set_config(plugin_config)
