@@ -39,6 +39,8 @@ from pyupdater.cli.options import get_parser
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
+logging.getLogger('PyInstaller').setLevel(logging.ERROR)
+
 # Log to pyu.log if available
 local_debug_file_path = os.path.join(os.getcwd(), 'pyu.log')
 if os.path.exists(local_debug_file_path):  # pragma: no cover
