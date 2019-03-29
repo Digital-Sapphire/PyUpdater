@@ -203,7 +203,7 @@ def gen_user_friendly_version(internal_version):
     return version
 
 
-class Restarter(object):
+class Restarter(object):  # pragma: no cover
 
     def __init__(self, current_app, **kwargs):
         self.current_app = current_app
@@ -654,7 +654,7 @@ class LibUpdate(object):
         t.start()
 
 
-class AppUpdate(LibUpdate):
+class AppUpdate(LibUpdate):  # pragma: no cover
     """Used to update an application. This object is returned by
     pyupdater.client.Client.update_check
 
