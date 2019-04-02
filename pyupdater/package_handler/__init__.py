@@ -80,12 +80,6 @@ class PackageHandler(object):
         self.new_dir = os.path.join(self.data_dir, 'new')
         self.config_dir = os.path.join(os.getcwd(),
                                        settings.CONFIG_DATA_FOLDER)
-
-        if self.patch_support:
-            log.info('Patch support enabled')
-        else:
-            log.info('Patch support disabled')
-
         self.setup()
 
     def setup(self):
@@ -106,6 +100,11 @@ class PackageHandler(object):
         all packages.  Updates the version file meta-data. Then writes
         version file back to disk.
         """
+        if self.patch_support:
+            log.info('Patch support enabled')
+        else:
+            log.info('Patch support disabled')
+
         # Getting a list of meta data from all packages in the
         # pyu-data/new directory. Also create a patch manifest
         # to create patches.
@@ -146,7 +145,7 @@ class PackageHandler(object):
         if json_data is None:  # pragma: no cover
             log.warning('Version file not found')
             json_data = {'updates': {}}
-            log.info('Created new version file')
+            log.debug('Created new version file')
         return json_data
 
     def _load_config(self):
@@ -154,7 +153,7 @@ class PackageHandler(object):
         # If config doesn't exists create new one
         config = self.db.load(settings.CONFIG_DB_KEY_PY_REPO_CONFIG)
         if config is None:  # pragma: no cover
-            log.info('Creating new config file')
+            log.debug('Creating new config file')
             config = {
                 'patches': {}
                 }
@@ -165,7 +164,7 @@ class PackageHandler(object):
         # for futher processing
         # Process all packages in new folder and gets
         # url, hash and some outer info.
-        log.info('Getting package list')
+        log.info('Generating package list')
         # Clears manifest if sign updates runs more the once without
         # app being restarted
         package_manifest = []
@@ -211,7 +210,7 @@ class PackageHandler(object):
                                                   package.platform,
                                                   )
                     if path is not None:
-                        log.info('Found source file to create patch')
+                        log.debug('Found source file to create patch')
                         patch_name = package.name + '-' + package.platform
                         src_path = path[0]
                         patch_number = path[1]
@@ -237,22 +236,22 @@ class PackageHandler(object):
     def _add_package_to_config(p, data):
         if 'package' not in data.keys():
             data['package'] = {}
-            log.info('Initilizing config for packages')
+            log.debug('Initilizing config for packages')
         # First package with current name so add platform and version
         if p.name not in data['package'].keys():
             data['package'][p.name] = {p.platform: p.version}
-            log.info('Adding new package to config')
+            log.debug('Adding new package to config')
         else:
             # Adding platform and version
             if p.platform not in data['package'][p.name].keys():
                 data['package'][p.name][p.platform] = p.version
-                log.info('Adding new arch to package-config: %s', p.platform)
+                log.debug('Adding new arch to package-config: %s', p.platform)
             else:
                 # Getting current version for platform
                 value = data['package'][p.name][p.platform]
                 # Updating version if applicable
                 if p.version > value:
-                    log.info('Adding new version to package-config')
+                    log.debug('Adding new version to package-config')
                     data['package'][p.name][p.platform] = p.version
         return data
 
@@ -261,7 +260,7 @@ class PackageHandler(object):
         # Remove old archives that were previously used to create patches
         if len(patch_manifest) < 1:
             return
-        log.info('Cleaning up files directory')
+        log.info('Cleaning up stale files')
         for p in patch_manifest:
             filename = os.path.basename(p['src'])
             directory = os.path.dirname(p['src'])
@@ -292,7 +291,7 @@ class PackageHandler(object):
 
     def _add_patches_to_packages(self, package_manifest, patches):
         if patches is not None and len(patches) >= 1:
-            log.info('Adding patches to package list')
+            log.debug('Adding patches to package list')
             for p in patches:
                 # We'll skip if patch meta data is incomplete
                 if hasattr(p, 'ready') is False:
@@ -320,7 +319,7 @@ class PackageHandler(object):
                         log.debug('No patch match found')
         else:
             if self.patch_support is True:
-                log.warning('No patches found')
+                log.debug('No patches found')
         return package_manifest
 
     @staticmethod
@@ -441,7 +440,7 @@ class PackageHandler(object):
         # Check to see if previous version is available to
         # make patch updates. Also calculates patch number
         log.debug(json.dumps(json_data['latest'], indent=2))
-        log.info('Checking if patch creation is possible')
+        log.debug('Checking if patch creation is possible')
         if bsdiff4 is None:
             log.warning('Bsdiff is missing. Cannot create patches')
             return None

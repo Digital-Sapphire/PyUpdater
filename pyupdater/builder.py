@@ -67,9 +67,11 @@ class Builder(object):  # pragma: no cover
     # Creates & archives executable
     def build(self):
         start = time.time()
-        temp_name = get_system()
+
         # Check for spec file or python script
         self._setup()
+
+        temp_name = get_system()
         spec_file_path = os.path.join(self.spec_dir, temp_name + '.spec')
 
         # Spec file used instead of python script
@@ -77,20 +79,19 @@ class Builder(object):  # pragma: no cover
             spec_file_path = self.app_info['name']
         else:
             # Creating spec file from script
-            self._make_spec(self.pyi_args, temp_name, self.app_info)
+            self._make_spec(temp_name)
 
         # Build executable
-        self._build(self.args, spec_file_path)
+        self._build(spec_file_path)
+
         # Archive executable
-        self._archive(self.args, temp_name)
+        self._archive(temp_name)
         finished = time.time() - start
-        msg = 'Build finished in {:.2f} seconds.'.format(finished)
-        log.info(msg)
+        log.info('Build finished in {:.2f} seconds.'.format(finished))
 
     def make_spec(self):
         temp_name = get_system()
-        self._make_spec(self.pyi_args, temp_name,
-                        self.app_info, spec_only=True)
+        self._make_spec(temp_name, spec_only=True)
 
     def _setup(self):
         # Create required directories
@@ -135,37 +136,40 @@ class Builder(object):  # pragma: no cover
 
     # Take args from PyUpdater then sanatize & combine to be
     # passed to pyinstaller
-    def _make_spec(self, spec_args, temp_name,
-                   app_info, spec_only=False):
-        log.debug('App Info: %s', app_info)
+    def _make_spec(self, temp_name, spec_only=False):
+        log.debug('App Info: %s', self.app_info)
 
-        spec_args.append('--name={}'.format(temp_name))
+        self.pyi_args.append('--name={}'.format(temp_name))
         if spec_only is True:
             log.debug('*** User generated spec file ***')
             log.debug('There could be errors')
-            spec_args.append('--specpath={}'.format(os.getcwd()))
+            self.pyi_args.append('--specpath={}'.format(os.getcwd()))
         else:
             # Place spec file in .pyupdater/spec
-            spec_args.append('--specpath={}'.format(self.spec_dir))
+            self.pyi_args.append('--specpath={}'.format(self.spec_dir))
 
         # Use hooks included in PyUpdater package
         hook_dir = get_hook_dir()
         log.debug('Hook directory: %s', hook_dir)
-        spec_args.append('--additional-hooks-dir={}'.format(hook_dir))
-        spec_args.append(app_info['name'])
+        self.pyi_args.append('--additional-hooks-dir={}'.format(hook_dir))
 
-        log.debug('Make spec cmd: %s', ' '.join([c for c in spec_args]))
-        success = pyi_makespec(spec_args)
+        if self.args.pyi_log_info is False:
+            self.pyi_args.append('--log-level=ERROR')
+
+        self.pyi_args.append(self.app_info['name'])
+
+        log.debug('Make spec cmd: %s', ' '.join([c for c in self.pyi_args]))
+        success = pyi_makespec(self.pyi_args)
         if success is False:
             log.error('PyInstaller > 3.0 needed for this python installation.')
             sys.exit(1)
 
     # Actually creates executable from spec file
-    def _build(self, args, spec_file_path):
+    def _build(self, spec_file_path):
         try:
-            Version(args.app_version)
+            Version(self.args.app_version)
         except VersionError:
-            log.error('Version format incorrect: %s', args.app_version)
+            log.error('Version format incorrect: %s', self.args.app_version)
             log.error("""Valid version numbers: 0.10.0, 1.1b, 1.2.1a3
 
         Visit url for more info:
@@ -174,8 +178,12 @@ class Builder(object):  # pragma: no cover
                       """)
             sys.exit(1)
         build_args = []
-        if args.clean is True:
+        if self.args.clean is True:
             build_args.append('--clean')
+
+        if self.args.pyi_log_info is False:
+            build_args.append('--log-level=ERROR')
+
         build_args.append('--distpath={}'.format(self.new_dir))
         build_args.append('--workpath={}'.format(self.work_dir))
         build_args.append('-y')
@@ -209,7 +217,7 @@ class Builder(object):  # pragma: no cover
                 f.write(d)
 
     # Creates zip on windows and gzip on other platforms
-    def _archive(self, args, temp_name):
+    def _archive(self, temp_name):
         # Now archive the file
         with ChDir(self.new_dir):
             if os.path.exists(temp_name + '.app'):
@@ -221,7 +229,7 @@ class Builder(object):  # pragma: no cover
                 app_name = temp_name + '.exe'
             else:
                 app_name = temp_name
-            version = args.app_version
+            version = self.args.app_version
             log.debug('Temp Name: %s', temp_name)
             log.debug('Appname: %s', app_name)
             log.debug('Version: %s', version)
@@ -229,14 +237,14 @@ class Builder(object):  # pragma: no cover
             # Time for some archive creation!
             filename = make_archive(self.app_name, app_name, version)
             log.debug('Archive name: %s', filename)
-            if args.keep is False:
+            if self.args.keep is False:
                 if os.path.exists(temp_name):
                     log.debug('Removing: %s', temp_name)
                     remove_any(temp_name)
                 if os.path.exists(app_name):
                     log.debug('Removing: %s', temp_name)
                     remove_any(app_name)
-        log.info('%s has been placed in your new folder\n', filename)
+        log.debug('%s has been placed in your new folder\n', filename)
 
 
 class ExternalLib(object):
@@ -247,4 +255,4 @@ class ExternalLib(object):
 
     def archive(self):
         filename = create_asset_archive(self.name, self.version)
-        log.info('Created archive for %s: %s', self.name, filename)
+        log.debug('Created archive for %s: %s', self.name, filename)

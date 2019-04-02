@@ -5,6 +5,10 @@
 
 ###Updated
 
+  - CLI
+    - Suppresses pyinstaller build logging by default
+      - Enabled with --pyinstaller-log-info
+
   - Client
     - Ability to elevate privileges on windows
     - AppUpdate.download(async=True) is now AppUpdate.download(background=True)
@@ -13,6 +17,7 @@
 
   - CLI
     - Out of memory error on windows
+    - Redundant logging to console
 
 
 ## v2.5.3 - 2018/03/30

@@ -42,7 +42,7 @@ class Storage(object):
         self.config_dir = os.path.join(os.getcwd(),
                                        settings.CONFIG_DATA_FOLDER)
         if not os.path.exists(self.config_dir):
-            log.info('Creating config dir')
+            log.debug('Creating config dir')
             os.mkdir(self.config_dir)
         log.debug('Config Dir: %s', self.config_dir)
         self.filename = os.path.join(self.config_dir,

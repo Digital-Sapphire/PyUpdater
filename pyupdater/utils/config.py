@@ -103,11 +103,11 @@ class ConfigManager(object):
 
     # Saves config to database (json file)
     def save_config(self, obj):
-        log.info('Saving Config')
+        log.debug('Saving Config')
         self.db.save(self.config_key, obj)
-        log.info('Config saved')
+        log.debug('Config saved')
         self.write_config_py(obj)
-        log.info('Wrote client config')
+        log.debug('Wrote client config')
 
     # Writes client config to client_config.py
     def write_config_py(self, obj):

@@ -90,14 +90,14 @@ class PyUpdater(object):
 
     def upload(self):
         """Uploads files in deploy folder"""
-        self.up.upload()
+        return self.up.upload()
 
     def get_plugin_names(self):
         return self.up.get_plugin_names()
 
     def import_keypack(self):
         """Creates signing keys"""
-        self.key_importer.start()
+        return self.key_importer.start()
 
     def sign_update(self):
         """Signs version file with signing key"""

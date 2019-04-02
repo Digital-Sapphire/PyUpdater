@@ -24,49 +24,21 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 import logging
-from logging.handlers import RotatingFileHandler
-import os
 import sys
 
 from appdirs import user_log_dir
-from dsdev_utils.logger import logging_formatter
 
 from pyupdater import __version__, settings
 from pyupdater.cli import commands
 from pyupdater.cli.options import get_parser
 
 
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+logging.getLogger('dsdev_utils').setLevel(logging.ERROR)
 
-# Log to pyu.log if available
-local_debug_file_path = os.path.join(os.getcwd(), 'pyu.log')
-if os.path.exists(local_debug_file_path):  # pragma: no cover
-    fh = logging.FileHandler(local_debug_file_path)
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(logging_formatter)
-    log.addHandler(fh)
-
-# Console logger
-fmt = logging.Formatter('[%(levelname)s] %(message)s')
-sh = logging.StreamHandler()
-sh.setFormatter(fmt)
-sh.setLevel(logging.INFO)
-log.addHandler(sh)
-
-# Default log directory
-LOG_DIR = user_log_dir(settings.APP_NAME, settings.APP_AUTHOR)
-if not os.path.exists(LOG_DIR):  # pragma: no cover
-    os.makedirs(LOG_DIR)
-
-log_file = os.path.join(LOG_DIR, settings.LOG_FILENAME_DEBUG)
-rfh = RotatingFileHandler(log_file, maxBytes=1048576, backupCount=2)
-rfh.setFormatter(logging_formatter)
-rfh.setLevel(logging.DEBUG)
-log.addHandler(rfh)
+log = logging.getLogger(__name__)
 
 # The collect_debug_info command will use this
-commands.LOG_DIR = LOG_DIR
+commands.LOG_DIR = user_log_dir(settings.APP_NAME, settings.APP_AUTHOR)
 
 
 def _real_main(args, namespace_test_helper=None):  # pragma: no cover
