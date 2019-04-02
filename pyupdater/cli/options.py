@@ -36,7 +36,9 @@ def make_subparser(parser):
 
 
 def _build_make_spec_common(subparser):
-    # Start of args override
+    subparser.add_argument('--pyinstaller-log-info',
+                           dest='pyi_log_info', action='store_true',
+                           help='Prints PyInstaller execution info to console')
 
     # This will be set to the pyu-data/new directory.
     # When we make the final compressed archive we will look
@@ -56,8 +58,6 @@ def _build_make_spec_common(subparser):
     # --app-name
     subparser.add_argument('-n', '--name', help=argparse.SUPPRESS)
 
-    # End of args override
-
 
 def add_archive_parser(subparsers):
     archive_parser = subparsers.add_parser('archive', help='Archive an asset '
@@ -71,7 +71,7 @@ def add_archive_parser(subparsers):
                                 'file')
     archive_parser.add_argument('-k', '--keep', action='store_true',
                                 help='Will not delete source file '
-                                'after archiving')
+                                     'after archiving')
 
 
 def add_build_parser(subparsers):
@@ -79,14 +79,14 @@ def add_build_parser(subparsers):
                                          'or spec file',
                                          usage='%(prog)s [opts]<script>')
     # start a clean build
-    build_parser.add_argument('--clean', help='Clean build. '
-                              'Bypass the cache', action="store_true")
+    build_parser.add_argument('--clean', action="store_true",
+                              help='Clean build. Bypass the cache')
 
     build_parser.add_argument('--app-version', dest="app_version",
                               required=True)
     build_parser.add_argument('-k', '--keep', dest='keep', action='store_true',
                               help='Will not delete executable '
-                              'after archiving')
+                                   'after archiving')
 
     _build_make_spec_common(build_parser)
 
@@ -131,7 +131,7 @@ def add_keys_parser(subparsers):
                              action='store_true', dest='import_keys')
     keys_parser.add_argument('-c', '--create', help='Creates keypack. Should '
                              'only be used on your off-line machine',
-                             action='store_true')
+                             action='store_true', dest='create_keys')
 
 
 def add_package_parser(subparsers):

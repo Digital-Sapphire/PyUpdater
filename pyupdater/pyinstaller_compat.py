@@ -74,7 +74,7 @@ def pyi_makespec(pyi_args):  # pragma: no cover
             args.pathex.insert(0, os.getcwd())
 
             spec_file = _pyi_makespec.main(args.scriptname, **vars(args))
-        log.info('wrote %s', spec_file)
+        log.debug('wrote %s', spec_file)
 
     if is_pyi30:
         # We will exit with an error message in builder.py

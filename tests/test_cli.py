@@ -167,7 +167,7 @@ class TestKeys(object):
         assert parser.parse_known_args(['keys'])
 
     def test_create_keys(self):
-        commands._cmd_keys(NamespaceHelper(command='keys', create=True))
+        commands._cmd_keys(NamespaceHelper(command='keys', create_keys=True))
         assert os.path.exists('keypack.pyu')
 
 

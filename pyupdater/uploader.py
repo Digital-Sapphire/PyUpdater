@@ -138,13 +138,11 @@ class Uploader(object):
             failed_uploads = self._retry_upload(failed_uploads)
 
         if len(failed_uploads) < 1:
-            print("\nUpload Complete")
             return True
         else:
-            print('The following files were not uploaded')
+            log.error('The following files were not uploaded')
             for i in failed_uploads:
                 log.error('%s failed to upload', os.path.basename(i))
-                print(i)
             return False
 
     def _retry_upload(self, failed_uploads):

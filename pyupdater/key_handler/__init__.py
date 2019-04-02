@@ -124,6 +124,7 @@ class KeyHandler(object):
         # Creating signing key object
         private_key = ed25519.SigningKey(private_key_raw,
                                          encoding=self.key_encoding)
+        log.debug("Signing update data")
         # Signs update data with private key
         signature = private_key.sign(six.b(update_data_str),
                                      encoding=self.key_encoding).decode()
@@ -134,7 +135,7 @@ class KeyHandler(object):
 
         # Add signatures to update data
         update_data['signature'] = signature
-        log.info('Adding sig to update data')
+        log.debug('Adding signature to update data')
 
         # Write updated version file to .pyupdater/config.pyu
         self._write_update_data(update_data)
@@ -154,7 +155,7 @@ class KeyHandler(object):
                 f.write(new_data)
             else:
                 f.write(bytes(new_data, 'utf-8'))
-        log.info('Created gzipped version manifest in deploy dir')
+        log.debug('Created gzipped version manifest in deploy dir')
 
     def _write_key_file(self):
         keypack_data = self.db.load(settings.CONFIG_DB_KEY_KEYPACK)
@@ -170,7 +171,7 @@ class KeyHandler(object):
                 f.write(new_data)
             else:
                 f.write(bytes(new_data, 'utf-8'))
-        log.info('Created gzipped key file in deploy dir')
+        log.debug('Created gzipped key file in deploy dir')
 
     def _load_update_data(self):
         log.debug("Loading version data")
@@ -180,6 +181,6 @@ class KeyHandler(object):
             update_data = {}
             log.error('Version meta data not found')
             self.db.save(settings.CONFIG_DB_KEY_VERSION_META, update_data)
-            log.info('Created new version meta data')
+            log.debug('Created new version meta data')
         log.debug('Version file loaded')
         return update_data

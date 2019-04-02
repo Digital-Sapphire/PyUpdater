@@ -68,6 +68,7 @@ def check_repo_ex(exit_on_error=False):
 def _cmd_archive(*args):
     check_repo_ex(exit_on_error=True)
 
+    log.info("Archiving asset...")
     ns = args[0]
     new_dir = os.path.join(CWD, settings.USER_DATA_FOLDER, 'new')
     name = ns.name
@@ -84,12 +85,14 @@ def _cmd_archive(*args):
         if ns.keep is False:
             remove_any(name)
             log.info('Removed: %s', name)
+    log.info("Archiving complete")
 
 
 # Will build and archive an exe from a python script file
 def _cmd_build(*args):
     check_repo_ex(exit_on_error=True)
 
+    log.info("Compiling...")
     ns = args[0]
     pyi_args = args[1]
     builder = Builder(ns, pyi_args)
@@ -178,7 +181,7 @@ def _cmd_settings(*args):  # pragma: no cover
     # If any changes have been made, save data to disk.
     if save_config is True:
         cm.save_config(config)
-        log.info('Settings update complete')
+        log.info('Saved config')
 
 
 # Initialize PyUpdater repo
@@ -213,12 +216,12 @@ def _cmd_keys(*args):  # pragma: no cover
     ns = args[0]
     # We try to prevent developers from creating root keys on the dev
     # machines.
-    if ns.create is True and ns.import_keys is True:
+    if ns.create_keys is True and ns.import_keys is True:
         log.error('Only one options is allowed at a time')
         return
 
     # Okay the actual check is pretty weak but we are all grown ups here :)
-    if ns.create is True and check is True:
+    if ns.create_keys is True and check is True:
         log.error('You can not create off-line keys on your dev machine')
         return
 
@@ -229,7 +232,7 @@ def _cmd_keys(*args):  # pragma: no cover
     # We are supposed to be on another secure computer.
     # Security is in the eye of the beholder.
     # That was deep.
-    if ns.create is True and check is False:
+    if ns.create_keys is True and check is False:
         if hasattr(ns, 'test'):
             log.debug('We are testing!')
             app_name = 'test'
@@ -259,7 +262,7 @@ def _cmd_keys(*args):  # pragma: no cover
             log.info('Keypack import successfully')
             cm.save_config(config)
         else:
-            log.warning('Keypack import failed')
+            log.error('Keypack import failed')
 
 
 # Create a spec_file and place it in the cwd.
@@ -272,6 +275,7 @@ def _cmd_make_spec(*args):
     pyi_args = args[1]
     builder = Builder(ns, pyi_args)
     builder.make_spec()
+    log.info("Spec file placed in cwd")
 
 
 # The pkg command will move, gather meta-data & sign all
@@ -343,8 +347,6 @@ def _cmd_collect_debug_info(*args):  # pragma: no cover
 
     if LOG_DIR is None:
         log.error('LOG_DIR is not set')
-        log.debug('Something is mis-configured. '
-                  'Might be running in a test or by hand.')
         return
 
     with ChDir(LOG_DIR):
@@ -363,15 +365,14 @@ def _cmd_collect_debug_info(*args):  # pragma: no cover
                 log.debug('Adding %s to log', t)
                 _add_file(upload_data, t)
 
-    log.info('Found all logs')
+    log.info('Uploading collected logs')
     # Attempt upload of debug files.
     url = _upload(upload_data)
 
     if url is None:
         log.error('Could not upload debug info to github')
     else:
-        log.info('Log export complete')
-        log.info('Logs uploaded to %s', url)
+        log.info('Log export complete: %s', url)
 
 
 # Show list of installed upload plugins
@@ -384,7 +385,7 @@ def _cmd_plugins(*args):
         out = '{} by {}\n'.format(n['name'], n['author'])
         names.append(out)
     output = ''.join(names)
-    print(output)
+    log.info('Upload plugins:%s', output)
 
 
 # Upload the assets with the requested upload plugin
@@ -420,11 +421,18 @@ def _cmd_upload(*args):  # pragma: no cover
 
     # Try to upload the files in the deploy directory. Get it...
     # In all seriousness, I really want this to go smoothly.
+    log.info("Starting upload")
     try:
-        pyu.upload()
+        complete = pyu.upload()
     except Exception as err:
+        complete = False
         log.debug(err, exc_info=True)
         log.error(err)
+
+    if complete:
+        log.info("Upload successful")
+    else:
+        log.error("Upload failed!")
 
 
 # Print the version of PyUpdater to the console.
