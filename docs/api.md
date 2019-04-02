@@ -9,6 +9,7 @@
 * [pyupdater.client.AppUpdate](#pyupdaterclientappupdate)
 * [pyupdater.client.Client](#pyupdaterclientclient)
 * [pyupdater.client.ClientError](#pyupdaterclientclienterror)
+* [pyupdater.client.DefaultClientConfig](#pyupdaterclientdefaultclientconfig)
 * [pyupdater.client.LibUpdate](#pyupdaterclientlibupdate)
 
 
@@ -71,20 +72,6 @@ Used to check if update has been downloaded.
 
     False - File has not been downloaded.
 
-##### AppUpdate.restart()
-
-Will overwrite old binary with updated binary and
-restart the application using the updated binary.
-Not supported on windows.
-
-Deprecated: Used extract_restart instead.
-
-##### AppUpdate.win_extract_overwrite()
-
-Overwrite current binary with update binary on windows.
-
-Deprecated: Use extract_overwrite instead.
-
 ### pyupdater.client.Client
 
 Used to check for updates & returns an updateobject if there
@@ -126,20 +113,6 @@ Args:
 
 cb (function): Function which takes a dict as its first argument
 
-##### Client.init_app(obj, refresh=False, test=False, data_dir=None)
-
-Sets up client with config values from obj
-
-######Args:
-
-obj (instance): config object
-
-######Kwargs:
-
-refresh (bool):
-    True - Refresh update manifest on object initialization.
-    False - Don't refresh update manifest on object initialization
-
 ##### Client.refresh()
 
 Will download and verify the version manifest.
@@ -179,6 +152,12 @@ Raised for Client exceptions
 ##### ClientError.format_traceback()
 
 
+
+### pyupdater.client.DefaultClientConfig
+
+
+
+#### Methods
 
 ### pyupdater.client.LibUpdate
 

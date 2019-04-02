@@ -11,6 +11,7 @@ nav:
     - Usage | CLI | Assets: usage-cli-asset.md
     - Usage | CLI | Advanced: usage-cli-advanced.md
     - Usage | Client: usage-client.md
+    - Usage | Client | Advanced: usage-client-advanced.md
     - Usage | Client | Asset: usage-client-asset.md
     - Upgrading PyUpdater: upgrading.md
     - Create Upload Plugins: create-upload-plugin.md

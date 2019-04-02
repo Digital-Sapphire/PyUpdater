@@ -6,20 +6,15 @@ import shutil
 from dsdev_utils.paths import ChDir, remove_any
 
 HTML_DIR = os.path.join(os.getcwd(), 'site')
-DEST_DIR = os.path.join(os.path.expanduser(u'~'), u'Sync',
-                        u'code', u'Web', u'PyUpdater')
+DEST_DIR = os.path.join(os.path.expanduser('~'), 'Sync', 'code', 'Web',
+                        'PyUpdater', 'public_html')
 
 
 def main():
     with ChDir(DEST_DIR):
         files = os.listdir(os.getcwd())
         for f in files:
-            if f.startswith(u'.'):
-                continue
-            elif f in [u'hostess.json', 'Staticfile']:
-                continue
-            else:
-                remove_any(f)
+            remove_any(f)
 
     with ChDir(HTML_DIR):
         files = os.listdir(os.getcwd())
