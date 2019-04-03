@@ -3,7 +3,7 @@
 ## v3.0.0 - Master
 ####* This version is not yet released and is under active development.
 
-###Updated
+###Added
 
   - CLI
     - Suppresses pyinstaller build logging by default
@@ -11,6 +11,10 @@
 
   - Client
     - Ability to elevate privileges on windows
+
+###Updated
+
+  - Client
     - AppUpdate.download(async=True) is now AppUpdate.download(background=True)
 
 ###Fixed

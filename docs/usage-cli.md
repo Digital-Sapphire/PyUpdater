@@ -29,6 +29,8 @@ $ pyupdater keys -i
 ####Is your app more of the demanding type? If so, your spec file must be based on  a PyUpdater generated spec file. You can easily generate one using the example below. If you do not need a custom spec file skip to the next step. Please see the Danger Zone section on spec files.
 ```
 $ pyupdater make-spec -w main.py
+
+# To show pyinstaller build info use --pyinstaller-log-info
 ```
 
 ###Step 7 - Build
@@ -40,6 +42,8 @@ $ pyupdater build --app-version=1.0.0 main.spec
 
 # Build from a script.
 $ pyupdater build --app-version=1.0.0 main.py
+
+# To show pyinstaller build info use --pyinstaller-log-info
 ```
 
 ###Step 8 - Create patches
