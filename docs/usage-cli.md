@@ -30,6 +30,10 @@ $ pyupdater keys -i
 ```
 $ pyupdater make-spec -w main.py
 
+# or
+
+$ pyupdater make-spec -F -w main.py
+
 # To show pyinstaller build info use --pyinstaller-log-info
 ```
 

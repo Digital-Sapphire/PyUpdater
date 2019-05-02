@@ -22,6 +22,7 @@
   - CLI
     - Out of memory error on windows
     - Redundant logging to console
+    - Handling symlinks within Mac.app
 
 
 ## v2.5.3 - 2018/03/30
