@@ -278,7 +278,7 @@ def make_archive(name, target, version):
     if os.path.isfile(target):
         shutil.copy(target, temp_file)
     else:
-        shutil.copytree(target, temp_file)
+        shutil.copytree(target, temp_file, symlinks=True)
         # renames the entry-point executable
         file_ext = '.exe' if system.get_system() == 'win' else ''
         src_executable = temp_file + os.sep + target + file_ext
