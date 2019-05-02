@@ -11,6 +11,7 @@
 
   - Client
     - Ability to elevate privileges on windows
+    - Patch support for alpha and beta channels
 
 ###Updated
 

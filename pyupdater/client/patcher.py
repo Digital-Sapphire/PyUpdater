@@ -72,6 +72,7 @@ class Patcher(object):
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
+        self.channel = kwargs.get('channel')
         self.json_data = kwargs.get('json_data')
         self.star_access_update_data = EasyAccessDict(self.json_data)
         self.current_version = Version(kwargs.get('current_version'))
@@ -112,19 +113,16 @@ class Patcher(object):
         """Starts patching process"""
         log.debug('Starting patch updater...')
         # Check hash on installed binary to begin patching
-        binary_check = self._verify_installed_binary()
-        if not binary_check:
+        if self._verify_installed_binary() is False:
             log.debug('Binary check failed...')
             return False
         # Getting all required patch meta-data
-        all_patches = self._get_patch_info()
-        if all_patches is False:
+        if self._get_patch_info() is False:
             log.debug('Cannot find all patches...')
             return False
 
         # Download and verify patches in 1 go
-        download_check = self._download_verify_patches()
-        if download_check is False:
+        if self._download_verify_patches() is False:
             log.debug('Patch check failed...')
             return False
 
@@ -264,8 +262,8 @@ class Patcher(object):
             # which will cause patch update to return False
             versions = [1]
 
-        # Only stable packages have patch info
-        versions = [v for v in versions if v.channel == 'stable']
+        # We only care about the current channel
+        versions = [v for v in versions if v.channel == self.channel]
 
         log.debug('Getting required patches')
         for i in versions:

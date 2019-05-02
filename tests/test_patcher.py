@@ -105,6 +105,7 @@ class TestExecution(object):
         data = update_data.copy()
         data['update_folder'] = str(shared_datadir)
         data['json_data'] = json_data
+        data['channel'] = 'stable'
         p = Patcher(**data)
         assert p.start() is True
 
@@ -119,6 +120,7 @@ class TestExecution(object):
         data = update_data.copy()
         data['update_folder'] = str(shared_datadir)
         data['json_data'] = json_data
+        data['channel'] = 'stable'
         data['progress_hooks'] = [cb]
         p = Patcher(**data)
         assert p.start() is True

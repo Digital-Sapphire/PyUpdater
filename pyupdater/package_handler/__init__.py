@@ -197,17 +197,13 @@ class PackageHandler(object):
                                                                     self.config)
 
                 if self.patch_support:
-                    # If channel is not stable skip patch creation
-                    if package.channel != 'stable':
-                        log.debug('Package %s not on stable channel: '
-                                  'Skipping', p)
-                        continue
                     # Will check if source file for patch exists
                     # if so will return the path and number of patch
                     # to create. If missing source file None returned
                     path = self._check_make_patch(self.version_data,
                                                   package.name,
                                                   package.platform,
+                                                  package.channel
                                                   )
                     if path is not None:
                         log.debug('Found source file to create patch')
@@ -219,7 +215,8 @@ class PackageHandler(object):
                                           patch_name=os.path.join(self.new_dir,
                                                                   patch_name),
                                           patch_num=patch_number,
-                                          package=package.filename)
+                                          package=package.filename,
+                                          channel=package.channel)
                         # ready for patching
                         patch_manifest.append(patch_info)
                     else:
@@ -262,7 +259,7 @@ class PackageHandler(object):
             return
         log.info('Cleaning up stale files')
         for p in patch_manifest:
-            filename = os.path.basename(p['src'])
+            filename = os.path.basename(p['dst'])
             directory = os.path.dirname(p['src'])
             remove_previous_versions(directory, filename)
 
@@ -436,7 +433,7 @@ class PackageHandler(object):
                 shutil.move(p.filename, self.files_dir)
                 log.debug('Moving %s to %s', p.filename, self.files_dir)
 
-    def _check_make_patch(self, json_data, name, platform):
+    def _check_make_patch(self, json_data, name, platform, channel):
         # Check to see if previous version is available to
         # make patch updates. Also calculates patch number
         log.debug(json.dumps(json_data['latest'], indent=2))
@@ -458,8 +455,8 @@ class PackageHandler(object):
             # If latest not available in version file. Exit
             try:
                 log.debug('Looking for %s on %s', name, platform)
-                latest = json_data['latest'][name]['stable'][platform]
-                log.debug('Found latest version for patches')
+                latest = json_data['latest'][name][channel][platform]
+                log.debug('Found latest version for patches: %s', latest)
             except KeyError:
                 log.debug('Cannot find latest version in version meta')
                 return None
