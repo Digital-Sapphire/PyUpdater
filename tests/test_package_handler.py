@@ -27,12 +27,11 @@ from __future__ import unicode_literals
 import io
 import os
 
-from dsdev_utils.paths import ChDir
 import pytest
 
 from pyupdater import settings
-from pyupdater.package_handler import PackageHandler
-from pyupdater.package_handler.package import Package, Patch, parse_platform
+from pyupdater.core.package_handler import PackageHandler
+from pyupdater.core.package_handler.package import Package, Patch, parse_platform
 from pyupdater.utils.config import Config
 from pyupdater.utils.exceptions import PackageHandlerError
 

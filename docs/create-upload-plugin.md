@@ -7,7 +7,7 @@
 ####my_uploader.py
 ```python
 
-from pyupdater.uploader import BaseUploader
+from pyupdater.core.uploader import BaseUploader
 
 
 class MyUploader(BaseUploader):

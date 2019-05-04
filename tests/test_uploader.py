@@ -29,7 +29,7 @@ from dsdev_utils.paths import ChDir
 import pytest
 import six
 
-from pyupdater.uploader import BaseUploader, Uploader
+from pyupdater.core.uploader import BaseUploader, Uploader
 from pyupdater.utils.config import Config
 
 

@@ -30,7 +30,7 @@ import sys
 from dsdev_utils.system import get_system
 import pytest
 
-from pyupdater.builder import ExternalLib
+from pyupdater.utils.builder import ExternalLib
 from pyupdater.utils.config import ConfigManager
 
 

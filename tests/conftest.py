@@ -40,7 +40,7 @@ import pytest
 from pyupdater import PyUpdater
 from pyupdater.cli.options import make_parser
 from pyupdater.client import Client
-from pyupdater.key_handler.keys import Keys
+from pyupdater.core.key_handler.keys import Keys
 from pyupdater.utils.config import ConfigManager
 from pyupdater.utils.storage import Storage
 from tconfig import TConfig

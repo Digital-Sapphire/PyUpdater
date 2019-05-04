@@ -42,7 +42,7 @@ import six
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader as _FD
-from pyupdater.client.updates import AppUpdate, _get_highest_version, LibUpdate
+from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.exceptions import ClientError
 
@@ -263,8 +263,8 @@ class Client(object):
             app = True
 
         log.debug('Checking for %s updates...', name)
-        latest = _get_highest_version(name, self.platform, channel,
-                                      self.easy_data, strict)
+        latest = get_highest_version(name, self.platform, channel,
+                                     self.easy_data, strict)
         if latest is None:
             # If None is returned get_highest_version could
             # not find the supplied name in the version file

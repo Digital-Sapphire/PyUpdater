@@ -32,7 +32,7 @@ import certifi
 import six
 import urllib3
 
-from pyupdater.compat import url_quote
+from pyupdater.utils.compat import url_quote
 from pyupdater.utils.exceptions import FileDownloaderError
 log = logging.getLogger(__name__)
 

@@ -25,10 +25,10 @@
 from __future__ import unicode_literals
 import os
 
-from pyupdater.key_handler import KeyHandler
-from pyupdater.key_handler.keys import KeyImporter
-from pyupdater.package_handler import PackageHandler
-from pyupdater.uploader import Uploader
+from .key_handler import KeyHandler
+from .key_handler.keys import KeyImporter
+from .package_handler import PackageHandler
+from .uploader import Uploader
 from pyupdater.utils.config import Config
 
 

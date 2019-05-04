@@ -39,8 +39,8 @@ from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir
 
 from pyupdater import settings
-from pyupdater.package_handler.package import (remove_previous_versions,
-                                               Package, Patch)
+from pyupdater.core.package_handler.package import (remove_previous_versions,
+                                                    Package, Patch)
 from pyupdater.utils import get_size_in_bytes as in_bytes, remove_dot_files
 from pyupdater.utils.storage import Storage
 

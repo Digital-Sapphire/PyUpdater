@@ -322,8 +322,8 @@ def main():
         # 'cli',
         'client',
         # 'hooks',
-        # 'key_handler',
-        # 'package_handler',
+        # 'core.key_handler',
+        # 'core.package_handler',
         # 'utils',
     ]
 

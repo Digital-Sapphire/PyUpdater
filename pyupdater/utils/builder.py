@@ -37,7 +37,7 @@ from PyInstaller.__main__ import run as pyi_build
 
 from pyupdater import settings
 from pyupdater.hooks import get_hook_dir
-from pyupdater.pyinstaller_compat import pyi_makespec
+from pyupdater.utils.pyinstaller_compat import pyi_makespec
 from pyupdater.utils import create_asset_archive, make_archive
 from pyupdater.utils.config import ConfigManager
 

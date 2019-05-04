@@ -42,7 +42,7 @@ from dsdev_utils.system import get_system
 from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
-from pyupdater.package_handler.package import remove_previous_versions
+from pyupdater.core.package_handler.package import remove_previous_versions
 from pyupdater.utils.exceptions import ClientError
 
 
@@ -112,7 +112,7 @@ def win_run(command, args, admin=False):
         return subprocess.Popen([command] + args)
 
 
-def _get_highest_version(name, plat, channel, easy_data, strict):
+def get_highest_version(name, plat, channel, easy_data, strict):
     # Parses version file and returns the highest version number.
     #
     #   Args:
@@ -400,9 +400,9 @@ class LibUpdate(object):
         self.max_download_retries = data.get('max_download_retries')
 
         # The latest version available
-        self.latest = _get_highest_version(self.name, self.platform,
-                                           self.channel, self.easy_data,
-                                           self.strict)
+        self.latest = get_highest_version(self.name, self.platform,
+                                          self.channel, self.easy_data,
+                                          self.strict)
 
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a

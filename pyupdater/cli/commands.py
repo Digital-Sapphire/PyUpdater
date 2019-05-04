@@ -31,7 +31,6 @@ from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.terminal import ask_yes_no, get_correct_answer
 
 from pyupdater import __version__, PyUpdater, settings
-from pyupdater.builder import Builder, ExternalLib
 from pyupdater.cli.helpers import (initial_setup,
                                    print_plugin_settings,
                                    setup_client_config_path,
@@ -40,8 +39,9 @@ from pyupdater.cli.helpers import (initial_setup,
                                    setup_patches,
                                    setup_plugin,
                                    setup_urls)
-from pyupdater.key_handler.keys import Keys, KeyImporter
+from pyupdater.core.key_handler.keys import Keys, KeyImporter
 from pyupdater.utils import check_repo, get_http_pool, PluginManager
+from pyupdater.utils.builder import Builder, ExternalLib
 from pyupdater.utils.config import Config, ConfigManager
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
