@@ -118,43 +118,12 @@ def remove_previous_versions(directory, filename):
                 log.debug('Current version: %s', package_info.version)
 
 
-class Patch(object):
-    """Holds information for patch file.
-
-    Args:
-
-        patch_info (dict): patch information
-    """
-
-    def __init__(self, patch_info):
-        self.dst_path = patch_info.get('dst')
-        self.patch_name = patch_info.get('patch_name')
-        self.dst_filename = patch_info.get('package')
-        self.ready = self._check_attrs()
-
-    def _check_attrs(self):
-        if self.dst_path is not None:
-            # Cannot create patch if destination file is missing
-            if not os.path.exists(self.dst_path):
-                return False
-        # Cannot create patch if destination file is missing
-        else:
-            return False
-        # Cannot create patch if name is missing
-        if self.patch_name is None:
-            return False
-        # Cannot create patch is destination filename is missing
-        if self.dst_filename is None:
-            return False
-        return True
-
-
 class Package(object):
     """Holds information of update file.
 
     Args:
 
-        filename (str): name of update file
+        filename (str): path to update file
     """
     # Used to parse name from archive filename
     name_regex = re.compile(r'(?P<name>[\w -]+)-[arm|mac|nix|win]')
@@ -171,7 +140,7 @@ class Package(object):
         self.file_size = None
         self.platform = None
         self.info = dict(status=False, reason='')
-        self.patch_info = {}
+        self.patch = None
         # seems to produce the best diffs.
         # Tests on homepage: https://github.com/JMSwag/PyUpdater
         # Zip doesn't keep +x permissions. Only using gz for now.

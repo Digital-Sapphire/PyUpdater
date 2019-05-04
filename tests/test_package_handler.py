@@ -27,11 +27,13 @@ from __future__ import unicode_literals
 import io
 import os
 
+from dsdev_utils.paths import ChDir
 import pytest
 
 from pyupdater import settings
 from pyupdater.core.package_handler import PackageHandler
-from pyupdater.core.package_handler.package import Package, Patch, parse_platform
+from pyupdater.core.package_handler.package import Package, parse_platform
+from pyupdater.core.package_handler.patch import Patch
 from pyupdater.utils.config import Config
 from pyupdater.utils.exceptions import PackageHandlerError
 
@@ -152,37 +154,42 @@ class TestPackage(object):
 
 @pytest.mark.usefixtures('cleandir')
 class TestPatch(object):
+    new_dir = 'pyu-data/new'
+    files_dir = 'pyu-data/files'
 
-    def test_patch(self):
-        with io.open('app.py', 'w', encoding='utf-8') as f:
-            f.write('a = 0')
+    @pytest.fixture
+    def patch_setup(self):
+        os.makedirs(self.new_dir)
+        os.makedirs(self.files_dir)
 
-        info = {
-            'dst': 'app.py',
-            'patch_name': 'p-name-1',
-            'package': 'filename-mac-0.1.1.tar.gz'
-            }
-        p = Patch(info)
-        assert p.ready is True
+        with open(os.path.join(self.new_dir, 'Acme-mac-4.2.tar.gz'), 'w') as f:
+            f.write("v2")
 
-    def test_patch_bad_info(self):
-        info = {
-            'dst': 'app.py',
-            'patch_name': 'p-name-1',
-            'package': 'filename-mac-0.1.1.tar.gz'
-            }
-        temp_dst = info['dst']
-        info['dst'] = None
-        p = Patch(info)
-        assert p.ready is False
+        with open(os.path.join(self.files_dir, 'Acme-mac-4.1.tar.gz'), 'w') as f:
+            f.write("v1")
 
-        info['dst'] = temp_dst
-        temp_patch = info['patch_name']
-        info['patch_name'] = None
-        p = Patch(info)
-        assert p.ready is False
+    def test_patch(self, patch_setup):
+        filename = 'Acme-mac-4.2.tar.gz'
 
-        info['patch_name'] = temp_patch
-        info['package'] = None
-        p = Patch(info)
-        assert p.ready is False
+        with ChDir(self.new_dir):
+            pkg = Package(filename)
+
+        config = {}
+        version_data = {}
+        data = {
+            'filename': filename,
+            'files_dir': self.files_dir,
+            'new_dir': self.new_dir,
+            'json_data': version_data,
+            'pkg_info': pkg,
+            'config': config,
+            'test': True
+        }
+
+        patch = Patch(**data)
+
+        assert patch.ok
+        assert config['patches'][pkg.name]
+
+    def test_patch_fail(self):
+        pass

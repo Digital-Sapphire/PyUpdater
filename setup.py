@@ -30,7 +30,7 @@ from setuptools import find_packages, setup
 import versioneer
 
 KEYWORDS = ('PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky '
-            'updater4pyi bbfreeze ccfreeze freeze cz_freeze')
+            'updater4pyi bbfreeze ccfreeze freeze cz_freeze pyupdate')
 
 windows_64bit = sys.platform == 'win32' and struct.calcsize('P') == 8
 

@@ -265,12 +265,12 @@ positional arguments:
     archive             Archives external file which needs updating. Can be
                         binary, library, anything really.
     build               compiles script or spec file
-    clean               * WARNING * removes all traces of pyupdater for the current repo
+    clean               * WARNING * removes all traces of pyupdater from the current repo
     collect-debug-info  Upload debug logs to github gist and return url.
     init                initializes a src directory
     keys                Manage signing keys
     make-spec           Creates spec file
-    pkg                 Manages creation of file meta-data & signing
+    pkg                 Manage creation of file meta-data & signing
     settings            Updated config settings
     update              Updates repo. Should be ran after you update pyupdater
     upload              Uploads files

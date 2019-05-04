@@ -94,7 +94,7 @@ def add_build_parser(subparsers):
 def add_clean_parser(subparsers):
     clean_parser = subparsers.add_parser('clean',
                                          help='* WARNING * removes all '
-                                         'traces of pyupdater for the '
+                                         'traces of pyupdater from the '
                                          'current repo')
     clean_parser.add_argument('-y', '--yes', help='Confirms removal of '
                               'pyu-data & .pyupdater folder',
@@ -135,7 +135,7 @@ def add_keys_parser(subparsers):
 
 
 def add_package_parser(subparsers):
-    package_parser = subparsers.add_parser('pkg', help='Manages creation of '
+    package_parser = subparsers.add_parser('pkg', help='Manage creation of '
                                            'file meta-data & signing')
     package_parser.add_argument('-p', '-P', '--process',
                                 help='Adds update metadata to version file & '
