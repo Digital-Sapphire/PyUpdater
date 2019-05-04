@@ -1,13 +1,13 @@
 # Contributors
 
-@cbenhagen
+[@cbenhagen](https://github.com/cbenhagen)
 
-@dlernstrom
+[@dlernstrom](https://github.com/dlernstrom)
 
-@LucaBernstein
+[@LucaBernstein](https://github.com/LucaBernstein)
 
-@jameshilliard
+[@jameshilliard](https://github.com/jameshilliard)
 
-@mayli
+[@mayli](https://github.com/mayli)
 
-@moscoquera
+[@moscoquera](https://github.com/moscoquera)
