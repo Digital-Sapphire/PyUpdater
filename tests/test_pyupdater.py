@@ -78,6 +78,9 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
+            with open('pyu.log', 'w') as f:
+                f.write('')
+
             cmd = 'python build_onefile_extract.py %s %s %s' % (custom_dir,
                                                                 port, windowed)
             os.system(cmd)
@@ -97,9 +100,6 @@ class TestExecutionExtraction(object):
             app_name = 'Acme'
             if sys.platform == 'win32':
                 app_name += '.exe'
-
-            with open('pyu.log', 'w') as f:
-                f.write('')
 
             app_run_command = app_name
             if sys.platform != 'win32':
@@ -171,6 +171,9 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
+            with open('pyu.log', 'w') as f:
+                f.write('')
+
             cmd = 'python build_onedir_extract.py %s %s %s' % (custom_dir,
                                                                port, windowed)
             os.system(cmd)
@@ -194,9 +197,6 @@ class TestExecutionExtraction(object):
             assert os.path.exists(dir_name)
             assert os.path.isdir(dir_name)
 
-            with open('pyu.log', 'w') as f:
-                f.write('')
-
             app_name = 'Acme'
             if sys.platform == 'darwin' and windowed:
                 pass
@@ -208,9 +208,6 @@ class TestExecutionExtraction(object):
 
             if sys.platform == 'win32':
                 app_name += '.exe'
-
-            with open('pyu.log', 'w') as f:
-                f.write('')
 
             app_run_command = app_name
             if sys.platform != 'win32':
@@ -284,6 +281,9 @@ class TestExecutionRestart(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
+            with open('pyu.log', 'w') as f:
+                f.write('')
+
             cmd = 'python build_onefile_restart.py %s %s %s' % (custom_dir,
                                                                 port, windowed)
             os.system(cmd)
@@ -303,9 +303,6 @@ class TestExecutionRestart(object):
             app_name = 'Acme'
             if sys.platform == 'win32':
                 app_name += '.exe'
-
-            with open('pyu.log', 'w') as f:
-                f.write('')
 
             app_run_command = app_name
             if sys.platform != 'win32':
@@ -372,6 +369,9 @@ class TestExecutionRestart(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
+            with open('pyu.log', 'w') as f:
+                f.write('')
+
             cmd = 'python build_onedir_restart.py %s %s %s' % (custom_dir,
                                                                port, windowed)
             os.system(cmd)
@@ -395,9 +395,6 @@ class TestExecutionRestart(object):
             assert os.path.exists(dir_name)
             assert os.path.isdir(dir_name)
 
-            with open('pyu.log', 'w') as f:
-                f.write('')
-
             app_name = 'Acme'
             if sys.platform == 'darwin' and windowed:
                 pass
@@ -409,9 +406,6 @@ class TestExecutionRestart(object):
 
             if sys.platform == 'win32':
                 app_name += '.exe'
-
-            with open('pyu.log', 'w') as f:
-                f.write('')
 
             app_run_command = app_name
             if sys.platform != 'win32':

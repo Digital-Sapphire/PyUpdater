@@ -60,9 +60,13 @@ class PluginManager(object):
             _all_plugins = []
 
             for pn in self.PLUGIN_NAMESPACES:
-                namespace = ExtensionManager(pn, invoke_on_load=True)
-                for p in namespace.extensions:
-                    _all_plugins.append(p.obj)
+                try:
+                    namespace = ExtensionManager(pn, invoke_on_load=True)
+                except Exception as err:
+                    log.debug(err, exc_info=True)
+                else:
+                    for p in namespace.extensions:
+                        _all_plugins.append(p.obj)
 
         # Sorting by name then author
         plugins = sorted(_all_plugins, key=lambda x: (x.name, x.author))

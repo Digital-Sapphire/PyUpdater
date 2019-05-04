@@ -23,26 +23,22 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import print_function, unicode_literals
-import json
 import logging
 import multiprocessing
 import os
 import shutil
 import sys
 
-try:  # pragma: no cover
-    import bsdiff4
-except ImportError:  # pragma: no cover
-    bsdiff4 = None
 from dsdev_utils.crypto import get_package_hashes as gph
 from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir
 
 from pyupdater import settings
-from pyupdater.core.package_handler.package import (remove_previous_versions,
-                                                    Package, Patch)
-from pyupdater.utils import get_size_in_bytes as in_bytes, remove_dot_files
+from pyupdater.utils import get_size_in_bytes as in_bytes
 from pyupdater.utils.storage import Storage
+
+from .package import remove_previous_versions, Package
+from .patch import make_patch, Patch
 
 log = logging.getLogger(__name__)
 
@@ -109,14 +105,13 @@ class PackageHandler(object):
         # pyu-data/new directory. Also create a patch manifest
         # to create patches.
         pkg_manifest, patch_manifest = self._get_package_list(report_errors)
+
         patches = PackageHandler._make_patches(patch_manifest)
         PackageHandler._cleanup(patch_manifest)
-        pkg_manifest = self._add_patches_to_packages(pkg_manifest,
-                                                     patches)
-        # PEP8
-        json_data = PackageHandler._update_version_file(self.version_data,
-                                                        pkg_manifest)
-        self.version_data = json_data
+        PackageHandler._add_patches_to_packages(pkg_manifest, patches,
+                                                self.patch_support)
+        PackageHandler._update_version_file(self.version_data, pkg_manifest)
+
         self._write_json_to_file(self.version_data)
         self._write_config_to_file(self.config)
         self._move_packages(pkg_manifest)
@@ -161,7 +156,7 @@ class PackageHandler(object):
 
     def _get_package_list(self, report_errors):
         # Adds compatible packages to internal package manifest
-        # for futher processing
+        # for further processing
         # Process all packages in new folder and gets
         # url, hash and some outer info.
         log.info('Generating package list')
@@ -177,50 +172,37 @@ class PackageHandler(object):
                 # On package initialization we do the following
                 # 1. Check for a supported archive
                 # 2. get required info: version, platform, hash
-                # If any check fails package.info['status'] will be False
-                # You can query package.info['reason'] for the reason
-                package = Package(p)
-                if package.info['status'] is False:
+                # If any check fails new_pkg.info['status'] will be False
+                # You can query new_pkg.info['reason'] for the reason
+                new_pkg = Package(p)
+                if new_pkg.info['status'] is False:
                     # Package failed at something
-                    # package.info['reason'] will tell why
-                    bad_packages.append(package)
+                    # new_pkg.info['reason'] will tell why
+                    bad_packages.append(new_pkg)
                     continue
 
                 # Add package hash
-                package.file_hash = gph(package.filename)
-                package.file_size = in_bytes(package.filename)
-                self.version_data = PackageHandler._update_file_list(self.version_data,
-                                                                  package)
+                new_pkg.file_hash = gph(new_pkg.filename)
+                new_pkg.file_size = in_bytes(new_pkg.filename)
 
-                package_manifest.append(package)
-                self.config = PackageHandler._add_package_to_config(package,
-                                                                    self.config)
+                PackageHandler._update_file_list(self.version_data, new_pkg)
+
+                package_manifest.append(new_pkg)
+                PackageHandler._add_package_to_config(new_pkg, self.config)
 
                 if self.patch_support:
-                    # Will check if source file for patch exists
-                    # if so will return the path and number of patch
-                    # to create. If missing source file None returned
-                    path = self._check_make_patch(self.version_data,
-                                                  package.name,
-                                                  package.platform,
-                                                  package.channel
-                                                  )
-                    if path is not None:
-                        log.debug('Found source file to create patch')
-                        patch_name = package.name + '-' + package.platform
-                        src_path = path[0]
-                        patch_number = path[1]
-                        patch_info = dict(src=src_path,
-                                          dst=os.path.abspath(p),
-                                          patch_name=os.path.join(self.new_dir,
-                                                                  patch_name),
-                                          patch_num=patch_number,
-                                          package=package.filename,
-                                          channel=package.channel)
-                        # ready for patching
-                        patch_manifest.append(patch_info)
-                    else:
-                        log.warning('No source file to patch from')
+                    data = {
+                        'filename': p,
+                        'files_dir': self.files_dir,
+                        'new_dir': self.new_dir,
+                        'json_data': self.version_data,
+                        'pkg_info': new_pkg,
+                        'config': self.config
+                    }
+                    _patch = Patch(**data)
+
+                    if _patch.ok:
+                        patch_manifest.append(_patch)
 
         if report_errors is True:  # pragma: no cover
             log.warning('Bad package & reason for being naughty:')
@@ -233,7 +215,7 @@ class PackageHandler(object):
     def _add_package_to_config(p, data):
         if 'package' not in data.keys():
             data['package'] = {}
-            log.debug('Initilizing config for packages')
+            log.debug('Initializing config for packages')
         # First package with current name so add platform and version
         if p.name not in data['package'].keys():
             data['package'][p.name] = {p.platform: p.version}
@@ -250,7 +232,6 @@ class PackageHandler(object):
                 if p.version > value:
                     log.debug('Adding new version to package-config')
                     data['package'][p.name][p.platform] = p.version
-        return data
 
     @staticmethod
     def _cleanup(patch_manifest):
@@ -259,9 +240,9 @@ class PackageHandler(object):
             return
         log.info('Cleaning up stale files')
         for p in patch_manifest:
-            filename = os.path.basename(p['dst'])
-            directory = os.path.dirname(p['src'])
-            remove_previous_versions(directory, filename)
+            latest_filename = os.path.basename(p.dst)
+            directory = os.path.dirname(p.src)
+            remove_previous_versions(directory, latest_filename)
 
     @staticmethod
     def _make_patches(patch_manifest):
@@ -278,46 +259,34 @@ class PackageHandler(object):
                 cpu_count = 2
 
             pool = multiprocessing.Pool(processes=cpu_count)
-            pool_output = pool.map(_make_patch,
+            pool_output = pool.map(make_patch,
                                    patch_manifest)
         else:
             pool_output = []
             for p in patch_manifest:
-                pool_output.append(_make_patch(p))
+                pool_output.append(make_patch(p))
         return pool_output
 
-    def _add_patches_to_packages(self, package_manifest, patches):
+    @staticmethod
+    def _add_patches_to_packages(package_manifest, patches, patch_support):
         if patches is not None and len(patches) >= 1:
             log.debug('Adding patches to package list')
             for p in patches:
-                # We'll skip if patch meta data is incomplete
-                if hasattr(p, 'ready') is False:
+                if not p.ok or not os.path.exists(p.patch_name):
                     continue
-                if hasattr(p, 'ready') and p.ready is False:
-                    continue
+
+                log.debug("We have a good patch: %s", p)
                 for pm in package_manifest:
-                    #
                     if p.dst_filename == pm.filename:
-                        pm.patch_info['patch_name'] = \
-                            os.path.basename(p.patch_name)
-                        # Don't try to get hash on a ghost file
-                        if not os.path.exists(p.patch_name):
-                            p_name = ''
-                            p_size = 0
-                        else:
-                            p_name = gph(p.patch_name)
-                            p_size = in_bytes(p.patch_name)
-                        pm.patch_info['patch_hash'] = p_name
-                        pm.patch_info['patch_size'] = p_size
-                        # No need to keep searching
-                        # We have the info we need for this patch
+                        pm.patch = p
+                        pm.patch.hash = gph(pm.patch.patch_name)
+                        pm.patch.size = in_bytes(pm.patch.patch_name)
                         break
                     else:
                         log.debug('No patch match found')
         else:
-            if self.patch_support is True:
-                log.debug('No patches found')
-        return package_manifest
+            if patch_support is True:
+                log.debug('No patches found: %s', patches)
 
     @staticmethod
     def _update_file_list(json_data, package_info):
@@ -342,11 +311,6 @@ class PackageHandler(object):
 
     @staticmethod
     def _manifest_to_version_file_compat(package_info):
-        # Checking for patch info. Patch info maybe be none
-        patch_name = package_info.patch_info.get('patch_name')
-        patch_hash = package_info.patch_info.get('patch_hash')
-        patch_size = package_info.patch_info.get('patch_size')
-
         # Converting info to version file format
         info = {
             'file_hash': package_info.file_hash,
@@ -355,10 +319,10 @@ class PackageHandler(object):
             }
 
         # Adding patch info if available
-        if patch_name and patch_hash:
-            info['patch_name'] = patch_name
-            info['patch_hash'] = patch_hash
-            info['patch_size'] = patch_size
+        if package_info.patch is not None:
+            info['patch_name'] = package_info.patch.patch_name
+            info['patch_hash'] = package_info.patch.hash
+            info['patch_size'] = package_info.patch.size
 
         return info
 
@@ -416,14 +380,16 @@ class PackageHandler(object):
             return
         log.info('Moving packages to deploy folder')
         for p in package_manifest:
-            patch = p.patch_info.get('patch_name')
             with ChDir(self.new_dir):
-                if patch:
-                    if os.path.exists(os.path.join(self.deploy_dir, patch)):
-                        os.remove(os.path.join(self.deploy_dir, patch))
-                    log.debug('Moving %s to %s', patch, self.deploy_dir)
-                    if os.path.exists(patch):
-                        shutil.move(patch, self.deploy_dir)
+                if p.patch is not None:
+                    if os.path.exists(os.path.join(self.deploy_dir,
+                                                   p.patch.patch_name)):
+                        os.remove(os.path.join(self.deploy_dir,
+                                               p.patch.patch_name))
+                    log.debug('Moving %s to %s', p.patch.patch_name,
+                              self.deploy_dir)
+                    if os.path.exists(p.patch.patch_name):
+                        shutil.move(p.patch.patch_name, self.deploy_dir)
 
                 shutil.copy(p.filename, self.deploy_dir)
                 log.debug('Copying %s to %s', p.filename, self.deploy_dir)
@@ -432,92 +398,3 @@ class PackageHandler(object):
                     os.remove(os.path.join(self.files_dir, p.filename))
                 shutil.move(p.filename, self.files_dir)
                 log.debug('Moving %s to %s', p.filename, self.files_dir)
-
-    def _check_make_patch(self, json_data, name, platform, channel):
-        # Check to see if previous version is available to
-        # make patch updates. Also calculates patch number
-        log.debug(json.dumps(json_data['latest'], indent=2))
-        log.debug('Checking if patch creation is possible')
-        if bsdiff4 is None:
-            log.warning('Bsdiff is missing. Cannot create patches')
-            return None
-
-        if os.path.exists(self.files_dir):
-            with ChDir(self.files_dir):
-                files = os.listdir(os.getcwd())
-                log.debug('Found %s files in files dir', len(files))
-
-            files = remove_dot_files(files)
-            # No src files to patch from. Exit quickly
-            if len(files) == 0:
-                log.debug('No src file to patch from')
-                return None
-            # If latest not available in version file. Exit
-            try:
-                log.debug('Looking for %s on %s', name, platform)
-                latest = json_data['latest'][name][channel][platform]
-                log.debug('Found latest version for patches: %s', latest)
-            except KeyError:
-                log.debug('Cannot find latest version in version meta')
-                return None
-            try:
-                latest_platform = json_data[settings.UPDATES_KEY][name][latest]
-                log.debug('Found latest platform for patches')
-                try:
-                    filename = latest_platform[platform]['filename']
-                    log.debug('Found filename for patches')
-                except KeyError:
-                    log.error('Found old version file. Please read '
-                              'the upgrade section in the docs.')
-                    log.debug('Found old verison file')
-                    return None
-            except Exception as err:
-                log.debug(err, exc_info=True)
-                return None
-            log.debug('Generating src file path')
-            src_file_path = os.path.join(self.files_dir, filename)
-
-            try:
-                patch_num = self.config['patches'][name]
-                log.debug('Found patch number')
-                self.config['patches'][name] += 1
-            except KeyError:
-                log.debug('Cannot find patch number')
-                # If no patch number we will start at 1
-                patch_num = 1
-                if 'patches' not in self.config.keys():
-                    log.debug('Adding patches to version meta')
-                    self.config['patches'] = {}
-                if name not in self.config['patches'].keys():
-                    log.debug('Adding %s to patches version meta', name)
-                    self.config['patches'][name] = patch_num + 1
-            num = patch_num + 1
-            log.debug('Patch Number: %s', num)
-            return src_file_path, num
-        return None
-
-
-def _make_patch(patch_info):
-    # Does with the name implies. Used with multiprocessing
-    patch = Patch(patch_info)
-    patch_name = patch_info['patch_name']
-    dst_path = patch_info['dst']
-    patch_number = patch_info['patch_num']
-    src_path = patch_info['src']
-    patch_name += '-' + str(patch_number)
-    # Updating with full name - number included
-    patch.patch_name = patch_name
-    if not os.path.exists(src_path):
-        log.warning('Src file does not exist to create patch')
-
-    else:
-        log.debug('Patch source path: %s', src_path)
-        log.debug('Patch destination path: %s', dst_path)
-        if patch.ready is True:
-            log.info('Creating patch... %s', os.path.basename(patch_name))
-            bsdiff4.file_diff(src_path, patch.dst_path, patch.patch_name)
-            base_name = os.path.basename(patch_name)
-            log.info('Done creating patch... %s', base_name)
-        else:
-            log.error('Missing patch attr')
-    return patch
