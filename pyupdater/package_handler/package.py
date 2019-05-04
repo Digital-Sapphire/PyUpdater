@@ -74,12 +74,6 @@ def remove_previous_versions(directory, filename):
     log.debug('Directory: %s', directory)
 
     try:
-        current_version = Version(filename)
-    except (UtilsError, VersionError):  # pragma: no cover
-        log.debug('Cleanup Failed: %s - Cannot parse version info.', filename)
-        return
-
-    try:
         # We set the full path here because Package() checks if filename exists
         package_info = Package(os.path.join(directory, filename))
     except (UtilsError, VersionError):
@@ -91,7 +85,7 @@ def remove_previous_versions(directory, filename):
         log.debug('Not an archive format: %s', package_info.name)
         return
 
-    log.debug('Current version: %s', str(current_version))
+    log.debug('Current version: %s', package_info.version)
     assert package_info.name is not None
     log.debug('Name to search for: %s', package_info.name)
     with ChDir(directory):
@@ -100,29 +94,28 @@ def remove_previous_versions(directory, filename):
             log.debug('Checking: %s', t)
             # Only attempt to remove old files of the one we
             # are updating
-            if package_info.name not in t:
+            temp_pkg = Package(t)
+            if temp_pkg.info['status'] is False:
+                continue
+
+            if package_info.name != temp_pkg.name:
                 log.debug('File does not match name of current binary')
                 continue
-            else:
-                log.debug('Found possible match')
-                log.debug('Latest name: %s', package_info.name)
-                log.debug('Old name: %s', t)
 
-            try:
-                old_version = Version(t)
-            except (UtilsError, VersionError):  # pragma: no cover
-                log.warning('Cannot parse version info')
-                # Skip file since we can't parse
+            if package_info.channel != temp_pkg.channel:
                 continue
-            log.debug('Found version: %s', str(old_version))
 
-            if old_version < current_version:
+            log.debug('Found possible match')
+            log.debug('Latest name: %s', package_info.filename)
+            log.debug('Old name: %s', temp_pkg.filename)
+
+            if temp_pkg.version < package_info.version:
                 old_path = os.path.join(directory, t)
                 log.debug('Removing old update: %s', old_path)
                 remove_any(old_path)
             else:
-                log.debug('Old version: %s', old_version)
-                log.debug('Current version: %s', current_version)
+                log.debug('Old version: %s', temp_pkg.version)
+                log.debug('Current version: %s', package_info.version)
 
 
 class Patch(object):
@@ -171,6 +164,7 @@ class Package(object):
             filename = str(filename)
 
         self.name = None
+        self.channel = None
         self.version = None
         self.filename = os.path.basename(filename)
         self.file_hash = None
@@ -208,7 +202,7 @@ class Package(object):
                 self.supported_extensions:
             msg = 'Not a supported archive format: {}'.format(package_basename)
             self.info['reason'] = msg
-            log.warning(msg)
+            log.debug(msg)
             return
 
         log.debug('Extracting update archive info for: %s', package_basename)
