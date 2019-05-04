@@ -29,7 +29,6 @@ import os
 import pytest
 import six
 
-from pyupdater import settings
 from pyupdater.utils.config import Config
 from pyupdater.utils import (check_repo, create_asset_archive, make_archive,
                              PluginManager, remove_dot_files, run

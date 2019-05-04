@@ -41,13 +41,19 @@ with open(u'requirements.txt', u'r') as f:
             line = 'pure25519 == 0.0.1'
         required.append(line)
 
-extra_s3 = 'PyUpdater-s3-Plugin >= 3.0.6'
-extra_scp = 'PyUpdater-scp-Plugin >= 3.0.12'
+
+with open('README.md', 'r') as f:
+    readme = f.read()
+
+extra_s3 = 'PyUpdater-s3-Plugin >= 4.0'
+extra_scp = 'PyUpdater-scp-Plugin >= 4.0'
 
 setup(
     name='PyUpdater',
     version=versioneer.get_version(),
     description='Python Auto Update Library for Pyinstaller',
+    long_description=readme,
+    long_description_content_type='text/markdown',
     author='JMSwag',
     author_email='johnymoswag@gmail.com',
     url='http://www.pyupdater.org',

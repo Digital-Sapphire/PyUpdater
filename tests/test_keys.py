@@ -27,7 +27,7 @@ import os
 
 import pytest
 
-from pyupdater.key_handler.keys import KeyImporter, Keys
+from pyupdater.core.key_handler.keys import KeyImporter, Keys
 
 
 @pytest.mark.usefixtures("cleandir")
