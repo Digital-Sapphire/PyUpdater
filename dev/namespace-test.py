@@ -3,6 +3,7 @@ import os
 
 from stevedore.extension import ExtensionManager
 
+
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
