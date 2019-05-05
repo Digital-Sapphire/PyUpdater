@@ -43,11 +43,11 @@ log = logging.getLogger(__name__)
 def make_patch(patch):
     log.debug('Patch source path: %s', patch.src)
     log.debug('Patch destination path: %s', patch.dst)
-    log.info('Creating patch... %s', os.path.basename(patch.patch_name))
+    log.info('Creating patch... %s', patch.basename)
 
     bsdiff4.file_diff(patch.src, patch.dst, patch.patch_name)
 
-    log.info('Done creating patch... %s', patch.patch_name)
+    log.info('Done creating patch... %s', patch.basename)
 
     return patch
 
@@ -80,8 +80,8 @@ class Patch(object):
                                                self._pkg_info.platform,
                                                self._pkg_info.channel,
                                                self.patch_num)
-            self.basename = _patch_name
             self.patch_name = os.path.join(self._new_dir, _patch_name)
+            self.basename = os.path.basename(self.patch_name)
             self.dst_filename = self._pkg_info.filename
             self.channel = self._pkg_info.channel
 
@@ -144,6 +144,9 @@ class Patch(object):
             log.debug('Generating src file path')
             self.src = os.path.join(self._files_dir, filename)
             log.debug('Source path: %s', self.src)
+            if not os.path.exists(self.src):
+                log.warning("Source path does not exist: %s", filename)
+                return
 
             try:
                 patch_num = self._config['patches'][_name]

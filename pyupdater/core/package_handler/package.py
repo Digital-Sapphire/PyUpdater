@@ -63,6 +63,8 @@ def parse_platform(name):
 
 def remove_previous_versions(directory, filename):
     """Removes previous version of named file"""
+    log.debug("In remove_previous_versions")
+
     if filename is None:
         log.debug('Cleanup Failed - Filename is None')
         return
@@ -82,7 +84,8 @@ def remove_previous_versions(directory, filename):
         return
 
     if package_info.info['status'] is False:
-        log.debug('Not an archive format: %s', package_info.name)
+        log.debug('Not an archive format: %s - %s', package_info.name,
+                  package_info.info['reason'])
         return
 
     log.debug('Current version: %s', package_info.version)
