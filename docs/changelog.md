@@ -1,7 +1,10 @@
 # Changelog
 
-## v3.0.0 - Master
+## v3.0.1 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v3.0.0 - 2019/05/04
 
 ###Added
 
