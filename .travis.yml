@@ -72,3 +72,7 @@ deploy:
     distributions: sdist bdist_wheel
     repo: JMSwag/PyUpdater
     condition: $TRAVIS_PYTHON_VERSION=3.6
+
+branches:
+  only:
+    - master
