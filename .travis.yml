@@ -1,74 +1,78 @@
 language: python
 sudo: false
 cache: pip
-
 matrix:
   fast_finish: true
   allow_failures:
-    - python: nightly
-
+  - python: nightly
   include:
-    - python: 2.7
-    - python: 3.5
-    - python: 3.6
-    - python: 3.7
-      dist: xenial
-      sudo: true
-    - python: nightly
-    - os: osx
-      language: generic
-      python: "3.7"
-      env: "HOMEBREW_NO_INSTALL_CLEANUP=1"
-      install:
-        - brew update
-        - brew pin numpy
-        - brew pin gdal
-        - brew pin postgis
-        - brew upgrade python
-        - python3 -m venv venv
-        - source venv/bin/activate
-        - pip3 install --upgrade pip
-        - pip3 install -r tests/requirements.txt
-        - pip3 install -e .
-      script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
-    - os: osx
-      language: generic
-      python: "2.7"
-      env: "HOMEBREW_NO_INSTALL_CLEANUP=1"
-      install:
-        - brew update
-        - brew uninstall --ignore-dependencies python
-        - brew pin geos
-        - brew pin libxml2
-        - brew pin libspatialite
-        - brew pin gdal
-        - brew pin mercurial
-        - brew pin numpy
-        - brew pin postgis
-        - brew upgrade python@2
-        - pip2 install virtualenv
-        - python2 -m virtualenv venv
-        - source venv/bin/activate
-        - pip2 install --upgrade pip
-        - pip2 install -r tests/requirements.txt
-        - pip2 install -e .
-      script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
-
-
+  - python: 2.7
+    env: PYTHON_VERSION=2.7
+  - python: 3.5
+    env: PYTHON_VERSION=3.5
+  - python: 3.6
+    env: PYTHON_VERSION=3.6
+  - python: 3.7
+    env: PYTHON_VERSION=3.7
+    dist: xenial
+    sudo: true
+  - python: nightly
+    env: PYTHON_VERSION=nightly
+  - os: osx
+    language: generic
+    python: 3.7
+    env: HOMEBREW_NO_INSTALL_CLEANUP=1
+    install:
+    - brew update
+    - brew pin numpy
+    - brew pin gdal
+    - brew pin postgis
+    - brew upgrade python
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip3 install --upgrade pip
+    - pip3 install -r tests/requirements.txt
+    - pip3 install -e .
+    script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater
+      --cov-append
+  - os: osx
+    language: generic
+    python: 2.7
+    env: HOMEBREW_NO_INSTALL_CLEANUP=1
+    install:
+    - brew update
+    - brew uninstall --ignore-dependencies python
+    - brew pin geos
+    - brew pin libxml2
+    - brew pin libspatialite
+    - brew pin gdal
+    - brew pin mercurial
+    - brew pin numpy
+    - brew pin postgis
+    - brew upgrade python@2
+    - pip2 install virtualenv
+    - python2 -m virtualenv venv
+    - source venv/bin/activate
+    - pip2 install --upgrade pip
+    - pip2 install -r tests/requirements.txt
+    - pip2 install -e .
+    script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater
+      --cov-append
 install:
-  - pip install --upgrade pip
-  - pip install -r tests/requirements.txt
-  - pip install -e .
-script: pytest -vv --duration=20 -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater --cov-append
+- pip install --upgrade pip
+- pip install -r tests/requirements.txt
+- pip install -e .
+script: pytest -vv --duration=20 -n 4 --cov --cov-config .coveragerc --cov-report
+  xml --cov pyupdater --cov-append
 after_success: codecov
 deploy:
   provider: pypi
   user: JohnyMoSwag
   password:
-    secure: 0iX3mRqMP3iShjTznKzNKXvn5SyYy2QkKILUV+hp8/J3SeNU9PohvoNRTaJM9iFSdAbi6KUg0uivRaFOpc9ctK2bEXjPx8tHQ8KBZ6WBks9inIrcP+OnaQBYIvTU2oPtn4SCDpgBGTem7NhACbZV3Ls/A2NyFB6ly5xwzox3vKyfdcYjmAujDciHIq/fKQ1CNNq3/ImGgKZcvmvm2ugs1zsa/QDoOL+ykwVA8HMbCF8JYqf2gPpyrqwEfvoMCqCqM7sj4ySqAjWsIAPuCdTidZVFNDsA3I/fLmuUbQprk9Yc613zxMW19PkDw7nFxyPmwwi2qLRNssL+bJ6xeN8Rv6kIjNzbkmWr0hjEgGN1Ni64+amyqDCrVtNpGN+R3SWzM4LNdddes9CXN//EynC7QUwpKs7kdWxsRSa6Zl5Nv3zYmDSx5at96s2Uk3AhhlnNxc9oZQXkaWaM6C1jHlQ0dqhI6deYKJCc0LjreCwb5hvIhPw+2eQdKDbPa1sn+iNF0eTspLJkeoJZ8CRPCkj5Wqluu/vymjqg0IhDokhUpdjTsPPk5NEuv5O8qR54O63We0UpqRjAg25k2AhLSwBJbNhi2TDr34d5ZdHs2ZElYdWbGuHsUMjkxUPOxO4xOM2738I7nMblntXBta0z/c37W60IIGb6HxmwK8OFnBKP87s=
+    secure: LGTMxRFbhjDqrqTVM0cTwRX4khGxLHTa+89dQcylHe+bwkIGuPGGdBIEGtX01L/XMeU/1MvSAqj59ZZLmKoSwU2cj2FYeEb3IG4f/gbuNIk6m8IvbjLI2p1eqPbROHaG6gsDVjRHoKIbRFtfvibL48avEpce6bTLsb5nVL8lorih/10Y3zVyL36+jQbN4SIkrlpTfr1Zzq/qIQoAaoCUljFJufSYZ5h1/q8HI/3CjvCQVE88NuXNIxAPG1eiLWLQp2Q9Ov2s3Xi+q5lz2H/W6onCiah5N3tcYgUUKJQtCs/0OzXzHpRsF0cuLKBJ/bwMJwTKsxS3dLfyr6K3orW5YVi6i+CtLwfpHcRbA5IFttiO+B+FzjeE94VOAt/eFjoqT4JWqICZ+qj1lG9BGTUy8umKQWam6bMxmorWTDot9Sh2pZqWvglo3i9Gv5yoKRR4nM3bI65c7+0alNRQYviOCpjYmkNh13rVWC107j70yF4fTibnCiroFuIcXY0ddZawHcIJT+zaBNvp/cBYl+NEH7lG422WLclhQi4Bf72pSxhphKxUndZrHBPxe9Lq/Oy/zDWOm/NtXsLoJu07G4uz69Wzepx4+Wcwu/HYSC4igrs7u4R/x8iBkvo1TTtNA+j3ZKnJTNUCS2YOcY/eq7fgHdPddE5D/uoebk9jgFTQScs=
   distributions: sdist bdist_wheel
   on:
     branch: master
     tags: true
     repo: JMSwag/PyUpdater
-    condition: $TRAVIS_PYTHON_VERSION=3.6
+    condition: $PYTHON_VERSION=3.6
