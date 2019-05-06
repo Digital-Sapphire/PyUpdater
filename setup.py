@@ -45,7 +45,7 @@ with open(u'requirements.txt', u'r') as f:
 with open('README.md', 'r') as f:
     readme = f.read()
 
-extra_s3 = 'PyUpdater-s3-Plugin >= 4.0'
+extra_s3 = 'PyUpdater-s3-Plugin >= 4.0.5'
 extra_scp = 'PyUpdater-scp-Plugin >= 4.0'
 
 setup(

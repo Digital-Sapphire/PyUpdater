@@ -147,7 +147,6 @@ class KeyHandler(object):
         # Save update data to repo database
         self.db.save(settings.CONFIG_DB_KEY_VERSION_META, data)
         log.debug('Saved version meta data')
-        log.debug('Upload manifest: \n%s', data)
         # Gzip update date
         with gzip.open(self.version_file, 'wb') as f:
             new_data = json.dumps(data)

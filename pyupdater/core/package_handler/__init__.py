@@ -240,9 +240,7 @@ class PackageHandler(object):
             return
         log.info('Cleaning up stale files')
         for p in patch_manifest:
-            latest_filename = os.path.basename(p.dst)
-            directory = os.path.dirname(p.src)
-            remove_previous_versions(directory, latest_filename)
+            remove_previous_versions(os.path.dirname(p.src), p.dst)
 
     @staticmethod
     def _make_patches(patch_manifest):
@@ -320,7 +318,7 @@ class PackageHandler(object):
 
         # Adding patch info if available
         if package_info.patch is not None:
-            info['patch_name'] = package_info.patch.patch_name
+            info['patch_name'] = package_info.patch.basename
             info['patch_hash'] = package_info.patch.hash
             info['patch_size'] = package_info.patch.size
 
@@ -383,13 +381,13 @@ class PackageHandler(object):
             with ChDir(self.new_dir):
                 if p.patch is not None:
                     if os.path.exists(os.path.join(self.deploy_dir,
-                                                   p.patch.patch_name)):
+                                                   p.patch.basename)):
                         os.remove(os.path.join(self.deploy_dir,
-                                               p.patch.patch_name))
-                    log.debug('Moving %s to %s', p.patch.patch_name,
+                                               p.patch.basename))
+                    log.debug('Moving %s to %s', p.patch.basename,
                               self.deploy_dir)
-                    if os.path.exists(p.patch.patch_name):
-                        shutil.move(p.patch.patch_name, self.deploy_dir)
+                    if os.path.exists(p.patch.basename):
+                        shutil.move(p.patch.basename, self.deploy_dir)
 
                 shutil.copy(p.filename, self.deploy_dir)
                 log.debug('Copying %s to %s', p.filename, self.deploy_dir)

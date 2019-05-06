@@ -172,12 +172,13 @@ class TestPatch(object):
         filename = 'Acme-mac-4.2.tar.gz'
 
         with ChDir(self.new_dir):
-            pkg = Package(filename)
+            full_path = os.path.abspath(filename)
+            pkg = Package(full_path)
 
         config = {}
         version_data = {}
         data = {
-            'filename': filename,
+            'filename': full_path,
             'files_dir': self.files_dir,
             'new_dir': self.new_dir,
             'json_data': version_data,

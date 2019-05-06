@@ -430,6 +430,7 @@ def _cmd_upload(*args):  # pragma: no cover
         log.error(err)
 
     if complete:
+        print('')
         log.info("Upload successful")
     else:
         log.error("Upload failed!")

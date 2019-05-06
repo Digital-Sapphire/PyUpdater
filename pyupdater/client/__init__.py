@@ -486,7 +486,6 @@ class Client(object):
         self._verify_sig(self.json_data)
 
         self.easy_data = _EAD(self.json_data)
-        log.debug('Version Data:\n%s', str(self.easy_data))
 
     # Verify the signature of the version manifest.
     def _verify_sig(self, data):
