@@ -1,7 +1,15 @@
 # Changelog
 
-## v3.0.1 - Master
+## v3.0.2 - Master
 ####* This version is not yet released and is under active development.
+
+
+## v3.0.1 - 2019/05/05
+
+###Fixed
+  
+  - CLI
+    - Uploading from deploy folder
 
 
 ## v3.0.0 - 2019/05/04
