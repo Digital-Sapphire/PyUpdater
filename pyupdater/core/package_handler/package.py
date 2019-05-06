@@ -147,7 +147,7 @@ class Package(object):
         # seems to produce the best diffs.
         # Tests on homepage: https://github.com/JMSwag/PyUpdater
         # Zip doesn't keep +x permissions. Only using gz for now.
-        self.supported_extensions = ['.zip', '.gz']
+        self.supported_extensions = ['.zip', '.gz', '.bz2']
         self.ignored_files = ['.DS_Store']
         self.extract_info(filename)
 
@@ -183,8 +183,8 @@ class Package(object):
             self.channel = v.channel
             self.version = str(v)
         except VersionError:
-            msg = 'Package version not formatted correctly'
-            self.info['reason'] = msg
+            msg = 'Package version not formatted correctly: {}'
+            self.info['reason'] = msg.format(package_basename)
             log.error(msg)
             return
         log.debug('Got version info')

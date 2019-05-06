@@ -543,9 +543,10 @@ class LibUpdate(object):
                 log.debug('Extracting Update')
                 archive_ext = os.path.splitext(self.filename)[1].lower()
 
-                if archive_ext == '.gz':
+                if archive_ext in ['.gz', '.bz2']:
                     try:
-                        with tarfile.open(self.filename, 'r:gz') as tfile:
+                        mode = 'r:{}'.format(archive_ext[1:])
+                        with tarfile.open(self.filename, mode) as tfile:
                             # Extract file update to current
                             # directory.
                             tfile.extractall()
@@ -564,7 +565,7 @@ class LibUpdate(object):
                         raise ClientError('Error reading zip file',
                                           expected=True)
                 else:
-                    raise ClientError('Unknown filetype')
+                    raise ClientError('Unknown file type')
             else:
                 raise ClientError('Update archive is corrupt')
 

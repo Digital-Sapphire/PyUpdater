@@ -3,6 +3,14 @@
 ## v3.0.2 - Master
 ####* This version is not yet released and is under active development.
 
+###Added
+
+  - PyUpdater
+    - Support for bz2 archive format
+
+  - CLI
+    - Ability to specify archive format
+
 
 ## v3.0.1 - 2019/05/05
 

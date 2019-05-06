@@ -235,7 +235,8 @@ class Builder(object):  # pragma: no cover
             log.debug('Version: %s', version)
 
             # Time for some archive creation!
-            filename = make_archive(self.app_name, app_name, version)
+            filename = make_archive(self.app_name, app_name, version,
+                                    self.args.archive_format)
             log.debug('Archive name: %s', filename)
             if self.args.keep is False:
                 if os.path.exists(temp_name):
