@@ -133,7 +133,7 @@ class TestPackage(object):
         assert p.info['status'] is False
 
     def test_package_bad_extension(self, shared_datadir):
-        test_file_2 = 'pyu-win-0.0.2.bzip2'
+        test_file_2 = 'pyu-win-0.0.2.xz'
         p2 = Package(shared_datadir / test_file_2)
 
         assert p2.filename == test_file_2
@@ -144,12 +144,16 @@ class TestPackage(object):
                                      '{}'.format(test_file_2))
 
     def test_package_bad_version(self, shared_datadir):
-        p = Package(shared_datadir / 'pyu-win-1.tar.gz')
-        assert p.info['reason'] == 'Package version not formatted correctly'
+        filename = 'pyu-win-1.tar.gz'
+        p = Package(shared_datadir / filename)
+        out = 'Package version not formatted correctly: {}'
+        assert p.info['reason'] == out.format(filename)
 
     def test_package_bad_platform(self, shared_datadir):
-        p = Package(shared_datadir / 'pyu-wi-1.1.tar.gz')
-        assert p.info['reason'] == 'Package platform not formatted correctly'
+        filename = 'pyu-wi-1.1.tar.gz'
+        p = Package(shared_datadir / filename)
+        out = 'Package platform not formatted correctly'
+        assert p.info['reason'] == out
 
 
 @pytest.mark.usefixtures('cleandir')

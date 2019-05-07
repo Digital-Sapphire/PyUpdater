@@ -27,13 +27,16 @@ $ pyupdater archive --name ffmpeg  --version 2.2
 
 ###Build
 ```
-usage: pyupdater build [opts] [app.py|app.spec]
+usage: pyupdater build [opts]<script>
 
 optional arguments:
   -h, --help            show this help message and exit
+  --archive-format {zip,gztar,bztar,default}
   --clean               Clean build. Bypass the cache
   --app-version APP_VERSION
   -k, --keep            Will not delete executable after archiving
+  --pyinstaller-log-info
+                        Prints PyInstaller execution info to console
 ```
 
 Description:

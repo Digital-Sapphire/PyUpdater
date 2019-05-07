@@ -257,7 +257,7 @@ def create_asset_archive(name, version):
     return output_filename
 
 
-def make_archive(name, target, version):
+def make_archive(name, target, version, archive_format):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 
@@ -305,8 +305,11 @@ def make_archive(name, target, version):
     # tar.gz creates full file path
     with paths.ChDir(file_dir):
         ext = 'gztar'
-        if system.get_system() == 'win':
-            ext = 'zip'
+        if archive_format == 'default':
+            if system.get_system() == 'win':
+                ext = 'zip'
+        else:
+            ext = archive_format
         output_filename = shutil.make_archive(filename, ext,
                                               file_dir, temp_file)
 

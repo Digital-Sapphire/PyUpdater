@@ -45,8 +45,8 @@ class TestUtils(object):
         with io.open('hash-test2.txt', 'w', encoding='utf-8') as f:
             f.write('I should find some lorem text' * 5)
 
-        filename1 = make_archive('hash', 'hash-test1.txt', '0.2')
-        filename2 = make_archive('hash', 'hash-test2.txt', '0.3')
+        filename1 = make_archive('hash', 'hash-test1.txt', '0.2', 'default')
+        filename2 = make_archive('hash', 'hash-test2.txt', '0.3', 'default')
 
         assert os.path.exists(filename1)
         assert os.path.exists(filename2)

@@ -78,6 +78,8 @@ def add_build_parser(subparsers):
     build_parser = subparsers.add_parser('build', help='Compiles script '
                                          'or spec file',
                                          usage='%(prog)s [opts]<script>')
+    build_parser.add_argument('--archive-format', default='default',
+                              choices=['zip', 'gztar', 'bztar', 'default'])
     # start a clean build
     build_parser.add_argument('--clean', action="store_true",
                               help='Clean build. Bypass the cache')
