@@ -38,30 +38,30 @@ from pyupdater import PyUpdater
 from tconfig import TConfig
 
 AUTO_UPDATE_PAUSE = 30
-if sys.platform == 'win32':
+if sys.platform == "win32":
     AUTO_UPDATE_PAUSE += 10
 
 LOCK_TIMEOUT = 5 * 60  # ten minutes timeout
-APP_NAME = 'Acme'
+APP_NAME = "Acme"
 
 
-@pytest.mark.usefixtures('cleandir', 'create_keypack', 'pyu')
+@pytest.mark.usefixtures("cleandir", "create_keypack", "pyu")
 class TestSetup(object):
-
     def test_directory_creation(self):
         data_dir = os.getcwd()
-        pyu_data_dir = os.path.join(data_dir, 'pyu-data')
+        pyu_data_dir = os.path.join(data_dir, "pyu-data")
         t_config = TConfig()
         t_config.DATA_DIR = data_dir
         pyu = PyUpdater(t_config)
         pyu.setup()
         assert os.path.exists(pyu_data_dir)
-        assert os.path.exists(os.path.join(pyu_data_dir, 'deploy'))
-        assert os.path.exists(os.path.join(pyu_data_dir, 'files'))
-        assert os.path.exists(os.path.join(pyu_data_dir, 'new'))
+        assert os.path.exists(os.path.join(pyu_data_dir, "deploy"))
+        assert os.path.exists(os.path.join(pyu_data_dir, "files"))
+        assert os.path.exists(os.path.join(pyu_data_dir, "new"))
 
 
 class TestExecutionExtraction(object):
+<<<<<<< HEAD
 
     @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
                              [(True, 9000, True, True), (True, 9001, False, True),
@@ -73,6 +73,22 @@ class TestExecutionExtraction(object):
                                         simpleserver, pyu, custom_dir, port,
                                         windowed, split_version):
         data_dir = shared_datadir / 'update_repo_extract'
+=======
+    @pytest.mark.parametrize(
+        "custom_dir, port, windowed",
+        [
+            (True, 9000, True),
+            (True, 9001, False),
+            (False, 9002, True),
+            (False, 9003, False),
+        ],
+    )
+    @pytest.mark.run(order=2)
+    def test_execution_one_file_extract(
+        self, cleandir, shared_datadir, simpleserver, pyu, custom_dir, port, windowed
+    ):
+        data_dir = shared_datadir / "update_repo_extract"
+>>>>>>> format tests
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
@@ -80,51 +96,59 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            with open('pyu.log', 'w') as f:
-                f.write('')
+            with open("pyu.log", "w") as f:
+                f.write("")
 
+<<<<<<< HEAD
             cmd = 'python build_onefile_extract.py %s %s %s %s' % (custom_dir,
                                                                    port, windowed,
                                                                    split_version)
+=======
+            cmd = "python build_onefile_extract.py %s %s %s" % (
+                custom_dir,
+                port,
+                windowed,
+            )
+>>>>>>> format tests
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
             # since that is where we will start the simple server
-            deploy_dir = os.path.join('pyu-data', 'deploy')
+            deploy_dir = os.path.join("pyu-data", "deploy")
             assert os.path.exists(deploy_dir)
             test_cwd = os.getcwd()
             with ChDir(deploy_dir):
                 files = os.listdir(os.getcwd())
                 for f in files:
-                    if f == '.DS_Store':
+                    if f == ".DS_Store":
                         continue
                     shutil.move(f, test_cwd)
 
-            app_name = 'Acme'
-            if sys.platform == 'win32':
-                app_name += '.exe'
+            app_name = "Acme"
+            if sys.platform == "win32":
+                app_name += ".exe"
 
             app_run_command = app_name
-            if sys.platform != 'win32':
-                app_run_command = './{}'.format(app_name)
+            if sys.platform != "win32":
+                app_run_command = "./{}".format(app_name)
 
-            if sys.platform == 'darwin' and windowed:
-                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
-                                                                      app_name)
-                app_name = '{}.app'.format(app_name)
+            if sys.platform == "darwin" and windowed:
+                app_run_command = "./{}.app/Contents/MacOS/{}".format(
+                    app_name, app_name
+                )
+                app_name = "{}.app".format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = 'pyu.lock'
+                lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME))
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME),
-                                         'pyu.lock')
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
-            output_file = 'version1.txt'
+            output_file = "version1.txt"
             with update_lock.acquire(LOCK_TIMEOUT, 5):
                 count = 0
                 while count < 5:
@@ -146,9 +170,9 @@ class TestExecutionExtraction(object):
 
             assert os.path.exists(app_name)
             assert os.path.exists(output_file)
-            with open(output_file, 'r') as f:
+            with open(output_file, "r") as f:
                 output = f.read().strip()
-            assert output == '4.2'
+            assert output == "4.2"
 
             if os.path.exists(app_name):
                 if os.path.isdir(app_name):
@@ -159,6 +183,7 @@ class TestExecutionExtraction(object):
             if os.path.exists(output_file):
                 remove_any(output_file)
 
+<<<<<<< HEAD
     @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
                              [(True, 9008, True, True), (True, 9009, False, True),
                               (False, 9010, True, True), (False, 9011, False, True),
@@ -169,6 +194,22 @@ class TestExecutionExtraction(object):
                                        simpleserver, pyu, custom_dir, port,
                                        windowed, split_version):
         data_dir = shared_datadir / 'update_repo_extract'
+=======
+    @pytest.mark.parametrize(
+        "custom_dir, port, windowed",
+        [
+            (True, 9004, True),
+            (True, 9005, False),
+            (False, 9006, True),
+            (False, 9007, False),
+        ],
+    )
+    @pytest.mark.run(order=1)
+    def test_execution_one_dir_extract(
+        self, cleandir, shared_datadir, simpleserver, pyu, custom_dir, port, windowed
+    ):
+        data_dir = shared_datadir / "update_repo_extract"
+>>>>>>> format tests
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
@@ -176,66 +217,74 @@ class TestExecutionExtraction(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            with open('pyu.log', 'w') as f:
-                f.write('')
+            with open("pyu.log", "w") as f:
+                f.write("")
 
+<<<<<<< HEAD
             cmd = 'python build_onedir_extract.py %s %s %s %s' % (custom_dir,
                                                                   port, windowed,
                                                                   split_version)
+=======
+            cmd = "python build_onedir_extract.py %s %s %s" % (
+                custom_dir,
+                port,
+                windowed,
+            )
+>>>>>>> format tests
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
             # since that is where we will start the simple server
-            deploy_dir = os.path.join('pyu-data', 'deploy')
+            deploy_dir = os.path.join("pyu-data", "deploy")
             assert os.path.exists(deploy_dir)
             test_cwd = os.getcwd()
             with ChDir(deploy_dir):
                 files = os.listdir(os.getcwd())
                 for f in files:
-                    if f == '.DS_Store':
+                    if f == ".DS_Store":
                         continue
                     shutil.move(f, test_cwd)
 
-            dir_name = 'Acme'
+            dir_name = "Acme"
             if not os.path.exists(dir_name):
-                dir_name = dir_name+'.app'
+                dir_name = dir_name + ".app"
 
             assert os.path.exists(dir_name)
             assert os.path.isdir(dir_name)
 
-            app_name = 'Acme'
-            if sys.platform == 'darwin' and windowed:
+            app_name = "Acme"
+            if sys.platform == "darwin" and windowed:
                 pass
             else:
                 app_name = os.path.join(dir_name, app_name)
 
-            if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
+            if sys.platform != "win32":
+                app_name = "./{}".format(app_name)
 
-            if sys.platform == 'win32':
-                app_name += '.exe'
+            if sys.platform == "win32":
+                app_name += ".exe"
 
             app_run_command = app_name
-            if sys.platform != 'win32':
-                app_run_command = './{}'.format(app_name)
+            if sys.platform != "win32":
+                app_run_command = "./{}".format(app_name)
 
-            if sys.platform == 'darwin' and windowed:
-                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
-                                                                      app_name)
-                app_name = '{}.app'.format(app_name)
+            if sys.platform == "darwin" and windowed:
+                app_run_command = "./{}.app/Contents/MacOS/{}".format(
+                    app_name, app_name
+                )
+                app_name = "{}.app".format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = 'pyu.lock'
+                lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME))
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME),
-                                         'pyu.lock')
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
-            output_file = 'version1.txt'
+            output_file = "version1.txt"
             with update_lock.acquire(LOCK_TIMEOUT, 5):
                 count = 0
                 while count < 5:
@@ -256,9 +305,9 @@ class TestExecutionExtraction(object):
             # Detect if it was an overwrite error
             assert os.path.exists(app_name)
             assert os.path.exists(output_file)
-            with open(output_file, 'r') as f:
+            with open(output_file, "r") as f:
                 output = f.read().strip()
-            assert output == '4.2'
+            assert output == "4.2"
 
             if os.path.exists(app_name):
                 if os.path.isdir(app_name):
@@ -271,6 +320,7 @@ class TestExecutionExtraction(object):
 
 
 class TestExecutionRestart(object):
+<<<<<<< HEAD
 
     @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
                              [(True, 9016, True, True), (True, 9017, False, True),
@@ -282,6 +332,22 @@ class TestExecutionRestart(object):
                                         simpleserver, pyu, custom_dir, port,
                                         windowed, split_version):
         data_dir = shared_datadir / 'update_repo_restart'
+=======
+    @pytest.mark.parametrize(
+        "custom_dir, port, windowed",
+        [
+            (True, 9008, True),
+            (False, 9009, True),
+            (True, 9010, False),
+            (False, 9011, False),
+        ],
+    )
+    @pytest.mark.run(order=4)
+    def test_execution_one_file_restart(
+        self, cleandir, shared_datadir, simpleserver, pyu, custom_dir, port, windowed
+    ):
+        data_dir = shared_datadir / "update_repo_restart"
+>>>>>>> format tests
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
@@ -289,51 +355,59 @@ class TestExecutionRestart(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            with open('pyu.log', 'w') as f:
-                f.write('')
+            with open("pyu.log", "w") as f:
+                f.write("")
 
+<<<<<<< HEAD
             cmd = 'python build_onefile_restart.py %s %s %s %s' % (custom_dir,
                                                                    port, windowed,
                                                                    split_version)
+=======
+            cmd = "python build_onefile_restart.py %s %s %s" % (
+                custom_dir,
+                port,
+                windowed,
+            )
+>>>>>>> format tests
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
             # since that is where we will start the simple server
-            deploy_dir = os.path.join('pyu-data', 'deploy')
+            deploy_dir = os.path.join("pyu-data", "deploy")
             assert os.path.exists(deploy_dir)
             test_cwd = os.getcwd()
             with ChDir(deploy_dir):
                 files = os.listdir(os.getcwd())
                 for f in files:
-                    if f == '.DS_Store':
+                    if f == ".DS_Store":
                         continue
                     shutil.move(f, test_cwd)
 
-            app_name = 'Acme'
-            if sys.platform == 'win32':
-                app_name += '.exe'
+            app_name = "Acme"
+            if sys.platform == "win32":
+                app_name += ".exe"
 
             app_run_command = app_name
-            if sys.platform != 'win32':
-                app_run_command = './{}'.format(app_name)
+            if sys.platform != "win32":
+                app_run_command = "./{}".format(app_name)
 
-            if sys.platform == 'darwin' and windowed:
-                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
-                                                                      app_name)
-                app_name = '{}.app'.format(app_name)
+            if sys.platform == "darwin" and windowed:
+                app_run_command = "./{}.app/Contents/MacOS/{}".format(
+                    app_name, app_name
+                )
+                app_name = "{}.app".format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = 'pyu.lock'
+                lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME))
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME),
-                                         'pyu.lock')
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
-            version_file = 'version2.txt'
+            version_file = "version2.txt"
             with update_lock.acquire(LOCK_TIMEOUT, 5):
                 count = 0
                 while count < 5:
@@ -350,9 +424,9 @@ class TestExecutionRestart(object):
             # Detect if it was an overwrite error
             assert os.path.exists(app_name)
             assert os.path.exists(version_file)
-            with open(version_file, 'r') as f:
+            with open(version_file, "r") as f:
                 output = f.read().strip()
-            assert output == '4.2'
+            assert output == "4.2"
 
             if os.path.exists(app_name):
                 if os.path.isdir(app_name):
@@ -363,6 +437,7 @@ class TestExecutionRestart(object):
             if os.path.exists(version_file):
                 remove_any(version_file)
 
+<<<<<<< HEAD
     @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
                              [(True, 9024, True, True), (True, 9025, False, True),
                               (False, 9026, True, True), (False, 9027, False, True),
@@ -373,6 +448,22 @@ class TestExecutionRestart(object):
                                        simpleserver, pyu, custom_dir, port,
                                        windowed, split_version):
         data_dir = shared_datadir / 'update_repo_restart'
+=======
+    @pytest.mark.parametrize(
+        "custom_dir, port, windowed",
+        [
+            (True, 9012, True),
+            (False, 9013, True),
+            (True, 9014, False),
+            (False, 9015, False),
+        ],
+    )
+    @pytest.mark.run(order=3)
+    def test_execution_one_dir_restart(
+        self, cleandir, shared_datadir, simpleserver, pyu, custom_dir, port, windowed
+    ):
+        data_dir = shared_datadir / "update_repo_restart"
+>>>>>>> format tests
         pyu.setup()
 
         # We are moving all of the files from the deploy directory to the
@@ -380,66 +471,74 @@ class TestExecutionRestart(object):
         with ChDir(data_dir):
             simpleserver.start(port)
 
-            with open('pyu.log', 'w') as f:
-                f.write('')
+            with open("pyu.log", "w") as f:
+                f.write("")
 
+<<<<<<< HEAD
             cmd = 'python build_onedir_restart.py %s %s %s %s' % (custom_dir,
                                                                   port, windowed,
                                                                   split_version)
+=======
+            cmd = "python build_onedir_restart.py %s %s %s" % (
+                custom_dir,
+                port,
+                windowed,
+            )
+>>>>>>> format tests
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
             # since that is where we will start the simple server
-            deploy_dir = os.path.join('pyu-data', 'deploy')
+            deploy_dir = os.path.join("pyu-data", "deploy")
             assert os.path.exists(deploy_dir)
             test_cwd = os.getcwd()
             with ChDir(deploy_dir):
                 files = os.listdir(os.getcwd())
                 for f in files:
-                    if f == '.DS_Store':
+                    if f == ".DS_Store":
                         continue
                     shutil.move(f, test_cwd)
 
-            dir_name = 'Acme'
+            dir_name = "Acme"
             if not os.path.exists(dir_name):
-                dir_name = dir_name+'.app'
+                dir_name = dir_name + ".app"
 
             assert os.path.exists(dir_name)
             assert os.path.isdir(dir_name)
 
-            app_name = 'Acme'
-            if sys.platform == 'darwin' and windowed:
+            app_name = "Acme"
+            if sys.platform == "darwin" and windowed:
                 pass
             else:
                 app_name = os.path.join(dir_name, app_name)
 
-            if sys.platform != 'win32':
-                app_name = './{}'.format(app_name)
+            if sys.platform != "win32":
+                app_name = "./{}".format(app_name)
 
-            if sys.platform == 'win32':
-                app_name += '.exe'
+            if sys.platform == "win32":
+                app_name += ".exe"
 
             app_run_command = app_name
-            if sys.platform != 'win32':
-                app_run_command = './{}'.format(app_name)
+            if sys.platform != "win32":
+                app_run_command = "./{}".format(app_name)
 
-            if sys.platform == 'darwin' and windowed:
-                app_run_command = './{}.app/Contents/MacOS/{}'.format(app_name,
-                                                                      app_name)
-                app_name = '{}.app'.format(app_name)
+            if sys.platform == "darwin" and windowed:
+                app_run_command = "./{}.app/Contents/MacOS/{}".format(
+                    app_name, app_name
+                )
+                app_name = "{}.app".format(app_name)
 
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = 'pyu.lock'
+                lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME))
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME),
-                                         'pyu.lock')
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
-            version_file = 'version2.txt'
+            version_file = "version2.txt"
             with update_lock.acquire(LOCK_TIMEOUT, 5):
                 count = 0
                 while count < 5:
@@ -456,9 +555,9 @@ class TestExecutionRestart(object):
             # Detect if it was an overwrite error
             assert os.path.exists(app_name)
             assert os.path.exists(version_file)
-            with open(version_file, 'r') as f:
+            with open(version_file, "r") as f:
                 output = f.read().strip()
-            assert output == '4.2'
+            assert output == "4.2"
 
             if os.path.exists(app_name):
                 if os.path.isdir(app_name):

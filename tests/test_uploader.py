@@ -34,7 +34,6 @@ from pyupdater.utils.config import Config
 
 
 class BaseTestUploader(BaseUploader):
-
     def init_config(self, config):
         pass
 
@@ -44,8 +43,8 @@ class BaseTestUploader(BaseUploader):
 
 class TestUploaderPass(BaseTestUploader):
 
-    name = 'success'
-    author = 'Digital Sapphire'
+    name = "success"
+    author = "Digital Sapphire"
 
     def upload_file(self, filename):
         print(filename)
@@ -54,8 +53,8 @@ class TestUploaderPass(BaseTestUploader):
 
 class TestUploaderFail(BaseTestUploader):
 
-    name = 'fail'
-    author = 'Digital Sapphire'
+    name = "fail"
+    author = "Digital Sapphire"
 
     def upload_file(self, filename):
         print(filename)
@@ -64,8 +63,8 @@ class TestUploaderFail(BaseTestUploader):
 
 class TestUploaderRetryPass(BaseTestUploader):
 
-    name = 'retry-success'
-    author = 'Digital Sapphire'
+    name = "retry-success"
+    author = "Digital Sapphire"
     first_pass = False
 
     def upload_file(self, filename):
@@ -77,8 +76,8 @@ class TestUploaderRetryPass(BaseTestUploader):
 
 class TestUploaderRetryFail(BaseTestUploader):
 
-    name = 'retry-fail'
-    author = 'Digital Sapphire'
+    name = "retry-fail"
+    author = "Digital Sapphire"
 
     def upload_file(self, filename):
         print(filename)
@@ -86,13 +85,17 @@ class TestUploaderRetryFail(BaseTestUploader):
 
 
 class TestUploader(object):
-
-    @pytest.mark.parametrize("upload_plugin_type",
-                             ['success', 'fail', 'retry-success', 'retry-fail'])
+    @pytest.mark.parametrize(
+        "upload_plugin_type", ["success", "fail", "retry-success", "retry-fail"]
+    )
     def test_uploader(self, cleandir, shared_datadir, upload_plugin_type):
 
-        uploaders = [TestUploaderPass(), TestUploaderFail(),
-                     TestUploaderRetryPass(), TestUploaderRetryFail()]
+        uploaders = [
+            TestUploaderPass(),
+            TestUploaderFail(),
+            TestUploaderRetryPass(),
+            TestUploaderRetryFail(),
+        ]
 
         # Don't mind the name, should only contain 1 plugin
         upload_plugins = [u for u in uploaders if u.name == upload_plugin_type]
@@ -113,8 +116,7 @@ class TestUploader(object):
             uploader.set_uploader(upload_plugin_type)
             assert uploader.uploader.name == upload_plugin_type
 
-            if 'success' in upload_plugin.name:
-                assert uploader.upload(['/file1']) is True
-            elif 'fail' in upload_plugin.name:
-                assert uploader.upload(['/file2']) is False
-
+            if "success" in upload_plugin.name:
+                assert uploader.upload(["/file1"]) is True
+            elif "fail" in upload_plugin.name:
+                assert uploader.upload(["/file2"]) is False

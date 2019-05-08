@@ -32,16 +32,15 @@ from pyupdater.core.key_handler.keys import KeyImporter, Keys
 
 @pytest.mark.usefixtures("cleandir")
 class TestKeys(object):
-
     def test_create_keypack(self):
         k = Keys(test=True)
-        for name in ['one', 'two', 'three']:
+        for name in ["one", "two", "three"]:
             assert k.make_keypack(name) is True
         assert os.path.exists(k.data_dir) is True
 
     def test_key_importer(self):
         k = Keys(test=True)
-        k.make_keypack('one')
+        k.make_keypack("one")
 
         ki = KeyImporter()
         assert ki.start() is True

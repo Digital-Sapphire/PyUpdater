@@ -42,9 +42,8 @@ from tconfig import TConfig
 user_data_dir = settings.USER_DATA_FOLDER
 
 
-@pytest.mark.usefixtures('cleandir', 'pyu')
+@pytest.mark.usefixtures("cleandir", "pyu")
 class TestUtils(object):
-
     def test_init(self):
         data_dir = os.getcwd()
         t_config = TConfig()
@@ -52,8 +51,8 @@ class TestUtils(object):
         config = Config()
         config.from_object(t_config)
         p = PackageHandler(config)
-        assert p.files_dir == os.path.join(data_dir, user_data_dir, 'files')
-        assert p.deploy_dir == os.path.join(data_dir, user_data_dir, 'deploy')
+        assert p.files_dir == os.path.join(data_dir, user_data_dir, "files")
+        assert p.deploy_dir == os.path.join(data_dir, user_data_dir, "deploy")
 
     def test_no_patch_support(self):
         data_dir = os.getcwd()
@@ -66,19 +65,18 @@ class TestUtils(object):
         p.process_packages()
 
     def test_parse_platform(self):
-        assert parse_platform('app-mac-0.1.0.tar.gz') == 'mac'
-        assert parse_platform('app-win-1.0.0.zip') == 'win'
-        assert parse_platform('Email Parser-mac-0.2.0.tar.gz') == 'mac'
-        assert parse_platform('Hangman-nix-0.0.1b1.zip') == 'nix'
+        assert parse_platform("app-mac-0.1.0.tar.gz") == "mac"
+        assert parse_platform("app-win-1.0.0.zip") == "win"
+        assert parse_platform("Email Parser-mac-0.2.0.tar.gz") == "mac"
+        assert parse_platform("Hangman-nix-0.0.1b1.zip") == "nix"
 
     def test_parse_platform_fail(self):
         with pytest.raises(PackageHandlerError):
-            parse_platform('app-nex-1.0.0.tar.gz')
+            parse_platform("app-nex-1.0.0.tar.gz")
 
 
-@pytest.mark.usefixtures('cleandir', 'pyu')
+@pytest.mark.usefixtures("cleandir", "pyu")
 class TestExecution(object):
-
     def test_process_packages(self):
         data_dir = os.getcwd()
         t_config = TConfig()
@@ -90,90 +88,90 @@ class TestExecution(object):
         p.process_packages()
 
 
-@pytest.mark.usefixtures('cleandir')
+@pytest.mark.usefixtures("cleandir")
 class TestPackage(object):
-
     def test_package_1(self, shared_datadir):
-        test_file = 'Acme-mac-4.1.tar.gz'
+        test_file = "Acme-mac-4.1.tar.gz"
         p1 = Package(shared_datadir / test_file)
 
-        assert p1.name == 'Acme'
-        assert p1.version == '4.1.0.2.0'
+        assert p1.name == "Acme"
+        assert p1.version == "4.1.0.2.0"
         assert p1.filename == test_file
-        assert p1.platform == 'mac'
-        assert p1.channel == 'stable'
-        assert p1.info['status'] is True
+        assert p1.platform == "mac"
+        assert p1.channel == "stable"
+        assert p1.info["status"] is True
 
     def test_package_name_with_spaces(self, shared_datadir):
-        test_file = 'with spaces-nix-0.0.1b1.zip'
+        test_file = "with spaces-nix-0.0.1b1.zip"
         p1 = Package(shared_datadir / test_file)
 
-        assert p1.name == 'with spaces'
-        assert p1.version == '0.0.1.1.1'
+        assert p1.name == "with spaces"
+        assert p1.version == "0.0.1.1.1"
         assert p1.filename == test_file
-        assert p1.platform == 'nix'
-        assert p1.channel == 'beta'
-        assert p1.info['status'] is True
+        assert p1.platform == "nix"
+        assert p1.channel == "beta"
+        assert p1.info["status"] is True
 
     def test_package_alpha(self, shared_datadir):
-        test_file = 'with spaces-win-0.0.1a2.zip'
+        test_file = "with spaces-win-0.0.1a2.zip"
         p1 = Package(shared_datadir / test_file)
 
-        assert p1.name == 'with spaces'
-        assert p1.version == '0.0.1.0.2'
+        assert p1.name == "with spaces"
+        assert p1.version == "0.0.1.0.2"
         assert p1.filename == test_file
-        assert p1.platform == 'win'
-        assert p1.channel == 'alpha'
-        assert p1.info['status'] is True
+        assert p1.platform == "win"
+        assert p1.channel == "alpha"
+        assert p1.info["status"] is True
 
     def test_package_ignored_file(self):
-        with io.open('.DS_Store', 'w', encoding='utf-8') as f:
-            f.write('')
-        p = Package('.DS_Store')
-        assert p.info['status'] is False
+        with io.open(".DS_Store", "w", encoding="utf-8") as f:
+            f.write("")
+        p = Package(".DS_Store")
+        assert p.info["status"] is False
 
     def test_package_bad_extension(self, shared_datadir):
-        test_file_2 = 'pyu-win-0.0.2.xz'
+        test_file_2 = "pyu-win-0.0.2.xz"
         p2 = Package(shared_datadir / test_file_2)
 
         assert p2.filename == test_file_2
         assert p2.name is None
         assert p2.version is None
-        assert p2.info['status'] is False
-        assert p2.info['reason'] == ('Not a supported archive format: '
-                                     '{}'.format(test_file_2))
+        assert p2.info["status"] is False
+        assert p2.info["reason"] == (
+            "Not a supported archive format: " "{}".format(test_file_2)
+        )
 
     def test_package_bad_version(self, shared_datadir):
-        filename = 'pyu-win-1.tar.gz'
+        filename = "pyu-win-1.tar.gz"
         p = Package(shared_datadir / filename)
-        out = 'Package version not formatted correctly: {}'
-        assert p.info['reason'] == out.format(filename)
+        out = "Package version not formatted correctly: {}"
+        assert p.info["reason"] == out.format(filename)
 
     def test_package_bad_platform(self, shared_datadir):
-        filename = 'pyu-wi-1.1.tar.gz'
+        filename = "pyu-wi-1.1.tar.gz"
         p = Package(shared_datadir / filename)
-        out = 'Package platform not formatted correctly'
-        assert p.info['reason'] == out
+        out = "Package platform not formatted correctly"
+        assert p.info["reason"] == out
 
 
-@pytest.mark.usefixtures('cleandir')
+@pytest.mark.usefixtures("cleandir")
 class TestPatch(object):
-    new_dir = 'pyu-data/new'
-    files_dir = 'pyu-data/files'
+    new_dir = "pyu-data/new"
+    files_dir = "pyu-data/files"
 
     @pytest.fixture
     def patch_setup(self):
         os.makedirs(self.new_dir)
         os.makedirs(self.files_dir)
 
-        with open(os.path.join(self.new_dir, 'Acme-mac-4.2.tar.gz'), 'w') as f:
+        with open(os.path.join(self.new_dir, "Acme-mac-4.2.tar.gz"), "w") as f:
             f.write("v2")
 
-        with open(os.path.join(self.files_dir, 'Acme-mac-4.1.tar.gz'), 'w') as f:
+        with open(os.path.join(self.files_dir, "Acme-mac-4.1.tar.gz"), "w") as f:
             f.write("v1")
 
     def test_patch(self, patch_setup):
-        filename = 'Acme-mac-4.2.tar.gz'
+        filename = "Acme-mac-4.2.tar.gz"
 
         with ChDir(self.new_dir):
             full_path = os.path.abspath(filename)
@@ -182,19 +180,19 @@ class TestPatch(object):
         config = {}
         version_data = {}
         data = {
-            'filename': full_path,
-            'files_dir': self.files_dir,
-            'new_dir': self.new_dir,
-            'json_data': version_data,
-            'pkg_info': pkg,
-            'config': config,
-            'test': True
+            "filename": full_path,
+            "files_dir": self.files_dir,
+            "new_dir": self.new_dir,
+            "json_data": version_data,
+            "pkg_info": pkg,
+            "config": config,
+            "test": True,
         }
 
         patch = Patch(**data)
 
         assert patch.ok
-        assert config['patches'][pkg.name]
+        assert config["patches"][pkg.name]
 
     def test_patch_fail(self):
         pass

@@ -38,18 +38,19 @@ home_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def build(app):
-    os.environ['PYINSTALLER_CONFIG_DIR'] = os.path.join(home_dir, '.cache')
-    cmd = ('pyupdater build -F {} --clean --path={} '
-           '--app-version={} {}'.format(app[2], home_dir, app[1], app[0]))
+    os.environ["PYINSTALLER_CONFIG_DIR"] = os.path.join(home_dir, ".cache")
+    cmd = "pyupdater build -F {} --clean --path={} " "--app-version={} {}".format(
+        app[2], home_dir, app[1], app[0]
+    )
     os.system(cmd)
 
 
 def extract(filename):
     ext = os.path.splitext(filename)[1]
-    if ext == '.zip':
-        archive = zipfile.ZipFile(filename, 'r')
+    if ext == ".zip":
+        archive = zipfile.ZipFile(filename, "r")
     else:
-        archive = tarfile.open(filename, 'r:gz')
+        archive = tarfile.open(filename, "r:gz")
 
     archive.extractall()
 
@@ -74,22 +75,23 @@ def main(use_custom_dir, port, windowed, split_version):
     config_file = re.sub(
         r'localhost:\d+', 'localhost:%s' % port, config_file
     )
+
     # patch config_file for use_custom_dir
     if use_custom_dir:
-        config_file += '\n    USE_CUSTOM_DIR = True\n'
-    open('client_config.py', 'wt').write(config_file)
+        config_file += "\n    USE_CUSTOM_DIR = True\n"
+    open("client_config.py", "wt").write(config_file)
     for s in scripts:
         build(s)
         if first:
-            if sys.platform == 'win32':
-                ext = '.zip'
+            if sys.platform == "win32":
+                ext = ".zip"
             else:
-                ext = '.tar.gz'
+                ext = ".tar.gz"
 
             # Build path to archive
-            archive_path = os.path.join('pyu-data', 'new',
-                                        'Acme-{}-4.1{}'.format(get_system(),
-                                                               ext))
+            archive_path = os.path.join(
+                "pyu-data", "new", "Acme-{}-4.1{}".format(get_system(), ext)
+            )
 
             if not os.path.exists(archive_path):
                 print("Archive did not build!")
