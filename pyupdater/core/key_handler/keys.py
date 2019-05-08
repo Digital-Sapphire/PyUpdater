@@ -44,22 +44,21 @@ log = logging.getLogger(__name__)
 
 
 class Keys(object):
-
     def __init__(self, test=False):
         # We use base64 encoding for easy human consumption
-        self.key_encoding = 'base64'
+        self.key_encoding = "base64"
         self.key_data = {}
 
         if test:
-            self.data_dir = os.path.join('private', 'data')
+            self.data_dir = os.path.join("private", "data")
         else:
-            self.data_dir = user_data_dir('PyUpdater', 'Digital Sapphire')
+            self.data_dir = user_data_dir("PyUpdater", "Digital Sapphire")
 
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
 
         # The name of the offline key database
-        self.keypack_filename = os.path.join(self.data_dir, 'offline_keys.db')
+        self.keypack_filename = os.path.join(self.data_dir, "offline_keys.db")
         self._load()
 
     def make_keypack(self, name):
@@ -67,14 +66,14 @@ class Keys(object):
         try:
             keypack = self._gen_keypack(name)
         except AssertionError:
-            log.debug('Failed to generate keypack')
+            log.debug("Failed to generate keypack")
             return False
         except KeyHandlerError as err:
             log.error(err)
             return False
 
         # Write keypack to cwd
-        with io.open(settings.KEYPACK_FILENAME, 'w', encoding="utf-8") as f:
+        with io.open(settings.KEYPACK_FILENAME, "w", encoding="utf-8") as f:
             out = json.dumps(keypack, indent=2, sort_keys=True)
             if six.PY2:
                 out = unicode(out)
@@ -85,11 +84,11 @@ class Keys(object):
         if not os.path.exists(self.keypack_filename):
             self._save()
         else:
-            with io.open(self.keypack_filename, 'r', encoding="utf-8") as f:
+            with io.open(self.keypack_filename, "r", encoding="utf-8") as f:
                 self.key_data = json.loads(f.read())
 
     def _save(self):
-        with io.open(self.keypack_filename, 'w', encoding="utf-8") as f:
+        with io.open(self.keypack_filename, "w", encoding="utf-8") as f:
             out = json.dumps(self.key_data, indent=2, sort_keys=True)
             if six.PY2:
                 out = unicode(out)
@@ -107,7 +106,7 @@ class Keys(object):
         # Load app specific private & public key
         off_pri, off_pub = self._load_offline_keys(name)
 
-        log.debug('off_pri type: %s', type(off_pri))
+        log.debug("off_pri type: %s", type(off_pri))
         off_pri = off_pri.encode()
         if six.PY2:
             app_pub = six.b(app_pub)
@@ -115,25 +114,17 @@ class Keys(object):
         signing_key = ed25519.SigningKey(off_pri, encoding=self.key_encoding)
 
         # Create signature from app signing public key
-        signature = signing_key.sign(app_pub,
-                                     encoding=self.key_encoding).decode()
+        signature = signing_key.sign(app_pub, encoding=self.key_encoding).decode()
 
         if six.PY3:
             app_pri = app_pri.decode()
             app_pub = app_pub.decode()
 
         keypack = {
-            'upload': {
-                'app_public': app_pub,
-                'signature': signature
-                },
-            'client': {
-                'offline_public': off_pub
-                },
-            'repo': {
-                'app_private': app_pri
-                }
-            }
+            "upload": {"app_public": app_pub, "signature": signature},
+            "client": {"offline_public": off_pub},
+            "repo": {"app_private": app_pri},
+        }
         return keypack
 
     def _load_offline_keys(self, name):
@@ -143,9 +134,9 @@ class Keys(object):
             if six.PY3:
                 pri = pri.decode()
                 pub = pub.decode()
-            self.key_data[name] = {'private': pri, 'public': pub}
+            self.key_data[name] = {"private": pri, "public": pub}
             self._save()
-        return self.key_data[name]['private'], self.key_data[name]['public']
+        return self.key_data[name]["private"], self.key_data[name]["public"]
 
     def _make_keys(self):
         # Makes a set of private and public keys
@@ -156,7 +147,6 @@ class Keys(object):
 
 
 class KeyImporter(object):
-
     def __init__(self):
         self.db = Storage()
 
@@ -171,8 +161,7 @@ class KeyImporter(object):
     def _load_keypack():
         json_data = None
         try:
-            with io.open(settings.KEYPACK_FILENAME, 'r',
-                         encoding='utf-8') as f:
+            with io.open(settings.KEYPACK_FILENAME, "r", encoding="utf-8") as f:
                 data = f.read()
         except Exception as err:
             log.debug(err, exc_info=True)

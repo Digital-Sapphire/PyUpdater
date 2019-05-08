@@ -38,7 +38,7 @@ def print_plugin_settings(plugin_name, config):  # pragma: no cover
     pm = PluginManager(config)
     config = pm.get_plugin_settings(plugin_name)
     if len(config.keys()) == 0:
-        print('No config found for {}'.format(plugin_name))
+        print("No config found for {}".format(plugin_name))
     else:
         print(plugin_name)
         print(config)
@@ -49,19 +49,21 @@ def setup_appname(config):  # pragma: no cover
         default = config.APP_NAME
     else:
         default = None
-    config.APP_NAME = terminal.get_correct_answer('Please enter app name',
-                                                  required=True,
-                                                  default=default)
+    config.APP_NAME = terminal.get_correct_answer(
+        "Please enter app name", required=True, default=default
+    )
 
 
 def setup_client_config_path(config):  # pragma: no cover
     _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
-    question = ("Please enter the path to where pyupdater "
-                "will write the client_config.py file. "
-                "You'll need to import this file to "
-                "initialize the update process. \nExamples:\n\n"
-                "lib/utils, src/lib, src. \n\nLeave blank to use "
-                "the current directory")
+    question = (
+        "Please enter the path to where pyupdater "
+        "will write the client_config.py file. "
+        "You'll need to import this file to "
+        "initialize the update process. \nExamples:\n\n"
+        "lib/utils, src/lib, src. \n\nLeave blank to use "
+        "the current directory"
+    )
     answer = terminal.get_correct_answer(question, default=_default_dir)
 
     if answer == _default_dir:
@@ -78,16 +80,18 @@ def setup_company(config):  # pragma: no cover
         default = config.COMPANY_NAME
     else:
         default = None
-    temp = terminal.get_correct_answer('Please enter your name or company name',
-                                       required=True, default=default)
+    temp = terminal.get_correct_answer(
+        "Please enter your name or company name", required=True, default=default
+    )
     config.COMPANY_NAME = temp
 
 
 def setup_max_download_retries(config):  # pragma: no cover
     default = config.MAX_DOWNLOAD_RETRIES
     while 1:
-        temp = terminal.get_correct_answer('Enter max download retries',
-                                           required=True, default=str(default))
+        temp = terminal.get_correct_answer(
+            "Enter max download retries", required=True, default=str(default)
+        )
         try:
             temp = int(temp)
         except Exception as err:
@@ -96,7 +100,7 @@ def setup_max_download_retries(config):  # pragma: no cover
             continue
 
         if temp > 10 or temp < 1:
-            log.error('Max retries can only be from 1 to 10')
+            log.error("Max retries can only be from 1 to 10")
             continue
 
         break
@@ -105,30 +109,28 @@ def setup_max_download_retries(config):  # pragma: no cover
 
 
 def setup_patches(config):  # pragma: no cover
-    question = 'Would you like to enable patch updates?'
-    config.UPDATE_PATCHES = terminal.ask_yes_no(question, default='yes')
+    question = "Would you like to enable patch updates?"
+    config.UPDATE_PATCHES = terminal.ask_yes_no(question, default="yes")
 
 
 def setup_plugin(name, config):  # pragma: no cover
     pgm = PluginManager(config)
     plugin = pgm.get_plugin(name)
     if plugin is None:
-        sys.exit('Invalid plugin name...')
+        sys.exit("Invalid plugin name...")
 
     pgm.config_plugin(name, config)
 
 
 def setup_urls(config):  # pragma: no cover
-    url = terminal.get_correct_answer('Enter a url to ping for updates.',
-                                      required=True)
+    url = terminal.get_correct_answer("Enter a url to ping for updates.", required=True)
     config.UPDATE_URLS = [url]
     while 1:
-        answer = terminal.ask_yes_no('Would you like to add '
-                                     'another url for backup?',
-                                     default='no')
+        answer = terminal.ask_yes_no(
+            "Would you like to add " "another url for backup?", default="no"
+        )
         if answer is True:
-            url = terminal.get_correct_answer('Enter another url.',
-                                              required=True)
+            url = terminal.get_correct_answer("Enter another url.", required=True)
             config.UPDATE_URLS.append(url)
         else:
             break

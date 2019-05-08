@@ -31,14 +31,16 @@ from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.terminal import ask_yes_no, get_correct_answer
 
 from pyupdater import __version__, PyUpdater, settings
-from pyupdater.cli.helpers import (initial_setup,
-                                   print_plugin_settings,
-                                   setup_client_config_path,
-                                   setup_company,
-                                   setup_max_download_retries,
-                                   setup_patches,
-                                   setup_plugin,
-                                   setup_urls)
+from pyupdater.cli.helpers import (
+    initial_setup,
+    print_plugin_settings,
+    setup_client_config_path,
+    setup_company,
+    setup_max_download_retries,
+    setup_patches,
+    setup_plugin,
+    setup_urls,
+)
 from pyupdater.core.key_handler.keys import Keys, KeyImporter
 from pyupdater.utils import check_repo, get_http_pool, PluginManager
 from pyupdater.utils.builder import Builder, ExternalLib
@@ -57,8 +59,7 @@ TEST = False
 def check_repo_ex(exit_on_error=False):
     check = check_repo()
     if check is False:
-        log.error('Not a PyUpdater repo: You must initialize '
-                  'your repository first')
+        log.error("Not a PyUpdater repo: You must initialize " "your repository first")
         if exit_on_error is True and TEST is False:
             os._exit(1)
     return check
@@ -70,13 +71,13 @@ def _cmd_archive(*args):  # pragma: no cover
 
     log.info("Archiving asset...")
     ns = args[0]
-    new_dir = os.path.join(CWD, settings.USER_DATA_FOLDER, 'new')
+    new_dir = os.path.join(CWD, settings.USER_DATA_FOLDER, "new")
     name = ns.name
     version = ns.version
 
     with ChDir(new_dir):
         if not os.path.exists(name):
-            log.error('%s does not exists', name)
+            log.error("%s does not exists", name)
             return
         # Creating a pyupdater compatible archive.
         # See pyupdater.builder for more info.
@@ -84,7 +85,7 @@ def _cmd_archive(*args):  # pragma: no cover
         ex_lib.archive()
         if ns.keep is False:
             remove_any(name)
-            log.info('Removed: %s', name)
+            log.info("Removed: %s", name)
     log.info("Archiving complete")
 
 
@@ -106,12 +107,13 @@ def _cmd_clean(*args):  # pragma: no cover
         _clean()
 
     else:
-        answer = ask_yes_no('Are you sure you want to remove '
-                            'pyupdater data?', default='no')
+        answer = ask_yes_no(
+            "Are you sure you want to remove " "pyupdater data?", default="no"
+        )
         if answer is True:
             _clean()
         else:
-            log.info('Clean aborted!')
+            log.info("Clean aborted!")
 
 
 # Remove all traces of PyUpdater from the current repo
@@ -121,18 +123,18 @@ def _clean(*args):
     if os.path.exists(settings.CONFIG_DATA_FOLDER):
         cleaned = True
         remove_any(settings.CONFIG_DATA_FOLDER)
-        log.info('Removed %s folder', settings.CONFIG_DATA_FOLDER)
+        log.info("Removed %s folder", settings.CONFIG_DATA_FOLDER)
 
     # The pyu-data folder
     if os.path.exists(settings.USER_DATA_FOLDER):
         cleaned = True
         remove_any(settings.USER_DATA_FOLDER)
-        log.info('Removed %s folder', settings.USER_DATA_FOLDER)
+        log.info("Removed %s folder", settings.USER_DATA_FOLDER)
 
     if cleaned is True:
-        log.info('Clean complete...')
+        log.info("Clean complete...")
     else:
-        log.info('Nothing to clean...')
+        log.info("Nothing to clean...")
 
 
 # Just a note: We don't allow changing the app name as this could
@@ -181,19 +183,20 @@ def _cmd_settings(*args):  # pragma: no cover
     # If any changes have been made, save data to disk.
     if save_config is True:
         cm.save_config(config)
-        log.info('Saved config')
+        log.info("Saved config")
 
 
 # Initialize PyUpdater repo
 def _cmd_init(*args):  # pragma: no cover
-    if not os.path.exists(os.path.join(settings.CONFIG_DATA_FOLDER,
-                                       settings.CONFIG_FILE_USER)):
+    if not os.path.exists(
+        os.path.join(settings.CONFIG_DATA_FOLDER, settings.CONFIG_FILE_USER)
+    ):
         # Load a basic config.
         config = Config()
 
         # Run config through all of the setup functions
         config = initial_setup(config)
-        log.info('Creating pyu-data dir...')
+        log.info("Creating pyu-data dir...")
 
         # Initialize PyUpdater with newly created config
         pyu = PyUpdater(config)
@@ -204,9 +207,9 @@ def _cmd_init(*args):  # pragma: no cover
         # Load config manager & save config to disk
         cm = ConfigManager()
         cm.save_config(config)
-        log.info('Setup complete')
+        log.info("Setup complete")
     else:
-        log.error('Not an empty PyUpdater repository')
+        log.error("Not an empty PyUpdater repository")
 
 
 # We create and import keys with this puppy.
@@ -217,12 +220,12 @@ def _cmd_keys(*args):  # pragma: no cover
     # We try to prevent developers from creating root keys on the dev
     # machines.
     if ns.create_keys is True and ns.import_keys is True:
-        log.error('Only one options is allowed at a time')
+        log.error("Only one options is allowed at a time")
         return
 
     # Okay the actual check is pretty weak but we are all grown ups here :)
     if ns.create_keys is True and check is True:
-        log.error('You can not create off-line keys on your dev machine')
+        log.error("You can not create off-line keys on your dev machine")
         return
 
     # Can't import if we don't have a config to place it in.
@@ -233,23 +236,22 @@ def _cmd_keys(*args):  # pragma: no cover
     # Security is in the eye of the beholder.
     # That was deep.
     if ns.create_keys is True and check is False:
-        if hasattr(ns, 'test'):
-            log.debug('We are testing!')
-            app_name = 'test'
+        if hasattr(ns, "test"):
+            log.debug("We are testing!")
+            app_name = "test"
             # Starting up with some testing in mind.
             k = Keys(test=True)
         else:
             k = Keys()
             # Get the app name for the soon to be generated keypack.pyu
-            app_name = get_correct_answer('Please enter app name',
-                                          required=True)
+            app_name = get_correct_answer("Please enter app name", required=True)
 
         # Create the keypack for this particular application.
         # make_keypack will return True if successful.
         if k.make_keypack(app_name):
-            log.info('Keypack placed in cwd')
+            log.info("Keypack placed in cwd")
         else:
-            log.error('Failed to create keypack')
+            log.error("Failed to create keypack")
             return
 
     # Save the keypack.pyu that's in the current directory to the
@@ -259,10 +261,10 @@ def _cmd_keys(*args):  # pragma: no cover
         config = cm.load_config()
         ki = KeyImporter()
         if ki.start():
-            log.info('Keypack import successfully')
+            log.info("Keypack import successfully")
             cm.save_config(config)
         else:
-            log.error('Keypack import failed')
+            log.error("Keypack import failed")
 
 
 # Create a spec_file and place it in the cwd.
@@ -289,14 +291,14 @@ def _cmd_pkg(*args):
 
     # Please give pkg something to do
     if ns.process is False and ns.sign is False:
-        log.error('You must specify a command')
+        log.error("You must specify a command")
         return
 
     # Gather meta data and save to disk
     if ns.process is True:
-        log.info('Processing packages...')
+        log.info("Processing packages...")
         pyu.process_packages(ns.verbose)
-        log.info('Processing packages complete')
+        log.info("Processing packages complete")
 
     # Sign the update meta-data with the repo private key.
     if ns.sign is True:
@@ -307,30 +309,29 @@ def _cmd_pkg(*args):
 
 # Uploads the debug logs to a private github gist
 def _cmd_collect_debug_info(*args):  # pragma: no cover
-    log.info('Starting log export')
+    log.info("Starting log export")
 
     # A helper function that adds the filename & data to the
     # payload in preparation for upload.
     def _add_file(payload, filename):
-        with io.open(filename, 'r', encoding='utf-8') as f:
+        with io.open(filename, "r", encoding="utf-8") as f:
             data = f.read()
-        payload['files'][filename] = {'content': data}
+        payload["files"][filename] = {"content": data}
 
     # A helper function that uploads the data to a private gist.
     def _upload(data):
-        api = 'https://api.github.com/'
-        gist_url = api + 'gists'
+        api = "https://api.github.com/"
+        gist_url = api + "gists"
         http = get_http_pool()
         headers = {
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "PyUpdater",
         }
 
-        r = http.urlopen('POST', gist_url, headers=headers,
-                         body=json.dumps(data))
+        r = http.urlopen("POST", gist_url, headers=headers, body=json.dumps(data))
         try:
             data = json.loads(r.data)
-            url = data['html_url']
+            url = data["html_url"]
         except Exception as err:
             log.debug(err, exc_info=True)
             log.debug(json.dumps(r.data, indent=2))
@@ -339,14 +340,10 @@ def _cmd_collect_debug_info(*args):  # pragma: no cover
 
     # Payload skeleton per githubs specification.
     # https://developer.github.com/v3/gists/
-    upload_data = {
-        'files': {},
-        'description': 'PyUpdater debug logs',
-        'public': False,
-    }
+    upload_data = {"files": {}, "description": "PyUpdater debug logs", "public": False}
 
     if LOG_DIR is None:
-        log.error('LOG_DIR is not set')
+        log.error("LOG_DIR is not set")
         return
 
     with ChDir(LOG_DIR):
@@ -355,24 +352,24 @@ def _cmd_collect_debug_info(*args):  # pragma: no cover
 
         # Exited quickly if no files present.
         if len(temp_files) == 0:
-            log.info('No log files to collect')
+            log.info("No log files to collect")
             return
 
-        log.info('Collecting logs')
+        log.info("Collecting logs")
         for t in temp_files:
             # If the file matches the base name add it to the payload
             if t.startswith(settings.LOG_FILENAME_DEBUG):
-                log.debug('Adding %s to log', t)
+                log.debug("Adding %s to log", t)
                 _add_file(upload_data, t)
 
-    log.info('Uploading collected logs')
+    log.info("Uploading collected logs")
     # Attempt upload of debug files.
     url = _upload(upload_data)
 
     if url is None:
-        log.error('Could not upload debug info to github')
+        log.error("Could not upload debug info to github")
     else:
-        log.info('Log export complete: %s', url)
+        log.info("Log export complete: %s", url)
 
 
 # Show list of installed upload plugins
@@ -380,12 +377,12 @@ def _cmd_plugins(*args):
     plug_mgr = PluginManager({})
     # Doing some basic formatting. Design help here would be appreciated.
     # By the way I just want to thank all the contributors and bug submitters.
-    names = ['\n']
+    names = ["\n"]
     for n in plug_mgr.get_plugin_names():
-        out = '{} by {}\n'.format(n['name'], n['author'])
+        out = "{} by {}\n".format(n["name"], n["author"])
         names.append(out)
-    output = ''.join(names)
-    log.info('Upload plugins:%s', output)
+    output = "".join(names)
+    log.info("Upload plugins:%s", output)
 
 
 # Upload the assets with the requested upload plugin
@@ -399,7 +396,7 @@ def _cmd_upload(*args):  # pragma: no cover
 
     # We need something to work with
     if upload_service is None:
-        log.error('Must provide service name')
+        log.error("Must provide service name")
         return
 
     cm = ConfigManager()
@@ -414,9 +411,8 @@ def _cmd_upload(*args):  # pragma: no cover
     # Something happened with the upload plugin
     except UploaderPluginError as err:
         log.debug(err)
-        log.error('Invalid upload plugin')
-        log.error('Use "pyupdater plugins" to get a '
-                  'list of installed plugins')
+        log.error("Invalid upload plugin")
+        log.error('Use "pyupdater plugins" to get a ' "list of installed plugins")
         return
 
     # Try to upload the files in the deploy directory. Get it...
@@ -430,7 +426,7 @@ def _cmd_upload(*args):  # pragma: no cover
         log.error(err)
 
     if complete:
-        print('')
+        print("")
         log.info("Upload successful")
     else:
         log.error("Upload failed!")
@@ -438,4 +434,4 @@ def _cmd_upload(*args):  # pragma: no cover
 
 # Print the version of PyUpdater to the console.
 def _cmd_version(*args):
-    print('PyUpdater {}'.format(__version__))
+    print("PyUpdater {}".format(__version__))

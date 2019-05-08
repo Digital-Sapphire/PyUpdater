@@ -29,39 +29,39 @@ import sys
 from dsdev_utils import system
 
 
-APP_NAME = 'PyUpdater'
-APP_AUTHOR = 'Digital Sapphire'
+APP_NAME = "PyUpdater"
+APP_AUTHOR = "Digital Sapphire"
 
 # Used to hold PyUpdater config info for repo
-CONFIG_DATA_FOLDER = '.pyupdater'
+CONFIG_DATA_FOLDER = ".pyupdater"
 
 # User config file
-CONFIG_FILE_USER = 'config.pyu'
+CONFIG_FILE_USER = "config.pyu"
 
-CONFIG_DB_KEY_APP_CONFIG = 'app_config'
-CONFIG_DB_KEY_KEYPACK = 'keypack'
-CONFIG_DB_KEY_VERSION_META = 'version_meta'
-CONFIG_DB_KEY_PY_REPO_CONFIG = 'py_repo_config'
+CONFIG_DB_KEY_APP_CONFIG = "app_config"
+CONFIG_DB_KEY_KEYPACK = "keypack"
+CONFIG_DB_KEY_VERSION_META = "version_meta"
+CONFIG_DB_KEY_PY_REPO_CONFIG = "py_repo_config"
 
-DEFAULT_CLIENT_CONFIG = ['client_config.py']
+DEFAULT_CLIENT_CONFIG = ["client_config.py"]
 
-GENERIC_APP_NAME = 'PyUpdater App'
-GENERIC_COMPANY_NAME = 'PyUpdater'
+GENERIC_APP_NAME = "PyUpdater App"
+GENERIC_COMPANY_NAME = "PyUpdater"
 
 # Log filename
-LOG_FILENAME_DEBUG = 'pyu-debug.log'
+LOG_FILENAME_DEBUG = "pyu-debug.log"
 
 # KeyFile
-KEYPACK_FILENAME = 'keypack.pyu'
+KEYPACK_FILENAME = "keypack.pyu"
 
 # Main user visible data folder
-USER_DATA_FOLDER = 'pyu-data'
+USER_DATA_FOLDER = "pyu-data"
 
 # Key in version file where value are update meta data
-UPDATES_KEY = 'updates'
+UPDATES_KEY = "updates"
 
 # Folder on client system where updates are stored
-UPDATE_FOLDER = 'update'
+UPDATE_FOLDER = "update"
 
 # Name of version file place in online repo
 VERSION_FILE_FILENAME = 'versions-{}.gz'.format(system.get_system())
@@ -69,4 +69,4 @@ VERSION_FILE_FILENAME_COMPAT = 'versions.gz'
 KEY_FILE_FILENAME = 'keys.gz'
 
 # Is PyUpdater running on 64-bit Windows?
-WINDOWS_64BIT = sys.platform == 'win32' and struct.calcsize('P') == 8
+WINDOWS_64BIT = sys.platform == "win32" and struct.calcsize("P") == 8

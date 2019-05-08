@@ -46,10 +46,13 @@ class STDError(Exception):
 
                 False - Report issue msg shown
     """
+
     def __init__(self, msg, tb=None, expected=False):
         if expected is False:
-            msg = msg + ('; please report this issue on https://github.com'
-                         '/JMSwag/PyUpdater/issues')
+            msg = msg + (
+                "; please report this issue on https://github.com"
+                "/JMSwag/PyUpdater/issues"
+            )
         super(STDError, self).__init__(msg)
 
         self.traceback = tb
@@ -58,11 +61,12 @@ class STDError(Exception):
     def format_traceback(self):  # pragma: no cover
         if self.traceback is None:
             return None
-        return ''.join(traceback.format_tb(self.traceback))
+        return "".join(traceback.format_tb(self.traceback))
 
 
 class ClientError(STDError):
     """Raised for Client exceptions"""
+
     def __init__(self, *args, **kwargs):
         super(ClientError, self).__init__(*args, **kwargs)
 
@@ -79,29 +83,34 @@ class KeyHandlerError(STDError):
 
 class PackageHandlerError(STDError):
     """Raised for PackageHandler exceptions"""
+
     def __init__(self, *args, **kwargs):
         super(PackageHandlerError, self).__init__(*args, **kwargs)
 
 
 class PatcherError(STDError):
     """Raised for Patcher exceptions"""
+
     def __init__(self, *args, **kwargs):
         super(PatcherError, self).__init__(*args, **kwargs)
 
 
 class UploaderError(STDError):
     """Raised for Uploader exceptions"""
+
     def __init__(self, *args, **kwargs):
         super(UploaderError, self).__init__(*args, **kwargs)
 
 
 class UploaderPluginError(STDError):
     """Raised for Uploader exceptions"""
+
     def __init__(self, *args, **kwargs):
         super(UploaderPluginError, self).__init__(*args, **kwargs)
 
 
 class UtilsError(STDError):
     """Raised for Utils exceptions"""
+
     def __init__(self, *args, **kwargs):
         super(UtilsError, self).__init__(*args, **kwargs)

@@ -29,46 +29,43 @@ from setuptools import find_packages, setup
 
 import versioneer
 
-KEYWORDS = ('PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky '
-            'updater4pyi bbfreeze ccfreeze freeze cz_freeze pyupdate')
+KEYWORDS = (
+    "PyUpdater Pyinstaller Auto Update AutoUpdate Auto-Update Esky "
+    "updater4pyi bbfreeze ccfreeze freeze cz_freeze pyupdate"
+)
 
-windows_64bit = sys.platform == 'win32' and struct.calcsize('P') == 8
+windows_64bit = sys.platform == "win32" and struct.calcsize("P") == 8
 
 required = []
-with open(u'requirements.txt', u'r') as f:
+with open(u"requirements.txt", u"r") as f:
     for line in f:
-        if windows_64bit and line.startswith('ed25519'):
-            line = 'pure25519 == 0.0.1'
+        if windows_64bit and line.startswith("ed25519"):
+            line = "pure25519 == 0.0.1"
         required.append(line)
 
 
-with open('README.md', 'r') as f:
+with open("README.md", "r") as f:
     readme = f.read()
 
-extra_s3 = 'PyUpdater-s3-Plugin >= 4.0.5'
-extra_scp = 'PyUpdater-scp-Plugin >= 4.0'
+extra_s3 = "PyUpdater-s3-Plugin >= 4.0.5"
+extra_scp = "PyUpdater-scp-Plugin >= 4.0"
 
 setup(
-    name='PyUpdater',
+    name="PyUpdater",
     version=versioneer.get_version(),
-    description='Python Auto Update Library for Pyinstaller',
+    description="Python Auto Update Library for Pyinstaller",
     long_description=readme,
-    long_description_content_type='text/markdown',
-    author='JMSwag',
-    author_email='johnymoswag@gmail.com',
-    url='http://www.pyupdater.org',
-    download_url=('https://github.com/JMSwag/Py'
-                  'Updater/archive/master.zip'),
-    license='MIT',
+    long_description_content_type="text/markdown",
+    author="JMSwag",
+    author_email="johnymoswag@gmail.com",
+    url="http://www.pyupdater.org",
+    download_url=("https://github.com/JMSwag/Py" "Updater/archive/master.zip"),
+    license="MIT",
     keywords=KEYWORDS,
-    extras_require={
-        's3': extra_s3,
-        'scp': extra_scp,
-        'all': [extra_s3, extra_scp]
-    },
+    extras_require={"s3": extra_s3, "scp": extra_scp, "all": [extra_s3, extra_scp]},
     zip_safe=False,
     include_package_data=True,
-    tests_require=['pytest'],
+    tests_require=["pytest"],
     cmdclass=versioneer.get_cmdclass(),
     install_requires=required,
     packages=find_packages(),
@@ -77,11 +74,12 @@ setup(
     pyupdater=pyupdater.cli:main
     """,
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4'],
+        "Development Status :: 4 - Beta",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
+    ],
 )

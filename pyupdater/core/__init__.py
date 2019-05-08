@@ -39,6 +39,7 @@ class PyUpdater(object):
 
             config (obj): config object
     """
+
     def __init__(self, config=None):
         self.config = Config()
         # Important to keep this before updating config
@@ -52,7 +53,7 @@ class PyUpdater(object):
 
             config (obj): config object
         """
-        if not hasattr(config, 'DATA_DIR'):
+        if not hasattr(config, "DATA_DIR"):
             config.DATA_DIR = None
         if config.DATA_DIR is None:
             config.DATA_DIR = os.getcwd()
