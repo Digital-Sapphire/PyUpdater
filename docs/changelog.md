@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.0.2 - Master
+## v3.1.0 - Master
 ####* This version is not yet released and is under active development.
 
 ###Added

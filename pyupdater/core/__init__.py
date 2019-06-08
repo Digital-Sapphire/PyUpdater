@@ -99,6 +99,6 @@ class PyUpdater(object):
         """Creates signing keys"""
         return self.key_importer.start()
 
-    def sign_update(self):
+    def sign_update(self, split_version):
         """Signs version file with signing key"""
-        self.kh.sign_update()
+        self.kh.sign_update(split_version)
