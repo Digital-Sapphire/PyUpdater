@@ -23,6 +23,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import print_function, unicode_literals
+import copy
 import gzip
 import json
 import logging
@@ -64,15 +65,20 @@ class KeyHandler(object):
 
         # The name of the gzipped version file in
         # the pyu-data/deploy directory
-        self.version_file = os.path.join(self.deploy_dir,
-                                         settings.VERSION_FILE_FILENAME)
+        self.version_file = os.path.join(
+            self.deploy_dir, settings.VERSION_FILE_FILENAME
+        )
+
+        self.version_file_compat = os.path.join(
+            self.deploy_dir, settings.VERSION_FILE_FILENAME_COMPAT
+        )
 
         # The name of the gzipped key file in
         # the pyu-data/deploy directory
         self.key_file = os.path.join(self.deploy_dir,
                                      settings.KEY_FILE_FILENAME)
 
-    def sign_update(self):
+    def sign_update(self, split_version):
         """Signs version file with private key
 
         Proxy method for :meth:`_add_sig`
@@ -81,7 +87,7 @@ class KeyHandler(object):
         # Loads version file to memory
         # Signs Version file
         # Writes version file back to disk
-        self._add_sig()
+        self._add_sig(split_version)
 
     def _load_private_keys(self):
         # Loads private key
@@ -98,7 +104,7 @@ class KeyHandler(object):
                 pass
         return private_key
 
-    def _add_sig(self):
+    def _add_sig(self, split_version):
         # Adding new signature to version file
         # Raw private key will need to be converted into
         # a signing key object
@@ -138,29 +144,35 @@ class KeyHandler(object):
         log.debug('Adding signature to update data')
 
         # Write updated version file to .pyupdater/config.pyu
-        self._write_update_data(update_data)
+        self._write_update_data(update_data, split_version)
 
         # Write gzipped key file
         self._write_key_file()
 
-    def _write_update_data(self, data):
-        # Save update data to repo database
-        self.db.save(settings.CONFIG_DB_KEY_VERSION_META, data)
+    def _write_update_data(self, data, split_version):
         log.debug('Saved version meta data')
+
+        if split_version:
+            version_file = self.version_file
+        else:
+            version_file = self.version_file_compat
+
         # Gzip update date
-        with gzip.open(self.version_file, 'wb') as f:
+        with gzip.open(version_file, 'wb') as f:
             new_data = json.dumps(data)
             if six.PY2:
                 f.write(new_data)
             else:
                 f.write(bytes(new_data, 'utf-8'))
+
         log.debug('Created gzipped version manifest in deploy dir')
 
     def _write_key_file(self):
         keypack_data = self.db.load(settings.CONFIG_DB_KEY_KEYPACK)
         if keypack_data is None:
-            log.error('Private Key not found. Please '
-                      'import a keypack & try again')
+            log.error(
+                'Private Key not found. Please import a keypack & try again'
+            )
             return
 
         upload_data = keypack_data['upload']
@@ -182,4 +194,5 @@ class KeyHandler(object):
             self.db.save(settings.CONFIG_DB_KEY_VERSION_META, update_data)
             log.debug('Created new version meta data')
         log.debug('Version file loaded')
-        return update_data
+
+        return copy.deepcopy(update_data)

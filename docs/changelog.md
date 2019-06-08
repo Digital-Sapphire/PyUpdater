@@ -7,10 +7,16 @@
 
   - PyUpdater
     - Support for bz2 archive format
+    - Support for splitting version manifest by platform
 
   - CLI
     - Ability to specify archive format
+    - pkg --sign --split-version
+      - Used with CI/CD
 
+### Fixed
+  - Client
+    - Saving the version manifest to disk for offline updates
 
 ## v3.0.1 - 2019/05/05
 
