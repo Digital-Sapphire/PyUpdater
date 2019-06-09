@@ -185,6 +185,10 @@ class Client(object):
         # The name of the version file to download
         self.version_file = settings.VERSION_FILE_FILENAME
 
+        # The name of the original version of the version file.
+        # Basically the version.gz vs vesion-<platform>.gz
+        self.version_file_compat = settings.VERSION_FILE_FILENAME_COMPAT
+
         # The name of the key file to download
         self.key_file = settings.KEY_FILE_FILENAME
 
@@ -372,53 +376,63 @@ class Client(object):
         with _ChDir(self.data_dir):
             # This could be the first run or an accidental deletion of the
             # cached version manifest.
-            if not os.path.exists(self.version_file):
-                log.debug('No version file on file system')
-                return None
+            if os.path.exists(self.version_file):
+                filename = self.version_file
+            elif os.path.exists(self.version_file_compat):
+                filename = self.version_file_compat
             else:
-                log.debug('Found version file on file system')
-                # Attempt to open the cached version file
-                try:
-                    with open(self.version_file, 'rb') as f:
-                        data = f.read()
-                    log.debug('Loaded version file from file system')
-                except Exception as err:
-                    log.debug('Failed to load version file from file '
-                              'system')
-                    log.debug(err, exc_info=True)
-                    return None
+                return None
 
-                # Attempt the decompress
-                try:
-                    decompressed_data = _gzip_decompress(data)
-                except Exception as err:
-                    log.debug(err)
-                    return None
+            log.debug('Found version file on file system')
+            # Attempt to open the cached version file
+            try:
+                with open(filename, 'rb') as f:
+                    data = f.read()
+                log.debug('Loaded version file from file system')
+            except Exception as err:
+                log.debug('Failed to load version file from file '
+                          'system')
+                log.debug(err, exc_info=True)
+                return None
 
-                return decompressed_data
+            # Attempt the decompress
+            try:
+                decompressed_data = _gzip_decompress(data)
+            except Exception as err:
+                log.debug(err)
+                return None
+
+            return decompressed_data
 
     # Downloading the manifest. If successful also writes it to file-system
     def _get_manifest_from_http(self):
         log.debug('Downloading online version file')
-        try:
-            fd = _FD(self.version_file, self.update_urls, verify=self.verify,
-                     urllb3_headers=self.urllib3_headers)
-            data = fd.download_verify_return()
+        version_files = [self.version_file, self.version_file_compat]
+
+        for vf in version_files:
             try:
-                decompressed_data = _gzip_decompress(data)
-            except IOError:
-                log.debug('Failed to decompress gzip file')
-                # Will be caught down below.
-                # Just logging the error
-                raise
-            log.debug('Version file download successful')
-            # Writing version file to application data directory
-            self._write_manifest_2_filesystem(decompressed_data)
-            return decompressed_data
-        except Exception as err:
-            log.debug('Version file download failed')
-            log.debug(err, exc_info=True)
-            return None
+                fd = _FD(
+                    vf, self.update_urls, verify=self.verify,
+                    urllb3_headers=self.urllib3_headers
+                )
+                data = fd.download_verify_return()
+                try:
+                    decompressed_data = _gzip_decompress(data)
+                except IOError:
+                    log.debug('Failed to decompress gzip file')
+                    # Will be caught down below.
+                    # Just logging the error
+                    raise
+                log.debug('Version file download successful')
+                # Writing version file to application data directory
+                self._write_manifest_to_filesystem(decompressed_data, vf)
+                return decompressed_data
+            except Exception as err:
+                log.debug(err, exc_info=True)
+                continue
+
+        log.debug('Version file download failed')
+        return None
 
     # Downloading the key file.
     def _get_key_data(self):
@@ -434,7 +448,7 @@ class Client(object):
                 raise
             log.debug('Key file download successful')
             # Writing version file to application data directory
-            self._write_manifest_2_filesystem(decompressed_data)
+            self._write_manifest_to_filesystem(decompressed_data, self.key_file)
             return decompressed_data
         except Exception as err:
             log.debug('Version file download failed')
@@ -443,10 +457,10 @@ class Client(object):
 
     # Adds the ability to apply updates when there isn't an
     # Internet connection.
-    def _write_manifest_2_filesystem(self, data):
+    def _write_manifest_to_filesystem(self, data, filename):
         with _ChDir(self.data_dir):
-            log.debug('Writing version file to disk')
-            with gzip.open(self.version_file, 'wb') as f:
+            log.debug('Writing %s file to disk', filename)
+            with gzip.open(filename, 'wb') as f:
                 f.write(data)
 
     # We first attempt to download the version manifest. If that fails

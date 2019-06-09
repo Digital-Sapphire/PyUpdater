@@ -63,13 +63,15 @@ class TestSetup(object):
 
 class TestExecutionExtraction(object):
 
-    @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 9000, True), (True, 9001, False),
-                              (False, 9002, True), (False, 9003, False)])
+    @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
+                             [(True, 9000, True, True), (True, 9001, False, True),
+                              (False, 9002, True, True), (False, 9003, False, True),
+                              (True, 9004, True, False), (True, 9005, False, False),
+                              (False, 9006, True, False), (False, 9007, False, False)])
     @pytest.mark.run(order=2)
     def test_execution_one_file_extract(self, cleandir, shared_datadir,
                                         simpleserver, pyu, custom_dir, port,
-                                        windowed):
+                                        windowed, split_version):
         data_dir = shared_datadir / 'update_repo_extract'
         pyu.setup()
 
@@ -81,8 +83,9 @@ class TestExecutionExtraction(object):
             with open('pyu.log', 'w') as f:
                 f.write('')
 
-            cmd = 'python build_onefile_extract.py %s %s %s' % (custom_dir,
-                                                                port, windowed)
+            cmd = 'python build_onefile_extract.py %s %s %s %s' % (custom_dir,
+                                                                   port, windowed,
+                                                                   split_version)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -156,13 +159,15 @@ class TestExecutionExtraction(object):
             if os.path.exists(output_file):
                 remove_any(output_file)
 
-    @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 9004, True), (True, 9005, False),
-                              (False, 9006, True), (False, 9007, False)])
+    @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
+                             [(True, 9008, True, True), (True, 9009, False, True),
+                              (False, 9010, True, True), (False, 9011, False, True),
+                              (True, 9012, True, False), (True, 9013, False, False),
+                              (False, 9014, True, False), (False, 9015, False, False)])
     @pytest.mark.run(order=1)
     def test_execution_one_dir_extract(self, cleandir, shared_datadir,
                                        simpleserver, pyu, custom_dir, port,
-                                       windowed):
+                                       windowed, split_version):
         data_dir = shared_datadir / 'update_repo_extract'
         pyu.setup()
 
@@ -174,8 +179,9 @@ class TestExecutionExtraction(object):
             with open('pyu.log', 'w') as f:
                 f.write('')
 
-            cmd = 'python build_onedir_extract.py %s %s %s' % (custom_dir,
-                                                               port, windowed)
+            cmd = 'python build_onedir_extract.py %s %s %s %s' % (custom_dir,
+                                                                  port, windowed,
+                                                                  split_version)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -266,13 +272,15 @@ class TestExecutionExtraction(object):
 
 class TestExecutionRestart(object):
 
-    @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 9008, True), (False, 9009, True),
-                              (True, 9010, False), (False, 9011, False)])
+    @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
+                             [(True, 9016, True, True), (True, 9017, False, True),
+                              (False, 9018, True, True), (False, 9019, False, True),
+                              (True, 9020, True, False), (True, 9021, False, False),
+                              (False, 9022, True, False), (False, 9023, False, False)])
     @pytest.mark.run(order=4)
     def test_execution_one_file_restart(self, cleandir, shared_datadir,
                                         simpleserver, pyu, custom_dir, port,
-                                        windowed):
+                                        windowed, split_version):
         data_dir = shared_datadir / 'update_repo_restart'
         pyu.setup()
 
@@ -284,8 +292,9 @@ class TestExecutionRestart(object):
             with open('pyu.log', 'w') as f:
                 f.write('')
 
-            cmd = 'python build_onefile_restart.py %s %s %s' % (custom_dir,
-                                                                port, windowed)
+            cmd = 'python build_onefile_restart.py %s %s %s %s' % (custom_dir,
+                                                                   port, windowed,
+                                                                   split_version)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd
@@ -354,13 +363,15 @@ class TestExecutionRestart(object):
             if os.path.exists(version_file):
                 remove_any(version_file)
 
-    @pytest.mark.parametrize("custom_dir, port, windowed",
-                             [(True, 9012, True), (False, 9013, True),
-                              (True, 9014, False), (False, 9015, False)])
+    @pytest.mark.parametrize("custom_dir, port, windowed, split_version",
+                             [(True, 9024, True, True), (True, 9025, False, True),
+                              (False, 9026, True, True), (False, 9027, False, True),
+                              (True, 9028, True, False), (True, 9029, False, False),
+                              (False, 9030, True, False), (False, 9031, False, False)])
     @pytest.mark.run(order=3)
     def test_execution_one_dir_restart(self, cleandir, shared_datadir,
                                        simpleserver, pyu, custom_dir, port,
-                                       windowed):
+                                       windowed, split_version):
         data_dir = shared_datadir / 'update_repo_restart'
         pyu.setup()
 
@@ -372,8 +383,9 @@ class TestExecutionRestart(object):
             with open('pyu.log', 'w') as f:
                 f.write('')
 
-            cmd = 'python build_onedir_restart.py %s %s %s' % (custom_dir,
-                                                               port, windowed)
+            cmd = 'python build_onedir_restart.py %s %s %s %s' % (custom_dir,
+                                                                  port, windowed,
+                                                                  split_version)
             os.system(cmd)
 
             # Moving all files from the deploy directory to the cwd

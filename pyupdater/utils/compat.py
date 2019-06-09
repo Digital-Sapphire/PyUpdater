@@ -25,12 +25,12 @@
 # Optparse is deprecated. This will results in an error for the user.
 # Users have to use PyInstaller > 3.0  or a Python version lower
 # than the version which removed optparse from the stdlib.
-try:
-    import optparse  # noqa
-except ImportError:
+try:  # pragma: no cover
+    import optparse
+except ImportError:  # pragma: no cover
     optparse = None
 
-try:
-    from urllib import quote as url_quote  # noqa
-except ImportError:
-    from urllib.parse import quote as url_quote  # noqa
+try:  # pragma: no cover
+    from urllib import quote as url_quote
+except ImportError:  # pragma: no cover
+    from urllib.parse import quote as url_quote

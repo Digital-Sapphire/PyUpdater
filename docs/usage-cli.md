@@ -60,6 +60,9 @@ $ pyupdater pkg --process
 ####Now lets sign & gzip our version manifest, gzip our keyfile & place both in the deploy directory. Note that the signing process works without any user intervention. You can combine --sign with --process
 ```
 $ pyupdater pkg --sign
+
+# For CI/CD
+$ pyupdater pkg --sign --slit-version
 ```
 
 ###Step 10 - List Installed Plugins

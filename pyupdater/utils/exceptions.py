@@ -55,7 +55,7 @@ class STDError(Exception):
         self.traceback = tb
         self.exc_info = sys.exc_info()  # preserve original exception
 
-    def format_traceback(self):
+    def format_traceback(self):  # pragma: no cover
         if self.traceback is None:
             return None
         return ''.join(traceback.format_tb(self.traceback))

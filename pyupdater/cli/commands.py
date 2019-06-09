@@ -65,7 +65,7 @@ def check_repo_ex(exit_on_error=False):
 
 
 # Archive an external asset
-def _cmd_archive(*args):
+def _cmd_archive(*args):  # pragma: no cover
     check_repo_ex(exit_on_error=True)
 
     log.info("Archiving asset...")
@@ -301,7 +301,7 @@ def _cmd_pkg(*args):
     # Sign the update meta-data with the repo private key.
     if ns.sign is True:
         log.info('Signing packages...')
-        pyu.sign_update()
+        pyu.sign_update(ns.split_version)
         log.info('Signing packages complete')
 
 

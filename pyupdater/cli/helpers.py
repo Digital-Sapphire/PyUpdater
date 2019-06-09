@@ -34,7 +34,7 @@ from pyupdater.utils import PluginManager
 log = logging.getLevelName(__name__)
 
 
-def print_plugin_settings(plugin_name, config):
+def print_plugin_settings(plugin_name, config):  # pragma: no cover
     pm = PluginManager(config)
     config = pm.get_plugin_settings(plugin_name)
     if len(config.keys()) == 0:
@@ -109,7 +109,7 @@ def setup_patches(config):  # pragma: no cover
     config.UPDATE_PATCHES = terminal.ask_yes_no(question, default='yes')
 
 
-def setup_plugin(name, config):
+def setup_plugin(name, config):  # pragma: no cover
     pgm = PluginManager(config)
     plugin = pgm.get_plugin(name)
     if plugin is None:
