@@ -64,7 +64,7 @@ def client():
 @pytest.fixture
 def create_keypack():
     keys = Keys(test=True)
-    keys.make_keypack('test')
+    keys.make_keypack("test")
 
 
 @pytest.fixture
@@ -76,9 +76,9 @@ def db():
 @pytest.fixture
 def loader():
     default_config = {
-        'APP_NAME': 'PyUpdater Test',
-        'COMPANY_NAME': 'ACME',
-        'UPDATE_PATCHES': True,
+        "APP_NAME": "PyUpdater Test",
+        "COMPANY_NAME": "ACME",
+        "UPDATE_PATCHES": True,
     }
 
     cm = ConfigManager()
@@ -127,4 +127,5 @@ def simpleserver():
             if self._server is not None and self.count == 0:
                 self._server.alive = False
                 self._server = None
+
     return Server()

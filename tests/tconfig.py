@@ -26,11 +26,11 @@ from __future__ import unicode_literals
 
 
 class TConfig(object):
-    bad_attr = 'bad attr'
+    bad_attr = "bad attr"
     # If left None "Not_So_TUF" will be used
-    APP_NAME = 'Acme'
+    APP_NAME = "Acme"
 
-    COMPANY_NAME = 'Digital'
+    COMPANY_NAME = "Digital"
 
     DATA_DIR = None
 
@@ -41,7 +41,7 @@ class TConfig(object):
     # Online repository where you host your packages
     # and version file
     # REQUIRED
-    UPDATE_URLS = ['https://s3-us-west-1.amazonaws.com/pyu-tester/']
+    UPDATE_URLS = ["https://s3-us-west-1.amazonaws.com/pyu-tester/"]
     UPDATE_PATCHES = True
 
     # Upload Setup

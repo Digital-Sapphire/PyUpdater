@@ -32,21 +32,21 @@ from dsdev_utils.logger import logging_formatter
 from pyupdater import settings
 from pyupdater.core import PyUpdater
 
-__all__ = ['PyUpdater']
+__all__ = ["PyUpdater"]
 
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
 # Console logger
-fmt = logging.Formatter('[%(levelname)s] %(message)s')
+fmt = logging.Formatter("[%(levelname)s] %(message)s")
 sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
 sh.setFormatter(fmt)
 log.addHandler(sh)
 
 # Log to pyu.log if available
-local_debug_file_path = os.path.join(os.getcwd(), 'pyu.log')
+local_debug_file_path = os.path.join(os.getcwd(), "pyu.log")
 if os.path.exists(local_debug_file_path):  # pragma: no cover
     fh = logging.FileHandler(local_debug_file_path)
     fh.setLevel(logging.DEBUG)
@@ -66,6 +66,7 @@ log.addHandler(rfh)
 
 # noinspection PyPep8
 from ._version import get_versions
-__version__ = get_versions()['version']
+
+__version__ = get_versions()["version"]
 del get_versions
-log.debug('Version - %s', __version__)
+log.debug("Version - %s", __version__)

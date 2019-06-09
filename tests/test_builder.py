@@ -34,22 +34,16 @@ from pyupdater.utils.builder import ExternalLib
 from pyupdater.utils.config import ConfigManager
 
 
-CONFIG = {
-    'APP_NAME': 'PyUpdater Test',
-    'COMPANY_NAME': 'ACME',
-    'UPDATE_PATCHES': True,
+CONFIG = {"APP_NAME": "PyUpdater Test", "COMPANY_NAME": "ACME", "UPDATE_PATCHES": True}
 
-}
-
-if sys.platform == 'win32':
-    EXT = '.zip'
+if sys.platform == "win32":
+    EXT = ".zip"
 else:
-    EXT = '.tar.gz'
+    EXT = ".tar.gz"
 
 
-@pytest.mark.usefixtures("cleandir",)
+@pytest.mark.usefixtures("cleandir")
 class TestBuilder(object):
-
     def test_build(self):
         cm = ConfigManager()
         config = cm.load_config()
@@ -57,12 +51,11 @@ class TestBuilder(object):
         cm.save_config(config)
 
 
-@pytest.mark.usefixtures("cleandir",)
+@pytest.mark.usefixtures("cleandir")
 class TestExternalLib(object):
-
     def test_archive(self):
-        with io.open('test', 'w', encoding='utf-8') as f:
-            f.write('this is a test')
-        ex = ExternalLib('test', '0.1')
+        with io.open("test", "w", encoding="utf-8") as f:
+            f.write("this is a test")
+        ex = ExternalLib("test", "0.1")
         ex.archive()
-        assert os.path.exists('test-{}-0.1{}'.format(get_system(), EXT))
+        assert os.path.exists("test-{}-0.1{}".format(get_system(), EXT))

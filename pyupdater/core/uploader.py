@@ -48,12 +48,13 @@ class Uploader(object):
 
             config (instance): config object
     """
+
     def __init__(self, config, plugins=None):
         # Specifies whether to keep a file after uploading
         self.keep = False
 
         data_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER)
-        self.deploy_dir = os.path.join(data_dir, 'deploy')
+        self.deploy_dir = os.path.join(data_dir, "deploy")
 
         # The upload plugin that'll be used to upload our files
         self.uploader = None
@@ -95,16 +96,16 @@ class Uploader(object):
         """
         self.keep = keep
         if isinstance(requested_uploader, six.string_types) is False:
-            raise UploaderError('Must pass str to set_uploader',
-                                expected=True)
+            raise UploaderError("Must pass str to set_uploader", expected=True)
 
         self.uploader = self.plg_mgr.get_plugin(requested_uploader, init=True)
         if self.uploader is None:
-            log.debug('PLUGIN_NAMESPACE: %s', self.plg_mgr.PLUGIN_NAMESPACE)
-            raise UploaderPluginError('Requested uploader is not installed',
-                                      expected=True)
+            log.debug("PLUGIN_NAMESPACE: %s", self.plg_mgr.PLUGIN_NAMESPACE)
+            raise UploaderPluginError(
+                "Requested uploader is not installed", expected=True
+            )
 
-        msg = 'Requested uploader: {}'.format(requested_uploader)
+        msg = "Requested uploader: {}".format(requested_uploader)
         log.debug(msg)
 
     def upload(self, files=None):
@@ -114,24 +115,23 @@ class Uploader(object):
         failed_uploads = []
         files_completed = 1
         file_count = len(self.files)
-        log.info('Plugin: %s', self.uploader.name)
-        log.info('Author: %s', self.uploader.author)
+        log.info("Plugin: %s", self.uploader.name)
+        log.info("Author: %s", self.uploader.author)
 
         for f in self.files:
             basename = os.path.basename(f)
-            msg = '\n\nUploading: {}' .format(basename)
-            msg2 = ' - File {} of {}\n'.format(files_completed,
-                                               file_count)
+            msg = "\n\nUploading: {}".format(basename)
+            msg2 = " - File {} of {}\n".format(files_completed, file_count)
             print(msg + msg2)
             complete = self.uploader.upload_file(f)
 
             if complete:
-                log.debug('%s uploaded successfully', basename)
+                log.debug("%s uploaded successfully", basename)
                 if self.keep is False:
                     remove_any(f)
                 files_completed += 1
             else:
-                log.debug('%s failed to upload.  will retry', basename)
+                log.debug("%s failed to upload.  will retry", basename)
                 failed_uploads.append(f)
 
         if len(failed_uploads) > 0:
@@ -140,9 +140,9 @@ class Uploader(object):
         if len(failed_uploads) < 1:
             return True
         else:
-            log.error('The following files were not uploaded')
+            log.error("The following files were not uploaded")
             for i in failed_uploads:
-                log.error('%s failed to upload', os.path.basename(i))
+                log.error("%s failed to upload", os.path.basename(i))
             return False
 
     def _retry_upload(self, failed_uploads):
@@ -152,11 +152,11 @@ class Uploader(object):
         failed_count = len(retry)
         count = 1
         for f in retry:
-            msg = 'Retyring: {} - File {} of {}'.format(f, count, failed_count)
+            msg = "Retyring: {} - File {} of {}".format(f, count, failed_count)
             log.info(msg)
             complete = self.uploader.upload_file(f)
             if complete:
-                log.debug('%s uploaded on retry', f)
+                log.debug("%s uploaded on retry", f)
                 if self.keep is False:
                     remove_any(f)
                 count += 1
@@ -168,7 +168,6 @@ class Uploader(object):
 
 # noinspection PyProtectedMember
 class AbstractBaseUploaderMeta(type):
-
     def __call__(cls, *args, **kwargs):
         obj = type.__call__(cls, *args, **kwargs)
         # We are using this meta class to ensure plugin authors have
@@ -185,6 +184,7 @@ class BaseUploader(object):
     """Base Uploader.  All uploaders should subclass
     this base class
     """
+
     def _check_attributes(self):
         if self.name is None or self.author is None:
             raise NotImplementedError
@@ -200,8 +200,9 @@ class BaseUploader(object):
 
             config (dict): config dict for plugin
         """
-        raise NotImplementedError('{} by {} must implemented in '
-                                  'subclass.'.format(self.name, self.author))
+        raise NotImplementedError(
+            "{} by {} must implemented in " "subclass.".format(self.name, self.author)
+        )
 
     def set_config(self, config):
         """Used to ask user questions and return config
@@ -213,8 +214,9 @@ class BaseUploader(object):
                             already set values
 
         """
-        raise NotImplementedError('{} by {} must implemented in '
-                                  'subclass.'.format(self.name, self.author))
+        raise NotImplementedError(
+            "{} by {} must implemented in " "subclass.".format(self.name, self.author)
+        )
 
     def upload_file(self, filename):
         """Uploads file to remote repository
@@ -229,5 +231,6 @@ class BaseUploader(object):
 
                 False - Upload Failed
         """
-        raise NotImplementedError('{} by {} must implemented in '
-                                  'subclass.'.format(self.name, self.author))
+        raise NotImplementedError(
+            "{} by {} must implemented in " "subclass.".format(self.name, self.author)
+        )

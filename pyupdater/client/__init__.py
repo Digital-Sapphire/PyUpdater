@@ -32,9 +32,11 @@ import warnings
 
 import appdirs
 from dsdev_utils.app import app_cwd, FROZEN
-from dsdev_utils.helpers import (EasyAccessDict as _EAD,
-                                 gzip_decompress as _gzip_decompress,
-                                 Version as _Version)
+from dsdev_utils.helpers import (
+    EasyAccessDict as _EAD,
+    gzip_decompress as _gzip_decompress,
+    Version as _Version,
+)
 from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
@@ -51,17 +53,17 @@ if settings.WINDOWS_64BIT:
 else:
     import ed25519
 
-warnings.simplefilter('always', DeprecationWarning)
+warnings.simplefilter("always", DeprecationWarning)
 
 
 log = logging.getLogger(__name__)
-log_path = os.path.join(app_cwd, 'pyu.log')
+log_path = os.path.join(app_cwd, "pyu.log")
 if os.path.exists(log_path):  # pragma: no cover
-    ch = logging.FileHandler(os.path.join(app_cwd, 'pyu.log'))
+    ch = logging.FileHandler(os.path.join(app_cwd, "pyu.log"))
     ch.setLevel(logging.DEBUG)
     ch.setFormatter(logging_formatter)
     log.addHandler(ch)
-log.debug('PyUpdater Version %s', __version__)
+log.debug("PyUpdater Version %s", __version__)
 
 
 # Mostly used for testing purposes
@@ -91,20 +93,20 @@ class Client(object):
     test (bool): Used to initialize a test client
 
     """
+
     def __init__(self, obj, **kwargs):
         if obj is None:
             obj = DefaultClientConfig()
 
-        refresh = kwargs.get('refresh', False)
-        progress_hooks = kwargs.get('progress_hooks')
-        test = kwargs.get('test', False)
-        data_dir = kwargs.get('data_dir')
-        headers = kwargs.get('headers')
+        refresh = kwargs.get("refresh", False)
+        progress_hooks = kwargs.get("progress_hooks")
+        test = kwargs.get("test", False)
+        data_dir = kwargs.get("data_dir")
+        headers = kwargs.get("headers")
 
         if headers is not None:
             if not isinstance(headers, dict):
-                raise ClientError('headers argument must be a dict',
-                                  expected=True)
+                raise ClientError("headers argument must be a dict", expected=True)
 
         # String: Name of binary to update
         self.name = None
@@ -125,7 +127,7 @@ class Client(object):
         self.progress_hooks = []
         if progress_hooks is not None:
             if not isinstance(progress_hooks, list):
-                raise SyntaxError('progress_hooks must be provided as a list.')
+                raise SyntaxError("progress_hooks must be provided as a list.")
             self.progress_hooks += progress_hooks
 
         obj.URLLIB3_HEADERS = headers
@@ -138,27 +140,26 @@ class Client(object):
         self.FROZEN = FROZEN
 
         # Grabbing config information
-        update_urls = config.get('UPDATE_URLS', [])
+        update_urls = config.get("UPDATE_URLS", [])
 
         # List of URL to check for update data
         self.update_urls = Client._sanitize_update_url(update_urls)
 
         # Name of the running application
-        self.app_name = config.get('APP_NAME', 'PyUpdater')
+        self.app_name = config.get("APP_NAME", "PyUpdater")
 
         # Name of the app author
-        self.company_name = config.get('COMPANY_NAME', 'Digital Sapphire')
+        self.company_name = config.get("COMPANY_NAME", "Digital Sapphire")
 
         # Used in testing to force use of the mac archive
         if test:
             # Making platform deterministic for tests.
             self.data_dir = obj.DATA_DIR
-            self.platform = 'mac'
+            self.platform = "mac"
         else:  # pragma: no cover
             if data_dir is None:
                 # Getting platform specific user data directory
-                self.data_dir = appdirs.user_data_dir(self.app_name,
-                                                      self.company_name)
+                self.data_dir = appdirs.user_data_dir(self.app_name, self.company_name)
             else:
                 self.data_dir = data_dir
 
@@ -166,21 +167,20 @@ class Client(object):
             self.platform = _get_system()
 
         # Folder to house update archives
-        self.update_folder = os.path.join(self.data_dir,
-                                          settings.UPDATE_FOLDER)
+        self.update_folder = os.path.join(self.data_dir, settings.UPDATE_FOLDER)
 
         # The root public key to verify the app signing private key
-        self.root_key = config.get('PUBLIC_KEY', '')
+        self.root_key = config.get("PUBLIC_KEY", "")
 
         # We'll get the app_key later in _get_signing_key
         # That's if we verify the keys manifest
         self.app_key = None
 
         # Used to disable TLS cert verification
-        self.verify = config.get('VERIFY_SERVER_CERT', True)
+        self.verify = config.get("VERIFY_SERVER_CERT", True)
 
         # Max number of download retries
-        self.max_download_retries = config.get('MAX_DOWNLOAD_RETRIES', 3)
+        self.max_download_retries = config.get("MAX_DOWNLOAD_RETRIES", 3)
 
         # The name of the version file to download
         self.version_file = settings.VERSION_FILE_FILENAME
@@ -206,7 +206,7 @@ class Client(object):
         self._get_signing_key()
         self._get_update_manifest()
 
-    def update_check(self, name, version, channel='stable', strict=True):
+    def update_check(self, name, version, channel="stable", strict=True):
         """Checks for available updates
 
         ######Args:
@@ -234,10 +234,10 @@ class Client(object):
         return self._update_check(name, version, channel, strict)
 
     def _update_check(self, name, version, channel, strict):
-        valid_channels = ['alpha', 'beta', 'stable']
+        valid_channels = ["alpha", "beta", "stable"]
         if channel not in valid_channels:
-            log.debug('Invalid channel. May need to check spelling')
-            channel = 'stable'
+            log.debug("Invalid channel. May need to check spelling")
+            channel = "stable"
         self.name = name
 
         # Version object used for comparison
@@ -251,14 +251,14 @@ class Client(object):
         if self.ready is False:
             # No json data is loaded.
             # User may need to call refresh
-            log.debug('No update manifest found')
+            log.debug("No update manifest found")
             return None
 
         # Checking if version file is verified before
         # processing data contained in the version file.
         # This was done by self._get_update_manifest
         if self.verified is False:
-            log.debug('Failed version file verification')
+            log.debug("Failed version file verification")
             return None
 
         # If we are an app we will need restart functionality, so we'll
@@ -266,42 +266,43 @@ class Client(object):
         if self.FROZEN is True and self.name == self.app_name:
             app = True
 
-        log.debug('Checking for %s updates...', name)
-        latest = get_highest_version(name, self.platform, channel,
-                                     self.easy_data, strict)
+        log.debug("Checking for %s updates...", name)
+        latest = get_highest_version(
+            name, self.platform, channel, self.easy_data, strict
+        )
         if latest is None:
             # If None is returned get_highest_version could
             # not find the supplied name in the version file
-            log.debug('Could not find the latest version')
+            log.debug("Could not find the latest version")
             return None
 
         # Change str to version object for easy comparison
         latest = _Version(latest)
-        log.debug('Current version: %s', str(version))
-        log.debug('Latest version: %s', str(latest))
+        log.debug("Current version: %s", str(version))
+        log.debug("Latest version: %s", str(latest))
 
         update_needed = latest > version
-        log.debug('Update Needed: %s', update_needed)
+        log.debug("Update Needed: %s", update_needed)
         if latest <= version:
-            log.debug('%s already updated to the latest version', name)
+            log.debug("%s already updated to the latest version", name)
             return None
 
         # Config data to initialize update object
         data = {
-            'strict': strict,
-            'update_urls': self.update_urls,
-            'name': self.name,
-            'version': self.version,
-            'easy_data': self.easy_data,
-            'json_data': self.json_data,
-            'data_dir': self.data_dir,
-            'platform': self.platform,
-            'channel': channel,
-            'app_name': self.app_name,
-            'verify': self.verify,
-            'max_download_retries': self.max_download_retries,
-            'progress_hooks': list(set(self.progress_hooks)),
-            'urllib3_headers': self.urllib3_headers,
+            "strict": strict,
+            "update_urls": self.update_urls,
+            "name": self.name,
+            "version": self.version,
+            "easy_data": self.easy_data,
+            "json_data": self.json_data,
+            "data_dir": self.data_dir,
+            "platform": self.platform,
+            "channel": channel,
+            "app_name": self.app_name,
+            "verify": self.verify,
+            "max_download_retries": self.max_download_retries,
+            "progress_hooks": list(set(self.progress_hooks)),
+            "urllib3_headers": self.urllib3_headers,
         }
 
         # Return update object with which handles downloading,
@@ -340,33 +341,33 @@ class Client(object):
             return
 
         # Key data dict
-        key_data = json.loads(key_data_str.decode('utf-8'))
+        key_data = json.loads(key_data_str.decode("utf-8"))
 
         # Get the public key so we can verify it's authenticity with the
         # root public key.
-        pub_key = key_data['app_public']
+        pub_key = key_data["app_public"]
         if six.PY3:
             if not isinstance(pub_key, bytes):
-                pub_key = bytes(pub_key, encoding='utf-8')
+                pub_key = bytes(pub_key, encoding="utf-8")
         else:
             pub_key = str(pub_key)
 
         # The signature that we'll validate
-        sig = key_data['signature']
+        sig = key_data["signature"]
 
         # Let's generate our signing key.
-        signing_key = ed25519.VerifyingKey(self.root_key, encoding='base64')
+        signing_key = ed25519.VerifyingKey(self.root_key, encoding="base64")
 
         try:
-            signing_key.verify(sig, pub_key, encoding='base64')
+            signing_key.verify(sig, pub_key, encoding="base64")
         except Exception as err:
             # This is bad. Very bad.
             # Create another keypack.pyu & import it not your repo.
-            log.debug('Key file not verified')
+            log.debug("Key file not verified")
             log.debug(err, exc_info=True)
         else:
             # Everything checks out
-            log.debug('Key file verified')
+            log.debug("Key file verified")
             self.app_key = pub_key
 
     # Here we attempt to read the manifest from the filesystem
@@ -383,15 +384,14 @@ class Client(object):
             else:
                 return None
 
-            log.debug('Found version file on file system')
+            log.debug("Found version file on file system")
             # Attempt to open the cached version file
             try:
-                with open(filename, 'rb') as f:
+                with open(filename, "rb") as f:
                     data = f.read()
-                log.debug('Loaded version file from file system')
+                log.debug("Loaded version file from file system")
             except Exception as err:
-                log.debug('Failed to load version file from file '
-                          'system')
+                log.debug("Failed to load version file from file " "system")
                 log.debug(err, exc_info=True)
                 return None
 
@@ -406,24 +406,26 @@ class Client(object):
 
     # Downloading the manifest. If successful also writes it to file-system
     def _get_manifest_from_http(self):
-        log.debug('Downloading online version file')
+        log.debug("Downloading online version file")
         version_files = [self.version_file, self.version_file_compat]
 
         for vf in version_files:
             try:
                 fd = _FD(
-                    vf, self.update_urls, verify=self.verify,
-                    urllb3_headers=self.urllib3_headers
+                    vf,
+                    self.update_urls,
+                    verify=self.verify,
+                    urllb3_headers=self.urllib3_headers,
                 )
                 data = fd.download_verify_return()
                 try:
                     decompressed_data = _gzip_decompress(data)
                 except IOError:
-                    log.debug('Failed to decompress gzip file')
+                    log.debug("Failed to decompress gzip file")
                     # Will be caught down below.
                     # Just logging the error
                     raise
-                log.debug('Version file download successful')
+                log.debug("Version file download successful")
                 # Writing version file to application data directory
                 self._write_manifest_to_filesystem(decompressed_data, vf)
                 return decompressed_data
@@ -431,27 +433,31 @@ class Client(object):
                 log.debug(err, exc_info=True)
                 continue
 
-        log.debug('Version file download failed')
+        log.debug("Version file download failed")
         return None
 
     # Downloading the key file.
     def _get_key_data(self):
-        log.debug('Downloading key file')
+        log.debug("Downloading key file")
         try:
-            fd = _FD(self.key_file, self.update_urls, verify=self.verify,
-                     urllb3_headers=self.urllib3_headers)
+            fd = _FD(
+                self.key_file,
+                self.update_urls,
+                verify=self.verify,
+                urllb3_headers=self.urllib3_headers,
+            )
             data = fd.download_verify_return()
             try:
                 decompressed_data = _gzip_decompress(data)
             except IOError:
-                log.debug('Failed to decompress gzip file')
+                log.debug("Failed to decompress gzip file")
                 raise
-            log.debug('Key file download successful')
+            log.debug("Key file download successful")
             # Writing version file to application data directory
             self._write_manifest_to_filesystem(decompressed_data, self.key_file)
             return decompressed_data
         except Exception as err:
-            log.debug('Version file download failed')
+            log.debug("Version file download failed")
             log.debug(err, exc_info=True)
             return None
 
@@ -459,15 +465,15 @@ class Client(object):
     # Internet connection.
     def _write_manifest_to_filesystem(self, data, filename):
         with _ChDir(self.data_dir):
-            log.debug('Writing %s file to disk', filename)
-            with gzip.open(filename, 'wb') as f:
+            log.debug("Writing %s file to disk", filename)
+            with gzip.open(filename, "wb") as f:
                 f.write(data)
 
     # We first attempt to download the version manifest. If that fails
     # we try to load a cached version manifest from disk. Once we have
     # the data in memory we'll verify it's signature.
     def _get_update_manifest(self):
-        log.debug('Loading version file...')
+        log.debug("Loading version file...")
 
         data = self._get_manifest_from_http()
         if data is None:
@@ -475,16 +481,16 @@ class Client(object):
 
         if data is not None:
             try:
-                log.debug('Data type: %s', type(data))
+                log.debug("Data type: %s", type(data))
                 # If json fails to load self.ready will stay false
                 # which will cause _update_check to exit early
-                self.json_data = json.loads(data.decode('utf-8'))
+                self.json_data = json.loads(data.decode("utf-8"))
 
                 # Ready to check for updates.
                 self.ready = True
             except ValueError as err:
                 # Malformed json???
-                log.debug('Json failed to load: ValueError')
+                log.debug("Json failed to load: ValueError")
                 log.debug(err, exc_info=True)
             except Exception as err:
                 # Catch all for debugging purposes.
@@ -492,8 +498,9 @@ class Client(object):
                 # please open an issue on github or submit a pull request
                 log.debug(err, exc_info=True)
         else:
-            log.debug('Failed to download version file & no '
-                      'version file on filesystem')
+            log.debug(
+                "Failed to download version file & no " "version file on filesystem"
+            )
             self.json_data = {}
 
         # If verified we set self.verified to True.
@@ -504,43 +511,43 @@ class Client(object):
     # Verify the signature of the version manifest.
     def _verify_sig(self, data):
         if self.app_key is None:
-            log.debug('App key is None')
+            log.debug("App key is None")
             return
 
         # Checking to see if there is a signature key in the version file.
-        if 'signature' in data.keys():
-            signature = data['signature']
-            log.debug('Deleting signature from update data')
+        if "signature" in data.keys():
+            signature = data["signature"]
+            log.debug("Deleting signature from update data")
             # We are removing the signature to prepare the data
             # for verification.
-            del data['signature']
+            del data["signature"]
 
             update_data = json.dumps(data, sort_keys=True)
 
-            pub_key = ed25519.VerifyingKey(self.app_key, encoding='base64')
+            pub_key = ed25519.VerifyingKey(self.app_key, encoding="base64")
             if six.PY3:
                 if not isinstance(update_data, bytes):
-                    update_data = bytes(update_data, encoding='utf-8')
+                    update_data = bytes(update_data, encoding="utf-8")
             try:
-                pub_key.verify(signature, update_data, encoding='base64')
+                pub_key.verify(signature, update_data, encoding="base64")
             except Exception as err:
-                log.debug('Version file not verified')
+                log.debug("Version file not verified")
                 log.debug(err, exc_info=True)
             else:
-                log.debug('Version file verified')
+                log.debug("Version file verified")
                 self.verified = True
         else:
-            log.debug('Signature not in update data')
+            log.debug("Signature not in update data")
 
     def _setup(self):
         # Create required directories on end-users computer
         # to place verified update data
         # Very safe director maker :)
-        log.debug('Setting up directories...')
+        log.debug("Setting up directories...")
         dirs = [self.data_dir, self.update_folder]
         for d in dirs:
             if not os.path.exists(d):
-                log.debug('Creating directory: %s', d)
+                log.debug("Creating directory: %s", d)
                 os.makedirs(d)
 
     @staticmethod
@@ -550,8 +557,8 @@ class Client(object):
         # Doing this so when requesting online resources we only
         # need to add the resource name to the end of the request.
         for u in urls:
-            if not u.endswith('/'):
-                sanitized_urls.append(u + '/')
+            if not u.endswith("/"):
+                sanitized_urls.append(u + "/")
             else:
                 sanitized_urls.append(u)
         # Removing duplicates

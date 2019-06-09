@@ -35,19 +35,16 @@ log = logging.getLogger(__name__)
 # Used by KeyHandler, PackageHandler & Config to
 # store data in a json file
 class Storage(object):
-
     def __init__(self):
         """Loads & saves config file to file-system.
         """
-        self.config_dir = os.path.join(os.getcwd(),
-                                       settings.CONFIG_DATA_FOLDER)
+        self.config_dir = os.path.join(os.getcwd(), settings.CONFIG_DATA_FOLDER)
         if not os.path.exists(self.config_dir):
-            log.debug('Creating config dir')
+            log.debug("Creating config dir")
             os.mkdir(self.config_dir)
-        log.debug('Config Dir: %s', self.config_dir)
-        self.filename = os.path.join(self.config_dir,
-                                     settings.CONFIG_FILE_USER)
-        log.debug('Config DB: %s', self.filename)
+        log.debug("Config Dir: %s", self.config_dir)
+        self.filename = os.path.join(self.config_dir, settings.CONFIG_FILE_USER)
+        log.debug("Config DB: %s", self.filename)
         self.db = JSONStore(self.filename)
         self.count = 0
         self._load_db()
@@ -59,7 +56,7 @@ class Storage(object):
         setattr(self.__class__, name, value)
 
     def __delattr__(self, name):
-        raise AttributeError('Cannot delete attributes!')
+        raise AttributeError("Cannot delete attributes!")
 
     def __getitem__(self, name):
         try:
@@ -88,7 +85,7 @@ class Storage(object):
         setattr(Storage, key, value)
         for k, v in Storage.__dict__.items():
             self.db[k] = v
-        log.debug('Syncing db to filesystem')
+        log.debug("Syncing db to filesystem")
         self.db.sync()
 
     def load(self, key):

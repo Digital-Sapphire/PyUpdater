@@ -32,28 +32,27 @@ import pytest
 import six
 
 
-if sys.platform == 'win32' and struct.calcsize('P') == 8:
+if sys.platform == "win32" and struct.calcsize("P") == 8:
     from pure25519 import ed25519_oop as ed25519
 else:
     import ed25519
 
 
-@pytest.mark.usefixtures('cleandir')
+@pytest.mark.usefixtures("cleandir")
 class TestVersionFile(object):
-
     def test_signature(self, shared_datadir):
-        json_raw = (shared_datadir / 'version.json').read_text()
+        json_raw = (shared_datadir / "version.json").read_text()
         version_data = json.loads(json_raw)
 
-        sig = version_data['signature']
-        del version_data['signature']
+        sig = version_data["signature"]
+        del version_data["signature"]
         data = json.dumps(version_data, sort_keys=True)
         if six.PY3:
-            version_data = bytes(data, 'utf-8')
+            version_data = bytes(data, "utf-8")
         else:
             version_data = data
 
-        jms_pub = (shared_datadir / 'jms.pub').read_text()
-        public_key = ed25519.VerifyingKey(jms_pub, encoding='base64')
+        jms_pub = (shared_datadir / "jms.pub").read_text()
+        public_key = ed25519.VerifyingKey(jms_pub, encoding="base64")
 
-        public_key.verify(sig, version_data, encoding='base64')
+        public_key.verify(sig, version_data, encoding="base64")

@@ -31,6 +31,7 @@ import shutil
 import subprocess
 import tarfile
 import zipfile
+
 try:
     from UserDict import DictMixin
 except ImportError:
@@ -51,7 +52,7 @@ log = logging.getLogger(__name__)
 
 class PluginManager(object):
 
-    PLUGIN_NAMESPACES = ['pyupdater.plugins.upload', 'pyupdater.plugins']
+    PLUGIN_NAMESPACES = ["pyupdater.plugins.upload", "pyupdater.plugins"]
 
     def __init__(self, config, plugins=None):
         if isinstance(plugins, list):
@@ -86,7 +87,7 @@ class PluginManager(object):
     # this in two locations in this class
     @staticmethod
     def _get_config(config):
-        return config.get('PLUGIN_CONFIGS')
+        return config.get("PLUGIN_CONFIGS")
 
     def _name_check(self, name):
         # We don't use the number 1 when adding the first
@@ -94,16 +95,16 @@ class PluginManager(object):
         # it'll look better when displayed on the cli
         name = name.lower()
         if name not in self.unique_names.keys():
-            self.unique_names[name] = ''
+            self.unique_names[name] = ""
 
         # Create the output before we update the name count
-        out = '{}{}'.format(name, str(self.unique_names[name]))
+        out = "{}{}".format(name, str(self.unique_names[name]))
 
         # Setup the counter for the next exact name match
         # Since we already created the output up above
         # we are just getting ready for the next call
         # to name check
-        if self.unique_names[name] == '':
+        if self.unique_names[name] == "":
             self.unique_names[name] = 2
         else:
             self.unique_names[name] += 1
@@ -115,24 +116,23 @@ class PluginManager(object):
         for p in plugins:
             # Checking for required information from
             # plugin author. If not found plugin won't be loaded
-            if not hasattr(p, 'name') or p.name is None:
-                log.error('Plugin does not have required name attribute')
+            if not hasattr(p, "name") or p.name is None:
+                log.error("Plugin does not have required name attribute")
                 continue
-            if not hasattr(p, 'author') or p.author is None:
-                log.error('Plugin does not have required author attribute')
+            if not hasattr(p, "author") or p.author is None:
+                log.error("Plugin does not have required author attribute")
                 continue
 
             if not isinstance(p.name, six.string_types):
-                log.error('Plugin name attribute is not a string')
+                log.error("Plugin name attribute is not a string")
                 continue
             if not isinstance(p.author, six.string_types):
-                log.error('Plugin author attribute is not a string')
+                log.error("Plugin author attribute is not a string")
                 continue
             # We are ensuring a unique name for users
             # to select when uploading.
             name = self._name_check(p.name)
-            self.plugins.append({'name': name, 'author': p.author,
-                                 'plugin': p})
+            self.plugins.append({"name": name, "author": p.author, "plugin": p})
 
     def config_plugin(self, name, config):
         # Load all available plugin configs from
@@ -143,7 +143,7 @@ class PluginManager(object):
         plugin = self.get_plugin(name)
 
         # Create the key to retrieve this plugins config
-        config_key = '{}-{}'.format(plugin.name.lower(), plugin.author)
+        config_key = "{}-{}".format(plugin.name.lower(), plugin.author)
 
         # Get the config for this plugin
         plugin_config = configs.get(config_key)
@@ -155,8 +155,11 @@ class PluginManager(object):
         try:
             plugin.set_config(plugin_config)
         except Exception as err:
-            log.error('There was an error during configuration '
-                      'of %s created by %s', plugin.name, plugin.author)
+            log.error(
+                "There was an error during configuration " "of %s created by %s",
+                plugin.name,
+                plugin.author,
+            )
             log.debug(err, exc_info=True)
 
     def get_plugin_names(self):
@@ -165,8 +168,7 @@ class PluginManager(object):
         """
         plugin_info = []
         for p in self.plugins:
-            plugin_info.append({'name': p['name'],
-                                'author': p['author']})
+            plugin_info.append({"name": p["name"], "author": p["author"]})
         return plugin_info
 
     # Init is false by default. Used when you want
@@ -186,8 +188,7 @@ class PluginManager(object):
         return config
 
     def _get_plugin_config(self, plugin):
-        config_key = '{}-{}'.format(plugin.name.lower(),
-                                    plugin.author)
+        config_key = "{}-{}".format(plugin.name.lower(), plugin.author)
         return self.configs.get(config_key, {})
 
     def _get_plugin(self, name):
@@ -196,8 +197,8 @@ class PluginManager(object):
         for p in self.plugins:
             # We match the given name to the names
             # we generate for uniqueness
-            if name == p['name'].lower():
-                plugin = p['plugin']
+            if name == p["name"].lower():
+                plugin = p["plugin"]
                 break
         return plugin
 
@@ -206,19 +207,18 @@ def check_repo():
     """Checks if current directory is a pyupdater repository"""
     repo = True
     if not os.path.exists(settings.CONFIG_DATA_FOLDER):
-        log.debug('PyUpdater config data folder is missing')
+        log.debug("PyUpdater config data folder is missing")
         repo = False
     return repo
 
 
 def get_http_pool():
-    return urllib3.PoolManager(cert_reqs=str('CERT_REQUIRED'),
-                               ca_certs=certifi.where())
+    return urllib3.PoolManager(cert_reqs=str("CERT_REQUIRED"), ca_certs=certifi.where())
 
 
 def get_size_in_bytes(filename):
     size = os.path.getsize(os.path.abspath(filename))
-    log.debug('File size: %s bytes', size)
+    log.debug("File size: %s bytes", size)
     return size
 
 
@@ -235,25 +235,25 @@ def create_asset_archive(name, version):
          (str) - name of archive
     """
     file_dir = os.path.dirname(os.path.abspath(name))
-    filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
-                                 system.get_system(), version)
+    filename = "{}-{}-{}".format(
+        os.path.splitext(name)[0], system.get_system(), version
+    )
 
     # Only use zip on windows.
     # Zip does not preserve file permissions on nix & mac
     with paths.ChDir(file_dir):
-        if system.get_system() == 'win':
-            ext = '.zip'
-            with zipfile.ZipFile(filename + ext, 'w') as zf:
+        if system.get_system() == "win":
+            ext = ".zip"
+            with zipfile.ZipFile(filename + ext, "w") as zf:
                 zf.write(name, name)
         else:
-            ext = '.tar.gz'
+            ext = ".tar.gz"
             with paths.ChDir(file_dir):
-                with tarfile.open(filename + ext, 'w:gz',
-                                  compresslevel=0) as tar:
+                with tarfile.open(filename + ext, "w:gz", compresslevel=0) as tar:
                     tar.add(name, name)
 
     output_filename = filename + ext
-    log.debug('Archive output filename: %s', output_filename)
+    log.debug("Archive output filename: %s", output_filename)
     return output_filename
 
 
@@ -271,10 +271,10 @@ def make_archive(name, target, version, archive_format):
     Returns:
          (str) - name of archive
     """
-    log.debug('starting archive')
+    log.debug("starting archive")
     ext = os.path.splitext(target)[1]
     temp_file = name + ext
-    log.debug('Temp file: %s', temp_file)
+    log.debug("Temp file: %s", temp_file)
     # Remove file if it exists. Found during testing...
     if os.path.exists(temp_file):
         paths.remove_any(temp_file)
@@ -284,39 +284,39 @@ def make_archive(name, target, version, archive_format):
     else:
         shutil.copytree(target, temp_file, symlinks=True)
         # renames the entry-point executable
-        file_ext = '.exe' if system.get_system() == 'win' else ''
+        file_ext = ".exe" if system.get_system() == "win" else ""
         src_executable = temp_file + os.sep + target + file_ext
         dst_executable = temp_file + os.sep + name + file_ext
         # is an osx bundle app so does not need to fix the executable name
-        if ext != '.app':
+        if ext != ".app":
             shutil.move(src_executable, dst_executable)
 
         # is a win folder so the manifest need to be renamed too
-        if system.get_system() == 'win':
-            src_manifest = src_executable + '.manifest'
-            dst_manifest = dst_executable + '.manifest'
+        if system.get_system() == "win":
+            src_manifest = src_executable + ".manifest"
+            dst_manifest = dst_executable + ".manifest"
             shutil.move(src_manifest, dst_manifest)
 
     file_dir = os.path.dirname(os.path.abspath(target))
-    filename = '{}-{}-{}'.format(os.path.splitext(name)[0],
-                                 system.get_system(), version)
+    filename = "{}-{}-{}".format(
+        os.path.splitext(name)[0], system.get_system(), version
+    )
     # Only use zip on windows.
     # Zip does not preserve file permissions on nix & mac
     # tar.gz creates full file path
     with paths.ChDir(file_dir):
-        ext = 'gztar'
-        if archive_format == 'default':
-            if system.get_system() == 'win':
-                ext = 'zip'
+        ext = "gztar"
+        if archive_format == "default":
+            if system.get_system() == "win":
+                ext = "zip"
         else:
             ext = archive_format
-        output_filename = shutil.make_archive(filename, ext,
-                                              file_dir, temp_file)
+        output_filename = shutil.make_archive(filename, ext, file_dir, temp_file)
 
     if os.path.exists(temp_file):
         paths.remove_any(temp_file)
 
-    log.debug('Archive output filename: %s', output_filename)
+    log.debug("Archive output filename: %s", output_filename)
     return output_filename
 
 
@@ -333,10 +333,10 @@ def remove_dot_files(files):
     """
     new_list = []
     for l in files:
-        if not l.startswith('.'):
+        if not l.startswith("."):
             new_list.append(l)
         else:
-            log.debug('Removed %s from file list', l)
+            log.debug("Removed %s from file list", l)
     return new_list
 
 
@@ -351,13 +351,12 @@ def run(cmd):
 
         (int): Exit code
     """
-    log.debug('Command: %s', cmd)
+    log.debug("Command: %s", cmd)
     exit_code = subprocess.call(cmd, shell=True)
     return exit_code
 
 
 class JSONStore(DictMixin):
-
     def __init__(self, path, json_kw=None):
         """Create a JSONStore object backed by the file at `path`.
         If a dict is passed in as `json_kw`, it will be used as keyword
@@ -376,7 +375,7 @@ class JSONStore(DictMixin):
             return
         try:
             # load the whole store
-            with io.open(path, 'r', encoding='utf-8') as fp:
+            with io.open(path, "r", encoding="utf-8") as fp:
                 self.update(json.load(fp))
         except Exception as err:
             log.warning(err)
@@ -409,11 +408,11 @@ class JSONStore(DictMixin):
     def _sanitize(data):
         _data = {}
         for k, v in data.items():
-            if hasattr(v, '__call__') is True:
+            if hasattr(v, "__call__") is True:
                 continue
             if isinstance(v, JSONStore) is True:
                 continue
-            if k in ['__weakref__', '__module__', '__dict__', '__doc__']:
+            if k in ["__weakref__", "__module__", "__dict__", "__doc__"]:
                 continue
             _data[k] = v
         return _data
@@ -439,7 +438,7 @@ class JSONStore(DictMixin):
             return False
 
         data = JSONStore._sanitize(self._data)
-        with io.open(self.path, 'w', encoding='utf-8') as json_file:
+        with io.open(self.path, "w", encoding="utf-8") as json_file:
             data = json.dumps(data, ensure_ascii=False, indent=2)
             if six.PY2:
                 data = unicode(data)

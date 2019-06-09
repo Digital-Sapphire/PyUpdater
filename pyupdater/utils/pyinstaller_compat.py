@@ -25,6 +25,7 @@
 import argparse
 import logging
 import os
+
 # Optparse is deprecated. This will results in an error for the user.
 # Users have to use PyInstaller > 3.0  or a Python version lower
 # than the version which removed optparse from the stdlib.
@@ -36,7 +37,7 @@ except ImportError:  # pragma: no cover
 try:
     from PyInstaller import __version__ as pyi_version
 except ImportError:
-    pyi_version = '0.0'
+    pyi_version = "0.0"
 from PyInstaller.building import makespec as _pyi_makespec
 from PyInstaller import compat as _pyi_compat
 from PyInstaller import log as _pyi_log
@@ -45,11 +46,12 @@ from PyInstaller import log as _pyi_log
 log = logging.getLogger(__name__)
 
 # PyInstaller versions 3.0 & prior used optparse
-is_pyi30 = pyi_version == '3.0'
+is_pyi30 = pyi_version == "3.0"
 
 
 def pyi_makespec(pyi_args):  # pragma: no cover
     """Wrapper to configure make_spec for multipule pyinstaller versions"""
+
     def run_makespec(args, opts=None):
         """Setup args & run make_spec command"""
         if is_pyi30:
@@ -74,21 +76,21 @@ def pyi_makespec(pyi_args):  # pragma: no cover
             args.pathex.insert(0, os.getcwd())
 
             spec_file = _pyi_makespec.main(args.scriptname, **vars(args))
-        log.debug('wrote %s', spec_file)
+        log.debug("wrote %s", spec_file)
 
     if is_pyi30:
         # We will exit with an error message in builder.py
         if optparse is None:
-            log.debug('optparse is not available in this python distribution')
+            log.debug("optparse is not available in this python distribution")
             return False
-        parser = optparse.OptionParser(usage=('%prog [opts] <scriptname> [ '
-                                              '<scriptname> ...] | <specfil'
-                                              'e>'))
+        parser = optparse.OptionParser(
+            usage=("%prog [opts] <scriptname> [ " "<scriptname> ...] | <specfil" "e>")
+        )
         # We are hacking into pyinstaller here & are aware of the risks
         # using noqa below so landscape.io will ignore it
         _pyi_makespec.__add_options(parser)  # noqa
         _pyi_log.__add_options(parser)  # noqa
-        if hasattr(_pyi_compat, '__add_obsolete_options'):
+        if hasattr(_pyi_compat, "__add_obsolete_options"):
             _pyi_compat.__add_obsolete_options(parser)  # noqa
         # End hacking
         opts, args = parser.parse_args(pyi_args)
@@ -104,17 +106,17 @@ def pyi_makespec(pyi_args):  # pragma: no cover
         # using noqa below so landscape.io will ignore it
         _pyi_makespec.__add_options(parser)  # noqa
         _pyi_log.__add_options(parser)  # noqa
-        if hasattr(_pyi_compat, '__add_obsolete_options'):
+        if hasattr(_pyi_compat, "__add_obsolete_options"):
             _pyi_compat.__add_obsolete_options(parser)  # noqa
         # End hacking
-        parser.add_argument('scriptname', nargs='+')
+        parser.add_argument("scriptname", nargs="+")
 
         args = parser.parse_args(pyi_args)
 
         # We call init because it loads logger into the global
         # namespace of the Pyinstaller.log module. logger is used
         # in the Pyinstaller.log.__process_options call
-        if hasattr(_pyi_log, 'init'):
+        if hasattr(_pyi_log, "init"):
             _pyi_log.init()
         # We are hacking into pyinstaller here & are aware of the risks
         # using noqa below so landscape.io will ignore it

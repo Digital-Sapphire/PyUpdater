@@ -22,9 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
-hiddenimports = [u'dsdev_utils.app',
-                 u'dsdev_utils.logger',
-                 u'dsdev_utils.paths',
-                 u'dsdev_utils.system',
-                 u'dsdev_utils.terminal',
-                 ]  # pragma: no cover
+hiddenimports = [
+    u"dsdev_utils.app",
+    u"dsdev_utils.logger",
+    u"dsdev_utils.paths",
+    u"dsdev_utils.system",
+    u"dsdev_utils.terminal",
+]  # pragma: no cover

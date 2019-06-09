@@ -33,7 +33,7 @@ from pyupdater.cli import commands
 from pyupdater.cli.options import get_parser
 
 
-logging.getLogger('dsdev_utils').setLevel(logging.ERROR)
+logging.getLogger("dsdev_utils").setLevel(logging.ERROR)
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def _real_main(args, namespace_test_helper=None):  # pragma: no cover
 # pyupdater.cli.commands
 def dispatch_command(args, pyi_args=None, test=False):
     # Turns collect-debug-info into collect_debug_info
-    cmd_str = "_cmd_" + args.command.replace('-', '_')
+    cmd_str = "_cmd_" + args.command.replace("-", "_")
     if hasattr(commands, cmd_str):
         cmd = getattr(commands, cmd_str)
         # We are just making sure we can load the function
@@ -69,18 +69,18 @@ def dispatch_command(args, pyi_args=None, test=False):
     else:
         # This should only get hit by misconfigured tests.
         # "Should" being the key word here :)
-        log.error('Unknown Command: %s', cmd_str)
+        log.error("Unknown Command: %s", cmd_str)
         return False
 
 
 def main(args=None):  # pragma: no cover
-    log.info('PyUpdater %s', __version__)
+    log.info("PyUpdater %s", __version__)
     try:
         _real_main(args)
     except KeyboardInterrupt:
         # Someones quick on the draw
-        print('\n')
-        msg = 'Exited by user'
+        print("\n")
+        msg = "Exited by user"
         log.warning(msg)
     except Exception as err:
         print(err)
@@ -88,5 +88,5 @@ def main(args=None):  # pragma: no cover
         log.debug(err, exc_info=True)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     main(sys.argv[1:])
