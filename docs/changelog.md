@@ -17,6 +17,7 @@
 ### Fixed
   - Client
     - Saving the version manifest to disk for offline updates
+    - Basic Auth
 
 ## v3.0.1 - 2019/05/05
 

@@ -206,6 +206,9 @@ def add_settings_parser(subparsers):
         "settings", help="Updated " "config settings"
     )
     settings_parser.add_argument(
+        "--company", help="Change company name", action="store_true"
+    )
+    settings_parser.add_argument(
         "--config-path",
         help="Path to place your client config. "
         "You'll need to import this file to ini"
@@ -213,10 +216,14 @@ def add_settings_parser(subparsers):
         action="store_true",
     )
     settings_parser.add_argument(
-        "--company", help="Change company name", action="store_true"
+        "--http-timeout",
+        help="Settings the timeout, in seconds, for the FileDownloader",
+        action="store_true"
     )
     settings_parser.add_argument(
-        "--urls", help="Change update urls", action="store_true"
+        "--max-download-retries",
+        help="Set the max " "number of times to try a download.",
+        action="store_true",
     )
     settings_parser.add_argument(
         "--patches", help="Changed patch support", action="store_true"
@@ -228,9 +235,7 @@ def add_settings_parser(subparsers):
         "--show-plugin", help="Show the name " "plugin's settings", dest="show_plugin"
     )
     settings_parser.add_argument(
-        "--max-download-retries",
-        help="Set the max " "number of times to try a download.",
-        action="store_true",
+        "--urls", help="Change update urls", action="store_true"
     )
 
 

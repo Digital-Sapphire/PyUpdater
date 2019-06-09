@@ -36,9 +36,9 @@ class Config(dict):
     def __init__(self, *args, **kwargs):
         super(Config, self).__init__(*args, **kwargs)
         self.__dict__ = self
-        self.__postinit__()
+        self._set_default()
 
-    def __postinit__(self):
+    def _set_default(self):
         config_template = {
             # If left None "PyUpdater App" will be used
             "APP_NAME": settings.GENERIC_APP_NAME,
@@ -51,6 +51,8 @@ class Config(dict):
             "UPDATE_PATCHES": True,
             # Max retries for downloads
             "MAX_DOWNLOAD_RETRIES": 3,
+            # HTTP TIMEOUT
+            "HTTP_TIMEOUT": 30,
         }
         self.update(config_template)
 
@@ -126,15 +128,23 @@ class ConfigManager(object):
             if hasattr(obj, "APP_NAME"):
                 log.debug("Adding APP_NAME to client_config.py")
                 f.write(attr_str_format.format("APP_NAME", obj.APP_NAME))
+
             if hasattr(obj, "COMPANY_NAME"):
                 log.debug("Adding COMPANY_NAME to client_config.py")
                 f.write(attr_str_format.format("COMPANY_NAME", obj.COMPANY_NAME))
-            if hasattr(obj, "UPDATE_URLS"):
-                log.debug("Adding UPDATE_URLS to client_config.py")
-                f.write(attr_format.format("UPDATE_URLS", obj.UPDATE_URLS))
+
+            if hasattr(obj, "HTTP_TIMEOUT"):
+                log.debug("Adding HTTP_TIMEOUT to cilent_config.py")
+                f.write(
+                    attr_format.format("HTTP_TIMEOUT", obj.HTTP_TIMEOUT)
+                )
 
             if hasattr(obj, "MAX_DOWNLOAD_RETRIES"):
                 log.debug("Adding MAX_DOWNLOAD_RETRIES to client_config.py")
                 f.write(
                     attr_format.format("MAX_DOWNLOAD_RETRIES", obj.MAX_DOWNLOAD_RETRIES)
                 )
+
+            if hasattr(obj, "UPDATE_URLS"):
+                log.debug("Adding UPDATE_URLS to client_config.py")
+                f.write(attr_format.format("UPDATE_URLS", obj.UPDATE_URLS))

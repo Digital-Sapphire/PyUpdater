@@ -179,6 +179,9 @@ class Client(object):
         # Max number of download retries
         self.max_download_retries = config.get("MAX_DOWNLOAD_RETRIES", 3)
 
+        # HTTP Timeout
+        self.http_timeout = config.get("HTTP_TIMEOUT", 30)
+
         # The name of the version file to download
         self.version_file = settings.VERSION_FILE_FILENAME
 
@@ -229,6 +232,15 @@ class Client(object):
             None - No Updates available
         """
         return self._update_check(name, version, channel, strict)
+
+    def _gen_file_downloader_options(self):
+        return {
+            'http_timeout': self.http_timeout,
+            'max_download_retries': self.max_download_retries,
+            'progress_hooks': self.progress_hooks,
+            'urllib3_headers': self.urllib3_headers,
+            'verify': self.verify,
+        }
 
     def _update_check(self, name, version, channel, strict):
         valid_channels = ["alpha", "beta", "stable"]
@@ -296,11 +308,9 @@ class Client(object):
             "platform": self.platform,
             "channel": channel,
             "app_name": self.app_name,
-            "verify": self.verify,
-            "max_download_retries": self.max_download_retries,
-            "progress_hooks": list(set(self.progress_hooks)),
-            "urllib3_headers": self.urllib3_headers,
         }
+
+        data.update(self._gen_file_downloader_options())
 
         # Return update object with which handles downloading,
         # extracting updates
@@ -411,8 +421,7 @@ class Client(object):
                 fd = FileDownloader(
                     vf,
                     self.update_urls,
-                    verify=self.verify,
-                    urllb3_headers=self.urllib3_headers,
+                    **self._gen_file_downloader_options()
                 )
                 data = fd.download_verify_return()
                 try:
@@ -440,8 +449,7 @@ class Client(object):
             fd = FileDownloader(
                 self.key_file,
                 self.update_urls,
-                verify=self.verify,
-                urllb3_headers=self.urllib3_headers,
+                **self._gen_file_downloader_options()
             )
             data = fd.download_verify_return()
             try:
