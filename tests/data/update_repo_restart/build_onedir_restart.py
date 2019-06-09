@@ -75,7 +75,8 @@ def main(use_custom_dir, port, windowed, split_version):
     # patch config_file for custom port number
     config_file = open('client_config.py', 'rt').read()
     config_file = re.sub(
-        'localhost:\d+', 'localhost:%s' % port, config_file)
+        r'localhost:\d+', 'localhost:%s' % port, config_file
+    )
     # patch config_file for use_custom_dir
     if use_custom_dir:
         config_file += '\n    USE_CUSTOM_DIR = True\n'
