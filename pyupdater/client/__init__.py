@@ -40,18 +40,15 @@ from dsdev_utils.helpers import (
 from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
+import ed25519
 import six
 
 from pyupdater import settings, __version__
-from pyupdater.client.downloader import FileDownloader as _FD
+from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.exceptions import ClientError
 
-if settings.WINDOWS_64BIT:
-    from pure25519 import ed25519_oop as ed25519
-else:
-    import ed25519
 
 warnings.simplefilter("always", DeprecationWarning)
 
@@ -411,7 +408,7 @@ class Client(object):
 
         for vf in version_files:
             try:
-                fd = _FD(
+                fd = FileDownloader(
                     vf,
                     self.update_urls,
                     verify=self.verify,
@@ -440,7 +437,7 @@ class Client(object):
     def _get_key_data(self):
         log.debug("Downloading key file")
         try:
-            fd = _FD(
+            fd = FileDownloader(
                 self.key_file,
                 self.update_urls,
                 verify=self.verify,

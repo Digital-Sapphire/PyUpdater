@@ -22,9 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
-import sys
-import struct
-
 from setuptools import find_packages, setup
 
 import versioneer
@@ -34,21 +31,18 @@ KEYWORDS = (
     "updater4pyi bbfreeze ccfreeze freeze cz_freeze pyupdate"
 )
 
-windows_64bit = sys.platform == "win32" and struct.calcsize("P") == 8
 
-required = []
 with open(u"requirements.txt", u"r") as f:
-    for line in f:
-        if windows_64bit and line.startswith("ed25519"):
-            line = "pure25519 == 0.0.1"
-        required.append(line)
+    required = f.read().splitlines()
 
 
 with open("README.md", "r") as f:
     readme = f.read()
 
+
 extra_s3 = "PyUpdater-s3-Plugin >= 4.0.5"
 extra_scp = "PyUpdater-scp-Plugin >= 4.0"
+
 
 setup(
     name="PyUpdater",
@@ -58,8 +52,8 @@ setup(
     long_description_content_type="text/markdown",
     author="JMSwag",
     author_email="johnymoswag@gmail.com",
-    url="http://www.pyupdater.org",
-    download_url=("https://github.com/JMSwag/Py" "Updater/archive/master.zip"),
+    url="https://www.pyupdater.org",
+    download_url=("https://github.com/JMSwag/PyUpdater/archive/master.zip"),
     license="MIT",
     keywords=KEYWORDS,
     extras_require={"s3": extra_s3, "scp": extra_scp, "all": [extra_s3, extra_scp]},
