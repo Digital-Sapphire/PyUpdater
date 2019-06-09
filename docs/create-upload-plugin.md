@@ -1,11 +1,11 @@
-#Create Upload Plugins
+# Create Upload Plugins
 
 - PyUpdater finds plugins by setuptools entry points.
 - Base class provides helper methods to get and set configuration information.
 
-##Simple Example
-####my_uploader.py
-```python
+## Simple Example
+my_uploader.py
+```
 
 from pyupdater.core.uploader import BaseUploader
 
@@ -30,7 +30,7 @@ class MyUploader(BaseUploader):
 ```
 
 
-####In your setup.py
+setup.py
 ```
 setup(
     provides=['pyupdater.plugins',],
@@ -41,11 +41,11 @@ setup(
         },
 ```
 
-##Plugin Settings
+## Plugin Settings
 Plugin authors have 2 ways of getting and setting config information.
 
 The first way would be to request the information from the user. In your plugin you'd do something like this. 
-```python
+```
 # Saves the config to disk.
 def set_config(self, config):
     server_name = self.get_answer("Please enter server name\n--> ")
@@ -60,6 +60,9 @@ def init_config(self, config):
 
 The second way would be env var.
 
-##Examples plugins
-###[S3 Plugin](https://github.com/JMSwag/PyUpdater-S3-Plugin "S3 Plugin")
-###[SCP Plugin](https://github.com/JMSwag/PyUpdater-SCP-Plugin "SCP Plugin")
+## Examples plugins
+[S3 Plugin](https://github.com/JMSwag/PyUpdater-S3-Plugin)
+
+[SCP Plugin](https://github.com/JMSwag/PyUpdater-SCP-Plugin)
+
+

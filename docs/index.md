@@ -3,7 +3,7 @@
 
 ##What is PyUpdater?
 
-An AutoUpdate library and toolkit that enables simple, secure & efficient shipment of app updates.
+An auto-update library and cli tool that enables simple, secure & efficient shipment of app updates.
 
 This project would not be possible without [Pyinstaller](https://github.com/pyinstaller/pyinstaller).
 ## Status

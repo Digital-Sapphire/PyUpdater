@@ -25,12 +25,13 @@ app_update.is_downloaded()
 
 Examples of setting one or more callbacks. PyUpdater calls set() on the list of plugins to ensure duplicates are not added.
 ```
-# progress hooks get pass a dict with the below keys.
+# Progress hooks get passed a dict with the below keys.
 # total: total file size
 # downloaded: data received so far
 # status: will show either downloading or finished
 # percent_complete: Percentage of file downloaded so far
 # time: Time left to complete download
+
 def progress(data):
     print('Time remaining'.format(data['time']))
 
@@ -52,8 +53,9 @@ client.add_progress_hook(progress)
 Basic authentication is an easy way to prevent unauthorized people from downloading your app from your update server.
 
 Once you've configured your web server to require basic authentication from clients accessing your update repository, modify your update client code like below.
+
+Other headers can be sent in the same way.
 ```
 headers = {'basic_auth': 'user:pass'}
 client = Client(ClientConfig(), headers=headers)
 ```
-Other headers can be sent in the same way, if you want.
