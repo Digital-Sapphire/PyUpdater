@@ -36,6 +36,7 @@ from pyupdater.cli.helpers import (
     print_plugin_settings,
     setup_client_config_path,
     setup_company,
+    setup_http_timeout,
     setup_max_download_retries,
     setup_patches,
     setup_plugin,
@@ -162,6 +163,10 @@ def _cmd_settings(*args):  # pragma: no cover
     # The amount of times the client retries downloads
     if ns.max_download_retries is True:
         setup_max_download_retries(config)
+
+    # The http timeout for FileDownloader
+    if ns.http_timeout is True:
+        setup_http_timeout(config)
 
     # Base urls to online updates & meta data
     if ns.urls is True:

@@ -17,6 +17,7 @@
 ### Fixed
   - Client
     - Saving the version manifest to disk for offline updates
+    - Basic Auth
 
 ### Removed
   - PyUpdater

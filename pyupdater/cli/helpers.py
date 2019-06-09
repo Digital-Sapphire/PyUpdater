@@ -102,10 +102,29 @@ def setup_max_download_retries(config):  # pragma: no cover
         if temp > 10 or temp < 1:
             log.error("Max retries can only be from 1 to 10")
             continue
-
         break
 
     config.MAX_DOWNLOAD_RETRIES = temp
+
+
+def setup_http_timeout(config):  # pragma: no cover
+    default = config.HTTP_TIMEOUT
+    while 1:
+        temp = terminal.get_correct_answer(
+            "Enter HTTP timeout in seconds", required=True, default=str(default)
+        )
+        try:
+            temp = int(temp)
+        except Exception as err:
+            log.error(err)
+            continue
+
+        if temp < 1:
+            log.error("HTTP timeout has to be >= 1")
+            continue
+        break
+
+    config.HTTP_TIMEOUT = temp
 
 
 def setup_patches(config):  # pragma: no cover
