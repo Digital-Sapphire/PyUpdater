@@ -206,3 +206,14 @@ class TestPkg(object):
         cmd = ['pkg', '-P', '-S']
         opts, other = parser.parse_known_args(cmd)
         commands._cmd_pkg(opts)
+
+    def test_pkg_execution_no_opts(self, parser, pyu):
+        subparser = make_subparser(parser)
+        add_package_parser(subparser)
+
+        pyu.update_config(pyu.config)
+        pyu.setup()
+        cmd = ['pkg']
+
+        opts, other = parser.parse_known_args(cmd)
+        commands._cmd_pkg(opts)

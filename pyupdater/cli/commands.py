@@ -65,7 +65,7 @@ def check_repo_ex(exit_on_error=False):
 
 
 # Archive an external asset
-def _cmd_archive(*args):
+def _cmd_archive(*args):  # pragma: no cover
     check_repo_ex(exit_on_error=True)
 
     log.info("Archiving asset...")
