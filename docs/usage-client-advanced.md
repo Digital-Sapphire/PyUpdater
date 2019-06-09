@@ -86,7 +86,7 @@ class MyDownloader:
         # Download the data from the endpoint and return
         return self._data
     
-    def downlaod_verify_write(self):
+    def download_verify_write(self):
         # Write the downloaded data to the current dir
         with open(self.filename, 'wb') as f:
             f.write(self._data)
