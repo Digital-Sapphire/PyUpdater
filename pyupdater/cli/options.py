@@ -162,24 +162,38 @@ def add_keys_parser(subparsers):
 
 
 def add_package_parser(subparsers):
-    package_parser = subparsers.add_parser('pkg', help='Manage creation of '
-                                           'file meta-data & signing')
-    package_parser.add_argument('-p', '-P', '--process',
-                                help='Adds update metadata to version file & '
-                                'moves files from the new to deploy '
-                                'directory.',
-                                action='store_true', dest='process')
-
-    package_parser.add_argument('-s', '-S', '--sign', help='Sign version file',
-                                action='store_true', dest='sign')
-
+    package_parser = subparsers.add_parser(
+        "pkg", help="Manage creation of " "file meta-data & signing"
+    )
     package_parser.add_argument(
-        '--split-version', action='store_true', dest='split_version',
-        help='Creates a version manifest for the current platform only. For CI/CD'
+        "-p",
+        "-P",
+        "--process",
+        help="Adds update metadata to version file & "
+        "moves files from the new to deploy "
+        "directory.",
+        action="store_true",
+        dest="process",
     )
 
-    package_parser.add_argument('-v', '--verbose', help='More output messages',
-                                action='store_true', dest='verbose')
+    package_parser.add_argument(
+        "-s", "-S", "--sign", help="Sign version file", action="store_true", dest="sign"
+    )
+
+    package_parser.add_argument(
+        "--split-version",
+        action="store_true",
+        dest="split_version",
+        help="Creates a version manifest for the current platform only. For CI/CD",
+    )
+
+    package_parser.add_argument(
+        "-v",
+        "--verbose",
+        help="More output messages",
+        action="store_true",
+        dest="verbose",
+    )
 
 
 def add_plugin_parser(subparsers):

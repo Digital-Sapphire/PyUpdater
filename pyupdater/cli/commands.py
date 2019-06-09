@@ -302,9 +302,9 @@ def _cmd_pkg(*args):
 
     # Sign the update meta-data with the repo private key.
     if ns.sign is True:
-        log.info('Signing packages...')
+        log.info("Signing packages...")
         pyu.sign_update(ns.split_version)
-        log.info('Signing packages complete')
+        log.info("Signing packages complete")
 
 
 # Uploads the debug logs to a private github gist

@@ -58,25 +58,23 @@ def extract(filename):
 
 
 def main(use_custom_dir, port, windowed, split_version):
-    cmd1 = 'pyupdater pkg -P'
-    cmd2 = 'pyupdater pkg -S'
+    cmd1 = "pyupdater pkg -P"
+    cmd2 = "pyupdater pkg -S"
 
     if split_version:
-        cmd2 += ' --split-version'
+        cmd2 += " --split-version"
 
-    scripts = [('app_restart_01.py', '4.1',
-                '--windowed' if windowed else ''),
-               ('app_restart_02.py', '4.2',
-                '--windowed' if windowed else '')]
+    scripts = [
+        ("app_restart_01.py", "4.1", "--windowed" if windowed else ""),
+        ("app_restart_02.py", "4.2", "--windowed" if windowed else ""),
+    ]
 
     # We use this flag to untar & move our binary to the
     # current working directory
     first = True
     # patch config_file for custom port number
-    config_file = open('client_config.py', 'rt').read()
-    config_file = re.sub(
-        r'localhost:\d+', 'localhost:%s' % port, config_file
-    )
+    config_file = open("client_config.py", "rt").read()
+    config_file = re.sub(r"localhost:\d+", "localhost:%s" % port, config_file)
     # patch config_file for use_custom_dir
     if use_custom_dir:
         config_file += "\n    USE_CUSTOM_DIR = True\n"
@@ -112,11 +110,15 @@ def main(use_custom_dir, port, windowed, split_version):
     os.system(cmd2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print('usage: %s <use_custom_dir> <port> <windowed> <split_version>' % sys.argv[0])
+        print(
+            "usage: %s <use_custom_dir> <port> <windowed> <split_version>" % sys.argv[0]
+        )
     else:
         main(
-            sys.argv[1] == 'True', sys.argv[2],
-            sys.argv[3] == 'True', sys.argv[4] == 'True'
+            sys.argv[1] == "True",
+            sys.argv[2],
+            sys.argv[3] == "True",
+            sys.argv[4] == "True",
         )

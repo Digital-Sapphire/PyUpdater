@@ -202,7 +202,7 @@ class TestPkg(object):
 
         pyu.update_config(pyu.config)
         pyu.setup()
-        cmd = ['pkg']
+        cmd = ["pkg"]
 
         opts, other = parser.parse_known_args(cmd)
         commands._cmd_pkg(opts)

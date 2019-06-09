@@ -432,10 +432,7 @@ class LibUpdate(object):
         # patch update
         cv = self.current_version
         self._current_archive_name = LibUpdate._get_filename(
-            self.name,
-            cv,
-            self.platform,
-            self.easy_data,
+            self.name, cv, self.platform, self.easy_data
         )
 
         # Get filename of latest versions update archive

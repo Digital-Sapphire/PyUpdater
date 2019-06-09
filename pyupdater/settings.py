@@ -64,9 +64,9 @@ UPDATES_KEY = "updates"
 UPDATE_FOLDER = "update"
 
 # Name of version file place in online repo
-VERSION_FILE_FILENAME = 'versions-{}.gz'.format(system.get_system())
-VERSION_FILE_FILENAME_COMPAT = 'versions.gz'
-KEY_FILE_FILENAME = 'keys.gz'
+VERSION_FILE_FILENAME = "versions-{}.gz".format(system.get_system())
+VERSION_FILE_FILENAME_COMPAT = "versions.gz"
+KEY_FILE_FILENAME = "keys.gz"
 
 # Is PyUpdater running on 64-bit Windows?
 WINDOWS_64BIT = sys.platform == "win32" and struct.calcsize("P") == 8

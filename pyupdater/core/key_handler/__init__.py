@@ -148,7 +148,7 @@ class KeyHandler(object):
         self._write_key_file()
 
     def _write_update_data(self, data, split_version):
-        log.debug('Saved version meta data')
+        log.debug("Saved version meta data")
 
         if split_version:
             version_file = self.version_file
@@ -156,21 +156,19 @@ class KeyHandler(object):
             version_file = self.version_file_compat
 
         # Gzip update date
-        with gzip.open(version_file, 'wb') as f:
+        with gzip.open(version_file, "wb") as f:
             new_data = json.dumps(data)
             if six.PY2:
                 f.write(new_data)
             else:
-                f.write(bytes(new_data, 'utf-8'))
+                f.write(bytes(new_data, "utf-8"))
 
-        log.debug('Created gzipped version manifest in deploy dir')
+        log.debug("Created gzipped version manifest in deploy dir")
 
     def _write_key_file(self):
         keypack_data = self.db.load(settings.CONFIG_DB_KEY_KEYPACK)
         if keypack_data is None:
-            log.error(
-                'Private Key not found. Please import a keypack & try again'
-            )
+            log.error("Private Key not found. Please import a keypack & try again")
             return
 
         upload_data = keypack_data["upload"]
@@ -190,7 +188,7 @@ class KeyHandler(object):
             update_data = {}
             log.error("Version meta data not found")
             self.db.save(settings.CONFIG_DB_KEY_VERSION_META, update_data)
-            log.debug('Created new version meta data')
-        log.debug('Version file loaded')
+            log.debug("Created new version meta data")
+        log.debug("Version file loaded")
 
         return copy.deepcopy(update_data)
