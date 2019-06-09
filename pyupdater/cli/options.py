@@ -150,7 +150,7 @@ def add_package_parser(subparsers):
 
     package_parser.add_argument(
         '--split-version', action='store_true', dest='split_version',
-        help='Creates a version manifest for the current platform only'
+        help='Creates a version manifest for the current platform only. For CI/CD'
     )
 
     package_parser.add_argument('-v', '--verbose', help='More output messages',

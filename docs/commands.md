@@ -156,13 +156,16 @@ $ pyupdater make-spec app.py
 
 ###Pkg
 ```
-usage: pyupdater pkg [-h] [-p] [-s]
+usage: pyupdater pkg [-h] [-p] [-s] [--split-version] [-v]
 
 optional arguments:
   -h, --help         show this help message and exit
   -p, -P, --process  Adds update metadata to version file & moves files from
                      the new to deploy directory.
   -s, -S, --sign     Sign version file
+  --split-version    Creates a version manifest for the current platform only. For CI/CD
+  -v, --verbose      More output messages
+
 ```
 
 Description:

@@ -33,8 +33,7 @@ from dsdev_utils.system import get_system
 
 log = logging.getLogger()
 
-cmd1 = 'pyupdater pkg -P'
-cmd2 = 'pyupdater pkg -S'
+
 home_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -55,7 +54,13 @@ def extract(filename):
     archive.extractall()
 
 
-def main(use_custom_dir, port, windowed):
+def main(use_custom_dir, port, windowed, split_version):
+    cmd1 = 'pyupdater pkg -P'
+    cmd2 = 'pyupdater pkg -S'
+
+    if split_version:
+        cmd2 += ' --split-version'
+
     scripts = [('app_extract_01.py', '4.1',
                 '--windowed' if windowed else ''),
                ('app_extract_02.py', '4.2',
@@ -104,7 +109,10 @@ def main(use_custom_dir, port, windowed):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4:
-        print('usage: %s <use_custom_dir> <port> <windowed>' % sys.argv[0])
+    if len(sys.argv) != 5:
+        print('usage: %s <use_custom_dir> <port> <windowed> <split_version>' % sys.argv[0])
     else:
-        main(sys.argv[1] == 'True', sys.argv[2], sys.argv[3] == 'True')
+        main(
+            sys.argv[1] == 'True', sys.argv[2],
+            sys.argv[3] == 'True', sys.argv[4] == 'True'
+        )
