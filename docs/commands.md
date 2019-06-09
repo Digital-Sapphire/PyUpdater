@@ -208,22 +208,25 @@ scp by Digital Sapphire
 
 ### Settings
 ```
-usage: pyupdater settings [-h] [--config-path] [--company] [--urls]
-                          [--patches] [--plugin PLUGIN]
-                          [--show-plugin SHOW_PLUGIN] [--max-download-retries]
+usage: pyupdater settings [-h] [--company] [--config-path] [--http-timeout]
+                          [--max-download-retries] [--patches]
+                          [--plugin PLUGIN] [--show-plugin SHOW_PLUGIN]
+                          [--urls]
 
 optional arguments:
   -h, --help            show this help message and exit
+  --company             Change company name
   --config-path         Path to place your client config. You'll need to
                         import this file to initialize the update process.
-  --company             Change company name
-  --urls                Change update urls
+  --http-timeout        Settings the timeout, in seconds, for the
+                        FileDownloader
+  --max-download-retries
+                        Set the max number of times to try a download.
   --patches             Changed patch support
   --plugin PLUGIN       Change the named plugin's settings
   --show-plugin SHOW_PLUGIN
-                        Show the named plugin's settings
-  --max-download-retries
-                        Set the max number of times to try a download.
+                        Show the name plugin's settings
+  --urls                Change update urls
 ```
 Description:
 

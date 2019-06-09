@@ -8,6 +8,9 @@
   - PyUpdater
     - Support for bz2 archive format
     - Support for splitting version manifest by platform
+    - Support for servers other than directory listing like Github Releases & Bintray.
+    See [Usage | Client | Advanced](usage-client-advanced.md#Use-your-own-file-downloader) and
+    [Create Upload Plugins](create-upload-plugin.md)
 
   - CLI
     - Ability to specify archive format
