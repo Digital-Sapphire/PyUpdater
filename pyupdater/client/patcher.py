@@ -82,6 +82,7 @@ class Patcher(object):
         self.verify = kwargs.get("verify", True)
         self.max_download_retries = kwargs.get("max_download_retries")
         self.urllib3_headers = kwargs.get("urllib3_headers")
+        self.downloader = kwargs.get("downloader")
 
         # Progress hooks to be called
         self.progress_hooks = kwargs.get("progress_hooks", [])
@@ -286,14 +287,21 @@ class Patcher(object):
         for p in self.patch_data:
             # Don't write temp files to cwd
             with ChDir(temp_dir):
-                fd = FileDownloader(
-                    p["patch_name"],
-                    p["patch_urls"],
-                    hexdigest=p["patch_hash"],
-                    verify=self.verify,
-                    max_download_retries=self.max_download_retries,
-                    urllb3_headers=self.urllib3_headers,
-                )
+                if self.downloader:
+                    fd = self.downloader(
+                        p["patch_name"],
+                        p["patch_urls"],
+                        hexdigest=p["patch_hash"]
+                    )
+                else:
+                    fd = FileDownloader(
+                        p["patch_name"],
+                        p["patch_urls"],
+                        hexdigest=p["patch_hash"],
+                        verify=self.verify,
+                        max_download_retries=self.max_download_retries,
+                        urllb3_headers=self.urllib3_headers,
+                    )
 
                 # Attempt to download resource
                 data = fd.download_verify_return()
