@@ -24,6 +24,7 @@ def print_status_info(info):
 ```
 
 ### Step 3a - Initialize Client
+
 Initialize a client with the ClientConfig & later call refresh to get latest update data. Progress hooks can also be added later.
 ```
 client = Client(ClientConfig())
@@ -33,6 +34,7 @@ client.add_progress_hook(print_status_info)
 ```
 
 ### Step 3b - Initialize Client Alt
+
 Initialize a client with the ClientConfig, add progress hook & refresh during initialization.
 ```
 client = Client(
@@ -41,18 +43,21 @@ client = Client(
 ```
 
 ### Step 4a - Update Check
+
 Method update_check returns an AppUpdate object if there is an update available else None
 ```
 app_update = client.update_check(APP_NAME, APP_VERSION)
 ```
 
 ### Step 4b - Update Check Alt
+
 Checking for updates on the beta channel
 ```
 app_update = client.update_check(APP_NAME, APP_VERSION, channel='beta')
 ```
 
 ### Step 5a - Download Update
+
 If an update object was returned, we can proceed to download the update.
 ```
 if app_update is not None:
@@ -60,6 +65,7 @@ if app_update is not None:
 ```
 
 ### Step 5b - Download Update Alt
+
 We can also download in a background thread.
 ```
 if app_update is not None:
@@ -67,6 +73,7 @@ if app_update is not None:
 ```
 
 ### Step 6a - Overwrite
+
 Ensure file downloaded successfully, extract update & overwrite current application. Note that is_downloaded verifies the files hash.
 
 ```
@@ -75,6 +82,7 @@ if app_update.is_downloaded():
 ```
 
 ### Step 6b - Restart
+
 Ensure file downloaded successfully, extract update, overwrite current application & restart application with the updated binary.
 
 ```

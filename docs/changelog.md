@@ -25,7 +25,7 @@
 ### Removed
   - PyUpdater
     - Work around to support generating keys on Windows Python 64bit.
-      - python-ed25519 1.5 fixed the issue
+        - python-ed25519 1.5 fixed the issue
 
 ## v3.0.1 - 2019/05/05
 
