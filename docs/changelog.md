@@ -1,9 +1,9 @@
 # Changelog
 
 ## v3.1.0 - Master
-####* This version is not yet released and is under active development.
+##### * This version is not yet released and is under active development.
 
-###Added
+### Added
 
   - PyUpdater
     - Support for bz2 archive format
@@ -18,9 +18,14 @@
   - Client
     - Saving the version manifest to disk for offline updates
 
+### Removed
+  - PyUpdater
+    - Work around to support generating keys on Windows Python 64bit.
+      - python-ed25519 1.5 fixed the issue
+
 ## v3.0.1 - 2019/05/05
 
-###Fixed
+### Fixed
   
   - CLI
     - Uploading from deploy folder
@@ -28,7 +33,7 @@
 
 ## v3.0.0 - 2019/05/04
 
-###Added
+### Added
 
   - CLI
     - Suppresses pyinstaller build logging by default
@@ -38,12 +43,13 @@
     - Ability to elevate privileges on windows
     - Patch support for alpha and beta channels
 
-###Updated
+### Updated
 
   - Client
     - AppUpdate.download(async=True) is now AppUpdate.download(background=True)
+    - LibUpdate.download(async=True) is now LibUpdate.download(background=True)
 
-###Fixed
+### Fixed
 
   - CLI
     - Out of memory error on windows
@@ -53,14 +59,14 @@
 
 ## v2.5.3 - 2018/03/30
 
-###Fixed
+### Fixed
 
   - Deployment issue
 
 
 ## v2.5.2 - 2018/03/30
 
-###Fixed
+### Fixed
 
   - Client
     - Headers printed to console
@@ -71,12 +77,12 @@
 
 ## v2.5.1 - 2017/11/24
 
-###Fixed
+### Fixed
 
   - Client
     - Removal of applications other than the one being updated (mac)
 
-###Updated
+### Updated
 
   - Client
     - Remove old archives in background thread
@@ -84,7 +90,7 @@
 
 ## v2.5.0 - 2017/09/30
 
-###Added
+### Added
 
   - Client
     - Basic Auth
@@ -98,14 +104,14 @@
   - Tests
     - Python 3.6
     
-###Updated
+### Updated
 
   - Docs
     - API
     - Plugin creation
     - Repository Layout
 
-###Removed
+### Removed
 
   - Docs
     - Gitter Link
@@ -116,7 +122,7 @@
 
 ## v2.4.1 - 2017/09/18
 
-###Fixed
+### Fixed
 
   - CLI
     - Fix command detection @jameshilliard
@@ -124,7 +130,7 @@
 
 ## v2.4.0 - 2017/09/17
 
-###Added
+### Added
 
   - Client
     - Ability to specify a custom folder for update files. @mayli
@@ -132,7 +138,7 @@
   - PyUpdater
     - Arm support
 
-###Updated
+### Updated
   
   - Client
     - Faster & more efficient downloads. @mayli
@@ -146,7 +152,7 @@
     - urllib3 1.22
     - six 1.11.0
 
-###Fixed
+### Fixed
 
   - CLI
     - Saving config changes when keypack isn't imported.
@@ -154,7 +160,7 @@
   - PyUpdater
       - Failing test @jameshilliard
 
-###Removed
+### Removed
 
   - PyUpdater
     - Unused code
@@ -163,7 +169,7 @@
 
 ## v2.3.2 - 2017/02/04
 
-###Fixed
+### Fixed
 
   - CLI
       - Calling certain commands
@@ -171,7 +177,7 @@
 
 ## v2.3.1 - 2017/02/04
 
-###Fixed
+### Fixed
 
   - CLI
     - Creating keypack.pyu files for new users
@@ -179,7 +185,7 @@
 
 ## v2.3.0 - 2017/01/29
 
-###Updated
+### Updated
 
   - Client
     - Added option to update_check which allows for being less restrictive about looking on the specific channel for updates. The default setting is to only allow from the provided channel.
@@ -189,7 +195,7 @@
     - dsdev-utils 0.9.6
     - urllib3 1.20
 
-###Fixed
+### Fixed
 
   - Client
     - Restart - Linux & Mac
@@ -198,7 +204,7 @@
   - PyUpdater
     - Parsing a pre-release format
 
-###Removed
+### Removed
 
   - Extra Y/N prompt before keypack creation
   - Unused code
@@ -206,7 +212,7 @@
 
 ## v2.2.0 - 2016/10/29
 
-###Added
+### Added
 
   - Client
     - version attribute on update object is a version string in a human readable format.
@@ -214,7 +220,7 @@
   - Docs
     - API
 
-###Updated
+### Updated
 
   - Docs
     - Usage | CLI
@@ -222,13 +228,13 @@
     - dsdev-utils 0.9.2
     - requests 1.18.1
 
-###Fixed
+### Fixed
 
   - Client
     - Remove all files used to auto-update after application update - win
     - Restart GUI applications on Mac & Linux
 
-###Removed
+### Removed
 
   - Client
     - Writing debug log -- @cbenhagen
@@ -237,32 +243,32 @@
 
 ## v2.1.7 - 2016/09/30
 
-###Updated
+### Updated
 
   - Docs
     - Added note about signing
 
-###Fixed
+### Fixed
 
   - Deploy error
 
 ## v2.1.6 - 2016/09/30
 
-###Fixed
+### Fixed
 
  - Deploy script
 
 
 ## v2.1.5 - 2016/09/29
 
-###Added
+### Added
 
   - Tests
     - Auto update
     - One dir support - currently disabled
     - pytest-datadir
 
-###Updated
+### Updated
 
   - Client
     - No longer importing unused functions
@@ -275,7 +281,7 @@
   - Tests
     - To coincide with the refactoring of some modules
 
-###Fixed
+### Fixed
 
   - CLI
     - Writing public key to client config
@@ -285,7 +291,7 @@
 
 ## v2.1.4 - 2016/09/06
 
-###Updated
+### Updated
 
   - Client
     - Percent complete shows up to 1 decimal
@@ -296,7 +302,7 @@
   - Libs
     - urllib3 1.17
 
-###Removed
+### Removed
 
   - CLI
     - requirement of --target-name on archive command
@@ -314,14 +320,14 @@
 
 ## v2.1.3 - 2016/08/19
 
-###Added
+### Added
 
   - CLI
     - Ability to set max download retries. 1-10
   - Tests
     - Auto update
 
-###Fixed
+### Fixed
 
   - Docs
     - Links on Install page - @LucaBernstein
@@ -329,7 +335,7 @@
   - Encoding URL's
   - Usage on 64bit linux
 
-###Updated
+### Updated
 
   - Client
     - Decreased memory usage when downloading data
@@ -338,7 +344,7 @@
   - Tests
     - Less output on appveyor
 
-###Removed
+### Removed
 
   - Docs
     - Obsolete info
@@ -348,13 +354,13 @@
 
 ## v2.1.2 - 2016/08/10
 
-###Added
+### Added
 
   - Client
     - Reporting of percent complete when patch updating
   - FOSS to docs
 
-###Fixed
+### Fixed
 
   - Client
     - Reporting of downloaded status in callbacks
@@ -362,13 +368,13 @@
 
 ## v2.1.1 - 2016/07/31
 
-###Added
+### Added
 
   - Docs
     - Usage docs for updating application & assets
 
 
-###Fixed
+### Fixed
 
   - Client
     - Restart
@@ -378,7 +384,7 @@
 
 ## v2.1.0 - 2016/07/30
 
-###Added
+### Added
 
   - Retry download
   - dsdev-utils >= 0.9.0
@@ -386,7 +392,7 @@
     - AppUpdate.extract_overwrite
     - File hash verification before extracting
 
-###Updated
+### Updated
 
   - Client
     - Only log debug messages
@@ -395,13 +401,13 @@
   - Windows tests setup scripts
   - More concise docs
 
-###Fixed
+### Fixed
 
   - Client
     - Write file to file-system when no hash is passed
     - Close file descriptors
 
-###Removed
+### Removed
   - jms-utils
   - Duplicate logging calls
   - Duplicate listing of dependencies
@@ -421,51 +427,51 @@
 
 ## v2.0.5 - 2016/07/17
 
-###Fixed
+### Fixed
 
  - Creating patches
 
 
 ## v2.0.4 - 2016/07/17
 
-###Added
+### Added
 
   - Ability for windows apps to be extracted & overwritten but not restarted
   - FileDownloaderError
 
-###Updated
+### Updated
 
   - Docs
   - Re-factored PackageHandler
 
-###Fixed
+### Fixed
 
   - Using format string while logging
 
 ## v2.0.3 - 2016/07/09
 
-###Added
+### Added
 
   - PyUpdater-SCP-plugin to pyupdater[all] install
 
-###Updated
+### Updated
 
   - Install bsdiff by default
   - Lib
     - PyUpdater-SCP-plugin >= 3.0.5
 
-###Fixed
+### Fixed
 
   - User message when setting config directory
 
 
 ## v2.0.2 - 2016/07/09
 
-###Updated
+### Updated
 
   - Graceful exit when attempting to import a module removed from the stdlib
 
-###Fixed
+### Fixed
 
   - Website
     - Changelog submenu
@@ -473,7 +479,7 @@
 
 ## v2.0.1 - 2016/07/09
 
-###Fixed
+### Fixed
 
   - Deploy to pypi
 
@@ -486,7 +492,7 @@
   - Version manifest file the client downloads during update checks.
     - See "Upgrading PyUpdater" in docs
 
-###Added
+### Added
 
   - CLI
     - Configure where client_config.py is written
@@ -497,7 +503,7 @@
     - Verbose: Show why packages were not processed
     - Keep files after upload
 
-###Updated
+### Updated
 
   - Plugin System
     - Simplified plugin interface
@@ -515,13 +521,13 @@
   - Updated tests
   - Some overall clean up of the code base
 
-###Fixed
+### Fixed
 
   - Status Badges
   - Patch updates
   - Including libraries in current directory
 
-###Removed
+### Removed
 
   - Compatibility code for older versions of PyUpdater
   - Need for specific version of PyInstaller
@@ -531,7 +537,7 @@
 
 ## v1.1.15 - 2016/04/17
 
-###Removed
+### Removed
 
   - debug code
 
@@ -539,7 +545,7 @@
 
 ## v1.1.14 - 2016/04/17
 
-###Updated
+### Updated
 
   - Libs
     - PyInstaller 3.1.1
@@ -547,25 +553,25 @@
     - stevedore 1.12.0
     - urllib3 1.15.1
 
-###Fixed
+### Fixed
 
   - Finding directory of executable
 
-###Removed
+### Removed
 
   - Unused import
 
 
 ## v1.1.13 - 2015/12/13
 
-###Fixed
+### Fixed
 
   - Missing import
 
 
 ## v1.1.12 - 2015/12/13
 
-###Removed
+### Removed
 
   - Unused dependency
     - cryptography
@@ -573,14 +579,14 @@
 
 ## v1.1.11 - 2015/12/13
 
-###Fixed
+### Fixed
 
   - Processing packages on windows
 
 
 ## v1.1.10 - 2015/12/13
 
-###Fixed
+### Fixed
 
   - Error when archive is in the manifest but missing from files folder
   - Error when attempting to remove executable left in new folder
@@ -588,7 +594,7 @@
 
 ## v1.1.9 - 2015/12/11
 
-###Updated
+### Updated
 
   - Read & write files in utf-8
   - Libs
@@ -596,14 +602,14 @@
     - stevedore 1.10.0
 
 
-###Removed
+### Removed
 
   - Unused test init code
 
 
 ## v1.1.8 - 2015/11/23
 
-###Updated
+### Updated
 
   - Libs
     - cryptography 1.1.1
@@ -612,21 +618,21 @@
 
 ## v1.1.7 - 2015/11/14
 
-###Fixed
+### Fixed
 
   - Parsing name of archive with spaces
 
 
 ## v1.1.6 - 2015/11/12
 
-###Fixed
+### Fixed
 
   - Creating second keypack for specific app
 
 
 ## v1.1.5 - 2015/11/08
 
-###Updated
+### Updated
 
   - Upload Plugins
     - S3 2.5
@@ -635,31 +641,31 @@
 
 ## v1.1.4 - 2015/11/05
 
-###Fixed
+### Fixed
 
   - Issue restarting application when located in directories beginning with a period.
 
 
 ## v1.1.3 - 2015/11/04
 
-###Fixed
+### Fixed
 
   - Download progress callbacks
   - Potential issue restarting application when located in certain directories.
 
-###Removed
+### Removed
 
   - Initializing client with list of callbacks
 
 
 ## v1.1.2 - 2015/10/30
 
-###Updated
+### Updated
 
   - Cleanup of archives on dev machine
   - Centralized cleanup function to be used by client & package handler
 
-###Fixed
+### Fixed
 
   - Creating patches for updates
   - Erroneous warning when paring version info
@@ -667,21 +673,21 @@
 
 ## v1.1.1.1 - 2015/10/28
 
-###Updated
+### Updated
 
   - Libs
     - cryptography 1.1
     - requests 2.8.1
     - stevedore 1.9.0
 
-###Fixed
+### Fixed
 
   - xrange on py3
 
 
 ## v1.1 - 2015/10/28
 
-###Added
+### Added
 
   - Make file for windows
   - Patch size in manifest
@@ -690,7 +696,7 @@
   - Auto Upgrade external files
     - Update your external files, binaries or whatever you want to auto upgrade. Patch support included :). The absolute path to the update archive is available .abspath
 
-###Updated
+### Updated
 
   - Pass all arguments except ones we care about directly to pyinstaller
   - CLI help messages
@@ -711,7 +717,7 @@
     - Commands explained with description and examples
     - Cosmetic updates
 
-###Removed
+### Removed
 
   - Update command
   - Duplicate code
@@ -721,14 +727,14 @@
 
 ## v1.0.1 - 2015/10/11
 
-###Updated
+### Updated
 
   - Universal wheel
 
 
 ## v1.0 - 2015/10/11
 
-###Added
+### Added
 
   - Python 3 support
   - Offline root keys
@@ -738,7 +744,7 @@
   - Async download
     - download(async=True)
 
-###Updated
+### Updated
 
   - Client
     - Support for offline root keys
@@ -762,13 +768,13 @@
     - requests 2.8.0
   - Simplified signature verification
 
-###Fixed
+### Fixed
 
   - Error when not able to get cpu count on windows
   - Writing debug
   - Uploading debug logs
 
-###Removed
+### Removed
 
   - vendored pyinstaller
   - revoking keys
@@ -777,59 +783,59 @@
 
 ## v0.23.3 - 2015/07/21
 
-###Fixed
+### Fixed
 
   - File already exists error
 
 ## v0.23.2 - 2015/07/21
 
-###Fixed
+### Fixed
 
   - Compilation
 
-###Updated
+### Updated
 
   - PyInstaller to 39b02fe5e7563431115f9812f757a21bbcc78837
 
 
 ## v0.23.1 - 2015/07/19
 
-###Fixed
+### Fixed
 
   - Missing bootloaders
 
 
 ## v0.23.0 - 2015/07/19
 
-###Added
+### Added
 
   - Vendored PyInstaller
 
     - f920d3eea510ed088eda5359c04990338600c2b8
     - Ability to provide fixes quicker
 
-###Fixed
+### Fixed
 
   - Error when patch info is None
 
 
 ## v0.22.3 - 2015/07/18
 
-###Fixed
+### Fixed
 
   - Parsing platform names
 
 
 ## v0.22.2 - 2015/07/18
 
-###Fixed
+### Fixed
 
   - Versioneer settings
 
 
 ## v0.22.1 - 2015/07/18
 
-###Updated
+### Updated
 
   - Versioneer settings
 
@@ -837,7 +843,7 @@
 
 ## v0.22 - 2015/07/18
 
-###Updated
+### Updated
 
   - Code refactoring & optimizations
 
@@ -853,18 +859,18 @@
     - stevedore 1.6.0
     - PyUpdater-S3-Plugin 2.3
 
-###Removed
+### Removed
 
   - Duplicate code
   - Deprecated log command
 
 ## v0.21.1 - 2015/05/25
 
-###Added
+### Added
 
   * More hooks from pyinstaller develop
 
-###Updated
+### Updated
 
   * Test runs in parallel
   * Documentation
@@ -872,19 +878,19 @@
     - requests 2.7.0
     - urllib3 1.10.4
 
-###Fixed
+### Fixed
 
   - Parsing App Name from update archive filename when version number is in x.x format
   - Potential import error if pyinstaller version lower then 2.1
 
-###Removed
+### Removed
 
   - Unused code
 
 
 ## v0.21.0 - 2015/04/30
 
-###Updated
+### Updated
 
   - PyUpdater
 
@@ -896,7 +902,7 @@
     - SCP plugin 2.2
     - Code refactoring
 
-###Fixed
+### Fixed
 
   - PyUpdater
 
@@ -906,7 +912,7 @@
 ## v0.20.0 - 2015/03/08
 #### Renamed to PyUpdater
 
-###Updated
+### Updated
 
   - Client
 
@@ -919,7 +925,7 @@
     - Header performance improvements - upstream
     - Central db object
 
-###Fixed
+### Fixed
 
   - Client
 
@@ -930,7 +936,7 @@
     - session fixation attacks and potentially cookie stealing - upstream
     - Not writing config file when cleaning repo
 
-###Removed
+### Removed
 
   - PyUpdater
 
@@ -943,7 +949,7 @@
 
 ## v0.19.3 - 2015/02/22
 
-###Fixed
+### Fixed
 
   - Client
 
@@ -952,7 +958,7 @@
 
 ## v0.19.2 - 2015/02/22
 
-###Fixed
+### Fixed
 
   - Client
 
@@ -961,7 +967,7 @@
 
 ## v0.19.1 - 2015/02/22
 
-###Fixed
+### Fixed
 
   - PyUpdater
 
@@ -970,7 +976,7 @@
 
 ## v0.19 - 2015/02/22
 
-###Added
+### Added
 
   - CLI
 
@@ -980,7 +986,7 @@
 
     - Now logs framework version
 
-###Updated
+### Updated
 
   - CLI
 
@@ -1014,7 +1020,7 @@
     - from pyi_updater.uploader.common import BaseUploader will
       be remove in v0.22+
 
-###Fixed
+### Fixed
 
   - Key Handler
 
@@ -1029,7 +1035,7 @@
 
     - Potential error when adding key add key.db isn't loaded
 
-###Removed
+### Removed
 
   - PyUpdater
 

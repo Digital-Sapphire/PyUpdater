@@ -27,6 +27,6 @@ PyUpdater depends on a few external libraries:
 
 
 ####Install Development version
-#####We are not responsible for broken things!
+#####We are not responsible for broken things but please report your findings ;)
 
     $ pip install --upgrade https://github.com/JMSwag/PyUpdater.git@master

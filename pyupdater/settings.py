@@ -63,7 +63,7 @@ UPDATES_KEY = "updates"
 # Folder on client system where updates are stored
 UPDATE_FOLDER = "update"
 
-# Name of version file place in online repo
+# Name of version file in online repo
 VERSION_FILE_FILENAME = "versions-{}.gz".format(system.get_system())
 VERSION_FILE_FILENAME_COMPAT = "versions.gz"
 KEY_FILE_FILENAME = "keys.gz"

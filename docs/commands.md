@@ -1,8 +1,8 @@
 #Commands
 
-* Note: All commands must be ran from root or repository.
+###### * Note: All commands must be ran from root or repository.
 
-###Archive
+### Archive
 ```
 usage: pyupdater archive [opts] filename
 
@@ -15,7 +15,7 @@ optional arguments:
 
 Description:
 
-The archive command will archive an external asset used by your application which will allow updating of the asset. An example of this would be if your application depended on ffmpeg but you did not want to bundle ffmpeg within your app. See "Usage | CLI | Assets" & "Usage | Client | Assets" for more info.
+The archive command will archive an external asset used by your application which will allow updating of the asset. An example of this would be if your application depended on ffmpeg but you did not want to bundle ffmpeg within your app. See [Usage | CLI | Assets](usage-cli-asset.md) & [Usage | Client | Assets](usage-client-asset.md) for more info.
 
 Example:
 ```
@@ -25,7 +25,7 @@ $ pyupdater archive --name ffmpeg  --version 2.2
 ```
 
 
-###Build
+### Build
 ```
 usage: pyupdater build [opts]<script>
 
@@ -36,7 +36,7 @@ optional arguments:
   --app-version APP_VERSION
   -k, --keep            Will not delete executable after archiving
   --pyinstaller-log-info
-                        Prints PyInstaller execution info to console
+                        Prints PyInstaller execution info to consoleconsole
 ```
 
 Description:
@@ -56,7 +56,7 @@ $ pyupdater build --app-version 1.2beta2
 ```
 
 
-###Clean
+### Clean
 ```
 usage: pyupdater clean [-h] [-y]
 
@@ -75,7 +75,7 @@ $ pyupdater clean
 ```
 
 
-###Collect Debug Info
+### Collect Debug Info
 ```
 usage: pyupdater collect-debug-info [-h]
 
@@ -93,7 +93,7 @@ $ pyupdater collect-debug-info
 ```
 
 
-###Init
+### Init
 ```
 usage: pyupdater init [-h]
 
@@ -111,7 +111,7 @@ $ pyupdater init
 ```
 
 
-###Keys
+### Keys
 ```
 usage: pyupdater keys [-h] [-i] [-c] [-y]
 
@@ -136,12 +136,14 @@ $ pyupdater keys --import
 ```
 
 
-###Make Spec
+### Make Spec
 ```
-usage: pyupdater make-spec [opts] [script]
+usage: pyupdater make-spec <script> [opts]
 
 optional arguments:
   -h, --help            show this help message and exit
+  --pyinstaller-log-info
+                        Prints PyInstaller execution info to console
 ```
 
 Description:
@@ -154,7 +156,7 @@ $ pyupdater make-spec app.py
 ```
 
 
-###Pkg
+### Pkg
 ```
 usage: pyupdater pkg [-h] [-p] [-s] [--split-version] [-v]
 
@@ -181,7 +183,7 @@ $ pyupdater pkg -p
 $ pyupdater pkg -S
 ```
 
-###Plugins
+### Plugins
 ```
 usage: pyupdater plugins [-h]
 
@@ -204,7 +206,7 @@ scp by Digital Sapphire
 ```
 
 
-###Settings
+### Settings
 ```
 usage: pyupdater settings [-h] [--config-path] [--company] [--urls]
                           [--patches] [--plugin PLUGIN]
@@ -237,14 +239,15 @@ $ pyupdater settings --company
 ```
 
 
-###Upload
+### Upload
 ```
-usage: pyupdater upload [-h] [-s SERVICE]
+usage: pyupdater upload [-h] [--keep] [-s SERVICE]
 
 optional arguments:
   -h, --help            show this help message and exit
+  --keep                Keep files after upload
   -s SERVICE, --service SERVICE
-                        Where updates are stored
+                        The plugin used for uploads
 ```
 
 Description:
@@ -261,24 +264,25 @@ $ pyupdater upload --service scp
 ```
 
 
-###Help
+### Help
 ```
 usage: pyupdater
 
 positional arguments:
-  {archive,build,clean,collect-debug-info,init,keys,make-spec,pkg,settings,update,upload,version}
+  {archive,build,clean,collect-debug-info,init,keys,make-spec,pkg,plugins,settings,upload,version}
                         commands
-    archive             Archives external file which needs updating. Can be
-                        binary, library, anything really.
-    build               compiles script or spec file
-    clean               * WARNING * removes all traces of pyupdater from the current repo
+    archive             Archive an asset which needs updating. Can be another
+                        executable, .so, .dll, .img, etc.
+    build               Compiles script or spec file
+    clean               * WARNING * removes all traces of pyupdater from the
+                        current repo
     collect-debug-info  Upload debug logs to github gist and return url.
-    init                initializes a src directory
+    init                Initializes a src directory
     keys                Manage signing keys
     make-spec           Creates spec file
     pkg                 Manage creation of file meta-data & signing
+    plugins             Shows installed plugins
     settings            Updated config settings
-    update              Updates repo. Should be ran after you update pyupdater
     upload              Uploads files
     version             Show version
 
