@@ -101,6 +101,9 @@ class Client(object):
         data_dir = kwargs.get("data_dir")
         headers = kwargs.get("headers")
 
+        # 3rd Party downloader
+        self.downloader = kwargs.get("downloader")
+
         if headers is not None:
             if not isinstance(headers, dict):
                 raise ClientError("headers argument must be a dict", expected=True)
@@ -308,6 +311,11 @@ class Client(object):
             "platform": self.platform,
             "channel": channel,
             "app_name": self.app_name,
+            "verify": self.verify,
+            "max_download_retries": self.max_download_retries,
+            "progress_hooks": list(set(self.progress_hooks)),
+            "urllib3_headers": self.urllib3_headers,
+            "downloader": self.downloader
         }
 
         data.update(self._gen_file_downloader_options())
@@ -418,11 +426,15 @@ class Client(object):
 
         for vf in version_files:
             try:
-                fd = FileDownloader(
-                    vf,
-                    self.update_urls,
-                    **self._gen_file_downloader_options()
-                )
+                if self.downloader:
+                    fd = downloader(vf, self.update_urls)
+                else:
+                    fd = FileDownloader(
+                        vf,
+                        self.update_urls,
+                        verify=self.verify,
+                        urllb3_headers=self.urllib3_headers,
+                    )
                 data = fd.download_verify_return()
                 try:
                     decompressed_data = _gzip_decompress(data)
@@ -446,11 +458,15 @@ class Client(object):
     def _get_key_data(self):
         log.debug("Downloading key file")
         try:
-            fd = FileDownloader(
-                self.key_file,
-                self.update_urls,
-                **self._gen_file_downloader_options()
-            )
+            if self.downloader:
+                fd = self.downloader(self.key_file, self.update_urls)
+            else:
+                fd = FileDownloader(
+                    self.key_file,
+                    self.update_urls,
+                    verify=self.verify,
+                    urllb3_headers=self.urllib3_headers,
+                )
             data = fd.download_verify_return()
             try:
                 decompressed_data = _gzip_decompress(data)

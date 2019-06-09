@@ -1,7 +1,7 @@
-#Usage | Client | Advanced
+# Usage | Client | Advanced
 PyUpdater supports 3 release channels. Release channels are specified when providing a version number to the --app-version flag. Patches are only created for the stable channel. Examples below.
 
-###Example - Update check
+### Example - Update check
 
 Examples below of specifying channels when checking for updates:
 ```
@@ -48,7 +48,7 @@ client.add_progress_hook(log_progress)
 client.add_progress_hook(progress)
 ```
 
-###Using basic authentication
+### Using basic authentication
 
 Basic authentication is an easy way to prevent unauthorized people from downloading your app from your update server.
 
@@ -58,4 +58,39 @@ Other headers can be sent in the same way.
 ```
 headers = {'basic_auth': 'user:pass'}
 client = Client(ClientConfig(), headers=headers)
+```
+
+
+### Use your own file downloader
+PyUpdater was originally written to work with servers that provide a directory listing.
+For services which expose an API to retrieve files, you can use a custom downloader.
+Your custom downloader must have the same signature as the MyDownloader class below.
+
+Do note that your file downloader will not always be given a hexdigest kwarg. In those
+cases skip hex verification.
+
+```python
+from pyupdater.client import Client, DefaultClientConfig
+
+
+class MyDownloader:
+
+    def __init__(self, filename, urls, **kwargs):
+        self.filename = filename
+        self.urls = urls
+        self.hexdigest = kwargs.get("hexdigest")
+        
+        self._data = None
+    
+    def download_verify_return(self):
+        # Download the data from the endpoint and return
+        return self._data
+    
+    def downlaod_verify_write(self):
+        # Write the downloaded data to the current dir
+        with open(self.filename, 'wb') as f:
+            f.write(self._data)
+
+client = Client(DefaultClientConfig(), downloader=MyDownloader)
+
 ```

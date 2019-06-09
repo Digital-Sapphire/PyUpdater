@@ -425,6 +425,8 @@ class LibUpdate(object):
         # HTTP Timeout
         self.http_timeout = data.get("http_timeout")
 
+        self.downloader = data.get("downloader")
+
         # The latest version available
         self.latest = get_highest_version(
             self.name, self.platform, self.channel, self.easy_data, self.strict
@@ -649,6 +651,7 @@ class LibUpdate(object):
             current_version=self.current_version,
             latest_version=self.latest,
             update_folder=self.update_folder,
+            downloader=self.downloader,
             **self.init_data
         )
 
@@ -662,16 +665,20 @@ class LibUpdate(object):
 
         with ChDir(self.update_folder):
             log.debug("Downloading update...")
-            fd = FileDownloader(
-                self.filename,
-                self.update_urls,
-                hexdigest=file_hash,
-                verify=self.verify,
-                progress_hooks=self.progress_hooks,
-                max_download_retries=self.max_download_retries,
-                urllib3_headers=self.urllib3_headers,
-                http_timeout=self.http_timeout
-            )
+            if self.downloader:
+                fd = self.downloader(
+                    self.filename, self.update_urls, hexdigest=file_hash
+                )
+            else:
+                fd = FileDownloader(
+                    self.filename,
+                    self.update_urls,
+                    hexdigest=file_hash,
+                    verify=self.verify,
+                    progress_hooks=self.progress_hooks,
+                    max_download_retries=self.max_download_retries,
+                    urllb3_headers=self.urllib3_headers,
+                )
             result = fd.download_verify_write()
             if result:
                 log.debug("Download Complete")
