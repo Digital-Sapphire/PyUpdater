@@ -357,6 +357,8 @@ class LibUpdate(object):
 
         # The current directory of the running executable
         self._current_app_dir = os.path.dirname(sys.executable)
+        if six.PY2:
+            self._current_app_dir = self._current_app_dir.decode('utf-8')
 
         # The status of the download. Once downloaded this will be True
         self._download_status = False
@@ -646,7 +648,7 @@ class LibUpdate(object):
             )
             return False
 
-        # Initilize Patch object with all required information
+        # Initialize Patch object with all required information
         p = Patcher(
             current_version=self.current_version,
             latest_version=self.latest,
