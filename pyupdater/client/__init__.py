@@ -166,6 +166,9 @@ class Client(object):
             # Used when parsing the update manifest
             self.platform = _get_system()
 
+        if six.PY2:
+            self.data_dir = self.data_dir.decode('utf-8')
+
         # Folder to house update archives
         self.update_folder = os.path.join(self.data_dir, settings.UPDATE_FOLDER)
 
