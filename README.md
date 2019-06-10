@@ -1,5 +1,5 @@
 [![](https://badge.fury.io/py/PyUpdater.svg)](http://badge.fury.io/py/PyUpdater)
-[![Build Status](https://travis-ci.org/JMSwag/PyUpdater.svg?branch=master)](https://travis-ci.org/JMSwag/PyUpdater)
+[![Build Status](https://travis-ci.org/Digital-Sapphire/PyUpdater.svg?branch=master)](https://travis-ci.org/Digital-Sapphire/PyUpdater)
 [![Build status](https://ci.appveyor.com/api/projects/status/6kex9r8i2625pw9u/branch/master?svg=true)](https://ci.appveyor.com/project/JMSwag/pyupdater/branch/master)
 [![](https://requires.io/github/JMSwag/PyUpdater/requirements.svg?branch=master)](https://requires.io/github/JMSwag/PyUpdater/requirements/?branch=master)
 [![codecov](https://codecov.io/gh/JMSwag/PyUpdater/branch/master/graph/badge.svg)](https://codecov.io/gh/JMSwag/PyUpdater)
