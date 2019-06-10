@@ -33,7 +33,7 @@ matrix:
     - pip3 install --upgrade pip
     - pip3 install -r tests/requirements.txt
     - pip3 install -e .
-    script: pytest -n 4 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater
+    script: pytest -n auto --cov --cov-config .coveragerc --cov-report xml --cov pyupdater
       --cov-append
   - os: osx
     language: generic
