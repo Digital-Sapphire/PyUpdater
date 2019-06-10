@@ -21,6 +21,7 @@
   - Client
     - Saving the version manifest to disk for offline updates
     - Basic Auth
+    - Updating on systems with unicode paths: PY2
 
 ### Removed
   - PyUpdater
