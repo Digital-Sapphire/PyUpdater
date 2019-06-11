@@ -1,4 +1,4 @@
-#Usage | Client
+# Usage | Client
 
 ### Step 1 - Imports & Constants
 The client_config.py is written to the root of the repository by default.

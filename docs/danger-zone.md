@@ -1,12 +1,12 @@
-#Danger Zone
+# Danger Zone
 
 
-###Spec File
+### Spec File
 
 Do not change the name attribute in the spec file
 
 
-###Version Numbers
+### Version Numbers
 
 Version numbers should be in the format specified below. Supported release versions are alpha and beta. For shorthand you can use a and b respectively.
 
