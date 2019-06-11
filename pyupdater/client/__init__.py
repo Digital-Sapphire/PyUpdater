@@ -167,7 +167,7 @@ class Client(object):
             self.platform = _get_system()
 
         if six.PY2:
-            self.data_dir = self.data_dir.decode('utf-8')
+            self.data_dir = self.data_dir.decode("utf-8")
 
         # Folder to house update archives
         self.update_folder = os.path.join(self.data_dir, settings.UPDATE_FOLDER)
@@ -241,11 +241,11 @@ class Client(object):
 
     def _gen_file_downloader_options(self):
         return {
-            'http_timeout': self.http_timeout,
-            'max_download_retries': self.max_download_retries,
-            'progress_hooks': self.progress_hooks,
-            'urllib3_headers': self.urllib3_headers,
-            'verify': self.verify,
+            "http_timeout": self.http_timeout,
+            "max_download_retries": self.max_download_retries,
+            "progress_hooks": self.progress_hooks,
+            "urllib3_headers": self.urllib3_headers,
+            "verify": self.verify,
         }
 
     def _update_check(self, name, version, channel, strict):
@@ -318,7 +318,7 @@ class Client(object):
             "max_download_retries": self.max_download_retries,
             "progress_hooks": list(set(self.progress_hooks)),
             "urllib3_headers": self.urllib3_headers,
-            "downloader": self.downloader
+            "downloader": self.downloader,
         }
 
         data.update(self._gen_file_downloader_options())

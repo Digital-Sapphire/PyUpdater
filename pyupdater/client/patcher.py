@@ -289,9 +289,7 @@ class Patcher(object):
             with ChDir(temp_dir):
                 if self.downloader:
                     fd = self.downloader(
-                        p["patch_name"],
-                        p["patch_urls"],
-                        hexdigest=p["patch_hash"]
+                        p["patch_name"], p["patch_urls"], hexdigest=p["patch_hash"]
                     )
                 else:
                     fd = FileDownloader(

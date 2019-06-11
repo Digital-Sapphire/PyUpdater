@@ -218,7 +218,7 @@ def add_settings_parser(subparsers):
     settings_parser.add_argument(
         "--http-timeout",
         help="Settings the timeout, in seconds, for the FileDownloader",
-        action="store_true"
+        action="store_true",
     )
     settings_parser.add_argument(
         "--max-download-retries",
