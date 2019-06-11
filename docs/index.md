@@ -1,7 +1,7 @@
-#Welcome to PyUpdater
+# Welcome to PyUpdater
 
 
-##What is PyUpdater?
+## What is PyUpdater?
 
 An auto-update library and cli tool that enables simple, secure & efficient shipment of app updates.
 
@@ -14,7 +14,7 @@ This project would not be possible without [Pyinstaller](https://github.com/pyin
 [![](https://requires.io/github/JMSwag/PyUpdater/requirements.svg?branch=master)](https://requires.io/github/JMSwag/PyUpdater/requirements/?branch=master)
 [![codecov](https://codecov.io/gh/JMSwag/PyUpdater/branch/master/graph/badge.svg)](https://codecov.io/gh/JMSwag/PyUpdater)
 
-##Features
+## Features
 
 - Easy Setup
 - Basic Auth support

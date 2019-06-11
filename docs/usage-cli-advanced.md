@@ -1,7 +1,7 @@
-#Usage | CLI | Advanced
+# Usage | CLI | Advanced
 PyUpdater supports 3 release channels. Release channels are specified when providing a version number to the --app-version flag. Patches are only created for the stable channel. Examples below.
 
-###Example - Setting channels
+### Example - Setting channels
 Stable:
 ```
 $ pyupdater build --app-version=3.30.1
