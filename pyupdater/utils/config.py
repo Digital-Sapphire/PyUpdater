@@ -135,9 +135,7 @@ class ConfigManager(object):
 
             if hasattr(obj, "HTTP_TIMEOUT"):
                 log.debug("Adding HTTP_TIMEOUT to cilent_config.py")
-                f.write(
-                    attr_format.format("HTTP_TIMEOUT", obj.HTTP_TIMEOUT)
-                )
+                f.write(attr_format.format("HTTP_TIMEOUT", obj.HTTP_TIMEOUT))
 
             if hasattr(obj, "MAX_DOWNLOAD_RETRIES"):
                 log.debug("Adding MAX_DOWNLOAD_RETRIES to client_config.py")
