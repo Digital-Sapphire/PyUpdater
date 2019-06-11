@@ -17,6 +17,7 @@ This project would not be possible without [Pyinstaller](https://github.com/pyin
 ## Features
 
 - Easy Setup
+- CI/CD Support
 - Basic Auth support
 - Secured with EdDSA
 - Cryptographically secure off line update
