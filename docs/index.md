@@ -1,5 +1,7 @@
 # Welcome to PyUpdater
 
+If you think PyUpdater is awesome, please give [this issue](https://github.com/vinta/awesome-python/pull/720) an up vote on [awesome-python](https://github.com/vinta/awesome-python).
+
 
 ## What is PyUpdater?
 

@@ -7,4 +7,6 @@
 # PyUpdater
 #### An autoupdate framework for pyinstaller that enables simple, secure & efficient shipment of app updates.
 
+If you think PyUpdater is awesome, please give [this issue](https://github.com/vinta/awesome-python/pull/720) an up vote on [awesome-python](https://github.com/vinta/awesome-python).
+
 #### [Docs](http://www.pyupdater.org) - [Installation](http://www.pyupdater.org/installation) - [Changelog](http://www.pyupdater.org/changelog/) - [License](http://www.pyupdater.org/license/)
