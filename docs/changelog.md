@@ -1,7 +1,15 @@
 # Changelog
 
-## v3.1.1 - Master
+## v3.1.2 - Master
 ##### * This version is not yet released and is under active development.
+
+
+## v3.1.1 - 2019/06/11
+
+### Fixed
+
+  - Client
+    - Patch updates
 
 
 ## v3.1.0 - 2019/06/10
