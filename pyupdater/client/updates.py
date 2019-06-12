@@ -658,7 +658,13 @@ class LibUpdate(object):
 
         # Returns True if everything went well
         # If False, fall back to a full update
-        return p.start()
+        try:
+            rv = p.start()
+        except Exception as err:
+            log.debug(err, exc_info=True)
+            rv = False
+
+        return rv
 
     def _full_update(self):
         log.debug("Starting full update")
