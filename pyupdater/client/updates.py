@@ -653,7 +653,6 @@ class LibUpdate(object):
             current_version=self.current_version,
             latest_version=self.latest,
             update_folder=self.update_folder,
-            downloader=self.downloader,
             **self.init_data
         )
 

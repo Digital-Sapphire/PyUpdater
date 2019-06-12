@@ -157,11 +157,15 @@ class Patcher(object):
                 else:
                     # Read binary into memory to begin patching
                     try:
-                        with open(self.current_filename, "rb") as f:
+                        file_path = os.path.join(
+                            self.update_folder, self.current_filename
+                        )
+                        with open(file_path, "rb") as f:
                             self.og_binary = f.read()
                     except FileNotFoundError:
                         status = False
-                        log.debug("Current archive missing")
+                        log.debug("Current archive missing: %s", self.current_filename)
+                        log.debug("%s", ' '.join(os.listdir(os.getcwd())))
                     except Exception as err:
                         status = False
                         log.debug(err, exc_info=True)
