@@ -35,7 +35,7 @@ from pyupdater.core import PyUpdater
 __all__ = ["PyUpdater"]
 
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 # Console logger
