@@ -430,7 +430,7 @@ class Client(object):
         for vf in version_files:
             try:
                 if self.downloader:
-                    fd = downloader(vf, self.update_urls)
+                    fd = self.downloader(vf, self.update_urls)
                 else:
                     fd = FileDownloader(
                         vf,
