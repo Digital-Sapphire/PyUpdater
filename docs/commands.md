@@ -1,6 +1,6 @@
 # Commands
 
-###### * Note: All commands must be ran from root or repository.
+###### * Note: All commands must be run from the root of the repository.
 
 ### Archive
 ```
