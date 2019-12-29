@@ -27,7 +27,9 @@ matrix:
     - brew pin numpy
     - brew pin gdal
     - brew pin postgis
+    - brew unlink python@2
     - brew upgrade python
+    - brew link --overwrite python
     - python3 -m venv venv
     - source venv/bin/activate
     - pip3 install --upgrade pip
