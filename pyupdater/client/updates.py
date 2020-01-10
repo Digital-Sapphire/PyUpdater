@@ -418,8 +418,8 @@ class LibUpdate(object):
         # Weather or not the verify the https connection
         self.verify = data.get("verify", True)
 
-        # Extra headers to pass to urllib3
-        self.urllib3_headers = data.get("urllib3_headers")
+        # Extra headers
+        self.headers = data.get("headers")
 
         # The amount of times to retry a url before giving up
         self.max_download_retries = data.get("max_download_retries")
@@ -684,7 +684,8 @@ class LibUpdate(object):
                     verify=self.verify,
                     progress_hooks=self.progress_hooks,
                     max_download_retries=self.max_download_retries,
-                    urllb3_headers=self.urllib3_headers,
+                    headers=self.headers,
+                    http_timeout=self.http_timeout
                 )
             result = fd.download_verify_write()
             if result:

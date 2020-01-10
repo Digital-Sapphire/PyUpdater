@@ -24,6 +24,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 import hashlib
+import inspect
 import logging
 import os
 import time
@@ -131,7 +132,9 @@ class FileDownloader(object):
         self.content_length = None
 
         # Extra headers
-        self.headers = kwargs.get("urllb3_headers")
+        self.headers = kwargs.get("headers")
+
+        self.http_timeout = kwargs.get("http_timeout")
 
         if self.verify is True:
             self.http_pool = self._get_http_pool()
@@ -141,15 +144,25 @@ class FileDownloader(object):
     def _get_http_pool(self, secure=True):
         if secure:
             _http = urllib3.PoolManager(
-                cert_reqs=str("CERT_REQUIRED"), ca_certs=certifi.where()
+                cert_reqs=str("CERT_REQUIRED"), ca_certs=certifi.where(), timeout=self.http_timeout
             )
         else:
-            _http = urllib3.PoolManager()
+            _http = urllib3.PoolManager(timeout=self.http_timeout)
 
         if self.headers:
-            _headers = urllib3.util.make_headers(**self.headers)
+            if six.PY3:
+                # Python3
+                urllib_keys = inspect.getfullargspec(urllib3.util.make_headers).args
+            else:
+                # Python2 fallback
+                urllib_keys = inspect.getargspec(urllib3.util.make_headers).args
+            urllib_headers = {header: value for header, value in six.iteritems(self.headers) if header in urllib_keys}
+            other_headers = {header: value for header, value in six.iteritems(self.headers) if header not in urllib_keys}
+            _headers = urllib3.util.make_headers(**urllib_headers)
+            _headers.update(other_headers)
             _http.headers.update(_headers)
         log.debug(_http.headers)
+        log.debug("HTTP Timeout is " + str(self.http_timeout))
         return _http
 
     def download_verify_write(self):

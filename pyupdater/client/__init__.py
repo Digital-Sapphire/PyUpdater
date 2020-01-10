@@ -85,7 +85,7 @@ class Client(object):
 
     data_dir (str): Path to custom update folder
 
-    headers (dict): A urllib3.utils.make_headers compatible dictionary
+    headers (dict): A dictionary of generic and/or urllib3.utils.make_headers compatible headers
 
     test (bool): Used to initialize a test client
 
@@ -129,8 +129,6 @@ class Client(object):
             if not isinstance(progress_hooks, list):
                 raise SyntaxError("progress_hooks must be provided as a list.")
             self.progress_hooks += progress_hooks
-
-        obj.URLLIB3_HEADERS = headers
 
         # A super dict used to save config info & be dot accessed
         config = _Config()
@@ -198,8 +196,8 @@ class Client(object):
         # The name of the key file to download
         self.key_file = settings.KEY_FILE_FILENAME
 
-        # urllib3 headers
-        self.urllib3_headers = obj.URLLIB3_HEADERS
+        # headers
+        self.headers = headers
 
         # Creating data & update directories
         self._setup()
@@ -244,7 +242,7 @@ class Client(object):
             "http_timeout": self.http_timeout,
             "max_download_retries": self.max_download_retries,
             "progress_hooks": self.progress_hooks,
-            "urllib3_headers": self.urllib3_headers,
+            "headers": self.headers,
             "verify": self.verify,
         }
 
@@ -317,7 +315,7 @@ class Client(object):
             "verify": self.verify,
             "max_download_retries": self.max_download_retries,
             "progress_hooks": list(set(self.progress_hooks)),
-            "urllib3_headers": self.urllib3_headers,
+            "headers": self.headers,
             "downloader": self.downloader,
         }
 
@@ -436,7 +434,8 @@ class Client(object):
                         vf,
                         self.update_urls,
                         verify=self.verify,
-                        urllb3_headers=self.urllib3_headers,
+                        headers=self.headers,
+                        http_timeout=self.http_timeout
                     )
                 data = fd.download_verify_return()
                 try:
@@ -468,7 +467,8 @@ class Client(object):
                     self.key_file,
                     self.update_urls,
                     verify=self.verify,
-                    urllb3_headers=self.urllib3_headers,
+                    headers=self.headers,
+                    http_timeout=self.http_timeout
                 )
             data = fd.download_verify_return()
             try:
