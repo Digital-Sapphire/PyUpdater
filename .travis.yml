@@ -25,18 +25,32 @@ matrix:
     python: 3.7
     env: HOMEBREW_NO_INSTALL_CLEANUP=1
     install:
-    - brew update
-    - brew pin numpy
-    - brew pin gdal
-    - brew pin postgis
     - brew unlink python@2
-    - brew upgrade python
     - brew link --overwrite python
+    - python3 --version
     - python3 -m venv venv
     - source venv/bin/activate
     - pip3 install --upgrade pip
     - pip3 install -r tests/requirements.txt
     - pip3 install -e .
+    script: pytest -n 3 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater
+      --cov-append
+  - os: osx
+    language: generic
+    python: 3.8
+    env: HOMEBREW_NO_INSTALL_CLEANUP=1
+    install:
+      - brew unlink python@2
+      - brew unlink python
+      - brew unlink python3
+      - brew install python@3.8
+      - brew link --overwrite --force python@3.8
+      - python3 --version
+      - python3 -m venv venv
+      - source venv/bin/activate
+      - pip3 install --upgrade pip
+      - pip3 install -r tests/requirements.txt
+      - pip3 install -e .
     script: pytest -n 3 --cov --cov-config .coveragerc --cov-report xml --cov pyupdater
       --cov-append
 install:
