@@ -26,14 +26,9 @@ import os
 import tempfile
 import threading
 
-try:
-    from http.server import SimpleHTTPRequestHandler as RequestHandler
-except ImportError:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler as RequestHandler
-try:
-    import socketserver as SocketServer
-except ImportError:
-    import SocketServer
+from http.server import SimpleHTTPRequestHandler as RequestHandler
+
+import socketserver as SocketServer
 
 import pytest
 
