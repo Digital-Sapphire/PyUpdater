@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -27,7 +27,6 @@ import io
 import os
 
 import pytest
-import six
 
 from pyupdater.utils.config import Config
 from pyupdater.utils import (
@@ -96,7 +95,7 @@ class TestUtils(object):
 
         pm = PluginManager(Config(), plugins=[Plugin()])
 
-        if isinstance(n, six.string_types) and isinstance(a, six.string_types):
+        if isinstance(n, str) and isinstance(a, str):
             assert len(pm.plugins) == 1
         else:
             assert len(pm.plugins) == 0

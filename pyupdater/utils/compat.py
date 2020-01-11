@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -22,14 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
-# Optparse is deprecated. This will results in an error for the user.
-# Users have to use PyInstaller > 3.0  or a Python version lower
-# than the version which removed optparse from the stdlib.
-try:  # pragma: no cover
-    import optparse
-except ImportError:  # pragma: no cover
-    optparse = None
-
 try:  # pragma: no cover
     from urllib import quote as url_quote
 except ImportError:  # pragma: no cover

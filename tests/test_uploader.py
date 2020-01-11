@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -27,7 +27,6 @@ import sys
 
 from dsdev_utils.paths import ChDir
 import pytest
-import six
 
 from pyupdater.core.uploader import BaseUploader, Uploader
 from pyupdater.utils.config import Config
@@ -100,7 +99,7 @@ class TestUploader(object):
         # Don't mind the name, should only contain 1 plugin
         upload_plugins = [u for u in uploaders if u.name == upload_plugin_type]
 
-        if six.PY2 or sys.version_info[1] in [4, 5]:
+        if sys.version_info[1] == 5:
             data_dir = str(shared_datadir)
         else:
             data_dir = shared_datadir

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -33,7 +33,6 @@ import sys
 import tarfile
 import threading
 import zipfile
-import six
 
 from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
@@ -49,7 +48,7 @@ from pyupdater.utils.exceptions import ClientError
 log = logging.getLogger(__name__)
 
 
-def requires_admin(path):
+def requires_admin(path):  # pragma: no cover
     """Check if a dir or a file requires admin permissions write/change."""
     if os.path.isdir(path):
         return dir_requires_admin(path)
@@ -59,31 +58,23 @@ def requires_admin(path):
         raise ValueError("requires_admin needs dir or file.")
 
 
-def file_requires_admin(file_path):
+def file_requires_admin(file_path):  # pragma: no cover
     """Check if a file requires admin permissions change."""
-    if six.PY2:
-        try:
-            with open(file_path.decode("utf-8"), "a"):
-                pass
-            return False
-        except IOError as e:
-            return e.errno == 13
-    elif six.PY3:
-        try:
-            with open(file_path, "a"):
-                pass
-            return False
-        except PermissionError:
-            return True
+    try:
+        with open(file_path, "a"):
+            pass
+        return False
+    except PermissionError:
+        return True
 
 
-def dir_requires_admin(dir):
+def dir_requires_admin(_dir):  # pragma: no cover
     """
     Check if a dir required admin permissions to write.
     If dir is a file test it's directory.
     """
-    dir = os.path.dirname(dir)
-    dummy_filepath = os.path.join(dir, str(uuid.uuid4()))
+    _dir = os.path.dirname(_dir)
+    dummy_filepath = os.path.join(_dir, str(uuid.uuid4()))
     try:
         with open(dummy_filepath, "w"):
             pass
@@ -93,7 +84,7 @@ def dir_requires_admin(dir):
         return True
 
 
-def win_run(command, args, admin=False):
+def win_run(command, args, admin=False):  # pragma: no cover
     """
     In windows run a command, optionally as admin.
     """
@@ -357,8 +348,6 @@ class LibUpdate(object):
 
         # The current directory of the running executable
         self._current_app_dir = os.path.dirname(sys.executable)
-        if six.PY2:
-            self._current_app_dir = self._current_app_dir.decode("utf-8")
 
         # The status of the download. Once downloaded this will be True
         self._download_status = False

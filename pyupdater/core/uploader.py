@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -28,7 +28,6 @@ import os
 
 from dsdev_utils.paths import remove_any
 from dsdev_utils.terminal import get_correct_answer
-import six
 
 from pyupdater import settings
 from pyupdater.utils import remove_dot_files, PluginManager
@@ -95,7 +94,7 @@ class Uploader(object):
 
         """
         self.keep = keep
-        if isinstance(requested_uploader, six.string_types) is False:
+        if isinstance(requested_uploader, str) is False:
             raise UploaderError("Must pass str to set_uploader", expected=True)
 
         self.uploader = self.plg_mgr.get_plugin(requested_uploader, init=True)
@@ -177,8 +176,7 @@ class AbstractBaseUploaderMeta(type):
         return obj
 
 
-@six.add_metaclass(AbstractBaseUploaderMeta)
-class BaseUploader(object):
+class BaseUploader(object, metaclass=AbstractBaseUploaderMeta):
     name = None
     author = None
     """Base Uploader.  All uploaders should subclass

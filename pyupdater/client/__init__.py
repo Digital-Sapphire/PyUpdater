@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -41,7 +41,6 @@ from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
 import ed25519
-import six
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
@@ -165,9 +164,6 @@ class Client(object):
 
             # Used when parsing the update manifest
             self.platform = _get_system()
-
-        if six.PY2:
-            self.data_dir = self.data_dir.decode("utf-8")
 
         # Folder to house update archives
         self.update_folder = os.path.join(self.data_dir, settings.UPDATE_FOLDER)
@@ -364,11 +360,9 @@ class Client(object):
         # Get the public key so we can verify it's authenticity with the
         # root public key.
         pub_key = key_data["app_public"]
-        if six.PY3:
-            if not isinstance(pub_key, bytes):
-                pub_key = bytes(pub_key, encoding="utf-8")
-        else:
-            pub_key = str(pub_key)
+
+        if not isinstance(pub_key, bytes):
+            pub_key = bytes(pub_key, encoding="utf-8")
 
         # The signature that we'll validate
         sig = key_data["signature"]
@@ -549,9 +543,10 @@ class Client(object):
             update_data = json.dumps(data, sort_keys=True)
 
             pub_key = ed25519.VerifyingKey(self.app_key, encoding="base64")
-            if six.PY3:
-                if not isinstance(update_data, bytes):
-                    update_data = bytes(update_data, encoding="utf-8")
+
+            if not isinstance(update_data, bytes):
+                update_data = bytes(update_data, encoding="utf-8")
+
             try:
                 pub_key.verify(signature, update_data, encoding="base64")
             except Exception as err:

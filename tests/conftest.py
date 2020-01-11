@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -26,14 +26,9 @@ import os
 import tempfile
 import threading
 
-try:
-    from http.server import SimpleHTTPRequestHandler as RequestHandler
-except ImportError:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler as RequestHandler
-try:
-    import socketserver as SocketServer
-except ImportError:
-    import SocketServer
+from http.server import SimpleHTTPRequestHandler as RequestHandler
+
+import socketserver as SocketServer
 
 import pytest
 

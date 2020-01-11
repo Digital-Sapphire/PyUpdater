@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -26,7 +26,6 @@ from __future__ import unicode_literals
 import logging
 import os
 import re
-import six
 import sys
 
 from dsdev_utils.exceptions import VersionError
@@ -135,7 +134,7 @@ class Package(object):
     name_regex = re.compile(r"(?P<name>[\w -]+)-[arm|mac|nix|win]")
 
     def __init__(self, filename):
-        if six.PY2 or sys.version_info[1] in [4, 5]:
+        if sys.version_info[1] == 5:
             filename = str(filename)
 
         self.name = None
