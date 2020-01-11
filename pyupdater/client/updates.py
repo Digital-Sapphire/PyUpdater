@@ -48,7 +48,7 @@ from pyupdater.utils.exceptions import ClientError
 log = logging.getLogger(__name__)
 
 
-def requires_admin(path):
+def requires_admin(path):  # pragma: no cover
     """Check if a dir or a file requires admin permissions write/change."""
     if os.path.isdir(path):
         return dir_requires_admin(path)
@@ -58,7 +58,7 @@ def requires_admin(path):
         raise ValueError("requires_admin needs dir or file.")
 
 
-def file_requires_admin(file_path):
+def file_requires_admin(file_path):  # pragma: no cover
     """Check if a file requires admin permissions change."""
     try:
         with open(file_path, "a"):
@@ -68,7 +68,7 @@ def file_requires_admin(file_path):
         return True
 
 
-def dir_requires_admin(_dir):
+def dir_requires_admin(_dir):  # pragma: no cover
     """
     Check if a dir required admin permissions to write.
     If dir is a file test it's directory.
@@ -84,7 +84,7 @@ def dir_requires_admin(_dir):
         return True
 
 
-def win_run(command, args, admin=False):
+def win_run(command, args, admin=False):  # pragma: no cover
     """
     In windows run a command, optionally as admin.
     """
