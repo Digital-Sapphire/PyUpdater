@@ -1,8 +1,11 @@
 # Changelog
 
-## v3.1.2 - Master
+## v4.0 - Master
 ##### * This version is not yet released and is under active development.
 
+### Removed
+
+  - Python 2
 
 ## v3.1.1 - 2019/06/11
 

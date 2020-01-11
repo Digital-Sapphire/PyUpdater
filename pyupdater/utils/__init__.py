@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -41,7 +41,6 @@ import certifi
 from dsdev_utils import paths
 from dsdev_utils import system
 from stevedore.extension import ExtensionManager
-import six
 import urllib3
 
 from pyupdater import settings
@@ -123,10 +122,10 @@ class PluginManager(object):
                 log.error("Plugin does not have required author attribute")
                 continue
 
-            if not isinstance(p.name, six.string_types):
+            if not isinstance(p.name, str):
                 log.error("Plugin name attribute is not a string")
                 continue
-            if not isinstance(p.author, six.string_types):
+            if not isinstance(p.author, str):
                 log.error("Plugin author attribute is not a string")
                 continue
             # We are ensuring a unique name for users
@@ -440,8 +439,6 @@ class JSONStore(DictMixin):
         data = JSONStore._sanitize(self._data)
         with io.open(self.path, "w", encoding="utf-8") as json_file:
             data = json.dumps(data, ensure_ascii=False, indent=2)
-            if six.PY2:
-                data = unicode(data)
             json_file.write(data)
 
         self._synced_json_kw = json_kw

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -28,7 +28,6 @@ import json
 
 import ed25519
 import pytest
-import six
 
 
 @pytest.mark.usefixtures("cleandir")
@@ -39,11 +38,10 @@ class TestVersionFile(object):
 
         sig = version_data["signature"]
         del version_data["signature"]
+
         data = json.dumps(version_data, sort_keys=True)
-        if six.PY3:
-            version_data = bytes(data, "utf-8")
-        else:
-            version_data = data
+
+        version_data = bytes(data, "utf-8")
 
         jms_pub = (shared_datadir / "jms.pub").read_text()
         public_key = ed25519.VerifyingKey(jms_pub, encoding="base64")

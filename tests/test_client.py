@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -33,7 +33,6 @@ from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.system import get_system
 from dsdev_utils.paths import ChDir, remove_any
 import pytest
-import six
 
 from pyupdater.client import Client
 from pyupdater.client.updates import gen_user_friendly_version, get_highest_version
@@ -92,8 +91,7 @@ class TestSetup(object):
         client = Client(t_config, refresh=True, test=True)
         filesystem_data = client._get_manifest_from_disk()
         assert filesystem_data is not None
-        if six.PY3:
-            filesystem_data = filesystem_data.decode()
+        filesystem_data = filesystem_data.decode()
         filesystem_data = json.loads(filesystem_data)
         del filesystem_data["signature"]
         assert client.json_data == filesystem_data

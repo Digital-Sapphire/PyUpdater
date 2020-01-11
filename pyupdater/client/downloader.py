@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -29,7 +29,6 @@ import os
 import time
 
 import certifi
-import six
 import urllib3
 
 from pyupdater.utils.compat import url_quote
@@ -49,9 +48,8 @@ def get_hash(data):
 
         (str): sha256 hash
     """
-    if six.PY3:
-        if not isinstance(data, bytes):
-            data = bytes(data, "utf-8")
+    if not isinstance(data, bytes):
+        data = bytes(data, "utf-8")
     hash_ = hashlib.sha256(data).hexdigest()
     log.debug("Hash for binary data: %s", hash_)
     return hash_

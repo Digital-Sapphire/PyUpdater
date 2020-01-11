@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -28,7 +28,6 @@ import gzip
 import json
 import logging
 import os
-import six
 
 import ed25519
 
@@ -128,7 +127,7 @@ class KeyHandler(object):
         log.debug("Signing update data")
         # Signs update data with private key
         signature = private_key.sign(
-            six.b(update_data_str), encoding=self.key_encoding
+            update_data_str, encoding=self.key_encoding
         ).decode()
         log.debug("Sig: %s", signature)
 
@@ -156,10 +155,7 @@ class KeyHandler(object):
         # Gzip update date
         with gzip.open(version_file, "wb") as f:
             new_data = json.dumps(data)
-            if six.PY2:
-                f.write(new_data)
-            else:
-                f.write(bytes(new_data, "utf-8"))
+            f.write(bytes(new_data, "utf-8"))
 
         log.debug("Created gzipped version manifest in deploy dir")
 
@@ -172,10 +168,7 @@ class KeyHandler(object):
         upload_data = keypack_data["upload"]
         with gzip.open(self.key_file, "wb") as f:
             new_data = json.dumps(upload_data)
-            if six.PY2:
-                f.write(new_data)
-            else:
-                f.write(bytes(new_data, "utf-8"))
+            f.write(bytes(new_data, "utf-8"))
         log.debug("Created gzipped key file in deploy dir")
 
     def _load_update_data(self):

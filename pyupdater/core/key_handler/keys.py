@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015-2019 Digital Sapphire
+# Copyright (c) 2015-2020 Digital Sapphire
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files
@@ -30,7 +30,6 @@ import os
 
 from appdirs import user_data_dir
 import ed25519
-import six
 
 from pyupdater import settings
 from pyupdater.utils.exceptions import KeyHandlerError
@@ -72,8 +71,6 @@ class Keys(object):
         # Write keypack to cwd
         with io.open(settings.KEYPACK_FILENAME, "w", encoding="utf-8") as f:
             out = json.dumps(keypack, indent=2, sort_keys=True)
-            if six.PY2:
-                out = unicode(out)
             f.write(out)
         return True
 
@@ -87,8 +84,6 @@ class Keys(object):
     def _save(self):
         with io.open(self.keypack_filename, "w", encoding="utf-8") as f:
             out = json.dumps(self.key_data, indent=2, sort_keys=True)
-            if six.PY2:
-                out = unicode(out)
             f.write(out)
 
     def _gen_keypack(self, name):
@@ -105,17 +100,14 @@ class Keys(object):
 
         log.debug("off_pri type: %s", type(off_pri))
         off_pri = off_pri.encode()
-        if six.PY2:
-            app_pub = six.b(app_pub)
 
         signing_key = ed25519.SigningKey(off_pri, encoding=self.key_encoding)
 
         # Create signature from app signing public key
         signature = signing_key.sign(app_pub, encoding=self.key_encoding).decode()
 
-        if six.PY3:
-            app_pri = app_pri.decode()
-            app_pub = app_pub.decode()
+        app_pri = app_pri.decode()
+        app_pub = app_pub.decode()
 
         keypack = {
             "upload": {"app_public": app_pub, "signature": signature},
@@ -128,9 +120,8 @@ class Keys(object):
         if name not in self.key_data.keys():
             # We create new offline keys for each app
             pri, pub = self._make_keys()
-            if six.PY3:
-                pri = pri.decode()
-                pub = pub.decode()
+            pri = pri.decode()
+            pub = pub.decode()
             self.key_data[name] = {"private": pri, "public": pub}
             self._save()
         return self.key_data[name]["private"], self.key_data[name]["public"]
