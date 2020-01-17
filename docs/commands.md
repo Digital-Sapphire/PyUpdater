@@ -21,7 +21,7 @@ Example:
 ```
 $ pyupdater archive --name ffmpeg --version 2.1.4
 
-$ pyupdater archive --name ffmpeg  --version 2.2
+$ pyupdater archive --name ffmpeg --version 2.2
 ```
 
 
