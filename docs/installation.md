@@ -29,4 +29,4 @@ Be sure to check the plugins docs for setup & configuration options.
 #### Install Development version
 We are not responsible for broken things but please report your findings ;)
 
-    $ pip install --upgrade https://github.com/JMSwag/PyUpdater.git@master
+    $ pip install --upgrade git+https://github.com/Digital-Sapphire/PyUpdater.git@master
