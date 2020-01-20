@@ -67,7 +67,9 @@ class Patcher(object):
 
         max_download_retries (int): Number of times to retry a download
 
-        urllib3_headers (dict): Headers to be used with http request
+        headers (dict): Headers to be used with http request.  Accepts urllib3 and generic headers.
+
+        http_timeout (int): HTTP timeout or None
     """
 
     def __init__(self, **kwargs):
@@ -81,8 +83,9 @@ class Patcher(object):
         self.update_urls = kwargs.get("update_urls", [])
         self.verify = kwargs.get("verify", True)
         self.max_download_retries = kwargs.get("max_download_retries")
-        self.urllib3_headers = kwargs.get("urllib3_headers")
+        self.headers = kwargs.get("headers")
         self.downloader = kwargs.get("downloader")
+        self.http_timeout = kwargs.get("http_timeout")
 
         # Progress hooks to be called
         self.progress_hooks = kwargs.get("progress_hooks", [])
@@ -302,7 +305,8 @@ class Patcher(object):
                         hexdigest=p["patch_hash"],
                         verify=self.verify,
                         max_download_retries=self.max_download_retries,
-                        urllb3_headers=self.urllib3_headers,
+                        headers=self.headers,
+                        http_timeout=self.http_timeout
                     )
 
                 # Attempt to download resource
