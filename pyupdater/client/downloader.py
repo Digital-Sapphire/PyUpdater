@@ -148,14 +148,9 @@ class FileDownloader(object):
             _http = urllib3.PoolManager(timeout=self.http_timeout)
 
         if self.headers:
-            if six.PY3:
-                # Python3
-                urllib_keys = inspect.getfullargspec(urllib3.util.make_headers).args
-            else:
-                # Python2 fallback
-                urllib_keys = inspect.getargspec(urllib3.util.make_headers).args
-            urllib_headers = {header: value for header, value in six.iteritems(self.headers) if header in urllib_keys}
-            other_headers = {header: value for header, value in six.iteritems(self.headers) if header not in urllib_keys}
+            urllib_keys = inspect.getfullargspec(urllib3.util.make_headers).args
+            urllib_headers = {header: value for header, value in self.headers.items() if header in urllib_keys}
+            other_headers = {header: value for header, value in self.headers.items() if header not in urllib_keys}
             _headers = urllib3.util.make_headers(**urllib_headers)
             _headers.update(other_headers)
             _http.headers.update(_headers)
