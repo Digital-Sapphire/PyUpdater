@@ -44,7 +44,7 @@ import ed25519
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
-from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate
+from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate, UpdateStrategy
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.exceptions import ClientError
 
@@ -85,6 +85,8 @@ class Client(object):
     data_dir (str): Path to custom update folder
 
     headers (dict): A dictionary of generic and/or urllib3.utils.make_headers compatible headers
+
+    strategy (str): The update strategy to use (default: overwrite).  See the UpdateStrategy enum for options.
 
     test (bool): Used to initialize a test client
 
@@ -197,6 +199,9 @@ class Client(object):
 
         # Creating data & update directories
         self._setup()
+
+        # The update strategy to use
+        self.strategy = kwargs.get("strategy", UpdateStrategy.DEFAULT)
 
         if refresh is True:
             self.refresh()
@@ -313,6 +318,7 @@ class Client(object):
             "progress_hooks": list(set(self.progress_hooks)),
             "headers": self.headers,
             "downloader": self.downloader,
+            "strategy": self.strategy,
         }
 
         data.update(self._gen_file_downloader_options())
