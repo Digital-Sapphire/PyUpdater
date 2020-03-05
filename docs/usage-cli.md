@@ -115,6 +115,6 @@ $ pyupdater upload --service s3
 
 ### Debugging Issues
 
-Sometimes issues arise like misconfigured upload URLs or keys. To debug issues that involve PyUpdater, create a the file `pyu.log` in the root of your app.
+Sometimes issues arise like misconfigured upload URLs or keys. To debug issues that involve PyUpdater, create the file `pyu.log` in the root of your app.
 
 PyUpdater will log debug statements to this file and hopefully provide you with information to assist with your debugging.
