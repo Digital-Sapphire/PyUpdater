@@ -29,27 +29,26 @@ import os
 HOME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-print('Start dir: {}'.format(HOME))
+print("Start dir: {}".format(HOME))
 
 
 def check_x(x):
-
     def bad_file(f):
         ext = os.path.splitext(f)[1]
-        if ext == '.pyc':
+        if ext == ".pyc":
             return True
         basename = os.path.basename(f)
-        if basename.startswith('.coverage.SWAG-Pro.local.'):
+        if basename.startswith(".coverage.SWAG-Pro.local."):
             return True
         return False
 
     def bad_dir(d):
         basename = os.path.basename(d)
-        bad = ['__pycache__', 'htmlcov', 'build',
-               'dist', 'PyUpdater.egg-info']
+        bad = ["__pycache__", "htmlcov", "build", "dist", "PyUpdater.egg-info"]
         if basename in bad:
             return True
         return False
+
     if os.path.isfile(x):
         if bad_file(x) is True:
             remove(x)
@@ -67,7 +66,7 @@ def remove(x):
         removed = True
         shutil.rmtree(x, ignore_errors=True)
     if removed is True:
-        print('Removed {}'.format(x))
+        print("Removed {}".format(x))
 
 
 def main():
@@ -80,5 +79,5 @@ def main():
             check_x(path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

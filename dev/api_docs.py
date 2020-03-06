@@ -27,52 +27,45 @@ sys.path.append(os.getcwd())
 # Utility functions
 # ------------------------------------------------------------------------------
 
+
 def _name(obj):
-    if hasattr(obj, '__name__'):
+    if hasattr(obj, "__name__"):
         return obj.__name__
     elif inspect.isdatadescriptor(obj):
         return obj.fget.__name__
 
 
 def _full_name(subpackage, obj):
-    return '{}.{}'.format(subpackage.__name__, _name(obj))
+    return "{}.{}".format(subpackage.__name__, _name(obj))
 
 
 def _anchor(name):
-    anchor = name.lower().replace(' ', '-')
-    anchor = re.sub(r'[^\w\- ]', '', anchor)
+    anchor = name.lower().replace(" ", "-")
+    anchor = re.sub(r"[^\w\- ]", "", anchor)
     return anchor
 
 
-_docstring_header_pattern = re.compile(r'^([^\n]+)\n[\-\=]{3,}$',
-                                       flags=re.MULTILINE,
-                                       )
-_docstring_parameters_pattern = re.compile(r'^([^ \n]+) \: ([^\n]+)$',
-                                           flags=re.MULTILINE,
-                                           )
+_docstring_header_pattern = re.compile(r"^([^\n]+)\n[\-\=]{3,}$", flags=re.MULTILINE,)
+_docstring_parameters_pattern = re.compile(
+    r"^([^ \n]+) \: ([^\n]+)$", flags=re.MULTILINE,
+)
 
 
 def _replace_docstring_header(paragraph):
     """Process NumPy-like function docstrings."""
 
     # Replace Markdown headers in docstrings with light headers in bold.
-    paragraph = re.sub(_docstring_header_pattern,
-                       r'*\1*',
-                       paragraph,
-                       )
+    paragraph = re.sub(_docstring_header_pattern, r"*\1*", paragraph,)
 
-    paragraph = re.sub(_docstring_parameters_pattern,
-                       r'\n* `\1` (\2)\n',
-                       paragraph,
-                       )
+    paragraph = re.sub(_docstring_parameters_pattern, r"\n* `\1` (\2)\n", paragraph,)
 
     return paragraph
 
 
 def _doc(obj):
-    doc = inspect.getdoc(obj) or ''
+    doc = inspect.getdoc(obj) or ""
     doc = doc.strip()
-    if doc and '---' in doc:
+    if doc and "---" in doc:
         return _replace_docstring_header(doc)
     else:
         return doc
@@ -106,7 +99,7 @@ def _import_module(module_name):
         # Raises an exception if the parent module cannot be imported.
         # This hopefully ensures that we only explicitly import modules
         # contained in `pdoc.import_path`.
-        imp.find_module(module_name.split('.')[0], import_path)
+        imp.find_module(module_name.split(".")[0], import_path)
 
     if module_name in sys.modules:
         return sys.modules[module_name]
@@ -119,10 +112,11 @@ def _import_module(module_name):
 # Introspection methods
 # ------------------------------------------------------------------------------
 
+
 def _is_public(obj):
     name = _name(obj) if not isinstance(obj, string_types) else obj
     if name:
-        return not name.startswith('_')
+        return not name.startswith("_")
     else:
         return True
 
@@ -131,9 +125,9 @@ def _is_defined_in_package(obj, package):
     if isinstance(obj, property):
         obj = obj.fget
     mod = inspect.getmodule(obj)
-    if mod and hasattr(mod, '__name__'):
+    if mod and hasattr(mod, "__name__"):
         name = mod.__name__
-        return name.split('.')[0] == package
+        return name.split(".")[0] == package
     return True
 
 
@@ -147,7 +141,7 @@ def _iter_doc_members(obj, package=None):
 def _iter_subpackages(package, subpackages):
     """Iterate through a list of subpackages."""
     for subpackage in subpackages:
-        yield _import_module('{}.{}'.format(package, subpackage))
+        yield _import_module("{}.{}".format(package, subpackage))
 
 
 def _iter_vars(mod):
@@ -184,53 +178,44 @@ def _iter_properties(klass, package=None):
 # API doc generation
 # ------------------------------------------------------------------------------
 
+
 def _concat(header, docstring):
-    return '{header}\n\n{docstring}'.format(header=header,
-                                            docstring=docstring,
-                                            )
+    return "{header}\n\n{docstring}".format(header=header, docstring=docstring,)
 
 
 def _function_header(subpackage, func):
     """Generate the docstring of a function."""
     args = inspect.formatargspec(*getargspec(func))
-    return "{name}{args}".format(name=_full_name(subpackage, func),
-                                 args=args,
-                                 )
+    return "{name}{args}".format(name=_full_name(subpackage, func), args=args,)
 
 
 def _doc_function(subpackage, func):
-    return _concat(_function_header(subpackage, func),
-                   _doc(func),
-                   )
+    return _concat(_function_header(subpackage, func), _doc(func),)
 
 
 def _doc_method(klass, func):
     """Generate the docstring of a method."""
     argspec = inspect.getargspec(func)
     # Remove first 'self' argument.
-    if argspec.args and argspec.args[0] == 'self':
+    if argspec.args and argspec.args[0] == "self":
         del argspec.args[0]
     args = inspect.formatargspec(*argspec)
-    header = "{klass}.{name}{args}".format(klass=klass.__name__,
-                                           name=_name(func), args=args,
-                                           )
+    header = "{klass}.{name}{args}".format(
+        klass=klass.__name__, name=_name(func), args=args,
+    )
     docstring = _doc(func)
     return _concat(header, docstring)
 
 
 def _doc_property(klass, prop):
     """Generate the docstring of a property."""
-    header = "{klass}.{name}".format(klass=klass.__name__,
-                                     name=_name(prop),
-                                     )
+    header = "{klass}.{name}".format(klass=klass.__name__, name=_name(prop),)
     docstring = _doc(prop)
     return _concat(header, docstring)
 
 
 def _link(name, anchor=None):
-    return "[{name}](#{anchor})".format(name=name,
-                                        anchor=anchor or _anchor(name),
-                                        )
+    return "[{name}](#{anchor})".format(name=name, anchor=anchor or _anchor(name),)
 
 
 def _generate_preamble(package, subpackages):
@@ -248,9 +233,10 @@ def _generate_preamble(package, subpackages):
 
         # List of top-level functions in the subpackage.
         for func in _iter_functions(subpackage):
-            yield '* ' + _link(_full_name(subpackage, func),
-                               _anchor(_function_header(subpackage, func))
-                               )
+            yield "* " + _link(
+                _full_name(subpackage, func),
+                _anchor(_function_header(subpackage, func)),
+            )
 
         # All public classes.
         for klass in _iter_classes(subpackage):
@@ -276,7 +262,7 @@ def _generate_paragraphs(package, subpackages):
 
         # List of top-level functions in the subpackage.
         for func in _iter_functions(subpackage):
-            yield '##### ' + _doc_function(subpackage, func)
+            yield "##### " + _doc_function(subpackage, func)
 
         # All public classes.
         for klass in _iter_classes(subpackage):
@@ -287,7 +273,7 @@ def _generate_paragraphs(package, subpackages):
 
             yield "#### Methods"
             for method in _iter_methods(klass, package):
-                yield '##### ' + _doc_method(klass, method)
+                yield "##### " + _doc_method(klass, method)
 
                 # Uncomment to document properties.
                 # yield "#### Properties"
@@ -296,15 +282,15 @@ def _generate_paragraphs(package, subpackages):
 
 
 def _print_paragraph(paragraph):
-    out = ''
-    out += paragraph + '\n'
-    if not paragraph.startswith('* '):
-        out += '\n'
+    out = ""
+    out += paragraph + "\n"
+    if not paragraph.startswith("* "):
+        out += "\n"
     return out
 
 
 def generate_api_doc(package, subpackages, path=None):
-    out = ''
+    out = ""
     for paragraph in _generate_preamble(package, subpackages):
         out += _print_paragraph(paragraph)
     for paragraph in _generate_paragraphs(package, subpackages):
@@ -312,15 +298,15 @@ def generate_api_doc(package, subpackages, path=None):
     if path is None:
         return out
     else:
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             f.write(out)
 
 
 def main():
-    package = 'pyupdater'
+    package = "pyupdater"
     subpackages = [
         # 'cli',
-        'client',
+        "client",
         # 'hooks',
         # 'core.key_handler',
         # 'core.package_handler',
@@ -328,9 +314,9 @@ def main():
     ]
 
     curdir = op.dirname(op.realpath(__file__))
-    path = op.join(curdir, '../docs/api.md')
+    path = op.join(curdir, "../docs/api.md")
     generate_api_doc(package, subpackages, path=path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

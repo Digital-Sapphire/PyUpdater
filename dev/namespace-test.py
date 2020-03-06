@@ -33,7 +33,7 @@ sh = logging.StreamHandler()
 sh.setLevel(logging.DEBUG)
 log.addHandler(sh)
 
-namespace = 'pyupdater.plugins'
+namespace = "pyupdater.plugins"
 
 
 def upgrade_pip():
@@ -46,7 +46,7 @@ def main():
     # upgrade_pip()
     mgr = ExtensionManager(namespace)
     eps = mgr.ENTRY_POINT_CACHE
-    log.debug('EP Cache: %s', eps)
+    log.debug("EP Cache: %s", eps)
 
     for ep in eps[namespace]:
         try:
