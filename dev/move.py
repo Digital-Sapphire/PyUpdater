@@ -29,9 +29,10 @@ import shutil
 
 from dsdev_utils.paths import ChDir, remove_any
 
-HTML_DIR = os.path.join(os.getcwd(), 'site')
-DEST_DIR = os.path.join(os.path.expanduser('~'), 'Sync', 'code', 'Web',
-                        'PyUpdater', 'public_html')
+HTML_DIR = os.path.join(os.getcwd(), "site")
+DEST_DIR = os.path.join(
+    os.path.expanduser("~"), "src", "Web", "PyUpdater", "public_html"
+)
 
 
 def main():
@@ -43,9 +44,9 @@ def main():
     with ChDir(HTML_DIR):
         files = os.listdir(os.getcwd())
         for f in files:
-            if f.startswith(u'.'):
+            if f.startswith(u"."):
                 continue
-            if f.startswith('__init__'):
+            if f.startswith("__init__"):
                 continue
             if os.path.isfile(f):
                 shutil.copy(f, os.path.join(DEST_DIR, f))
@@ -55,6 +56,6 @@ def main():
     shutil.rmtree(HTML_DIR)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-    print(u'Move complete')
+    print(u"Move complete")
