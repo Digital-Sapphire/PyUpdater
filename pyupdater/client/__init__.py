@@ -44,7 +44,12 @@ import ed25519
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
-from pyupdater.client.updates import AppUpdate, get_highest_version, LibUpdate, UpdateStrategy
+from pyupdater.client.updates import (
+    AppUpdate,
+    get_highest_version,
+    LibUpdate,
+    UpdateStrategy,
+)
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.exceptions import ClientError
 
@@ -435,7 +440,7 @@ class Client(object):
                         self.update_urls,
                         verify=self.verify,
                         headers=self.headers,
-                        http_timeout=self.http_timeout
+                        http_timeout=self.http_timeout,
                     )
                 data = fd.download_verify_return()
                 try:
@@ -468,7 +473,7 @@ class Client(object):
                     self.update_urls,
                     verify=self.verify,
                     headers=self.headers,
-                    http_timeout=self.http_timeout
+                    http_timeout=self.http_timeout,
                 )
             data = fd.download_verify_return()
             try:

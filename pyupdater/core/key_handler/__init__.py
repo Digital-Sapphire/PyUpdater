@@ -127,7 +127,7 @@ class KeyHandler(object):
         log.debug("Signing update data")
         # Signs update data with private key
         signature = private_key.sign(
-            bytes(update_data_str, 'latin-1'), encoding=self.key_encoding
+            bytes(update_data_str, "latin-1"), encoding=self.key_encoding
         ).decode()
         log.debug("Sig: %s", signature)
 

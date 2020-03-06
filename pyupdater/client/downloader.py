@@ -142,15 +142,25 @@ class FileDownloader(object):
     def _get_http_pool(self, secure=True):
         if secure:
             _http = urllib3.PoolManager(
-                cert_reqs=str("CERT_REQUIRED"), ca_certs=certifi.where(), timeout=self.http_timeout
+                cert_reqs=str("CERT_REQUIRED"),
+                ca_certs=certifi.where(),
+                timeout=self.http_timeout,
             )
         else:
             _http = urllib3.PoolManager(timeout=self.http_timeout)
 
         if self.headers:
             urllib_keys = inspect.getfullargspec(urllib3.util.make_headers).args
-            urllib_headers = {header: value for header, value in self.headers.items() if header in urllib_keys}
-            other_headers = {header: value for header, value in self.headers.items() if header not in urllib_keys}
+            urllib_headers = {
+                header: value
+                for header, value in self.headers.items()
+                if header in urllib_keys
+            }
+            other_headers = {
+                header: value
+                for header, value in self.headers.items()
+                if header not in urllib_keys
+            }
             _headers = urllib3.util.make_headers(**urllib_headers)
             _headers.update(other_headers)
             _http.headers.update(_headers)

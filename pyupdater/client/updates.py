@@ -215,9 +215,12 @@ def gen_user_friendly_version(internal_version):
 
 class UpdateStrategy:  # pragma: no cover
     """Enum representing the update strategies available"""
-    DEFAULT = "overwrite"       # The default strategy to use.  Currently is the overwrite strategy
-    OVERWRITE = "overwrite"     # Overwrites the binary in place
-    RENAME = "rename"           # Renames the binary.  Only available for Windows single file bundled executables
+
+    DEFAULT = (
+        "overwrite"  # The default strategy to use.  Currently is the overwrite strategy
+    )
+    OVERWRITE = "overwrite"  # Overwrites the binary in place
+    RENAME = "rename"  # Renames the binary.  Only available for Windows single file bundled executables
 
 
 class Restarter(object):  # pragma: no cover
@@ -703,7 +706,7 @@ class LibUpdate(object):
                     progress_hooks=self.progress_hooks,
                     max_download_retries=self.max_download_retries,
                     headers=self.headers,
-                    http_timeout=self.http_timeout
+                    http_timeout=self.http_timeout,
                 )
             result = fd.download_verify_write()
             if result:
@@ -838,7 +841,9 @@ class AppUpdate(LibUpdate):  # pragma: no cover
 
         # detect if is a folder
         if os.path.exists(os.path.join(self.update_folder, self.name)):
-            raise ClientError("The rename strategy is only supported for one file bundled executables")
+            raise ClientError(
+                "The rename strategy is only supported for one file bundled executables"
+            )
 
         # Remove the old app from previous updates
         if os.path.exists(old_app):
