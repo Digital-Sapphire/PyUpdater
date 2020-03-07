@@ -168,7 +168,7 @@ class Patcher(object):
                     except FileNotFoundError:
                         status = False
                         log.debug("Current archive missing: %s", self.current_filename)
-                        log.debug("%s", ' '.join(os.listdir(os.getcwd())))
+                        log.debug("%s", " ".join(os.listdir(os.getcwd())))
                     except Exception as err:
                         status = False
                         log.debug(err, exc_info=True)
@@ -306,7 +306,7 @@ class Patcher(object):
                         verify=self.verify,
                         max_download_retries=self.max_download_retries,
                         headers=self.headers,
-                        http_timeout=self.http_timeout
+                        http_timeout=self.http_timeout,
                     )
 
                 # Attempt to download resource

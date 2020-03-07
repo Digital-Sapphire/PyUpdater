@@ -3,6 +3,18 @@
 ## v4.0 - Master
 ##### * This version is not yet released and is under active development.
 
+### Added
+
+  - Client
+    - Added rename update strategy. Windows Only 
+    - Support generic headers and HTTP timeouts
+
+### Fixed
+  
+  - Client
+    - Attempt to attach to root logger
+    - Using custom downloader
+
 ### Removed
 
   - Python 2
