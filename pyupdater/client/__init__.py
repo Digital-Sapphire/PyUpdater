@@ -439,6 +439,7 @@ class Client(object):
                         vf,
                         self.update_urls,
                         verify=self.verify,
+                        max_download_retries=self.max_download_retries,
                         headers=self.headers,
                         http_timeout=self.http_timeout,
                     )
@@ -472,6 +473,7 @@ class Client(object):
                     self.key_file,
                     self.update_urls,
                     verify=self.verify,
+                    max_download_retries=self.max_download_retries,
                     headers=self.headers,
                     http_timeout=self.http_timeout,
                 )
