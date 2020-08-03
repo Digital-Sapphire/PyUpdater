@@ -164,7 +164,6 @@ class FileDownloader(object):
             _headers = urllib3.util.make_headers(**urllib_headers)
             _headers.update(other_headers)
             _http.headers.update(_headers)
-        log.debug(_http.headers)
         log.debug("HTTP Timeout is " + str(self.http_timeout))
         return _http
 
