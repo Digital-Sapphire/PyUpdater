@@ -254,15 +254,20 @@ class Restarter(object):  # pragma: no cover
             if not os.path.exists(self.current_app):
                 log.debug("Must be a .app bundle")
                 self.current_app += ".app"
-        if self.native_commands == False: # old behavior
-            mac_app_binary_dir = os.path.join(self.current_app, "Contents", "MacOS")
-            _file = os.listdir(mac_app_binary_dir)
-            # We are making an assumption here that only 1
-            # executable will be in the MacOS folder.
-            self.current_app = os.path.join(mac_app_binary_dir, sys.executable)
-            os.execl(self.current_app, self.name, *sys.argv[1:])
+            if self.native_commands == False: # old behavior
+                mac_app_binary_dir = os.path.join(self.current_app, "Contents", "MacOS")
+                _file = os.listdir(mac_app_binary_dir)
+                # We are making an assumption here that only 1
+                # executable will be in the MacOS folder.
+                self.current_app = os.path.join(mac_app_binary_dir, sys.executable)
+                os.execl(self.current_app, self.name, *sys.argv[1:])
+                return
+            else:
+                subprocess.Popen(["/usr/bin/open", "-n", "-a", self.current_app, "--args", sys.argv[1:]])
+                return
         else:
-        subprocess.Popen(["/usr/bin/open", "-n", "-a", self.current_app, "--args", sys.argv[1:]])
+            os.execl(self.current_app, self.name, *sys.argv[1:])
+            return
 
     def _win_overwrite(self):
         is_folder = os.path.isdir(self.updated_app)
