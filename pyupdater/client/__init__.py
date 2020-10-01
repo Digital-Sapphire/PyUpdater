@@ -381,7 +381,8 @@ class Client(object):
         signing_key = VerifyKey(self.root_key, UnpaddedBase64Encoder)
 
         try:
-            signing_key.verify(pub_key, sig, UnpaddedBase64Encoder)
+            sig = UnpaddedBase64Encoder.decode(sig)
+            signing_key.verify(pub_key, sig)
         except Exception as err:
             # This is bad. Very bad.
             # Create another keypack.pyu & import it not your repo.
@@ -562,7 +563,8 @@ class Client(object):
                 update_data = bytes(update_data, encoding="utf-8")
 
             try:
-                pub_key.verify(update_data, signature, UnpaddedBase64Encoder)
+                signature = UnpaddedBase64Encoder.decode(signature)
+                pub_key.verify(update_data, signature)
             except Exception as err:
                 log.debug("Version file not verified")
                 log.debug(err, exc_info=True)

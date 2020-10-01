@@ -105,7 +105,8 @@ class Keys(object):
         signing_key = SigningKey(off_pri, self.key_encoder)
 
         # Create signature from app signing public key
-        signature = signing_key.sign(app_pub, self.key_encoder).decode()[:64]
+        signature = signing_key.sign(app_pub)[:64]
+        signature = self.key_encoder.encode(signature).decode()
 
         app_pri = app_pri.decode()
         app_pub = app_pub.decode()

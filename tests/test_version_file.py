@@ -48,4 +48,6 @@ class TestVersionFile(object):
         jms_pub = (shared_datadir / "jms.pub").read_text()
         public_key = VerifyKey(jms_pub, UnpaddedBase64Encoder())
 
-        public_key.verify(version_data, sig, UnpaddedBase64Encoder())
+        sig = UnpaddedBase64Encoder.decode(sig)
+        public_key.verify(version_data, sig)
+

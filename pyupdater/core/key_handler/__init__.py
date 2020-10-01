@@ -126,8 +126,11 @@ class KeyHandler(object):
         log.debug("Signing update data")
         # Signs update data with private key
         signature = private_key.sign(
-            bytes(update_data_str, "latin-1"), self.key_encoder
-            ).decode()[:64]
+            bytes(update_data_str, "latin-1")
+            )
+
+        signature = self.key_encoder.encode(signature[:64]).decode()
+
         log.debug("Sig: %s", signature)
 
         # Create new dict from json string
