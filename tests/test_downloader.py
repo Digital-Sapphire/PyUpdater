@@ -35,7 +35,7 @@ FILE_HASH = "82719546b992ef81f4544fb2690c6a05b300a0216eeaa8f3616b3b107a311629"
 URLS = ["https://pyu-tester.s3.amazonaws.com/"]
 
 
-@pytest.mark.usefixtue("cleandir")
+@pytest.mark.usefixtures("cleandir")
 @pytest.mark.parametrize("download_max_size", [0, 4 * 1024 * 1024])
 class TestData(object):
     def test_return(self, download_max_size):
@@ -62,7 +62,7 @@ class TestData(object):
         assert binary_data is None
 
 
-@pytest.mark.usefixtue("cleandir")
+@pytest.mark.usefixtures("cleandir")
 class TestBasicAuthUrlLib(object):
     def test_basic_auth(self):
         headers = {"basic_auth": "user:pass"}
@@ -72,7 +72,7 @@ class TestBasicAuthUrlLib(object):
         assert sc == 200
 
 
-@pytest.mark.usefixtue("cleandir")
+@pytest.mark.usefixtures("cleandir")
 class TestAuthorizationHeader(object):
     def test_auth_header(self):
         headers = {"Authorization": "Basic dXNlcjpwYXNz"}
@@ -82,7 +82,7 @@ class TestAuthorizationHeader(object):
         assert sc == 200
 
 
-@pytest.mark.usefixtue("cleandir")
+@pytest.mark.usefixtures("cleandir")
 class TestUrl(object):
     def test_bad_url(self):
         fd = FileDownloader(FILENAME, ["bad url"], hexdigest="bad hash", verify=True)
@@ -94,7 +94,7 @@ class TestUrl(object):
             FileDownloader(FILENAME, URLS[0])
 
 
-@pytest.mark.usefixtue("cleandir")
+@pytest.mark.usefixtures("cleandir")
 class TestContentLength(object):
     def test_bad_content_length(self):
         class FakeHeaders(object):
@@ -110,7 +110,7 @@ class TestContentLength(object):
         assert fd.content_length == 2387
 
 
-@pytest.mark.usefixtue("cleandir")
+@pytest.mark.usefixtures("cleandir")
 class TestGetHash(object):
     def test_get_hash(self):
         digest = "380fd2bf3d78bb411e4c1801ce3ce7804bf5a22d79" "405d950e5d5c8f3169fca0"
