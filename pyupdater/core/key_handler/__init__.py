@@ -29,10 +29,11 @@ import json
 import logging
 import os
 
-import ed25519
+from nacl.signing import SigningKey
 
 from pyupdater import settings
 from pyupdater.utils.storage import Storage
+from pyupdater.utils.encoding import UnpaddedBase64Encoder
 
 
 log = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class KeyHandler(object):
     def __init__(self):
         self.db = Storage()
 
-        self.key_encoding = "base64"
+        self.key_encoder = UnpaddedBase64Encoder()
         data_dir = os.getcwd()
         self.data_dir = os.path.join(data_dir, settings.USER_DATA_FOLDER)
         self.deploy_dir = os.path.join(self.data_dir, "deploy")
@@ -120,15 +121,13 @@ class KeyHandler(object):
         # We create a signature from the string
         update_data_str = json.dumps(update_data, sort_keys=True)
 
-        private_key_raw = private_key_raw.encode("utf-8")
-
         # Creating signing key object
-        private_key = ed25519.SigningKey(private_key_raw, encoding=self.key_encoding)
+        private_key = SigningKey(private_key_raw, self.key_encoder)
         log.debug("Signing update data")
         # Signs update data with private key
         signature = private_key.sign(
-            bytes(update_data_str, "latin-1"), encoding=self.key_encoding
-        ).decode()
+            bytes(update_data_str, "latin-1"), self.key_encoder
+            ).decode()[:64]
         log.debug("Sig: %s", signature)
 
         # Create new dict from json string

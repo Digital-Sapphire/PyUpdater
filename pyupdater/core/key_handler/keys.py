@@ -29,10 +29,11 @@ import json
 import os
 
 from appdirs import user_data_dir
-import ed25519
+from nacl.signing import SigningKey
 
 from pyupdater import settings
 from pyupdater.utils.exceptions import KeyHandlerError
+from pyupdater.utils.encoding import UnpaddedBase64Encoder
 from pyupdater.utils.storage import Storage
 
 
@@ -42,7 +43,7 @@ log = logging.getLogger(__name__)
 class Keys(object):
     def __init__(self, test=False):
         # We use base64 encoding for easy human consumption
-        self.key_encoding = "base64"
+        self.key_encoder = UnpaddedBase64Encoder()
         self.key_data = {}
 
         if test:
@@ -101,10 +102,10 @@ class Keys(object):
         log.debug("off_pri type: %s", type(off_pri))
         off_pri = off_pri.encode()
 
-        signing_key = ed25519.SigningKey(off_pri, encoding=self.key_encoding)
+        signing_key = SigningKey(off_pri, self.key_encoder)
 
         # Create signature from app signing public key
-        signature = signing_key.sign(app_pub, encoding=self.key_encoding).decode()
+        signature = signing_key.sign(app_pub, self.key_encoder).decode()[:64]
 
         app_pri = app_pri.decode()
         app_pub = app_pub.decode()
@@ -128,9 +129,11 @@ class Keys(object):
 
     def _make_keys(self):
         # Makes a set of private and public keys
-        privkey, pubkey = ed25519.create_keypair()
-        pri = privkey.to_ascii(encoding=self.key_encoding)
-        pub = pubkey.to_ascii(encoding=self.key_encoding)
+        privkey = SigningKey.generate()
+        pubkey = privkey.verify_key
+
+        pri = privkey.encode(self.key_encoder)
+        pub = pubkey.encode(self.key_encoder)
         return pri, pub
 
 

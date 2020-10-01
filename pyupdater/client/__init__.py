@@ -40,7 +40,7 @@ from dsdev_utils.helpers import (
 from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
-import ed25519
+from nacl.signing import VerifyKey
 
 from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
@@ -51,6 +51,7 @@ from pyupdater.client.updates import (
     UpdateStrategy,
 )
 from pyupdater.utils.config import Config as _Config
+from pyupdater.utils.encoding import UnpaddedBase64Encoder
 from pyupdater.utils.exceptions import ClientError
 
 
@@ -377,10 +378,10 @@ class Client(object):
         sig = key_data["signature"]
 
         # Let's generate our signing key.
-        signing_key = ed25519.VerifyingKey(self.root_key, encoding="base64")
+        signing_key = VerifyKey(self.root_key, UnpaddedBase64Encoder)
 
         try:
-            signing_key.verify(sig, pub_key, encoding="base64")
+            signing_key.verify(pub_key, sig, UnpaddedBase64Encoder)
         except Exception as err:
             # This is bad. Very bad.
             # Create another keypack.pyu & import it not your repo.
@@ -555,13 +556,13 @@ class Client(object):
 
             update_data = json.dumps(data, sort_keys=True)
 
-            pub_key = ed25519.VerifyingKey(self.app_key, encoding="base64")
+            pub_key = VerifyKey(self.app_key, UnpaddedBase64Encoder)
 
             if not isinstance(update_data, bytes):
                 update_data = bytes(update_data, encoding="utf-8")
 
             try:
-                pub_key.verify(signature, update_data, encoding="base64")
+                pub_key.verify(update_data, signature, UnpaddedBase64Encoder)
             except Exception as err:
                 log.debug("Version file not verified")
                 log.debug(err, exc_info=True)

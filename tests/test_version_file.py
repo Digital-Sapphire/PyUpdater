@@ -26,8 +26,10 @@ from __future__ import unicode_literals
 
 import json
 
-import ed25519
+from nacl.signing import VerifyKey
 import pytest
+
+from pyupdater.utils.encoding import UnpaddedBase64Encoder
 
 
 @pytest.mark.usefixtures("cleandir")
@@ -44,6 +46,6 @@ class TestVersionFile(object):
         version_data = bytes(data, "utf-8")
 
         jms_pub = (shared_datadir / "jms.pub").read_text()
-        public_key = ed25519.VerifyingKey(jms_pub, encoding="base64")
+        public_key = VerifyKey(jms_pub, UnpaddedBase64Encoder())
 
-        public_key.verify(sig, version_data, encoding="base64")
+        public_key.verify(version_data, sig, UnpaddedBase64Encoder())
