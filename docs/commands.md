@@ -41,7 +41,7 @@ optional arguments:
 
 Description:
 
-The build command wraps pyinstaller to create the final executable. All options are passed to pyinstaller. Once built the executable is archived, in a pyupdater compatible format, and placed in the pyu-data/new directory. If you supply a version number with an alpha or beta tag, when processed this binary will be placed on the respective release channel. Note that patches will only be created for the stable channel.
+The build command wraps pyinstaller to create the final executable. All options are passed to pyinstaller. Once built the executable is archived, in a pyupdater compatible format, and placed in the pyu-data/new directory. If you supply a version number with an alpha or beta tag, when processed this binary will be placed on the respective release channel. If enabled, patches will also be created and placed on the respective release channel.
 
 Example:
 ```
