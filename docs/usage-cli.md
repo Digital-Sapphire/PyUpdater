@@ -80,7 +80,7 @@ Now lets sign & gzip our version manifest, gzip our keyfile & place both in the 
 $ pyupdater pkg --sign
 
 # For CI/CD
-$ pyupdater pkg --sign --slit-version
+$ pyupdater pkg --sign --split-version
 ```
 
 ### Step 10 - List Installed Plugins
