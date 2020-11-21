@@ -1,5 +1,5 @@
 # Usage | CLI | Advanced
-PyUpdater supports 3 release channels. Release channels are specified when providing a version number to the --app-version flag. Patches are only created for the stable channel. Examples below.
+PyUpdater supports 3 release channels. Release channels are specified when providing a version number to the --app-version flag. Patches are created for each channel. Examples below.
 
 ### Example - Setting channels
 Stable:
