@@ -18,12 +18,12 @@ https://github.com/certifi/python-certifi/blob/master/LICENSE
 https://github.com/JMSwag/dsdev-utils/blob/master/LICENSE
 
 
-### ed25519
-https://github.com/warner/python-ed25519/blob/master/LICENSE
-
-
 ### PyInstaller
 https://github.com/pyinstaller/pyinstaller/blob/develop/COPYING.txt
+
+
+### PyNacl
+https://github.com/pyca/pynacl/blob/master/LICENSE
 
 
 ### six
