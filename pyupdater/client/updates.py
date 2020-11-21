@@ -228,6 +228,7 @@ class Restarter(object):  # pragma: no cover
         self.current_app = current_app
         self.name = kwargs.get("name", "")
         self.strategy = kwargs.get("strategy", UpdateStrategy.DEFAULT)
+        self.native_commands = kwargs.get("native_commands", False)
         log.debug("Current App: %s", self.current_app)
         self.is_win = sys.platform == "win32"
         if self.is_win is True and self.strategy == UpdateStrategy.OVERWRITE:
@@ -248,7 +249,25 @@ class Restarter(object):  # pragma: no cover
             self._restart()
 
     def _restart(self):
-        os.execl(self.current_app, self.name, *sys.argv[1:])
+        if get_system() == "mac":
+            # Must be dealing with Mac .app application
+            if not os.path.exists(self.current_app):
+                log.debug("Must be a .app bundle")
+                self.current_app += ".app"
+            if self.native_commands == False: # old behavior
+                mac_app_binary_dir = os.path.join(self.current_app, "Contents", "MacOS")
+                _file = os.listdir(mac_app_binary_dir)
+                # We are making an assumption here that only 1
+                # executable will be in the MacOS folder.
+                self.current_app = os.path.join(mac_app_binary_dir, sys.executable)
+                os.execl(self.current_app, self.name, *sys.argv[1:])
+                return
+            else:
+                subprocess.Popen(["/usr/bin/open", "-n", "-a", self.current_app, "--args", sys.argv[1:]])
+                return
+        else:
+            os.execl(self.current_app, self.name, *sys.argv[1:])
+            return
 
     def _win_overwrite(self):
         is_folder = os.path.isdir(self.updated_app)
@@ -420,6 +439,9 @@ class LibUpdate(object):
 
         # The platform we are targeting
         self.platform = data.get("platform")
+
+        # Weather to use platform native commands to overwrite and restart the application
+        self.native_commands = data.get("native_commands")
 
         # The channel we are targeting
         self.channel = data.get("channel", "stable")
@@ -812,22 +834,15 @@ class AppUpdate(LibUpdate):  # pragma: no cover
             remove_any(current_app)
 
         log.debug("Moving app to new location:\n\n%s", self._current_app_dir)
-        shutil.move(app_update, self._current_app_dir)
+        if self.native_commands == False: # old behavior
+            shutil.move(app_update, self._current_app_dir)
+        else:
+            subprocess.Popen(["cp", "-rf", app_update, self._current_app_dir])
+            subprocess.Popen(["rm", "-rf", app_update])
 
     def _restart(self):
         log.debug("Restarting")
         current_app = os.path.join(self._current_app_dir, self.name)
-        if get_system() == "mac":
-            # Must be dealing with Mac .app application
-            if not os.path.exists(current_app):
-                log.debug("Must be a .app bundle")
-                current_app += ".app"
-                mac_app_binary_dir = os.path.join(current_app, "Contents", "MacOS")
-                _file = os.listdir(mac_app_binary_dir)
-
-                # We are making an assumption here that only 1
-                # executable will be in the MacOS folder.
-                current_app = os.path.join(mac_app_binary_dir, sys.executable)
 
         r = Restarter(current_app, name=self.name)
         r.process()
