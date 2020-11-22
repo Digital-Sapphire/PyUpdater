@@ -94,13 +94,3 @@ class MyDownloader:
 client = Client(DefaultClientConfig(), downloader=MyDownloader)
 
 ```
-
-
-### Use native platform commands to overwrite, move and restart the application.
-
-PyUpdater supports 2 modes, for overwriting, moving and restarting applications. PyUpdater can either use platform specific commands (e.g open on MacOS and cp and rm), or Python methods like those found in shutil and the os module.
-The default mode, is to use python functions. To switch to use platform specific commands, pass the "native_commands=True" when initializing the PyUpdater Client.
-
-```python
-client = Client(ClientConfig(), native_commands=True, ...)
-```

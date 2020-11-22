@@ -86,9 +86,6 @@ class Client(object):
     refresh (bool): True - Refresh update manifest on init
                     False - Don't refresh update manifest on init
 
-    native_commands (bool): True - Use platform specific commands to overwrite and restart the application
-                    False - Use python methods to overwrite and restart the application.
-
     progress_hooks (list): List of callbacks
 
     data_dir (str): Path to custom update folder
@@ -106,7 +103,6 @@ class Client(object):
             obj = DefaultClientConfig()
 
         refresh = kwargs.get("refresh", False)
-        self.native_commands = kwargs.get("native_commands", False)
         progress_hooks = kwargs.get("progress_hooks")
         test = kwargs.get("test", False)
         data_dir = kwargs.get("data_dir")
@@ -329,7 +325,6 @@ class Client(object):
             "headers": self.headers,
             "downloader": self.downloader,
             "strategy": self.strategy,
-            "native_commands": self.native_commands,
         }
 
         data.update(self._gen_file_downloader_options())
