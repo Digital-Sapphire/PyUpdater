@@ -91,9 +91,6 @@ obj (instance): config object
 refresh (bool): True - Refresh update manifest on init
                 False - Don't refresh update manifest on init
 
-native_commands (bool): True - Use platform specific commands to overwrite and restart the application
-                    False - Use python methods to overwrite and restart the application.
-
 progress_hooks (list): List of callbacks
 
 data_dir (str): Path to custom update folder
