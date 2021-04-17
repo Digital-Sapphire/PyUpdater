@@ -5,7 +5,7 @@ pytest>=4.4.0
 pytest-datadir>=1.3.0, <2.0
 pytest-cov
 pytest-ordering
-pytest-xdist
+pytest-xdist[psutil]
 pyupdater-scp-plugin
 pyupdater-s3-plugin
 tox-pyenv

@@ -38,7 +38,7 @@ def check_x(x):
         if ext == ".pyc":
             return True
         basename = os.path.basename(f)
-        if basename.startswith(".coverage.SWAG-Pro.local."):
+        if basename.startswith(".coverage."):
             return True
         return False
 

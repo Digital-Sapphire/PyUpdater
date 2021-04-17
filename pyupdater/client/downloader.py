@@ -28,11 +28,10 @@ import inspect
 import logging
 import os
 import time
+from urllib.parse import quote as url_quote
 
 import certifi
 import urllib3
-
-from pyupdater.utils.compat import url_quote
 from pyupdater.utils.exceptions import FileDownloaderError
 
 log = logging.getLogger(__name__)

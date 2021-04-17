@@ -32,10 +32,7 @@ import subprocess
 import tarfile
 import zipfile
 
-try:
-    from collections import MutableMapping as DictMixin
-except ImportError:
-    from collections.abc import MutableMapping as DictMixin
+from collections.abc import MutableMapping as DictMixin
 
 import certifi
 from dsdev_utils import paths
