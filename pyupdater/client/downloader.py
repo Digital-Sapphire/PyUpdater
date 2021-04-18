@@ -371,7 +371,7 @@ class FileDownloader(object):
             log.debug("Url for request: %s", file_url)
             try:
                 data = self.http_pool.urlopen(
-                    "GET", file_url, preload_content=False, retries=max_download_retries
+                    "GET", file_url, preload_content=False, retries=max_download_retries, decode_content=False
                 )
             except urllib3.exceptions.SSLError:
                 log.debug("SSL cert not verified")
