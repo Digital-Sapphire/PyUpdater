@@ -119,7 +119,7 @@ def win_run(command, args, admin=False):  # pragma: no cover
             lpParameters=" ".join('"{}"'.format(arg) for arg in args),
         )
     else:
-        return subprocess.Popen([command] + args)
+        subprocess.Popen([command] + args)
 
 
 def get_highest_version(name, plat, channel, easy_data, strict):
@@ -253,11 +253,11 @@ class Restarter(object):  # pragma: no cover
     def _win_overwrite(self):
         is_folder = os.path.isdir(self.updated_app)
         if is_folder:
-            needs_admin = requires_admin(self.updated_app) or dir_requires_admin(
+            needs_admin = requires_admin(self.updated_app) or requires_admin(
                 self.current_app
             )
         else:
-            needs_admin = dir_requires_admin(self.current_app)
+            needs_admin = requires_admin(self.current_app)
         log.debug("Admin required to update={}".format(needs_admin))
         with io.open(self.bat_file, "w", encoding="utf-8") as bat:
             if is_folder:
@@ -303,11 +303,11 @@ DEL "%~f0"
     def _win_overwrite_restart(self):
         is_folder = os.path.isdir(self.updated_app)
         if is_folder:
-            needs_admin = requires_admin(self.updated_app) or dir_requires_admin(
+            needs_admin = requires_admin(self.updated_app) or requires_admin(
                 self.current_app
             )
         else:
-            needs_admin = dir_requires_admin(self.current_app)
+            needs_admin = requires_admin(self.current_app)
         log.debug("Admin required to update={}".format(needs_admin))
         with io.open(self.bat_file, "w", encoding="utf-8") as bat:
             if is_folder:
