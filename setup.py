@@ -50,10 +50,10 @@ setup(
     description="Python Auto Update Library for Pyinstaller",
     long_description=readme,
     long_description_content_type="text/markdown",
-    author="JMSwag",
-    author_email="johnymoswag@gmail.com",
+    author="Digital Sapphire",
+    author_email="oss@digitalsapphire.io",
     url="https://www.pyupdater.org",
-    download_url=("https://github.com/JMSwag/PyUpdater/archive/master.zip"),
+    download_url=("https://github.com/Digital-Sapphire/PyUpdater/archive/master.zip"),
     license="MIT",
     keywords=KEYWORDS,
     extras_require={"s3": extra_s3, "scp": extra_scp, "all": [extra_s3, extra_scp]},
@@ -68,11 +68,11 @@ setup(
     pyupdater=pyupdater.cli:main
     """,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3 :: Only",
     ],
 )

@@ -61,8 +61,8 @@ def init_config(self, config):
 The second way would be env var.
 
 ## Examples plugins
-[S3 Plugin](https://github.com/JMSwag/PyUpdater-S3-Plugin)
+[S3 Plugin](https://github.com/Digital-Sapphire/PyUpdater-S3-Plugin)
 
-[SCP Plugin](https://github.com/JMSwag/PyUpdater-SCP-Plugin)
+[SCP Plugin](https://github.com/Digital-Sapphire/PyUpdater-SCP-Plugin)
 
 

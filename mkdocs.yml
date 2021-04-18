@@ -30,7 +30,7 @@ nav:
 
 theme: 'material'
 repo_name: 'GitHub'
-repo_url: 'https://github.com/JMSwag/PyUpdater'
+repo_url: 'https://github.com/Digital-Sapphire/PyUpdater'
 extra:
   palette:
     primary: 'blue'

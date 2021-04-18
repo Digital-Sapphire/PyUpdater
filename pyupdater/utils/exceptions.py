@@ -51,7 +51,7 @@ class STDError(Exception):
         if expected is False:
             msg = msg + (
                 "; please report this issue on https://github.com"
-                "/JMSwag/PyUpdater/issues"
+                "/Digital-Sapphire/PyUpdater/issues"
             )
         super(STDError, self).__init__(msg)
 

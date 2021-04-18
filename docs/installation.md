@@ -21,9 +21,9 @@ PyUpdater depends on a few external libraries:
 
 Be sure to check the plugins docs for setup & configuration options.
 
-[PyUpdater-S3-Plugin](https://github.com/JMSwag/pyupdater-s3-plugin)
+[PyUpdater-S3-Plugin](https://github.com/Digital-Sapphire/pyupdater-s3-plugin)
 
-[PyUpdater-SCP-Plugin](https://github.com/JMSwag/pyupdater-scp-plugin)
+[PyUpdater-SCP-Plugin](https://github.com/Digital-Sapphire/pyupdater-scp-plugin)
 
 
 #### Install Development version
