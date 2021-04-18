@@ -15,7 +15,7 @@ https://github.com/certifi/python-certifi/blob/master/LICENSE
 
 
 ### dsdev-utils
-https://github.com/JMSwag/dsdev-utils/blob/master/LICENSE
+https://github.com/Digital-Sapphire/dsdev-utils/blob/master/LICENSE
 
 
 ### PyInstaller
