@@ -9,15 +9,22 @@
     - Added rename update strategy. Windows Only 
     - Support generic headers and HTTP timeouts
 
+### Updated
+  - Core
+    - Named logger for pyupdater
+
 ### Fixed
   
   - Client
     - Attempt to attach to root logger
     - Using custom downloader
+    - Max download retries not set for manifest & key files
+    - Content decoding
 
 ### Removed
 
   - Python 2
+  - Logging http headers
 
 ## v3.1.1 - 2019/06/11
 

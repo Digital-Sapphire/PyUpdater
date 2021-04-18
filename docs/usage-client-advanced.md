@@ -88,8 +88,12 @@ class MyDownloader:
     
     def download_verify_write(self):
         # Write the downloaded data to the current dir
-        with open(self.filename, 'wb') as f:
-            f.write(self._data)
+        try:
+            with open(self.filename, 'wb') as f:
+                f.write(self._data)
+            return True
+        except:
+            return False
 
 client = Client(DefaultClientConfig(), downloader=MyDownloader)
 
