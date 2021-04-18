@@ -4,5 +4,5 @@ certifi>=2019.3.9
 dsdev-utils>=1.0.4
 pyinstaller>=3.0
 pynacl>=1.4.0
-stevedore>=1.30.1, <2.0
+stevedore>=1.30.1, <4.0
 urllib3>=1.24.1, <2.0
