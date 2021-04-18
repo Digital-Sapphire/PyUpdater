@@ -11,7 +11,7 @@ This project would not be possible without [Pyinstaller](https://github.com/pyin
 ## Status
 
 [![](https://badge.fury.io/py/PyUpdater.svg)](http://badge.fury.io/py/PyUpdater)
-![](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+![](https://github.com/Digital-Sapphire/PyUpdater/actions/workflows/main.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/Digital-Sapphire/PyUpdater/branch/master/graph/badge.svg)](https://codecov.io/gh/JMSwag/PyUpdater)
 
 ## Features
