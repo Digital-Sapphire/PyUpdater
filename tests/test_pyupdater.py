@@ -136,7 +136,7 @@ class TestExecutionExtraction(object):
                 lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
-                    os.makedirs(appdirs.user_data_dir(APP_NAME))
+                    os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
                 lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
@@ -266,7 +266,7 @@ class TestExecutionExtraction(object):
                 lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
-                    os.makedirs(appdirs.user_data_dir(APP_NAME))
+                    os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
                 lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
@@ -382,7 +382,7 @@ class TestExecutionRestart(object):
                 lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
-                    os.makedirs(appdirs.user_data_dir(APP_NAME))
+                    os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
                 lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
@@ -507,7 +507,7 @@ class TestExecutionRestart(object):
                 lock_path = "pyu.lock"
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
-                    os.makedirs(appdirs.user_data_dir(APP_NAME))
+                    os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
                 lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
