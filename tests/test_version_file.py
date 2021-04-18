@@ -50,4 +50,3 @@ class TestVersionFile(object):
 
         sig = UnpaddedBase64Encoder.decode(sig)
         public_key.verify(version_data, sig)
-

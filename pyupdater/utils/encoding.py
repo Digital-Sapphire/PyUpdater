@@ -1,5 +1,6 @@
 import base64
 
+
 class UnpaddedBase64Encoder(object):
     """
     A simple encoder class to encode/decode to base64 with the 'padding' (trailing equal characters) removed.

@@ -45,9 +45,13 @@ def _anchor(name):
     return anchor
 
 
-_docstring_header_pattern = re.compile(r"^([^\n]+)\n[\-\=]{3,}$", flags=re.MULTILINE,)
+_docstring_header_pattern = re.compile(
+    r"^([^\n]+)\n[\-\=]{3,}$",
+    flags=re.MULTILINE,
+)
 _docstring_parameters_pattern = re.compile(
-    r"^([^ \n]+) \: ([^\n]+)$", flags=re.MULTILINE,
+    r"^([^ \n]+) \: ([^\n]+)$",
+    flags=re.MULTILINE,
 )
 
 
@@ -55,9 +59,17 @@ def _replace_docstring_header(paragraph):
     """Process NumPy-like function docstrings."""
 
     # Replace Markdown headers in docstrings with light headers in bold.
-    paragraph = re.sub(_docstring_header_pattern, r"*\1*", paragraph,)
+    paragraph = re.sub(
+        _docstring_header_pattern,
+        r"*\1*",
+        paragraph,
+    )
 
-    paragraph = re.sub(_docstring_parameters_pattern, r"\n* `\1` (\2)\n", paragraph,)
+    paragraph = re.sub(
+        _docstring_parameters_pattern,
+        r"\n* `\1` (\2)\n",
+        paragraph,
+    )
 
     return paragraph
 
@@ -180,17 +192,26 @@ def _iter_properties(klass, package=None):
 
 
 def _concat(header, docstring):
-    return "{header}\n\n{docstring}".format(header=header, docstring=docstring,)
+    return "{header}\n\n{docstring}".format(
+        header=header,
+        docstring=docstring,
+    )
 
 
 def _function_header(subpackage, func):
     """Generate the docstring of a function."""
     args = inspect.formatargspec(*getargspec(func))
-    return "{name}{args}".format(name=_full_name(subpackage, func), args=args,)
+    return "{name}{args}".format(
+        name=_full_name(subpackage, func),
+        args=args,
+    )
 
 
 def _doc_function(subpackage, func):
-    return _concat(_function_header(subpackage, func), _doc(func),)
+    return _concat(
+        _function_header(subpackage, func),
+        _doc(func),
+    )
 
 
 def _doc_method(klass, func):
@@ -201,7 +222,9 @@ def _doc_method(klass, func):
         del argspec.args[0]
     args = inspect.formatargspec(*argspec)
     header = "{klass}.{name}{args}".format(
-        klass=klass.__name__, name=_name(func), args=args,
+        klass=klass.__name__,
+        name=_name(func),
+        args=args,
     )
     docstring = _doc(func)
     return _concat(header, docstring)
@@ -209,13 +232,19 @@ def _doc_method(klass, func):
 
 def _doc_property(klass, prop):
     """Generate the docstring of a property."""
-    header = "{klass}.{name}".format(klass=klass.__name__, name=_name(prop),)
+    header = "{klass}.{name}".format(
+        klass=klass.__name__,
+        name=_name(prop),
+    )
     docstring = _doc(prop)
     return _concat(header, docstring)
 
 
 def _link(name, anchor=None):
-    return "[{name}](#{anchor})".format(name=name, anchor=anchor or _anchor(name),)
+    return "[{name}](#{anchor})".format(
+        name=name,
+        anchor=anchor or _anchor(name),
+    )
 
 
 def _generate_preamble(package, subpackages):

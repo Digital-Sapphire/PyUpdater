@@ -36,8 +36,7 @@ log = logging.getLogger(__name__)
 # store data in a json file
 class Storage(object):
     def __init__(self):
-        """Loads & saves config file to file-system.
-        """
+        """Loads & saves config file to file-system."""
         self.config_dir = os.path.join(os.getcwd(), settings.CONFIG_DATA_FOLDER)
         if not os.path.exists(self.config_dir):
             log.debug("Creating config dir")
@@ -91,13 +90,13 @@ class Storage(object):
     def load(self, key):
         """Loads value for given key
 
-            Args:
+        Args:
 
-                key (str): The key associated with the value you want
-                form the database.
+            key (str): The key associated with the value you want
+            form the database.
 
-            Returns:
+        Returns:
 
-                Object if exists or else None
+            Object if exists or else None
         """
         return self.__class__.__dict__.get(key)

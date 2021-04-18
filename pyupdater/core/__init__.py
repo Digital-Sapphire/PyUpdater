@@ -35,9 +35,9 @@ from pyupdater.utils.config import Config
 class PyUpdater(object):
     """Processes, signs & uploads updates
 
-        Kwargs:
+    Kwargs:
 
-            config (obj): config object
+        config (obj): config object
     """
 
     def __init__(self, config=None):

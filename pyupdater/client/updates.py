@@ -535,17 +535,17 @@ class LibUpdate(object):
     def _get_filename(name, version, platform, easy_data):
         """Gets full filename for given name & version combo
 
-            Args:
+        Args:
 
-                name (str): Name of file
+            name (str): Name of file
 
-                version (str): Version of file to get full filename for
+            version (str): Version of file to get full filename for
 
-                easy_data (dict): Data file to search
+            easy_data (dict): Data file to search
 
-            Returns:
+        Returns:
 
-                (str) Filename with extension
+            (str) Filename with extension
         """
         filename_key = "{}*{}*{}*{}*{}".format(
             settings.UPDATES_KEY, name, version, platform, "filename"
