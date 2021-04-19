@@ -23,6 +23,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import print_function, unicode_literals
+import logging
 import os
 import shutil
 import subprocess
@@ -37,11 +38,11 @@ import pytest
 from pyupdater import PyUpdater
 from tconfig import TConfig
 
-AUTO_UPDATE_PAUSE = 30
+AUTO_UPDATE_PAUSE = 15
 if sys.platform == "win32":
-    AUTO_UPDATE_PAUSE += 10
+    AUTO_UPDATE_PAUSE += 15
 
-LOCK_TIMEOUT = 5 * 60  # 5 minute timeout
+LOCK_TIMEOUT = 1 * 60  # 2 minute timeout
 APP_NAME = "Acme"
 
 
@@ -60,6 +61,7 @@ class TestSetup(object):
         assert os.path.exists(os.path.join(pyu_data_dir, "new"))
 
 
+@pytest.mark.usefixtures("cleandir")
 class TestExecutionExtraction(object):
     @pytest.mark.parametrize(
         "custom_dir, port, windowed, split_version",
@@ -77,7 +79,7 @@ class TestExecutionExtraction(object):
     @pytest.mark.run(order=2)
     def test_execution_one_file_extract(
         self,
-        cleandir,
+        worker_id,
         shared_datadir,
         simpleserver,
         pyu,
@@ -131,35 +133,40 @@ class TestExecutionExtraction(object):
                 )
                 app_name = "{}.app".format(app_name)
 
+            lock_name = "pyu-{}.lock".format(worker_id)
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = "pyu.lock"
+                lock_path = lock_name
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), lock_name)
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
             output_file = "version1.txt"
-            with update_lock.acquire(LOCK_TIMEOUT, 5):
+            with update_lock.acquire(LOCK_TIMEOUT, 1):
+                print("Acquired lock")
                 count = 0
-                while count < 5:
+                while count < 3:
                     # Call the binary to self update
                     subprocess.call(app_run_command, shell=True)
+                    print("App finished running")
                     if os.path.exists(output_file):
+                        print("App output file found")
                         break
                     count += 1
-                    print("Retrying app launch")
+                    print("Retrying app launch: Count %s", count)
                     # Allow enough time for update process to complete.
                     time.sleep(AUTO_UPDATE_PAUSE)
 
             # Call the binary to ensure it's
             # the updated binary
             subprocess.call(app_run_command, shell=True)
+            print("2nd app finished running")
 
             simpleserver.stop()
-            # Detect if it was an overwrite error
+            print("Stopping http server")
 
             assert os.path.exists(app_name)
             assert os.path.exists(output_file)
@@ -192,7 +199,7 @@ class TestExecutionExtraction(object):
     @pytest.mark.run(order=1)
     def test_execution_one_dir_extract(
         self,
-        cleandir,
+        worker_id,
         shared_datadir,
         simpleserver,
         pyu,
@@ -261,35 +268,40 @@ class TestExecutionExtraction(object):
                 )
                 app_name = "{}.app".format(app_name)
 
+            lock_name = "pyu-{}.lock".format(worker_id)
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = "pyu.lock"
+                lock_path = lock_name
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), lock_name)
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
             output_file = "version1.txt"
-            with update_lock.acquire(LOCK_TIMEOUT, 5):
+            with update_lock.acquire(LOCK_TIMEOUT, 1):
+                print("Acquired lock")
                 count = 0
-                while count < 5:
+                while count < 3:
                     # Call the binary to self update
                     subprocess.call(app_run_command, shell=True)
+                    print("App finished running")
                     if os.path.exists(output_file):
+                        print("App output file found")
                         break
                     count += 1
-                    print("Retrying app launch")
+                    print("Retrying app launch: Count %s", count)
                     # Allow enough time for update process to complete.
                     time.sleep(AUTO_UPDATE_PAUSE)
 
             # Call the binary to ensure it's
             # the updated binary
             subprocess.call(app_run_command, shell=True)
+            print("2nd app finished running")
 
             simpleserver.stop()
-            # Detect if it was an overwrite error
+
             assert os.path.exists(app_name)
             assert os.path.exists(output_file)
             with open(output_file, "r") as f:
@@ -306,6 +318,7 @@ class TestExecutionExtraction(object):
                 remove_any(output_file)
 
 
+@pytest.mark.usefixtures("cleandir")
 class TestExecutionRestart(object):
     @pytest.mark.parametrize(
         "custom_dir, port, windowed, split_version",
@@ -323,7 +336,7 @@ class TestExecutionRestart(object):
     @pytest.mark.run(order=4)
     def test_execution_one_file_restart(
         self,
-        cleandir,
+        worker_id,
         shared_datadir,
         simpleserver,
         pyu,
@@ -377,23 +390,27 @@ class TestExecutionRestart(object):
                 )
                 app_name = "{}.app".format(app_name)
 
+            lock_name = "pyu-{}.lock".format(worker_id)
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = "pyu.lock"
+                lock_path = lock_name
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), lock_name)
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
             version_file = "version2.txt"
-            with update_lock.acquire(LOCK_TIMEOUT, 5):
+            with update_lock.acquire(LOCK_TIMEOUT, 1):
+                print("Acquired lock")
                 count = 0
-                while count < 5:
+                while count < 3:
                     # Call the binary to self update
                     subprocess.call(app_run_command, shell=True)
+                    print("App finished running")
                     if os.path.exists(version_file):
+                        print("App output file found")
                         break
                     count += 1
                     print("Retrying app launch!")
@@ -401,7 +418,7 @@ class TestExecutionRestart(object):
                     time.sleep(AUTO_UPDATE_PAUSE)
 
             simpleserver.stop()
-            # Detect if it was an overwrite error
+
             assert os.path.exists(app_name)
             assert os.path.exists(version_file)
             with open(version_file, "r") as f:
@@ -433,7 +450,7 @@ class TestExecutionRestart(object):
     @pytest.mark.run(order=3)
     def test_execution_one_dir_restart(
         self,
-        cleandir,
+        worker_id,
         shared_datadir,
         simpleserver,
         pyu,
@@ -502,20 +519,21 @@ class TestExecutionRestart(object):
                 )
                 app_name = "{}.app".format(app_name)
 
+            lock_name = "pyu-{}.lock".format(worker_id)
             if custom_dir:
                 # update with custom_dir is multiprocessing-safe
-                lock_path = "pyu.lock"
+                lock_path = lock_name
             else:
                 if not os.path.exists(appdirs.user_data_dir(APP_NAME)):
                     os.makedirs(appdirs.user_data_dir(APP_NAME), exist_ok=True)
-                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), "pyu.lock")
+                lock_path = os.path.join(appdirs.user_data_dir(APP_NAME), lock_name)
 
             update_lock = filelock.FileLock(lock_path, LOCK_TIMEOUT)
 
             version_file = "version2.txt"
-            with update_lock.acquire(LOCK_TIMEOUT, 5):
+            with update_lock.acquire(LOCK_TIMEOUT, 1):
                 count = 0
-                while count < 5:
+                while count < 3:
                     # Call the binary to self update
                     subprocess.call(app_run_command, shell=True)
                     if os.path.exists(version_file):
@@ -526,7 +544,7 @@ class TestExecutionRestart(object):
                     time.sleep(AUTO_UPDATE_PAUSE)
 
             simpleserver.stop()
-            # Detect if it was an overwrite error
+
             assert os.path.exists(app_name)
             assert os.path.exists(version_file)
             with open(version_file, "r") as f:

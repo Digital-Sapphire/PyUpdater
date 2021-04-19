@@ -21,7 +21,7 @@ GOTO End
 
 :Install
 ECHO Installing development dependencies
-pip install -r requirements	 --upgrade
+pip install -r requirements.txt	 --upgrade
 pip install -r dev\requirements.txt --upgrade
 GOTO End
 

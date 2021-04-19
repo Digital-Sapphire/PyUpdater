@@ -22,14 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
+from http.server import SimpleHTTPRequestHandler as RequestHandler
 import os
+import socketserver as SocketServer
 import tempfile
 import threading
 
-from http.server import SimpleHTTPRequestHandler as RequestHandler
-
-import socketserver as SocketServer
-
+from dsdev_utils.paths import remove_any
 import pytest
 
 from pyupdater import PyUpdater
@@ -43,8 +42,13 @@ from tconfig import TConfig
 
 @pytest.fixture
 def cleandir():
+    old_cwd = os.getcwd()
     new_path = tempfile.mkdtemp()
+    print("Changing to new dir: %s", new_path)
     os.chdir(new_path)
+    yield
+    os.chdir(old_cwd)
+    remove_any(new_path)
 
 
 @pytest.fixture

@@ -59,7 +59,7 @@ if not os.path.exists(LOG_DIR):  # pragma: no cover
     os.makedirs(LOG_DIR)
 
 log_file = os.path.join(LOG_DIR, settings.LOG_FILENAME_DEBUG)
-rfh = RotatingFileHandler(log_file, maxBytes=1048576, backupCount=2)
+rfh = RotatingFileHandler(log_file, maxBytes=10000000, backupCount=2)
 rfh.setLevel(logging.DEBUG)
 rfh.setFormatter(logging_formatter)
 log.addHandler(rfh)
