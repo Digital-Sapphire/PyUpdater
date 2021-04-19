@@ -1,7 +1,7 @@
 memory_profiler
-mkdocs==1.0.4
+mkdocs
 mkdocs-material
 PyUpdater-s3-Plugin
 tox
-versioneer==0.18
+versioneer==0.19
 vulture
