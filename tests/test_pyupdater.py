@@ -38,11 +38,11 @@ import pytest
 from pyupdater import PyUpdater
 from tconfig import TConfig
 
-AUTO_UPDATE_PAUSE = 15
+AUTO_UPDATE_PAUSE = 30
 if sys.platform == "win32":
-    AUTO_UPDATE_PAUSE += 15
+    AUTO_UPDATE_PAUSE += 10
 
-LOCK_TIMEOUT = 1 * 60  # 2 minute timeout
+LOCK_TIMEOUT = 5 * 60  # 5 minute timeout
 APP_NAME = "Acme"
 
 
