@@ -23,9 +23,9 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 hiddenimports = [
-    u"dsdev_utils.app",
-    u"dsdev_utils.logger",
-    u"dsdev_utils.paths",
-    u"dsdev_utils.system",
-    u"dsdev_utils.terminal",
+    "dsdev_utils.app",
+    "dsdev_utils.logger",
+    "dsdev_utils.paths",
+    "dsdev_utils.system",
+    "dsdev_utils.terminal",
 ]  # pragma: no cover

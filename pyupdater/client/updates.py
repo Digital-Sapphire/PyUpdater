@@ -119,7 +119,7 @@ def win_run(command, args, admin=False):  # pragma: no cover
             lpParameters=" ".join('"{}"'.format(arg) for arg in args),
         )
     else:
-        subprocess.Popen([command] + args)
+        return subprocess.Popen([command] + args)
 
 
 def get_highest_version(name, plat, channel, easy_data, strict):

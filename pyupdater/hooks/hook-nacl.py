@@ -1,1 +1,1 @@
-hiddenimports = [u"_cffi_backend"]
+hiddenimports = ["_cffi_backend"]

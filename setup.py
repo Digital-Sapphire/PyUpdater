@@ -32,7 +32,7 @@ KEYWORDS = (
 )
 
 
-with open(u"requirements.txt", u"r") as f:
+with open("requirements.txt", "r") as f:
     required = f.read().splitlines()
 
 

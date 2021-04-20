@@ -21,7 +21,7 @@ class UnpaddedBase64Encoder(object):
         if isinstance(data, bytes):
             padding = b"="
         else:
-            padding = u"="
+            padding = "="
 
         data += padding * ((4 - len(data) % 4) % 4)
 

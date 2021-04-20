@@ -44,7 +44,7 @@ def main():
     with ChDir(HTML_DIR):
         files = os.listdir(os.getcwd())
         for f in files:
-            if f.startswith(u"."):
+            if f.startswith("."):
                 continue
             if f.startswith("__init__"):
                 continue
@@ -58,4 +58,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print(u"Move complete")
+    print("Move complete")
