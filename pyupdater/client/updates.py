@@ -61,12 +61,7 @@ def requires_admin(path):  # pragma: no cover
 
 def file_requires_admin(file_path):  # pragma: no cover
     """Check if a file requires admin permissions change."""
-    try:
-        with open(file_path, "a"):
-            pass
-        return False
-    except PermissionError:
-        return True
+    return not os.access(file_path, os.W_OK)
 
 
 def dir_requires_admin(_dir):  # pragma: no cover
