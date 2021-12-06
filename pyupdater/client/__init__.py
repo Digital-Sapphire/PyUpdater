@@ -447,6 +447,8 @@ class Client(object):
                     )
                 data = fd.download_verify_return()
                 try:
+                    if data is None:
+                        raise IOError("Cannot decompress None.")
                     decompressed_data = _gzip_decompress(data)
                 except IOError:
                     log.debug("Failed to decompress gzip file")
@@ -481,6 +483,8 @@ class Client(object):
                 )
             data = fd.download_verify_return()
             try:
+                if data is None:
+                    raise IOError("Cannot decompress None.")
                 decompressed_data = _gzip_decompress(data)
             except IOError:
                 log.debug("Failed to decompress gzip file")
