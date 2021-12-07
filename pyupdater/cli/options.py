@@ -24,6 +24,10 @@
 # ------------------------------------------------------------------------------
 import argparse
 
+# Could define this in settings, but that would require an import settings
+# here, and I guess the VALID_CHANNELS are supposed to be "private" anyway.
+VALID_CHANNELS = ["alpha", "beta", "stable"]
+
 
 def make_parser():
     parser = argparse.ArgumentParser(usage="%(prog)s ")

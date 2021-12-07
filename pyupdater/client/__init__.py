@@ -43,6 +43,7 @@ from dsdev_utils.system import get_system as _get_system
 from nacl.signing import VerifyKey
 
 from pyupdater import settings, __version__
+from pyupdater.cli.options import VALID_CHANNELS
 from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.updates import (
     AppUpdate,
@@ -254,8 +255,7 @@ class Client(object):
         }
 
     def _update_check(self, name, version, channel, strict):
-        valid_channels = ["alpha", "beta", "stable"]
-        if channel not in valid_channels:
+        if channel not in VALID_CHANNELS:
             log.debug("Invalid channel. May need to check spelling")
             channel = "stable"
         self.name = name
