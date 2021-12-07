@@ -26,11 +26,14 @@ import io
 import json
 import logging
 import os
+import packaging.version
+import pathlib
 
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.terminal import ask_yes_no, get_correct_answer
 
 from pyupdater import __version__, PyUpdater, settings
+from pyupdater.cli.options import VALID_CHANNELS
 from pyupdater.cli.helpers import (
     initial_setup,
     print_plugin_settings,
@@ -438,10 +441,59 @@ def _cmd_upload(*args):  # pragma: no cover
         log.error("Upload failed!")
 
 
-# Remove latest version and corresponding patch, as if it was never built
+# Remove latest version and corresponding patch, as if it was never built.
 def _cmd_undo(*args):
     ns = args[0]
-    # todo: implement this
+    cm = ConfigManager()
+    app_name = cm.load_config().get("APP_NAME")  # todo: create settings.APP_NAME_KEY? (should then do the same for all keys in config template...)
+    # use a package handler to get access to .pyupdater/config.pyu
+    ph = PackageHandler()  # name consistent with ns, cm, etc.
+    # 1. get latest version for specified channel and platform from .pyupdater/config.pyu
+    # NOTE: Not using EasyAccessDict here. Could chain the get() calls to make oneliners.
+    latest_app_versions = ph.version_data[settings.LATEST_KEY].get(app_name, dict())
+    latest_channel_versions = latest_app_versions.get(ns.channel, dict())
+    latest_version_key = latest_channel_versions.get(ns.platform, None)
+    # 2. if there is a matching latest version, pop the corresponding entry from the version_data
+    all_app_versions = ph.version_data[settings.UPDATES_KEY].get(app_name, dict())
+    latest_version_platforms = all_app_versions.get(latest_version_key, dict())
+    latest_version = latest_version_platforms.pop(ns.platform, None)
+    if latest_version is not None:
+        if not latest_version_platforms:
+            # remove empty version dict
+            all_app_versions.pop(latest_version_key, None)
+        # 3. remove the zip-archive file and patch file for the latest version
+        # todo: ask for confirmation
+        deploy_dir_path = pathlib.Path(ph.deploy_dir)
+        for key in ["filename", "patch_name"]:  # todo: add key names to settings?
+            filename = latest_version.get(key, None)
+            if filename is not None:
+                file_path = deploy_dir_path / filename
+                try:  # could use unlink(missing_ok=True), but we want debug log entries
+                    file_path.unlink()
+                    log.debug(f"File removed: {file_path}")
+                except FileNotFoundError:
+                    log.debug(f"Could not remove file: {file_path} not found")
+        # 4. determine the next "latest" version for the specified channel/platform
+        # and update the version_data accordingly
+        all_channel_versions = [  # Note: could use dsdev_utils.helpers.Version, but rather not
+            key for key in all_app_versions.keys()
+            if int(key.split(".")[3]) == VALID_CHANNELS.index(ns.channel)]
+        if all_channel_versions:
+            # update the latest version for specified channel/platform
+            next_latest_version = sorted(
+                all_channel_versions, key=packaging.version.Version)[-1]
+            ph.version_data[settings.LATEST_KEY][app_name][ns.channel][ns.platform] = next_latest_version
+        else:
+            # no versions remain for specified channel/platform, so remove empty dicts
+            ph.version_data[settings.LATEST_KEY][app_name][ns.channel].pop(ns.platform, None)
+            if not ph.version_data[settings.LATEST_KEY][app_name][ns.channel]:
+                ph.version_data[settings.LATEST_KEY][app_name].pop(ns.channel, None)
+        # finally
+        # update the config.pyu file
+        ph.db.db.sync()
+        # todo: update/replace the pyu-data/deploy/versions.gz file
+        # todo: do we need to remove the content of pyu-data/files?
+        pass
 
 
 # Print the version of PyUpdater to the console.
