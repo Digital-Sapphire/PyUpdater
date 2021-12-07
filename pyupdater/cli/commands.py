@@ -43,6 +43,7 @@ from pyupdater.cli.helpers import (
     setup_urls,
 )
 from pyupdater.core.key_handler.keys import Keys, KeyImporter
+from pyupdater.core.package_handler import PackageHandler
 from pyupdater.utils import check_repo, get_http_pool, PluginManager
 from pyupdater.utils.builder import Builder, ExternalLib
 from pyupdater.utils.config import Config, ConfigManager
@@ -435,6 +436,12 @@ def _cmd_upload(*args):  # pragma: no cover
         log.info("Upload successful")
     else:
         log.error("Upload failed!")
+
+
+# Remove latest version and corresponding patch, as if it was never built
+def _cmd_undo(*args):
+    ns = args[0]
+    # todo: implement this
 
 
 # Print the version of PyUpdater to the console.

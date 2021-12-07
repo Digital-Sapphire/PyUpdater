@@ -253,6 +253,22 @@ def add_upload_parser(subparsers):
     )
 
 
+def add_undo_parser(subparsers):
+    undo_parser = subparsers.add_parser(
+        "undo", help="Remove latest version from specified channel")
+    undo_parser.add_argument(
+        "-c", "--channel",
+        help="The channel from which to remove the latest version",
+        type=str, action='store', dest='channel', required=True,
+        choices=VALID_CHANNELS
+    )
+    undo_parser.add_argument(
+        "-p", "--platform",
+        help="The platform for which to remove the latest version",
+        type=str, action='store', dest='platform', required=True
+    )
+
+
 def add_version_parser(subparsers):
     version_parser = subparsers.add_parser("version", help="Show version")
     version_parser.add_argument("--dummy", help=argparse.SUPPRESS)
@@ -272,5 +288,6 @@ def get_parser():
     add_plugin_parser(subparsers)
     add_settings_parser(subparsers)
     add_upload_parser(subparsers)
+    add_undo_parser(subparsers)
     add_version_parser(subparsers)
     return parser
