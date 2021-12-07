@@ -40,6 +40,7 @@ from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
 from dsdev_utils.system import get_system
 
 from pyupdater import settings
+from pyupdater.cli.options import VALID_CHANNELS
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
@@ -191,7 +192,6 @@ def get_highest_version(name, plat, channel, easy_data, strict):
 
 
 def gen_user_friendly_version(internal_version):
-    channel = {0: "Alpha", 1: "Beta"}
     v = list(map(int, internal_version.split(".")))
 
     # 1.2
@@ -201,7 +201,7 @@ def gen_user_friendly_version(internal_version):
         version += ".{}".format(v[2])
     if v[3] != 2:
         # 1.2.1 Alpha
-        version += " {}".format(channel[v[3]])
+        version += " {}".format(VALID_CHANNELS[v[3]].capitalize())
         if v[4] != 0:
             version += " {}".format(v[4])
 

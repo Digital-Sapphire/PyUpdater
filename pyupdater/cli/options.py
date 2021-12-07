@@ -24,8 +24,13 @@
 # ------------------------------------------------------------------------------
 import argparse
 
-# Could define this in settings, but that would require an import settings
-# here, and I guess the VALID_CHANNELS are supposed to be "private" anyway.
+# The VALID_CHANNELS index corresponds with the <release> value in the internal
+# version format, <major>.<minor>.<patch>.<release>.<release version>,
+# as defined here:
+# https://github.com/Digital-Sapphire/dsdev-utils/blob/1.3.0/dsdev_utils/helpers.py#L192
+# Also see:
+# https://github.com/Digital-Sapphire/PyUpdater/blob/4.0/pyupdater/client/updates.py#L198
+# https://github.com/Digital-Sapphire/PyUpdater/blob/4.0/pyupdater/core/package_handler/package.py#L188
 VALID_CHANNELS = ["alpha", "beta", "stable"]
 
 
