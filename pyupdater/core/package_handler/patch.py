@@ -95,8 +95,8 @@ class Patch(object):
     def _check_make_patch(self):
         # Check to see if previous version is available to
         # make patch updates. Also calculates patch number
-        if self._json_data.get("latest") is not None:
-            log.debug(json.dumps(self._json_data["latest"], indent=2))
+        if self._json_data.get(settings.LATEST_KEY) is not None:
+            log.debug(json.dumps(self._json_data[settings.LATEST_KEY], indent=2))
         log.debug("Checking if patch creation is possible")
         if bsdiff4 is None:
             log.warning("Bsdiff is missing. Cannot create patches")
@@ -120,7 +120,7 @@ class Patch(object):
                 # If latest not available in version file. Exit
                 try:
                     log.debug("Looking for %s on %s", _name, _plat)
-                    latest = self._json_data["latest"][_name][_channel][_plat]
+                    latest = self._json_data[settings.LATEST_KEY][_name][_channel][_plat]
                     log.debug("Found latest version for patches: %s", latest)
                 except KeyError:
                     log.debug("Cannot find latest version in version meta")

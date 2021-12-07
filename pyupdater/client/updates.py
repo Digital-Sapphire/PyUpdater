@@ -139,9 +139,9 @@ def get_highest_version(name, plat, channel, easy_data, strict):
 
     # We grab all keys and return the version corresponding to the
     # channel passed to this function
-    version_key_alpha = "{}*{}*{}*{}".format("latest", name, "alpha", plat)
-    version_key_beta = "{}*{}*{}*{}".format("latest", name, "beta", plat)
-    version_key_stable = "{}*{}*{}*{}".format("latest", name, "stable", plat)
+    version_key_alpha = "{}*{}*{}*{}".format(settings.LATEST_KEY, name, "alpha", plat)
+    version_key_beta = "{}*{}*{}*{}".format(settings.LATEST_KEY, name, "beta", plat)
+    version_key_stable = "{}*{}*{}*{}".format(settings.LATEST_KEY, name, "stable", plat)
     version = None
 
     version_options = []
