@@ -95,6 +95,9 @@ class TestCommandDispatch(object):
             is True
         )
 
+    def test_undo(self):
+        assert dispatch_command(NamespaceHelper(command="undo"), test=True) is True
+
     def test_upload(self):
         assert dispatch_command(NamespaceHelper(command="upload"), test=True) is True
 
