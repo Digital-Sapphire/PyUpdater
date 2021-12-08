@@ -457,83 +457,86 @@ def _cmd_undo(*args):
     pyu = PyUpdater(app_config)
     # 1. get latest version for specified channel and platform from
     # .pyupdater/config.pyu
-    latest_app_versions = pyu.ph.version_data[settings.LATEST_KEY].get(
-        app_name, dict())
+    latest_app_versions = pyu.ph.version_data.get(
+        settings.LATEST_KEY, dict()).get(app_name, dict())
     latest_version_key = latest_app_versions.get(ns.channel, dict()).get(
         ns.platform, None)
     # 2. if there is a matching latest version, pop the corresponding entry
     # from the version_data
-    all_app_versions = pyu.ph.version_data[settings.UPDATES_KEY].get(
-        app_name, dict())
+    all_app_versions = pyu.ph.version_data.get(
+        settings.UPDATES_KEY, dict()).get(app_name, dict())
     latest_version_platforms = all_app_versions.get(latest_version_key, dict())
     latest_version = latest_version_platforms.pop(ns.platform, None)
-    if latest_version is not None:
-        if not latest_version_platforms:
-            # remove empty version dict
-            all_app_versions.pop(latest_version_key, None)
-        # 3. collect paths of files to be removed
-        deploy_dir_path = pathlib.Path(pyu.ph.deploy_dir)
-        files_dir_path = pathlib.Path(pyu.ph.files_dir)
-        files_to_be_removed = []
-        for key in [key_filename, key_patch_name]:
-            name = latest_version.get(key, None)
-            if name is not None:
-                files_to_be_removed.append(deploy_dir_path / name)
-                if key == key_filename:
-                    files_to_be_removed.append(files_dir_path / name)
-        # 4. ask for confirmation
-        prompt = f"You are about to remove version {latest_version_key}.\n"
-        prompt += "As a result, the following files will be removed:\n\t"
-        prompt += "\n\t".join(str(file) for file in files_to_be_removed)
-        prompt += "\nThe following files will be modified:\n\t"
-        prompt += "\n\t".join([
-            str(pyu.ph.db.filename),
-            str(deploy_dir_path / settings.VERSION_FILE_FILENAME_COMPAT)])
-        prompt += "\nBEWARE: Do not remove versions that have been published.\n"
-        prompt += "This action cannot be undone. Do you wish to proceed? [n]/y: "
-        if input(prompt) != 'y':
-            print('Undo-command aborted.')
-            return
-        # 5. remove selected files from pyu-data/deploy and pyu-data/files
-        for file_path in files_to_be_removed:
-            try:
-                file_path.unlink(missing_ok=False)
-                log.debug(f"File removed: {file_path}")
-            except FileNotFoundError:
-                log.debug(f"Could not remove file: {file_path} not found")
-        # 6. determine the next "latest" version, for the specified channel
-        # and platform, and update the version_data accordingly
-        all_channel_version_keys = [
-            key for key in all_app_versions.keys()
-            if int(key.split(".")[3]) == VALID_CHANNELS.index(ns.channel)
-        ]
-        if all_channel_version_keys:
-            # update the latest version value for specified channel/platform
-            next_version_key = sorted(
-                all_channel_version_keys, key=packaging.version.Version)[-1]
-            latest_app_versions[ns.channel][ns.platform] = next_version_key
-            # 7. copy next latest version back to pyu-data/files
-            name = all_app_versions[next_version_key][ns.platform][key_filename]
-            try:
-                shutil.copy(
-                    str(deploy_dir_path / name), str(files_dir_path))
-                log.debug(f"File copied into pyu-data/files: {name}")
-            except FileNotFoundError:
-                log.debug(f"File not found: {deploy_dir_path / name}")
-            # 8. update py_repo_config values
-            if key_patch_name in latest_version.keys():
-                pyu.ph.config[key_patches][app_name] -= 1
-            pyu.ph.config[key_package][app_name][ns.platform] = next_version_key
-        else:
-            # no versions remain for specified channel/platform, so we remove
-            # the remaining empty dicts
-            latest_app_versions[ns.channel].pop(ns.platform, None)
-            if not latest_app_versions[ns.channel]:
-                latest_app_versions.pop(ns.channel, None)
-        # finally, update the config.pyu file
-        pyu.ph.db.db.sync()
-        # and update the pyu-data/deploy/versions.gz file (also updates keys.gz)
-        pyu.sign_update(split_version=None)
+    if latest_version is None:
+        print("Aborting: Latest version not found.")
+        return
+    if not latest_version_platforms:
+        # remove empty version dict
+        all_app_versions.pop(latest_version_key, None)
+    # 3. collect paths of files to be removed
+    deploy_dir_path = pathlib.Path(pyu.ph.deploy_dir)
+    files_dir_path = pathlib.Path(pyu.ph.files_dir)
+    files_to_be_removed = []
+    for key in [key_filename, key_patch_name]:
+        name = latest_version.get(key, None)
+        if name is not None:
+            files_to_be_removed.append(deploy_dir_path / name)
+            if key == key_filename:
+                files_to_be_removed.append(files_dir_path / name)
+    # 4. ask for confirmation
+    prompt = f"You are about to remove version {latest_version_key}.\n"
+    prompt += "As a result, the following files will be removed:\n\t"
+    prompt += "\n\t".join(str(file) for file in files_to_be_removed)
+    prompt += "\nThe following files will be modified:\n\t"
+    prompt += "\n\t".join([
+        str(pyu.ph.db.filename),
+        str(deploy_dir_path / settings.VERSION_FILE_FILENAME_COMPAT)])
+    prompt += "\nBEWARE: Do not remove versions that have been published.\n"
+    prompt += "This action cannot be undone. Do you wish to proceed? [n]/y: "
+    if input(prompt) != 'y':
+        print('Undo-command aborted.')
+        return
+    # 5. remove selected files from pyu-data/deploy and pyu-data/files
+    for file_path in files_to_be_removed:
+        try:
+            file_path.unlink(missing_ok=False)
+            log.debug(f"File removed: {file_path}")
+        except FileNotFoundError:
+            log.debug(f"Could not remove file: {file_path} not found")
+    # 6. determine the next "latest" version, for the specified channel
+    # and platform, and update the version_data accordingly
+    all_channel_version_keys = [
+        key for key in all_app_versions.keys()
+        if int(key.split(".")[3]) == VALID_CHANNELS.index(ns.channel)
+    ]
+    if all_channel_version_keys:
+        # update the latest version value for specified channel/platform
+        next_version_key = sorted(
+            all_channel_version_keys, key=packaging.version.Version)[-1]
+        latest_app_versions[ns.channel][ns.platform] = next_version_key
+        # 7. copy next latest version back to pyu-data/files
+        name = all_app_versions[next_version_key][ns.platform][key_filename]
+        try:
+            shutil.copy(
+                str(deploy_dir_path / name), str(files_dir_path))
+            log.debug(f"File copied into pyu-data/files: {name}")
+        except FileNotFoundError:
+            log.debug(f"File not found: {deploy_dir_path / name}")
+        # 8. update py_repo_config values
+        if key_patch_name in latest_version.keys():
+            pyu.ph.config[key_patches][app_name] -= 1
+        pyu.ph.config[key_package][app_name][ns.platform] = next_version_key
+    else:
+        # no versions remain for specified channel/platform, so we remove
+        # the remaining empty dicts
+        latest_app_versions[ns.channel].pop(ns.platform, None)
+        if not latest_app_versions[ns.channel]:
+            latest_app_versions.pop(ns.channel, None)
+    # finally, update the config.pyu file
+    pyu.ph.db.db.sync()
+    # and update the pyu-data/deploy/versions.gz file (also updates keys.gz)
+    pyu.sign_update(split_version=None)
+    print('Undo-command finished successfully.')
 
 
 # Print the version of PyUpdater to the console.

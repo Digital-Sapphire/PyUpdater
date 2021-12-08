@@ -36,6 +36,7 @@ from pyupdater.cli.options import (
     add_keys_parser,
     add_make_spec_parser,
     add_package_parser,
+    add_undo_parser,
     add_upload_parser,
     make_subparser,
 )
@@ -209,3 +210,15 @@ class TestPkg(object):
 
         opts, other = parser.parse_known_args(cmd)
         commands._cmd_pkg(opts)
+
+
+@pytest.mark.usefixtures("cleandir")
+class TestUndo(object):
+    def test_no_updates_no_patches(self, parser, pyu):
+        subparser = make_subparser(parser)
+        add_undo_parser(subparser)
+        pyu.update_config(pyu.config)
+        pyu.setup()
+        cmd = ["undo", "-c", "stable", "-p", "win"]
+        opts, other = parser.parse_known_args(cmd)
+        commands._cmd_undo(opts)
