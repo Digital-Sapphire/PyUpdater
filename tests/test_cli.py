@@ -214,7 +214,27 @@ class TestPkg(object):
 
 @pytest.mark.usefixtures("cleandir")
 class TestUndo(object):
-    def test_no_updates_no_patches(self, parser, pyu):
+    def test_no_options(self, parser):
+        subparser = make_subparser(parser)
+        add_undo_parser(subparser)
+        with pytest.raises(SystemExit):
+            parser.parse_known_args(["undo"])
+
+    @pytest.mark.parametrize(
+        ["channel", "platform"],
+        [("invalid channel", "win"), (None, "win"), ("stable", None)])
+    def test_invalid_options(self, parser, channel, platform):
+        subparser = make_subparser(parser)
+        add_undo_parser(subparser)
+        cmd = ["undo"]
+        if channel:
+            cmd.extend(["-c", channel])
+        if platform:
+            cmd.extend(["-p", platform])
+        with pytest.raises(SystemExit):
+            parser.parse_known_args(cmd)
+
+    def test_no_packages(self, parser, pyu):
         subparser = make_subparser(parser)
         add_undo_parser(subparser)
         pyu.update_config(pyu.config)
