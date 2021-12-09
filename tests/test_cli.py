@@ -229,7 +229,7 @@ class TestUndo(object):
         channel = next(iter(version_meta[latest_key][app_name]))
         platform = next(iter(version_meta[latest_key][app_name][channel]))
         py_repo_config = {
-            "patches": {app_name: 4},  # depends on version meta...
+            "patches": {app_name: 4},  # depends on version.json...
             "package": {app_name: version_meta[latest_key][app_name][channel]}
         }
         keypack_pyu = json.loads((shared_datadir / "keypack.pyu").read_text())
@@ -302,3 +302,60 @@ class TestUndo(object):
         cmd = ["undo", "-c", "stable", "-p", "win"]
         opts, other = parser.parse_known_args(cmd)
         commands._cmd_undo(opts)
+
+    def test_packages(self, parser, packages, pyu, monkeypatch):
+        """
+        This tests the normal expected behavior, assuming we have a number of
+        packages available.
+
+        Note: pyu references the same object as pyu in the packages fixture.
+        """
+        # constants from tests/data/version.json
+        app_name = "Acme"
+        channel = "stable"
+        platform = "mac"
+        old_latest_key = "4.4.0.2.0"
+        new_latest_key = "4.3.0.2.0"
+
+        # helpers
+        def get_latest_key():
+            return pyu.ph.version_data[settings.LATEST_KEY][app_name][channel][platform]
+
+        def get_all_versions():
+            return pyu.ph.version_data[settings.UPDATES_KEY][app_name]
+
+        # reference state (before undo)
+        key_to_be_removed = get_latest_key()
+        assert key_to_be_removed == old_latest_key
+        version_to_be_removed = get_all_versions()[key_to_be_removed][platform]
+        archive_to_be_removed = version_to_be_removed["filename"]
+        patch_to_be_removed = version_to_be_removed["patch_name"]
+        # Monkey patching builtins is discouraged by pytest docs, but it's
+        # probably safe to make an exception for input()?
+        monkeypatch.setattr("builtins.input", lambda __: key_to_be_removed)
+        # Ensure our command uses the test configuration.
+        monkeypatch.setattr(
+            "pyupdater.utils.config.ConfigManager.load_config",
+            lambda __: pyu.config)
+        # Run the undo command
+        subparser = make_subparser(parser)
+        add_undo_parser(subparser)
+        cmd = ["undo", "-c", "stable", "-p", "mac"]
+        opts, __ = parser.parse_known_args(cmd)
+        commands._cmd_undo(opts)
+        # Refresh pyu package handler
+        pyu.ph.config_loaded = False
+        pyu.ph.setup()
+        # Check config.pyu content
+        assert get_latest_key() == new_latest_key
+        remaining_versions = get_all_versions()
+        assert key_to_be_removed not in remaining_versions.keys()
+        # Check files
+        deploy_path = pathlib.Path(pyu.ph.deploy_dir)
+        files_path = pathlib.Path(pyu.ph.files_dir)
+        assert not (deploy_path / archive_to_be_removed).exists()
+        assert not (deploy_path / patch_to_be_removed).exists()
+        assert not (files_path / archive_to_be_removed).exists()
+        new_filename = remaining_versions[new_latest_key][platform]["filename"]
+        assert (files_path / new_filename).exists()
+        assert (deploy_path / "versions.gz").exists()
