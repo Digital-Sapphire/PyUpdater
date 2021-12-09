@@ -25,10 +25,13 @@
 from __future__ import unicode_literals
 
 import io
+import json
 import os
+import pathlib
 
 import pytest
 
+from pyupdater import settings
 from pyupdater.cli import commands, dispatch_command
 from pyupdater.cli.options import (
     add_build_parser,
@@ -40,6 +43,7 @@ from pyupdater.cli.options import (
     add_upload_parser,
     make_subparser,
 )
+from pyupdater.utils.storage import Storage
 
 commands.TEST = True
 
@@ -214,6 +218,62 @@ class TestPkg(object):
 
 @pytest.mark.usefixtures("cleandir")
 class TestUndo(object):
+    @pytest.fixture
+    def packages(self, shared_datadir, pyu):
+        """ populate config.pyu and create corresponding dummy files """
+        # collect dummy data for config.pyu
+        version_meta = json.loads((shared_datadir / "version.json").read_text())
+        version_meta.pop("signature", None)
+        latest_key = settings.LATEST_KEY
+        app_name = next(iter(version_meta[latest_key]))
+        channel = next(iter(version_meta[latest_key][app_name]))
+        platform = next(iter(version_meta[latest_key][app_name][channel]))
+        py_repo_config = {
+            "patches": {app_name: 4},  # depends on version meta...
+            "package": {app_name: version_meta[latest_key][app_name][channel]}
+        }
+        keypack_pyu = json.loads((shared_datadir / "keypack.pyu").read_text())
+        config_pyu = {
+            settings.CONFIG_DB_KEY_VERSION_META: version_meta,
+            settings.CONFIG_DB_KEY_PY_REPO_CONFIG: py_repo_config,
+            settings.CONFIG_DB_KEY_KEYPACK: keypack_pyu,
+        }
+        # update the config.pyu file
+        storage = Storage()
+        storage.db.update(config_pyu)
+        storage.db.sync()
+        # set up pyu and get paths
+        pyu.update_config(pyu.config)
+        pyu.setup()
+        files_path = pathlib.Path(pyu.ph.files_dir)
+        deploy_path = pathlib.Path(pyu.ph.deploy_dir)
+        # create dummy files in pyu-data/files and pyu-data/deploy
+        latest_version_key = version_meta[latest_key][app_name][channel][platform]
+        for key, version in version_meta[settings.UPDATES_KEY][app_name].items():
+            # create file(s) in pyu-data/deploy
+            filename = version[platform]["filename"]
+            patch_name = version[platform].get("patch_name", None)
+            for name in [filename, patch_name]:
+                if name is not None:
+                    (deploy_path / name).touch()
+            # create file in pyu-data/files
+            if key == latest_version_key:
+                (files_path / filename).touch()
+
+    def test_packages_fixture(self, packages, pyu):
+        """
+        Make sure our fixture does what it is supposed to do.
+
+        Notes:
+        - pyu references the same object as pyu in the packages fixture
+        - numbers are based on inspection of "version.json"
+        """
+        assert len(pyu.ph.version_data[settings.UPDATES_KEY]["Acme"]) == 4
+        deploy_path = pathlib.Path(pyu.ph.deploy_dir)
+        assert len(list(deploy_path.iterdir())) == 7
+        files_path = pathlib.Path(pyu.ph.files_dir)
+        assert len(list(files_path.iterdir())) == 1
+
     def test_no_options(self, parser):
         subparser = make_subparser(parser)
         add_undo_parser(subparser)
