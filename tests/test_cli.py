@@ -317,6 +317,9 @@ class TestUndo(object):
         old_latest_key = "4.4.0.2.0"
         new_latest_key = "4.3.0.2.0"
 
+        # command
+        cmd = ["undo", "-c", channel, "-p", platform]
+
         # helpers
         def get_latest_key():
             return pyu.ph.version_data[settings.LATEST_KEY][app_name][channel][platform]
@@ -340,7 +343,6 @@ class TestUndo(object):
         # Run the undo command
         subparser = make_subparser(parser)
         add_undo_parser(subparser)
-        cmd = ["undo", "-c", "stable", "-p", "mac"]
         opts, __ = parser.parse_known_args(cmd)
         commands._cmd_undo(opts)
         # Refresh pyu package handler
