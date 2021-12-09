@@ -291,7 +291,11 @@ def make_archive(name, target, version, archive_format):
         if system.get_system() == "win":
             src_manifest = src_executable + ".manifest"
             dst_manifest = dst_executable + ".manifest"
-            shutil.move(src_manifest, dst_manifest)
+            try:
+                shutil.move(src_manifest, dst_manifest)
+            except FileNotFoundError:
+                # pyinstaller 4.6+ embeds the manifest by default (issue #304)
+                log.debug("Manifest not found. Assuming it is embedded.")
 
     file_dir = os.path.dirname(os.path.abspath(target))
     filename = "{}-{}-{}".format(
