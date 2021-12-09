@@ -242,6 +242,35 @@ $ pyupdater settings --company
 ```
 
 
+### Undo
+```
+usage: pyupdater undo -c <channel> -p <platform>
+```
+
+Description:
+
+Undo the latest changes made by the `pkg` command.
+This affects the `pyu-data/files`, `pyu-data/deploy`, and `.pyupdater` 
+directories.
+This command removes the latest archive and patch file from the deploy 
+directory and files directory, and copies the previous archive back to the
+files directory.
+In addition, it updates the package meta-data in `.pyupdater/config.pyu` and
+it updates the `versions.gz` file in the deploy directory. 
+
+Warnings: 
+
+- The `undo` command can be aborted, but, once finished, it cannot be undone.
+- DO NOT use `undo` if the latest version has already been published, 
+because that will mess up your patch history and break updates. 
+
+Example:
+
+```
+# Undo latest pkg action for stable release channel on windows
+$ pyupdater undo -c stable -p win
+```
+
 ### Upload
 ```
 usage: pyupdater upload [-h] [--keep] [-s SERVICE]
