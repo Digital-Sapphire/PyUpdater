@@ -131,7 +131,7 @@ class Package(object):
     """
 
     # Used to parse name from archive filename
-    name_regex = re.compile(r"(?P<name>[\w -]+)-[arm|mac|nix|win]")
+    name_regex = re.compile(r"(?P<name>[\w -]+)-(arm|mac|nix|win)")
 
     def __init__(self, filename):
         if sys.version_info[1] == 5:
