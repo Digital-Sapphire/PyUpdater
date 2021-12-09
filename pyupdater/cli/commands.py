@@ -492,8 +492,9 @@ def _cmd_undo(*args):
         str(pyu.ph.db.filename),
         str(deploy_dir_path / settings.VERSION_FILE_FILENAME_COMPAT)])
     prompt += "\nBEWARE: Do not remove versions that have been published.\n"
-    prompt += "This action cannot be undone. Do you wish to proceed? [n]/y: "
-    if input(prompt) != 'y':
+    prompt += "This action cannot be undone.\n"
+    prompt += "Enter the version number to proceed (or hit enter to abort): "
+    if input(prompt) != latest_version_key:
         print('Undo-command aborted.')
         return
     # 5. remove selected files from pyu-data/deploy and pyu-data/files
