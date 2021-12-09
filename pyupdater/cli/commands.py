@@ -394,53 +394,6 @@ def _cmd_plugins(*args):
     log.info("Upload plugins:%s", output)
 
 
-# Upload the assets with the requested upload plugin
-def _cmd_upload(*args):  # pragma: no cover
-    check_repo_ex(exit_on_error=True)
-
-    ns = args[0]
-
-    # The upload plugin requested
-    upload_service = ns.service
-
-    # We need something to work with
-    if upload_service is None:
-        log.error("Must provide service name")
-        return
-
-    cm = ConfigManager()
-    pyu = PyUpdater(cm.load_config())
-    try:
-        # Configure PyUpdater to use the requested upload plugin
-        pyu.set_uploader(upload_service, ns.keep)
-    # Something happened during uploading
-    except UploaderError as err:
-        log.error(err)
-        return
-    # Something happened with the upload plugin
-    except UploaderPluginError as err:
-        log.debug(err)
-        log.error("Invalid upload plugin")
-        log.error('Use "pyupdater plugins" to get a ' "list of installed plugins")
-        return
-
-    # Try to upload the files in the deploy directory. Get it...
-    # In all seriousness, I really want this to go smoothly.
-    log.info("Starting upload")
-    try:
-        complete = pyu.upload()
-    except Exception as err:
-        complete = False
-        log.debug(err, exc_info=True)
-        log.error(err)
-
-    if complete:
-        print("")
-        log.info("Upload successful")
-    else:
-        log.error("Upload failed!")
-
-
 # Remove latest version and corresponding patch, as if it was never built.
 def _cmd_undo(*args):
     # DRY keys (todo: define these in settings.py or other central location?)
@@ -538,6 +491,53 @@ def _cmd_undo(*args):
     # and update the pyu-data/deploy/versions.gz file (also updates keys.gz)
     pyu.sign_update(split_version=None)
     print('Undo-command finished successfully.')
+
+
+# Upload the assets with the requested upload plugin
+def _cmd_upload(*args):  # pragma: no cover
+    check_repo_ex(exit_on_error=True)
+
+    ns = args[0]
+
+    # The upload plugin requested
+    upload_service = ns.service
+
+    # We need something to work with
+    if upload_service is None:
+        log.error("Must provide service name")
+        return
+
+    cm = ConfigManager()
+    pyu = PyUpdater(cm.load_config())
+    try:
+        # Configure PyUpdater to use the requested upload plugin
+        pyu.set_uploader(upload_service, ns.keep)
+    # Something happened during uploading
+    except UploaderError as err:
+        log.error(err)
+        return
+    # Something happened with the upload plugin
+    except UploaderPluginError as err:
+        log.debug(err)
+        log.error("Invalid upload plugin")
+        log.error('Use "pyupdater plugins" to get a ' "list of installed plugins")
+        return
+
+    # Try to upload the files in the deploy directory. Get it...
+    # In all seriousness, I really want this to go smoothly.
+    log.info("Starting upload")
+    try:
+        complete = pyu.upload()
+    except Exception as err:
+        complete = False
+        log.debug(err, exc_info=True)
+        log.error(err)
+
+    if complete:
+        print("")
+        log.info("Upload successful")
+    else:
+        log.error("Upload failed!")
 
 
 # Print the version of PyUpdater to the console.

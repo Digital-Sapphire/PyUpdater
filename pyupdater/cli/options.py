@@ -248,16 +248,6 @@ def add_settings_parser(subparsers):
     )
 
 
-def add_upload_parser(subparsers):
-    upload_parser = subparsers.add_parser("upload", help="Uploads files")
-    upload_parser.add_argument(
-        "--keep", help="Keep files after upload", action="store_true"
-    )
-    upload_parser.add_argument(
-        "-s", "--service", help="The plugin used for " "uploads", dest="service"
-    )
-
-
 def add_undo_parser(subparsers):
     undo_parser = subparsers.add_parser(
         "undo", help="Remove latest version from specified channel")
@@ -271,6 +261,16 @@ def add_undo_parser(subparsers):
         "-p", "--platform",
         help="The platform for which to remove the latest version",
         type=str, action='store', dest='platform', required=True
+    )
+
+
+def add_upload_parser(subparsers):
+    upload_parser = subparsers.add_parser("upload", help="Uploads files")
+    upload_parser.add_argument(
+        "--keep", help="Keep files after upload", action="store_true"
+    )
+    upload_parser.add_argument(
+        "-s", "--service", help="The plugin used for " "uploads", dest="service"
     )
 
 
@@ -292,7 +292,7 @@ def get_parser():
     add_package_parser(subparsers)
     add_plugin_parser(subparsers)
     add_settings_parser(subparsers)
-    add_upload_parser(subparsers)
     add_undo_parser(subparsers)
+    add_upload_parser(subparsers)
     add_version_parser(subparsers)
     return parser
