@@ -211,19 +211,42 @@ def gen_user_friendly_version(internal_version):
 
 def gen_pep440_version(internal_version):
     """
-    The internal version format is:
+    Convert an internal version string to a PEP440-compliant version string
+    that can be parsed by packaging.version.parse().
+
+    The pyupdater internal version format is (from dsdev-utils):
 
         <major>.<minor>.<patch>.<release>.<release version>
 
-    Note: function name consistent with gen_user_friendly_version()
+    The canonical [PEP440 format][1] is defined as follows:
+
+        [N!]N(.N)*[{a|b|rc}N][.postN][.devN]
+
+    However, packaging.version.parse() is more forgiving, as it also handles
+    e.g. '1.2.3.alpha.4'. Also see [packaging.version.VERSION_PATTERN][2].
+
+    [1]: https://www.python.org/dev/peps/pep-0440/#public-version-identifiers
+    [2]: https://github.com/pypa/packaging/blob/21.3/packaging/version.py#L225
     """
     internal_version_parts = internal_version.split(".")
-    if len(internal_version_parts) != 5:
-        raise ValueError(
-            f"Invalid internal_version: {internal_version} (must be N.N.N.N.N)")
-    channel_index = int(internal_version_parts[3])
+    channel_index = release_number = msg = None
+    try:
+        channel_index = int(internal_version_parts[3])
+        release_number = int(internal_version_parts[4])
+    except IndexError:
+        msg = f"internal_version format must be 'N.N.N.N.N' (N is numeric)"
+    except ValueError:
+        msg = f"internal_version parts must be numeric, e.g. '1.2.3.4.5'"
+    finally:
+        if msg is not None:
+            raise ValueError(f"{msg}: {internal_version}")
+
     if channel_index in [0, 1]:
         internal_version_parts[3] = VALID_CHANNELS[channel_index]
+    elif channel_index == 2 and release_number > 0:
+        pass
+        # todo: Do we consider this a post release? In that case:
+        #  internal_version_parts[3] = "post"
     return ".".join(internal_version_parts)
 
 
