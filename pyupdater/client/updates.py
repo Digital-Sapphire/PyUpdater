@@ -181,7 +181,7 @@ def gen_user_friendly_version(internal_version):
 
 def gen_pep440_version(internal_version):
     """
-    Convert an internal version string to a PEP440-compliant version string
+    Convert an internal version string to a PEP440-compatible version string
     that can be parsed by packaging.version.parse().
 
     The pyupdater internal version format is (from dsdev-utils):

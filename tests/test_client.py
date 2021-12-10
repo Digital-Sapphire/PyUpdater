@@ -27,6 +27,7 @@ from __future__ import unicode_literals
 
 import json
 import os
+import packaging.version
 import time
 
 from dsdev_utils.helpers import EasyAccessDict
@@ -236,6 +237,12 @@ class TestGenPEP440Version(object):
     def test_invalid(self):
         with pytest.raises(ValueError):
             gen_pep440_version("invalid")
+
+    def test_packaging_version_dependency(self):
+        # make sure packaging.version.parse() can actually parse our
+        # "PEP440-compatible" strings
+        assert str(packaging.version.parse("4.4.2.2.5")) == "4.4.2.2.5"
+        assert str(packaging.version.parse("4.4.2.alpha.5")) == "4.4.2a5"
 
 
 class TestChannelStrict(object):
