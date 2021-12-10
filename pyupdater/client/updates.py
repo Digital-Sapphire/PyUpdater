@@ -98,7 +98,6 @@ def win_unhide_file(file):  # pragma: no cover
 
 
 def win_run(command, args, admin=False):  # pragma: no cover
-
     """
     In windows run a command, optionally as admin.
     """
@@ -119,76 +118,47 @@ def win_run(command, args, admin=False):  # pragma: no cover
 
 
 def get_highest_version(name, plat, channel, easy_data, strict):
-    # Parses version file and returns the highest version number.
-    #
-    #   Args:
-    #
-    #      name (str): name of file to search for updates
-    #
-    #      plat (str): the platform we are requesting for
-    #
-    #      channel (str): the release channel
-    #
-    #      easy_data (dict): data file to search
-    #
-    #      strict (bool): specify whether or not to take the channel
-    #                     into consideration
-    #
-    #   Returns:
-    #
-    #      (str) Highest version number
+    """
+    Parses version file and returns the highest version number.
 
-    # We grab all keys and return the version corresponding to the
-    # channel passed to this function
-    version_key_alpha = "{}*{}*{}*{}".format("latest", name, "alpha", plat)
-    version_key_beta = "{}*{}*{}*{}".format("latest", name, "beta", plat)
-    version_key_stable = "{}*{}*{}*{}".format("latest", name, "stable", plat)
-    version = None
+    Args:
 
-    version_options = []
+         name (str): name of file to search for updates
 
-    alpha_available = False
-    alpha_str = easy_data.get(version_key_alpha)
-    if alpha_str is not None:
-        log.debug("Alpha str: %s", alpha_str)
-        alpha = Version(alpha_str)
-        version_options.append(alpha)
-        alpha_available = True
+         plat (str): the platform we are requesting for
 
-    beta_available = False
-    beta_str = easy_data.get(version_key_beta)
-    if beta_str is not None:
-        log.debug("Beta str: %s", beta_str)
-        beta = Version(beta_str)
-        version_options.append(beta)
-        beta_available = True
+         channel (str): the release channel
 
-    stable_str = easy_data.get(version_key_stable)
-    stable_available = False
-    if stable_str is not None:
-        log.debug("Stable str: %s", stable_str)
-        stable = Version(stable_str)
-        version_options.append(stable)
-        stable_available = True
+         easy_data (dict): data file to search
+
+         strict (bool): specify whether or not to take the channel
+                        into consideration
+
+    Returns:
+
+        (str) Highest version number
+    """
+    latest_versions = dict(
+        (_channel, versions[plat])
+        for _channel, versions in easy_data.dict["latest"][name].items()
+    )
+
+    version_objects = [
+        Version(gen_pep440_version(internal_version))
+        for internal_version in latest_versions.values()
+    ]
 
     if strict is False:
-        return str(max(version_options))
+        return str(max(version_objects))
 
-    if alpha_available is True and channel == "alpha":
-        version = alpha
-
-    if beta_available is True and channel == "beta":
-        version = beta
-
-    if stable_available is True and channel == "stable":
-        version = stable
+    version = latest_versions.get(channel, None)
 
     if version is not None:
-        log.debug("Highest version: %s", version)
+        log.debug(f"Highest version: {version}")
         return str(version)
     else:
-        log.info('No updates for "%s" on %s exists', name, plat)
-        return version
+        log.info(f"No updates exist for '{name}' on {plat}")
+        return
 
 
 def gen_user_friendly_version(internal_version):
