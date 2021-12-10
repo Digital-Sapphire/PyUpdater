@@ -204,9 +204,9 @@ def gen_pep440_version(internal_version):
         channel_index = int(internal_version_parts[3])
         release_number = int(internal_version_parts[4])
     except IndexError:
-        msg = f"internal_version format must be 'N.N.N.N.N' (N is numeric)"
+        msg = "internal_version format must be 'N.N.N.N.N' (N is numeric)"
     except ValueError:
-        msg = f"internal_version parts must be numeric, e.g. '1.2.3.4.5'"
+        msg = "internal_version parts must be numeric, e.g. '1.2.3.4.5'"
     finally:
         if msg is not None:
             raise ValueError(f"{msg}: {internal_version}")
