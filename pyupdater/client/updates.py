@@ -40,6 +40,7 @@ from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
 from dsdev_utils.system import get_system
 
 from pyupdater import settings
+from pyupdater.cli.options import VALID_CHANNELS
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
@@ -206,6 +207,24 @@ def gen_user_friendly_version(internal_version):
             version += " {}".format(v[4])
 
     return version
+
+
+def gen_pep440_version(internal_version):
+    """
+    The internal version format is:
+
+        <major>.<minor>.<patch>.<release>.<release version>
+
+    Note: function name consistent with gen_user_friendly_version()
+    """
+    internal_version_parts = internal_version.split(".")
+    if len(internal_version_parts) != 5:
+        raise ValueError(
+            f"Invalid internal_version: {internal_version} (must be N.N.N.N.N)")
+    channel_index = int(internal_version_parts[3])
+    if channel_index in [0, 1]:
+        internal_version_parts[3] = VALID_CHANNELS[channel_index]
+    return ".".join(internal_version_parts)
 
 
 class UpdateStrategy:  # pragma: no cover
