@@ -26,7 +26,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import json
+from functools import partialmethod
 import os
+import pathlib
 import time
 
 from dsdev_utils.helpers import EasyAccessDict
@@ -34,8 +36,10 @@ from dsdev_utils.system import get_system
 from dsdev_utils.paths import ChDir, remove_any
 import pytest
 
+from pyupdater import settings
 from pyupdater.client import Client
-from pyupdater.client.updates import gen_user_friendly_version, get_highest_version
+from pyupdater.client.updates import (
+    gen_user_friendly_version, get_highest_version, LibUpdate)
 from tconfig import TConfig
 
 
@@ -281,3 +285,49 @@ class TestMissingStable(object):
     def test1(self):
         data = EasyAccessDict(self.version_data)
         assert get_highest_version("Acme", "mac", "stable", data, strict=True) is None
+
+
+@pytest.mark.usefixtures("cleandir")
+class TestLibUpdate(object):
+    def test_download_patch_prerelease_channels(self, monkeypatch):
+        # define test data
+        data_dir = pathlib.Path.cwd()
+        (data_dir / settings.UPDATE_FOLDER).mkdir()
+        version_manifest_data = {
+            "updates": {
+                "Acme": {
+                    "1.0.0.0.0": {"mac": {"filename": "Acme-mac-1.0a.tar.gz"}},
+                    "2.0.0.0.0": {"mac": {"filename": "Acme-mac-2.0a.tar.gz"}},
+                }
+            },
+            "latest": {"Acme": {"alpha": {"mac": "2.0.0.0.0"}}},
+        }
+        data = {
+            "data_dir": str(data_dir),
+            "name": "Acme",
+            "platform": "mac",
+            "channel": "alpha",
+            "version": "1.0.0.0.0",
+            "json_data": version_manifest_data,
+            "easy_data": EasyAccessDict(version_manifest_data),
+        }
+
+        # mock the update methods
+        methods_called = []
+
+        def mock_method(self, name):
+            methods_called.append(name)
+            self._download_status = True
+            return True
+
+        patch_update = "_patch_update"
+        full_update = "_full_update"
+        for method_name in [patch_update, full_update]:
+            monkeypatch.setattr(
+                LibUpdate, method_name,
+                partialmethod(mock_method, name=method_name))
+
+        # download and patch
+        assert LibUpdate(data).download()
+        assert patch_update in methods_called
+        assert full_update not in methods_called
