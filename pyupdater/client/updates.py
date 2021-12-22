@@ -556,9 +556,7 @@ class LibUpdate(object):
                 self._download_status = True
             else:
                 log.debug("Starting patch download")
-                patch_success = False
-                if self.channel == "stable":
-                    patch_success = self._patch_update()
+                patch_success = self._patch_update()
                 # Tested elsewhere
                 if patch_success:  # pragma: no cover
                     self._download_status = True
