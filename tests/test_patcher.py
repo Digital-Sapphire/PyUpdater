@@ -52,6 +52,15 @@ update_data = {
 }
 
 
+class TestPatcher(object):
+    def test_current_version(self):
+        data = update_data.copy()
+        data["current_version"] = "4.1.0.0.0"
+        data["current_file_hash"] = "some valid hash"
+        p = Patcher(**data)
+        assert str(p.current_version) == data["current_version"]
+
+
 # noinspection PyStatementEffect,PyStatementEffect
 @pytest.mark.usefixtures("cleandir")
 class TestFails(object):
