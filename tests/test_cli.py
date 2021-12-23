@@ -24,6 +24,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 
+import argparse
 import io
 import os
 
@@ -115,7 +116,7 @@ class TestBuilder(object):
         add_build_parser(subparser)
         with pytest.raises(SystemExit):
             parser.parse_known_args(["build", "--app-version"])
-        with pytest.raises(ValueError):
+        with pytest.raises(SystemExit):
             parser.parse_known_args(["build", "--app-version", "invalid"])
 
     @pytest.mark.parametrize(
