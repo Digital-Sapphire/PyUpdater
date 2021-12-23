@@ -28,6 +28,7 @@ import io
 import os
 
 from dsdev_utils.paths import ChDir
+import packaging.version
 import pytest
 
 from pyupdater import settings
@@ -95,7 +96,7 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "Acme"
-        assert p1.version == "4.1.0.2.0"
+        assert str(p1.version) == "4.1"
         assert p1.filename == test_file
         assert p1.platform == "mac"
         assert p1.channel == "stable"
@@ -106,7 +107,7 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "with spaces"
-        assert p1.version == "0.0.1.1.1"
+        assert str(p1.version) == "0.0.1b1"
         assert p1.filename == test_file
         assert p1.platform == "nix"
         assert p1.channel == "beta"
@@ -117,7 +118,7 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "with spaces"
-        assert p1.version == "0.0.1.0.2"
+        assert str(p1.version) == "0.0.1a2"
         assert p1.filename == test_file
         assert p1.platform == "win"
         assert p1.channel == "alpha"
@@ -149,7 +150,7 @@ class TestPackage(object):
     def test_package_bad_platform(self, shared_datadir):
         filename = "pyu-wi-1.1.tar.gz"
         p = Package(shared_datadir / filename)
-        out = "filename does not match expected format"
+        out = "failed to parse package filename"
         assert out in p.info["reason"].lower()
 
 

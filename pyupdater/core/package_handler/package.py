@@ -192,15 +192,13 @@ class Package(object):
 
         log.debug(f"Extracting update archive info for: {package_basename}")
         parts = parse_archive_name(package_basename)
-        self.name = parts["app_name"]
-        self.platform = parts["platform"]
         msg = None
         try:
             # parse PEP440 version string
             self.version = packaging.version.Version(parts["version"])
             log.debug("Got version info")
         except TypeError:
-            msg = "Package filename does not match expected format"
+            msg = "Failed to parse package filename"
         except packaging.version.InvalidVersion:
             msg = "Package version may not be PEP440 compliant"
         finally:
@@ -209,6 +207,7 @@ class Package(object):
                 self.info["reason"] = reason
                 log.error(reason)
                 return
-
+        self.name = parts["app_name"]
+        self.platform = parts["platform"]
         self.info["status"] = True
         log.debug("Info extraction complete")
