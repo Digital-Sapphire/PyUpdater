@@ -33,7 +33,7 @@ import pytest
 
 from pyupdater import settings
 from pyupdater.core.package_handler import PackageHandler
-from pyupdater.core.package_handler.package import Package, parse_platform
+from pyupdater.core.package_handler.package import Package
 from pyupdater.core.package_handler.patch import Patch
 from pyupdater.utils.config import Config
 from pyupdater.utils.exceptions import PackageHandlerError
@@ -64,16 +64,6 @@ class TestUtils(object):
         config.from_object(t_config)
         p = PackageHandler(config)
         p.process_packages()
-
-    def test_parse_platform(self):
-        assert parse_platform("app-mac-0.1.0.tar.gz") == "mac"
-        assert parse_platform("app-win-1.0.0.zip") == "win"
-        assert parse_platform("Email Parser-mac-0.2.0.tar.gz") == "mac"
-        assert parse_platform("Hangman-nix-0.0.1b1.zip") == "nix"
-
-    def test_parse_platform_fail(self):
-        with pytest.raises(PackageHandlerError):
-            parse_platform("app-nex-1.0.0.tar.gz")
 
 
 @pytest.mark.usefixtures("cleandir", "pyu")

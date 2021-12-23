@@ -324,6 +324,9 @@ def parse_archive_name(filename):
 
     We do not impose any versioning requirements yet, such as defined in
     packaging.version.VERSION_PATTERN.
+
+    todo: Mention that package.parse_platform has been removed,
+     use parse_archive_name instead.
     """
     archive_name_pattern = (
         r"^(?P<app_name>[\w -]+)"

@@ -25,7 +25,6 @@
 from __future__ import unicode_literals
 import logging
 import os
-import re
 import sys
 from typing import Optional
 
@@ -34,32 +33,9 @@ import packaging.version
 
 from pyupdater import settings
 from pyupdater.utils import parse_archive_name
-from pyupdater.utils.exceptions import PackageHandlerError, UtilsError
+from pyupdater.utils.exceptions import UtilsError
 
 log = logging.getLogger(__name__)
-
-
-def parse_platform(name):
-    """Parses platfrom name from given string
-
-    Args:
-
-        name (str): Name to be parsed
-
-    Returns:
-
-        (str): Platform name
-    """
-    log.debug('Parsing "%s" for platform info', name)
-    try:
-        re_str = r"-(?P<platform>arm(64)?|mac|nix(64)?|win)-"
-        data = re.compile(re_str).search(name)
-        platform_name = data.groupdict()["platform"]
-        log.debug("Platform name is: %s", platform_name)
-    except AttributeError:
-        raise PackageHandlerError("Could not parse platform from filename")
-
-    return platform_name
 
 
 def remove_previous_versions(directory, filename):
