@@ -153,8 +153,11 @@ class Package(object):
     @property
     def channel(self):
         """
-        todo: this information is already contained in the Version object,
-         so it may be clearer just to drop the whole channel attribute
+        todo: Release notes should mention that Package.channel is now a
+         property instead of a normal attribute.
+
+        todo: This information is already contained in the Version object,
+         so it may be clearer just to drop the whole channel attribute.
         """
         channel_index = 2
         if self.version.is_prerelease:
@@ -194,7 +197,9 @@ class Package(object):
         parts = parse_archive_name(package_basename)
         msg = None
         try:
-            # parse PEP440 version string
+            # Parse PEP440 version string
+            # todo: Release notes should mention that Package.version is now a
+            #  packaging.version.Version object instead of a string.
             self.version = packaging.version.Version(parts["version"])
             log.debug("Got version info")
         except TypeError:
