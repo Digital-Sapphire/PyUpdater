@@ -27,11 +27,12 @@ import logging
 import os
 import re
 import sys
+from typing import Optional
 
-from dsdev_utils.exceptions import VersionError
-from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
+import packaging.version
 
+from pyupdater.cli.options import VALID_CHANNELS
 from pyupdater.utils import parse_archive_name
 from pyupdater.utils.exceptions import PackageHandlerError, UtilsError
 
@@ -78,7 +79,7 @@ def remove_previous_versions(directory, filename):
     try:
         # We set the full path here because Package() checks if filename exists
         package_info = Package(os.path.join(directory, filename))
-    except (UtilsError, VersionError):
+    except (UtilsError, packaging.version.InvalidVersion):
         log.debug("Cleanup Failed: %s - Cannot parse package info.", filename)
         return
 
@@ -135,8 +136,7 @@ class Package(object):
             filename = str(filename)
 
         self.name = None
-        self.channel = None
-        self.version = None
+        self.version: Optional[packaging.version.Version] = None
         self.filename = os.path.basename(filename)
         self.file_hash = None
         self.file_size = None
@@ -149,6 +149,18 @@ class Package(object):
         self.supported_extensions = [".zip", ".gz", ".bz2"]
         self.ignored_files = [".DS_Store"]
         self.extract_info(filename)
+
+    @property
+    def channel(self):
+        """
+        todo: this information is already contained in the Version object,
+         so it may be clearer just to drop the whole channel attribute
+        """
+        channel_index = 2
+        if self.version.is_prerelease:
+            # alpha or beta
+            channel_index = "ab".index(self.version.pre[0])
+        return VALID_CHANNELS[channel_index]
 
     def extract_info(self, package):
         """Gets version number, platform & hash for package.
@@ -180,26 +192,23 @@ class Package(object):
 
         log.debug(f"Extracting update archive info for: {package_basename}")
         parts = parse_archive_name(package_basename)
+        self.name = parts["app_name"]
+        self.platform = parts["platform"]
         msg = None
-        version = None  # is this necessary?
         try:
-            # parse version
-            version = Version(parts["version"])
+            # parse PEP440 version string
+            self.version = packaging.version.Version(parts["version"])
             log.debug("Got version info")
         except TypeError:
             msg = "Package filename does not match expected format"
-        except VersionError:
-            msg = "dsdev-utils cannot parse package version"
-        except AttributeError:
+        except packaging.version.InvalidVersion:
             msg = "Package version may not be PEP440 compliant"
         finally:
             if msg is not None:
-                self.info["reason"] = f"{msg}: {package_basename}"
-                log.error(msg)
+                reason = f"{msg}: {package_basename}"
+                self.info["reason"] = reason
+                log.error(reason)
                 return
-        self.name = parts["app_name"]
-        self.platform = parts["platform"]
-        self.channel = version.channel
-        self.version = str(version)
+
         self.info["status"] = True
         log.debug("Info extraction complete")
