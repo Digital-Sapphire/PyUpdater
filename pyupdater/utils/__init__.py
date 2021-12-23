@@ -218,7 +218,7 @@ def get_size_in_bytes(filename):
     return size
 
 
-def create_asset_archive(name, version):
+def create_asset_archive(name, version: str):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 
@@ -253,7 +253,7 @@ def create_asset_archive(name, version):
     return output_filename
 
 
-def make_archive(name, target, version, archive_format):
+def make_archive(name, target, version: str, archive_format):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 

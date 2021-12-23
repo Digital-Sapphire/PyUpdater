@@ -242,7 +242,7 @@ class Builder(object):  # pragma: no cover
 
 
 class ExternalLib(object):
-    def __init__(self, name, version):
+    def __init__(self, name, version: str):
         self.name = name
         self.version = version
 
