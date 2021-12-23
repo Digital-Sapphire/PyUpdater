@@ -32,7 +32,7 @@ from typing import Optional
 from dsdev_utils.paths import ChDir, remove_any
 import packaging.version
 
-from pyupdater.cli.options import VALID_CHANNELS
+from pyupdater import settings
 from pyupdater.utils import parse_archive_name
 from pyupdater.utils.exceptions import PackageHandlerError, UtilsError
 
@@ -160,7 +160,7 @@ class Package(object):
         if self.version.is_prerelease:
             # alpha or beta
             channel_index = "ab".index(self.version.pre[0])
-        return VALID_CHANNELS[channel_index]
+        return settings.VALID_CHANNELS[channel_index]
 
     def extract_info(self, package):
         """Gets version number, platform & hash for package.

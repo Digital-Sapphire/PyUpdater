@@ -23,8 +23,6 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
-import struct
-import sys
 
 from dsdev_utils import system
 
@@ -67,3 +65,12 @@ UPDATE_FOLDER = "update"
 VERSION_FILE_FILENAME = "versions-{}.gz".format(system.get_system())
 VERSION_FILE_FILENAME_COMPAT = "versions.gz"
 KEY_FILE_FILENAME = "keys.gz"
+
+# The VALID_CHANNELS index corresponds with the <release> value in the internal
+# version format, <major>.<minor>.<patch>.<release>.<release version>,
+# as defined here:
+# https://github.com/Digital-Sapphire/dsdev-utils/blob/1.3.0/dsdev_utils/helpers.py#L192
+# Also see:
+# https://github.com/Digital-Sapphire/PyUpdater/blob/4.0/pyupdater/client/updates.py#L198
+# https://github.com/Digital-Sapphire/PyUpdater/blob/4.0/pyupdater/core/package_handler/package.py#L188
+VALID_CHANNELS = ["alpha", "beta", "stable"]

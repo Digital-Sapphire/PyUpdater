@@ -40,7 +40,6 @@ from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
 from dsdev_utils.system import get_system
 
 from pyupdater import settings
-from pyupdater.cli.options import VALID_CHANNELS
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
@@ -212,7 +211,7 @@ def gen_pep440_version(internal_version):
             raise ValueError(f"{msg}: {internal_version}")
 
     if channel_index in [0, 1]:
-        internal_version_parts[3] = VALID_CHANNELS[channel_index]
+        internal_version_parts[3] = settings.VALID_CHANNELS[channel_index]
     elif channel_index == 2 and release_number > 0:
         pass
         # todo: Do we consider this a post release? In that case:
