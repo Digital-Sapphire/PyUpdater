@@ -33,6 +33,7 @@ from pyupdater.utils import (
     check_repo,
     create_asset_archive,
     make_archive,
+    parse_archive_name,
     PluginManager,
     remove_dot_files,
     run,
@@ -53,6 +54,21 @@ class TestUtils(object):
 
         assert os.path.exists(filename1)
         assert os.path.exists(filename2)
+
+    @pytest.mark.parametrize(
+        ["filename", "expected"],
+        [("Acme-mac-4.1.tar.gz", ("Acme", "mac", "4.1", ".tar.gz")),
+         ("with spaces-nix-0.0.1b1.zip", ("with spaces", "nix", "0.0.1b1", ".zip")),
+         ("with spaces-win-0.0.1a2.zip", ("with spaces", "win", "0.0.1a2", ".zip")),
+         ("pyu-win-1.tar.gz", ("pyu", "win", "1", ".tar.gz")),
+         ("pyu-win-0.0.2.xz", None),
+         ("pyu-wi-1.1.tar.gz", None),
+         ("anything", None),
+         ]
+    )
+    def test_parse_archive_name(self, filename, expected):
+        parts = parse_archive_name(filename)
+        assert parts == expected or tuple(parts.values()) == expected
 
     def test_create_asset_archive(self):
         with io.open("hash-test1.dll", "w", encoding="utf-8") as f:
