@@ -29,8 +29,6 @@ import os
 import sys
 import time
 
-from dsdev_utils.exceptions import VersionError
-from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.system import get_system
 from PyInstaller.__main__ import run as pyi_build
@@ -171,19 +169,6 @@ class Builder(object):  # pragma: no cover
 
     # Actually creates executable from spec file
     def _build(self, spec_file_path):
-        try:
-            Version(self.args.app_version)
-        except VersionError:
-            log.error("Version format incorrect: %s", self.args.app_version)
-            log.error(
-                """Valid version numbers: 0.10.0, 1.1b, 1.2.1a3
-
-        Visit url for more info:
-
-            http://semver.org/
-                      """
-            )
-            sys.exit(1)
         build_args = []
         if self.args.clean is True:
             build_args.append("--clean")
