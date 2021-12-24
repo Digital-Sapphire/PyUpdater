@@ -111,9 +111,9 @@ class PackageHandler(object):
         PackageHandler._add_patches_to_packages(
             pkg_manifest, patches, self.patch_support
         )
-        PackageHandler._update_version_file(self.version_data, pkg_manifest)
+        PackageHandler._update_version_meta(self.version_data, pkg_manifest)
 
-        self._write_json_to_file(self.version_data)
+        self._write_version_meta_to_file(self.version_data)
         self._write_config_to_file(self.config)
         self._move_packages(pkg_manifest)
 
@@ -327,9 +327,8 @@ class PackageHandler(object):
         return info
 
     @staticmethod
-    def _update_version_file(json_data, package_manifest):
-        # Adding version metadata from scanned packages to our
-        # version manifest
+    def _update_version_meta(json_data, package_manifest):
+        # Adding version metadata from scanned packages to our version manifest
         log.info("Adding package meta-data to version manifest")
         easy_dict = EasyAccessDict(json_data)
         for p in package_manifest:
@@ -365,7 +364,7 @@ class PackageHandler(object):
             json_data["latest"][p.name][p.channel][p.platform] = p.version
         return json_data
 
-    def _write_json_to_file(self, json_data):
+    def _write_version_meta_to_file(self, json_data):
         # Writes json data to disk
         log.debug("Saving version meta-data")
         self.db.save(settings.CONFIG_DB_KEY_VERSION_META, json_data)
