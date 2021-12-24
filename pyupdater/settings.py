@@ -57,6 +57,7 @@ USER_DATA_FOLDER = "pyu-data"
 
 # Key in version file where value are update meta data
 UPDATES_KEY = "updates"
+LATEST_KEY = "latest"
 
 # Folder on client system where updates are stored
 UPDATE_FOLDER = "update"
