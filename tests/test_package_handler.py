@@ -194,7 +194,7 @@ class TestPatch(object):
             "filename": full_path,
             "files_dir": self.files_dir,
             "new_dir": self.new_dir,
-            "json_data": version_data,
+            "version_data": version_data,
             "pkg_info": pkg,
             "config": config,
             "test": True,

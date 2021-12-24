@@ -58,7 +58,7 @@ class Patch(object):
         self._filename = kwargs.get("filename")
         self._files_dir = kwargs.get("files_dir")
         self._new_dir = kwargs.get("new_dir")
-        self._json_data = kwargs.get("json_data")
+        self._version_data = kwargs.get("version_data")
         self._config = kwargs.get("config")
         self._test = kwargs.get("test", False)
 
@@ -95,8 +95,8 @@ class Patch(object):
     def _check_make_patch(self):
         # Check to see if previous version is available to
         # make patch updates. Also calculates patch number
-        if self._json_data.get("latest") is not None:
-            log.debug(json.dumps(self._json_data["latest"], indent=2))
+        if self._version_data.get("latest") is not None:
+            log.debug(json.dumps(self._version_data["latest"], indent=2))
         log.debug("Checking if patch creation is possible")
         if bsdiff4 is None:
             log.warning("Bsdiff is missing. Cannot create patches")
@@ -120,14 +120,14 @@ class Patch(object):
                 # If latest not available in version file. Exit
                 try:
                     log.debug("Looking for %s on %s", _name, _plat)
-                    latest = self._json_data["latest"][_name][_channel][_plat]
+                    latest = self._version_data["latest"][_name][_channel][_plat]
                     log.debug("Found latest version for patches: %s", latest)
                 except KeyError:
                     log.debug("Cannot find latest version in version meta")
                     return
                 try:
                     u_key = settings.UPDATES_KEY
-                    latest_platform = self._json_data[u_key][_name][latest]
+                    latest_platform = self._version_data[u_key][_name][latest]
                     log.debug("Found latest platform for patches")
                     try:
                         filename = latest_platform[_plat]["filename"]
