@@ -140,7 +140,7 @@ def get_highest_version(name, plat, channel, easy_data, strict):
     """
     latest_versions = dict(
         (_channel, versions[plat])
-        for _channel, versions in easy_data.dict["latest"][name].items()
+        for _channel, versions in easy_data.dict[settings.LATEST_KEY][name].items()
     )
 
     version_objects = [

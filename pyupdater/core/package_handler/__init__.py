@@ -145,7 +145,7 @@ class PackageHandler(object):
         version_data = self.db.load(settings.CONFIG_DB_KEY_VERSION_META)
         if version_data is None:  # pragma: no cover
             log.warning("Version file not found")
-            version_data = {"updates": {}}
+            version_data = {settings.UPDATES_KEY: {}}
             log.debug("Created new version file")
         return version_data
 
@@ -294,22 +294,22 @@ class PackageHandler(object):
     @staticmethod
     def _update_file_list(version_data, package_info):
         files = version_data[settings.UPDATES_KEY]
-        latest = version_data.get("latest")
+        latest = version_data.get(settings.LATEST_KEY)
         if latest is None:
-            version_data["latest"] = {}
+            version_data[settings.LATEST_KEY] = {}
         filename = files.get(package_info.name)
         if filename is None:
             log.debug("Adding %s to file list", package_info.name)
             version_data[settings.UPDATES_KEY][package_info.name] = {}
 
-        latest_package = version_data["latest"].get(package_info.name)
+        latest_package = version_data[settings.LATEST_KEY].get(package_info.name)
         if latest_package is None:
-            version_data["latest"][package_info.name] = {}
+            version_data[settings.LATEST_KEY][package_info.name] = {}
 
-        latest_package = version_data["latest"][package_info.name]
+        latest_package = version_data[settings.LATEST_KEY][package_info.name]
         latest_channel = latest_package.get(package_info.channel)
         if latest_channel is None:
-            version_data["latest"][package_info.name][package_info.channel] = {}
+            version_data[settings.LATEST_KEY][package_info.name][package_info.channel] = {}
         return version_data
 
     @staticmethod
@@ -365,7 +365,7 @@ class PackageHandler(object):
                 _updates[p.name][version_key][p.platform] = info
 
             # Add each package to latest section separated by release channel
-            version_data["latest"][p.name][p.channel][p.platform] = version_key
+            version_data[settings.LATEST_KEY][p.name][p.channel][p.platform] = version_key
         return version_data
 
     def _write_version_meta_to_file(self, version_data):
