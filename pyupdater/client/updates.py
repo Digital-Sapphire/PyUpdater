@@ -35,9 +35,9 @@ import threading
 import zipfile
 import ctypes
 
-from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
 from dsdev_utils.system import get_system
+import packaging.version
 
 from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader, get_hash
@@ -357,10 +357,10 @@ class LibUpdate(object):
 
         # A special dictionary that allows getting nested values by
         # providing a key in the form of "this*is*a*deep*key".
-        self.easy_data = data.get("easy_data")
+        self.easy_version_data = data.get("easy_version_data")
 
-        # Raw form of easy_data
-        self.json_data = data.get("json_data")
+        # Raw form of easy_version_data
+        self.version_data = data.get("version_data")
 
         # The directory used to store files needed for the restart process
         # on windows
@@ -400,7 +400,7 @@ class LibUpdate(object):
 
         # The latest version available
         self.latest = get_highest_version(
-            self.name, self.platform, self.channel, self.easy_data, self.strict
+            self.name, self.platform, self.channel, self.easy_version_data, self.strict
         )
 
         # The name of the current versions update archive.
@@ -408,12 +408,12 @@ class LibUpdate(object):
         # patch update
         cv = self.current_version
         self._current_archive_name = LibUpdate._get_filename(
-            self.name, cv, self.platform, self.easy_data
+            self.name, cv, self.platform, self.easy_version_data
         )
 
         # Get filename of latest versions update archive
         self.filename = LibUpdate._get_filename(
-            self.name, self.latest, self.platform, self.easy_data
+            self.name, self.latest, self.platform, self.easy_version_data
         )
         assert self.filename is not None
 
@@ -480,7 +480,7 @@ class LibUpdate(object):
         return True
 
     @staticmethod
-    def _get_filename(name, version, platform, easy_data):
+    def _get_filename(name, version, platform, easy_version_data):
         """Gets full filename for given name & version combo
 
         Args:
@@ -489,7 +489,7 @@ class LibUpdate(object):
 
             version (str): Version of file to get full filename for
 
-            easy_data (dict): Data file to search
+            easy_version_data (dict): Data file to search
 
         Returns:
 
@@ -498,7 +498,7 @@ class LibUpdate(object):
         filename_key = "{}*{}*{}*{}*{}".format(
             settings.UPDATES_KEY, name, version, platform, "filename"
         )
-        filename = easy_data.get(filename_key)
+        filename = easy_version_data.get(filename_key)
 
         log.debug("Filename for %s-%s: %s", name, version, filename)
         return filename
@@ -570,7 +570,7 @@ class LibUpdate(object):
         hash_key = "{}*{}*{}*{}*{}".format(
             self._updates_key, self.name, self.latest, self.platform, "file_hash"
         )
-        return self.easy_data.get(hash_key)
+        return self.easy_version_data.get(hash_key)
 
     # Must be called from directory where file is located
     def _verify_file_hash(self):

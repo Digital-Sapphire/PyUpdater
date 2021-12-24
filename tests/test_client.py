@@ -94,7 +94,7 @@ class TestSetup(object):
         filesystem_data = filesystem_data.decode()
         filesystem_data = json.loads(filesystem_data)
         del filesystem_data["signature"]
-        assert client.json_data == filesystem_data
+        assert client.version_data == filesystem_data
 
     def test_url_str_attr(self):
         t_config = TConfig()

@@ -68,31 +68,31 @@ class TestFails(object):
     base_binary = "Acme-mac-4.1.tar.gz"
 
     @pytest.fixture
-    def json_data(self, shared_datadir):
+    def version_data(self, shared_datadir):
         version_data_str = (shared_datadir / "version.json").read_text()
         return json.loads(version_data_str)
 
-    def test_no_base_binary(self, json_data):
+    def test_no_base_binary(self, version_data):
         assert os.listdir(os.getcwd()) == []
         data = update_data.copy()
         data["update_folder"] = os.getcwd()
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         p = Patcher(**data)
         assert p.start() is False
 
-    def test_bad_hash_current_version(self, shared_datadir, json_data):
+    def test_bad_hash_current_version(self, shared_datadir, version_data):
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         data["current_file_hash"] = "Thisisabadhash"
         p = Patcher(**data)
         assert p.start() is False
 
     @pytest.mark.run(order=8)
-    def test_missing_version(self, shared_datadir, json_data):
+    def test_missing_version(self, shared_datadir, version_data):
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         data["latest_version"] = "0.0.4.2.0"
         p = Patcher(**data)
         assert p.start() is False
@@ -105,20 +105,20 @@ class TestExecution(object):
     base_binary = "Acme-mac-4.1.tar.gz"
 
     @pytest.fixture
-    def json_data(self, shared_datadir):
+    def version_data(self, shared_datadir):
         version_data_str = (shared_datadir / "version.json").read_text()
         return json.loads(version_data_str)
 
     @pytest.mark.run(order=7)
-    def test_execution(self, shared_datadir, json_data):
+    def test_execution(self, shared_datadir, version_data):
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         data["channel"] = "stable"
         p = Patcher(**data)
         assert p.start() is True
 
-    def test_execution_callback(self, shared_datadir, json_data):
+    def test_execution_callback(self, shared_datadir, version_data):
         def cb(status):
             assert "downloaded" in status.keys()
             assert "total" in status.keys()
@@ -127,7 +127,7 @@ class TestExecution(object):
 
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         data["channel"] = "stable"
         data["progress_hooks"] = [cb]
         p = Patcher(**data)

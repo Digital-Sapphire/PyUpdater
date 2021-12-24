@@ -33,7 +33,7 @@ import warnings
 import appdirs
 from dsdev_utils.app import app_cwd, FROZEN
 from dsdev_utils.helpers import (
-    EasyAccessDict as _EAD,
+    EasyAccessDict,
     gzip_decompress as _gzip_decompress,
     Version as _Version,
 )
@@ -121,8 +121,8 @@ class Client(object):
         # String: Version of the binary to update
         self.version = None
 
-        # String: Update manifest as json string - set in _get_update_manifest
-        self.json_data = None
+        # Update manifest as dict - set in _get_update_manifest
+        self.version_data = None
 
         # Boolean: Version file verification
         self.verified = False
@@ -288,7 +288,7 @@ class Client(object):
 
         log.debug("Checking for %s updates...", name)
         latest = get_highest_version(
-            name, self.platform, channel, self.easy_data, strict
+            name, self.platform, channel, self.easy_version_data, strict
         )
         if latest is None:
             # If None is returned get_highest_version could
@@ -312,9 +312,9 @@ class Client(object):
             "strict": strict,
             "update_urls": self.update_urls,
             "name": self.name,
-            "version": self.version,
-            "easy_data": self.easy_data,
-            "json_data": self.json_data,
+            "current_version": self.current_version,
+            "easy_version_data": self.easy_version_data,
+            "version_data": self.version_data,
             "data_dir": self.data_dir,
             "platform": self.platform,
             "channel": channel,
@@ -517,7 +517,7 @@ class Client(object):
                 log.debug("Data type: %s", type(data))
                 # If json fails to load self.ready will stay false
                 # which will cause _update_check to exit early
-                self.json_data = json.loads(data.decode("utf-8"))
+                self.version_data = json.loads(data.decode("utf-8"))
 
                 # Ready to check for updates.
                 self.ready = True
@@ -534,12 +534,12 @@ class Client(object):
             log.debug(
                 "Failed to download version file & no " "version file on filesystem"
             )
-            self.json_data = {}
+            self.version_data = {}
 
         # If verified we set self.verified to True.
-        self._verify_sig(self.json_data)
+        self._verify_sig(self.version_data)
 
-        self.easy_data = _EAD(self.json_data)
+        self.easy_version_data = EasyAccessDict(self.version_data)
 
     # Verify the signature of the version manifest.
     def _verify_sig(self, data):

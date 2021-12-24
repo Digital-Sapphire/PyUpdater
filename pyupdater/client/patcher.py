@@ -49,7 +49,7 @@ class Patcher(object):
 
         name (str): Name of binary to patch
 
-        json_data (dict): Info dict with all package meta data
+        version_data (dict): Info dict with all package meta data
 
         current_version (str): Version number of currently installed binary
 
@@ -75,8 +75,8 @@ class Patcher(object):
     def __init__(self, **kwargs):
         self.name = kwargs.get("name")
         self.channel = kwargs.get("channel")
-        self.json_data = kwargs.get("json_data")
-        self.star_access_update_data = EasyAccessDict(self.json_data)
+        self.version_data = kwargs.get("version_data")
+        self.easy_version_data = EasyAccessDict(self.version_data)
         self.current_version = Version(kwargs.get("current_version"))
         self.latest_version = kwargs.get("latest_version")
         self.update_folder = kwargs.get("update_folder")
@@ -205,7 +205,7 @@ class Patcher(object):
             platform_key = "{}*{}*{}*{}".format(
                 settings.UPDATES_KEY, self.name, str(p), self.platform
             )
-            platform_info = self.star_access_update_data.get(platform_key)
+            platform_info = self.easy_version_data.get(platform_key)
 
             try:
                 info["patch_name"] = platform_info["patch_name"]
@@ -260,7 +260,7 @@ class Patcher(object):
             # Get list of Version objects initialized with keys
             # from update manifest
             version_key = "{}*{}".format(settings.UPDATES_KEY, name)
-            version_info = self.star_access_update_data(version_key)
+            version_info = self.easy_version_data(version_key)
             versions = map(Version, version_info.keys())
         except KeyError:  # pragma: no cover
             log.debug("No updates found in updates dict")
@@ -375,7 +375,7 @@ class Patcher(object):
             self.platform,
             "filename",
         )
-        filename = self.star_access_update_data.get(filename_key)
+        filename = self.easy_version_data.get(filename_key)
 
         if filename is None:
             raise PatcherError("Filename missing in version file")
@@ -419,7 +419,7 @@ class Patcher(object):
         platform_key = "{}*{}*{}*{}".format(
             settings.UPDATES_KEY, name, version, self.platform
         )
-        platform_info = self.star_access_update_data.get(platform_key)
+        platform_info = self.easy_version_data.get(platform_key)
 
         info = {}
         if platform_info is not None:
