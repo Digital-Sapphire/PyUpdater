@@ -27,7 +27,6 @@ from __future__ import unicode_literals
 
 import json
 import os
-import packaging.version
 import time
 
 from dsdev_utils.helpers import EasyAccessDict
@@ -36,8 +35,7 @@ from dsdev_utils.paths import ChDir, remove_any
 import pytest
 
 from pyupdater.client import Client
-from pyupdater.client.updates import (
-    gen_user_friendly_version, gen_pep440_version, get_highest_version)
+from pyupdater.client.updates import get_highest_version
 from tconfig import TConfig
 
 
@@ -215,34 +213,6 @@ class TestExtract(object):
                 remove_any(f)
         if get_system() != "win":
             assert update.extract() is False
-
-
-class TestGenVersion(object):
-    def test1(self):
-        assert gen_user_friendly_version("1.0.0.2.0") == "1.0"
-        assert gen_user_friendly_version("1.2.2.2.0") == "1.2.2"
-        assert gen_user_friendly_version("2.0.5.0.3") == "2.0.5 Alpha 3"
-        assert gen_user_friendly_version("2.2.1.1.0") == "2.2.1 Beta"
-
-
-class TestGenPEP440Version(object):
-    @pytest.mark.parametrize(
-        ["internal_version", "expected"],
-        [("4.4.3.2.0", "4.4.3.2.0"), ("0.0.0.2.3", "0.0.0.2.3"),
-         ("4.4.2.0.5", "4.4.2.alpha.5"), ("4.4.1.1.0", "4.4.1.beta.0")]
-    )
-    def test_valid(self, internal_version, expected):
-        assert gen_pep440_version(internal_version) == expected
-
-    def test_invalid(self):
-        with pytest.raises(ValueError):
-            gen_pep440_version("invalid")
-
-    def test_packaging_version_dependency(self):
-        # make sure packaging.version.parse() can actually parse our
-        # "PEP440-compatible" strings
-        assert str(packaging.version.parse("4.4.2.2.5")) == "4.4.2.2.5"
-        assert str(packaging.version.parse("4.4.2.alpha.5")) == "4.4.2a5"
 
 
 class TestChannelStrict(object):

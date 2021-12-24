@@ -43,6 +43,7 @@ from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
+from pyupdater.utils import VersionShim
 from pyupdater.utils.exceptions import ClientError
 
 
@@ -143,7 +144,7 @@ def get_highest_version(name, plat, channel, easy_data, strict):
     )
 
     version_objects = [
-        Version(gen_pep440_version(internal_version))
+        Version(VersionShim.ensure_pep440_compat(internal_version))
         for internal_version in latest_versions.values()
     ]
 
@@ -158,65 +159,6 @@ def get_highest_version(name, plat, channel, easy_data, strict):
     else:
         log.info(f"No updates exist for '{name}' on {plat}")
         return
-
-
-def gen_user_friendly_version(internal_version):
-    channel = {0: "Alpha", 1: "Beta"}
-    v = list(map(int, internal_version.split(".")))
-
-    # 1.2
-    version = "{}.{}".format(v[0], v[1])
-    if v[2] != 0:
-        # 1.2.1
-        version += ".{}".format(v[2])
-    if v[3] != 2:
-        # 1.2.1 Alpha
-        version += " {}".format(channel[v[3]])
-        if v[4] != 0:
-            version += " {}".format(v[4])
-
-    return version
-
-
-def gen_pep440_version(internal_version):
-    """
-    Convert an internal version string to a PEP440-compatible version string
-    that can be parsed by packaging.version.parse().
-
-    The pyupdater internal version format is (from dsdev-utils):
-
-        <major>.<minor>.<patch>.<release>.<release version>
-
-    The canonical [PEP440 format][1] is defined as follows:
-
-        [N!]N(.N)*[{a|b|rc}N][.postN][.devN]
-
-    However, packaging.version.parse() is more forgiving, as it also handles
-    e.g. '1.2.3.alpha.4'. Also see [packaging.version.VERSION_PATTERN][2].
-
-    [1]: https://www.python.org/dev/peps/pep-0440/#public-version-identifiers
-    [2]: https://github.com/pypa/packaging/blob/21.3/packaging/version.py#L225
-    """
-    internal_version_parts = internal_version.split(".")
-    channel_index = release_number = msg = None
-    try:
-        channel_index = int(internal_version_parts[3])
-        release_number = int(internal_version_parts[4])
-    except IndexError:
-        msg = "internal_version format must be 'N.N.N.N.N' (N is numeric)"
-    except ValueError:
-        msg = "internal_version parts must be numeric, e.g. '1.2.3.4.5'"
-    finally:
-        if msg is not None:
-            raise ValueError(f"{msg}: {internal_version}")
-
-    if channel_index in [0, 1]:
-        internal_version_parts[3] = settings.VALID_CHANNELS[channel_index]
-    elif channel_index == 2 and release_number > 0:
-        pass
-        # todo: Do we consider this a post release? In that case:
-        #  internal_version_parts[3] = "post"
-    return ".".join(internal_version_parts)
 
 
 class UpdateStrategy:  # pragma: no cover
@@ -485,7 +427,7 @@ class LibUpdate(object):
         ######Returns (str): User friendly version string
         """
         if self._version == "":
-            self._version = gen_user_friendly_version(self.latest)
+            self._version = str(self.latest)
         return self._version
 
     def is_downloaded(self):
