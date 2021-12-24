@@ -29,7 +29,6 @@ import json
 import os
 import time
 
-from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.system import get_system
 from dsdev_utils.paths import ChDir, remove_any
 import pytest
@@ -215,8 +214,7 @@ class TestExtract(object):
             assert update.extract() is False
 
 
-class TestChannelStrict(object):
-
+class TestGetHighestVersion(object):
     version_data = {
         "latest": {
             "Acme": {
@@ -227,49 +225,20 @@ class TestChannelStrict(object):
         }
     }
 
-    def test1(self):
-        data = EasyAccessDict(self.version_data)
-        assert (
-            get_highest_version("Acme", "mac", "alpha", data, strict=True)
-            == "4.4.2.0.5"
-        )
-        assert (
-            get_highest_version("Acme", "mac", "beta", data, strict=True) == "4.4.1.1.0"
-        )
-        assert (
-            get_highest_version("Acme", "mac", "stable", data, strict=True)
-            == "4.4.3.2.0"
-        )
+    @pytest.mark.parametrize(
+        ["channel", "expected"],
+        [("alpha", "4.4.2.0.5"), ("beta", "4.4.1.1.0"), ("stable", "4.4.3.2.0")]
+    )
+    def test_strict(self, channel, expected):
+        args = ("Acme", "mac", channel, self.version_data)
+        assert str(get_highest_version(*args, strict=True)) == expected
 
+    def test_not_strict(self):
+        args = ("Acme", "mac", "alpha", self.version_data)
+        assert str(get_highest_version(*args, strict=False)) == "4.4.3.2.0"
 
-class TestChannelLessStrict(object):
-
-    version_data = {
-        "latest": {
-            "Acme": {
-                "stable": {"mac": "4.4.3.2.0"},
-                "beta": {"mac": "4.4.1.1.0"},
-                "alpha": {"mac": "4.4.2.0.5"},
-            }
-        }
-    }
-
-    def test1(self):
-        data = EasyAccessDict(self.version_data)
-        assert (
-            get_highest_version("Acme", "mac", "alpha", data, strict=False)
-            == "4.4.3.2.0"
-        )
-
-
-class TestMissingStable(object):
-
-    version_data = {
-        "latest": {
-            "Acme": {"beta": {"mac": "4.4.1.1.0"}, "alpha": {"mac": "4.4.2.0.5"}}
-        }
-    }
-
-    def test1(self):
-        data = EasyAccessDict(self.version_data)
-        assert get_highest_version("Acme", "mac", "stable", data, strict=True) is None
+    def test_missing_stable(self):
+        data = self.version_data.copy()
+        data["latest"]["Acme"].pop("stable")
+        args = ("Acme", "mac", "stable", data)
+        assert get_highest_version(*args, strict=True) is None

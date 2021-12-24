@@ -287,8 +287,8 @@ class Client(object):
             app = True
 
         log.debug("Checking for %s updates...", name)
-        latest = get_highest_version(
-            name, self.platform, channel, self.easy_version_data, strict
+        latest_version = get_highest_version(
+            name, self.platform, channel, self.version_data, strict
         )
         if latest is None:
             # If None is returned get_highest_version could

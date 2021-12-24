@@ -34,6 +34,7 @@ import tarfile
 import threading
 import zipfile
 import ctypes
+from typing import Optional
 
 from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
 from dsdev_utils.system import get_system
@@ -43,7 +44,6 @@ from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
-from pyupdater.utils import VersionShim
 from pyupdater.utils.exceptions import ClientError
 
 
@@ -117,7 +117,7 @@ def win_run(command, args, admin=False):  # pragma: no cover
         subprocess.Popen([command] + args)
 
 
-def get_highest_version(name, plat, channel, easy_data, strict):
+def get_highest_version(name, platform, channel, version_data, strict) -> Optional[packaging.version.Version]:
     """
     Parses version file and returns the highest version number.
 
@@ -125,39 +125,39 @@ def get_highest_version(name, plat, channel, easy_data, strict):
 
          name (str): name of file to search for updates
 
-         plat (str): the platform we are requesting for
+         platform (str): the platform we are requesting for
 
          channel (str): the release channel
 
-         easy_data (dict): data file to search
+         version_data (dict): data file to search
 
          strict (bool): specify whether or not to take the channel
                         into consideration
 
     Returns:
 
-        (str) Highest version number
+        Highest version
     """
-    latest_versions = dict(
-        (_channel, versions[plat])
-        for _channel, versions in easy_data.dict[settings.LATEST_KEY][name].items()
+    latest_version_strings = dict(
+        (_channel, version_strings[platform])
+        for _channel, version_strings in version_data[settings.LATEST_KEY][name].items()
     )
 
     version_objects = [
-        Version(VersionShim.ensure_pep440_compat(internal_version))
-        for internal_version in latest_versions.values()
+        packaging.version.Version(version_string)
+        for version_string in latest_version_strings.values()
     ]
 
     if strict is False:
-        return str(max(version_objects))
+        return max(version_objects)
 
-    version = latest_versions.get(channel, None)
+    version_string = latest_version_strings.get(channel, None)
 
-    if version is not None:
-        log.debug(f"Highest version: {version}")
-        return str(version)
+    if version_string is not None:
+        log.debug(f"Highest version: {version_string}")
+        return packaging.version.Version(version_string)
     else:
-        log.info(f"No updates exist for '{name}' on {plat}")
+        log.info(f"No updates exist for '{name}' on {platform}")
         return
 
 
@@ -399,8 +399,8 @@ class LibUpdate(object):
         self.strategy = data.get("strategy", UpdateStrategy.DEFAULT)
 
         # The latest version available
-        self.latest = get_highest_version(
-            self.name, self.platform, self.channel, self.easy_version_data, self.strict
+        self.latest_version = get_highest_version(
+            self.name, self.platform, self.channel, self.version_data, self.strict
         )
 
         # The name of the current versions update archive.
