@@ -29,9 +29,10 @@ import tempfile
 
 import bsdiff4
 from dsdev_utils.crypto import get_package_hashes
-from dsdev_utils.helpers import EasyAccessDict, Version
+from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.system import get_system
+import packaging.version
 
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
@@ -77,7 +78,7 @@ class Patcher(object):
         self.channel = kwargs.get("channel")
         self.version_data = kwargs.get("version_data")
         self.easy_version_data = EasyAccessDict(self.version_data)
-        self.current_version = Version(kwargs.get("current_version"))
+        self.current_version = kwargs.get("current_version")
         self.latest_version = kwargs.get("latest_version")
         self.update_folder = kwargs.get("update_folder")
         self.update_urls = kwargs.get("update_urls", [])
@@ -200,10 +201,10 @@ class Patcher(object):
 
         # Loop through all required patches and get file name, hash
         # and file size.
-        for p in required_patches:
+        for version in required_patches:
             info = {}
             platform_key = "{}*{}*{}*{}".format(
-                settings.UPDATES_KEY, self.name, str(p), self.platform
+                settings.UPDATES_KEY, self.name, version, self.platform
             )
             platform_info = self.easy_version_data.get(platform_key)
 
@@ -261,7 +262,7 @@ class Patcher(object):
             # from update manifest
             version_key = "{}*{}".format(settings.UPDATES_KEY, name)
             version_info = self.easy_version_data(version_key)
-            versions = map(Version, version_info.keys())
+            versions = [packaging.version.Version(key) for key in version_info.keys()]
         except KeyError:  # pragma: no cover
             log.debug("No updates found in updates dict")
             # Will cause error to be thrown in _get_patch_info
@@ -269,12 +270,15 @@ class Patcher(object):
             versions = [1]
 
         # We only care about the current channel
-        versions = [v for v in versions if v.channel == self.channel]
+        if self.channel == "stable":
+            versions = [v for v in versions if not v.is_prerelease]
+        else:
+            versions = [v for v in versions if self.channel.startswith(v.pre[0])]
 
         log.debug("Getting required patches")
-        for i in versions:
-            if i > self.current_version:
-                needed_patches.append(i)
+        for _version in versions:
+            if _version > self.current_version:
+                needed_patches.append(_version)
 
         # Used to guarantee patches are only added once
         needed_patches = list(set(needed_patches))

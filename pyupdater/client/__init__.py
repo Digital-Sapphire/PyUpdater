@@ -29,13 +29,14 @@ import logging
 import os
 import tempfile
 import warnings
+from typing import Optional
 
 import appdirs
+import packaging.version
 from dsdev_utils.app import app_cwd, FROZEN
 from dsdev_utils.helpers import (
     EasyAccessDict,
     gzip_decompress as _gzip_decompress,
-    Version as _Version,
 )
 from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir as _ChDir
@@ -118,8 +119,8 @@ class Client(object):
         # String: Name of binary to update
         self.name = None
 
-        # String: Version of the binary to update
-        self.version = None
+        # Version of the binary to update
+        self.current_version: Optional[packaging.version.Version] = None
 
         # Update manifest as dict - set in _get_update_manifest
         self.version_data = None
@@ -217,7 +218,7 @@ class Client(object):
         self._get_signing_key()
         self._get_update_manifest()
 
-    def update_check(self, name, version, channel="stable", strict=True):
+    def update_check(self, name, version: str, channel="stable", strict=True):
         """Checks for available updates
 
         ######Args:
@@ -242,7 +243,10 @@ class Client(object):
 
             None - No Updates available
         """
-        return self._update_check(name, version, channel, strict)
+        # Convert version string to Version object (only work with version
+        # objects internally).
+        current_version = packaging.version.Version(version)
+        return self._update_check(name, current_version, channel, strict)
 
     def _gen_file_downloader_options(self):
         return {
@@ -253,7 +257,7 @@ class Client(object):
             "verify": self.verify,
         }
 
-    def _update_check(self, name, version, channel, strict):
+    def _update_check(self, name, current_version, channel, strict):
         valid_channels = ["alpha", "beta", "stable"]
         if channel not in valid_channels:
             log.debug("Invalid channel. May need to check spelling")
@@ -261,8 +265,7 @@ class Client(object):
         self.name = name
 
         # Version object used for comparison
-        version = _Version(version)
-        self.version = str(version)
+        self.current_version = current_version
 
         # Will be set to true if we are updating the currently
         # running app and not an app's asset
@@ -290,20 +293,19 @@ class Client(object):
         latest_version = get_highest_version(
             name, self.platform, channel, self.version_data, strict
         )
-        if latest is None:
+        if latest_version is None:
             # If None is returned get_highest_version could
             # not find the supplied name in the version file
             log.debug("Could not find the latest version")
             return None
 
         # Change str to version object for easy comparison
-        latest = _Version(latest)
-        log.debug("Current version: %s", str(version))
-        log.debug("Latest version: %s", str(latest))
+        log.debug("Current version: %s", str(current_version))
+        log.debug("Latest version: %s", str(latest_version))
 
-        update_needed = latest > version
+        update_needed = latest_version > current_version
         log.debug("Update Needed: %s", update_needed)
-        if latest <= version:
+        if latest_version <= current_version:
             log.debug("%s already updated to the latest version", name)
             return None
 

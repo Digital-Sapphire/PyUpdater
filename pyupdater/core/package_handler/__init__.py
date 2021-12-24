@@ -232,10 +232,10 @@ class PackageHandler(object):
                 log.debug("Adding new arch to package-config: %s", p.platform)
             else:
                 # Getting current version for platform
-                value = data["package"][p.name][p.platform]
+                current_version = packaging.version.Version(data["package"][p.name][p.platform])
                 # Updating version if applicable
                 # todo: what about release channels?
-                if p.version > packaging.version.Version(value):
+                if p.version > current_version:
                     log.debug("Adding new version to package-config")
                     data["package"][p.name][p.platform] = version_key
 

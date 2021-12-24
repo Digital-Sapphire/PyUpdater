@@ -353,7 +353,7 @@ class LibUpdate(object):
         self.app_name = data.get("app_name")
 
         # The version of the current asset
-        self.current_version = data.get("version")
+        self.current_version = data.get("current_version")
 
         # A special dictionary that allows getting nested values by
         # providing a key in the form of "this*is*a*deep*key".
@@ -406,14 +406,13 @@ class LibUpdate(object):
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
         # patch update
-        cv = self.current_version
         self._current_archive_name = LibUpdate._get_filename(
-            self.name, cv, self.platform, self.easy_version_data
+            self.name, self.current_version, self.platform, self.easy_version_data
         )
 
         # Get filename of latest versions update archive
         self.filename = LibUpdate._get_filename(
-            self.name, self.latest, self.platform, self.easy_version_data
+            self.name, self.latest_version, self.platform, self.easy_version_data
         )
         assert self.filename is not None
 
@@ -427,7 +426,7 @@ class LibUpdate(object):
         ######Returns (str): User friendly version string
         """
         if self._version == "":
-            self._version = str(self.latest)
+            self._version = str(self.latest_version)
         return self._version
 
     def is_downloaded(self):
@@ -487,7 +486,7 @@ class LibUpdate(object):
 
             name (str): Name of file
 
-            version (str): Version of file to get full filename for
+            version: Version of file to get full filename for
 
             easy_version_data (dict): Data file to search
 
@@ -568,7 +567,7 @@ class LibUpdate(object):
 
     def _get_file_hash_from_manifest(self):
         hash_key = "{}*{}*{}*{}*{}".format(
-            self._updates_key, self.name, self.latest, self.platform, "file_hash"
+            self._updates_key, self.name, self.latest_version, self.platform, "file_hash"
         )
         return self.easy_version_data.get(hash_key)
 
@@ -620,7 +619,7 @@ class LibUpdate(object):
         # Initialize Patch object with all required information
         p = Patcher(
             current_version=self.current_version,
-            latest_version=self.latest,
+            latest_version=self.latest_version,
             update_folder=self.update_folder,
             **self.init_data
         )
