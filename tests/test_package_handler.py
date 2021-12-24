@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 
 import io
 import os
+import pathlib
 
 from dsdev_utils.paths import ChDir
 import packaging.version
@@ -68,7 +69,7 @@ class TestUtils(object):
 
 @pytest.mark.usefixtures("cleandir", "pyu")
 class TestExecution(object):
-    def test_process_packages(self):
+    def test_process_packages_empty(self):
         data_dir = os.getcwd()
         t_config = TConfig()
         t_config.DATA_DIR = data_dir
@@ -77,6 +78,26 @@ class TestExecution(object):
         config.from_object(t_config)
         p = PackageHandler(config)
         p.process_packages()
+
+    def test_process_packages_new_stable(self):
+        data_dir = pathlib.Path.cwd()
+        t_config = TConfig()
+        t_config.DATA_DIR = str(data_dir)
+        t_config.UPDATE_PATCHES = False
+        config = Config()
+        config.from_object(t_config)
+        p = PackageHandler(config)
+        # create dummy archive file
+        new_archive_version = "4.1"
+        new_archive_name = f"Acme-mac-{new_archive_version}.tar.gz"
+        new_archive_path = pathlib.Path(p.new_dir) / new_archive_name
+        new_archive_path.touch()
+        # process package
+        p.process_packages()
+        deploy_archive_path = pathlib.Path(p.deploy_dir) / new_archive_name
+        assert deploy_archive_path.exists()
+        assert new_archive_name in str(p.version_data[settings.UPDATES_KEY])
+        assert new_archive_version in str(p.version_data[settings.LATEST_KEY])
 
 
 @pytest.mark.usefixtures("cleandir")

@@ -32,6 +32,7 @@ import sys
 from dsdev_utils.crypto import get_package_hashes as gph
 from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir
+import packaging.version
 
 from pyupdater import settings
 from pyupdater.utils import get_size_in_bytes as in_bytes
@@ -220,21 +221,23 @@ class PackageHandler(object):
             data["package"] = {}
             log.debug("Initializing config for packages")
         # First package with current name so add platform and version
+        version_key = str(p.version)
         if p.name not in data["package"].keys():
-            data["package"][p.name] = {p.platform: p.version}
+            data["package"][p.name] = {p.platform: version_key}
             log.debug("Adding new package to config")
         else:
             # Adding platform and version
             if p.platform not in data["package"][p.name].keys():
-                data["package"][p.name][p.platform] = p.version
+                data["package"][p.name][p.platform] = version_key
                 log.debug("Adding new arch to package-config: %s", p.platform)
             else:
                 # Getting current version for platform
                 value = data["package"][p.name][p.platform]
                 # Updating version if applicable
-                if p.version > value:
+                # todo: what about release channels?
+                if p.version > packaging.version.Version(value):
                     log.debug("Adding new version to package-config")
-                    data["package"][p.name][p.platform] = p.version
+                    data["package"][p.name][p.platform] = version_key
 
     @staticmethod
     def _cleanup(patch_manifest):
@@ -334,34 +337,35 @@ class PackageHandler(object):
         for p in package_manifest:
             info = PackageHandler._manifest_to_version_file_compat(p)
 
-            version_key = "{}*{}*{}".format(settings.UPDATES_KEY, p.name, p.version)
-            version = easy_dict.get(version_key)
-            log.debug("Package Info: %s", version)
+            version_key = str(p.version)
+            easy_key = "{}*{}*{}".format(settings.UPDATES_KEY, p.name, version_key)
+            existing_version = easy_dict.get(easy_key)
+            log.debug("Package Info: %s", existing_version or "none")
 
             # If we cannot get a version number this must be the first version
             # of its kind.
-            if version is None:
+            if existing_version is None:
                 log.debug("Adding new version to file")
 
                 # First version with this package name
-                json_data[settings.UPDATES_KEY][p.name][p.version] = {}
+                json_data[settings.UPDATES_KEY][p.name][version_key] = {}
                 platform_key = "{}*{}*{}*{}".format(
-                    settings.UPDATES_KEY, p.name, p.version, "platform"
+                    settings.UPDATES_KEY, p.name, version_key, "platform"
                 )
 
                 platform = easy_dict.get(platform_key)
                 if platform is None:
                     _name = json_data[settings.UPDATES_KEY][p.name]
-                    _name[p.version][p.platform] = info
+                    _name[version_key][p.platform] = info
 
             else:
                 # package already present, adding another version to it
                 log.debug("Appending info data to version file")
                 _updates = json_data[settings.UPDATES_KEY]
-                _updates[p.name][p.version][p.platform] = info
+                _updates[p.name][version_key][p.platform] = info
 
             # Add each package to latest section separated by release channel
-            json_data["latest"][p.name][p.channel][p.platform] = p.version
+            json_data["latest"][p.name][p.channel][p.platform] = version_key
         return json_data
 
     def _write_version_meta_to_file(self, json_data):
