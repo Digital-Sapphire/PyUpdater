@@ -142,12 +142,12 @@ class PackageHandler(object):
     def _load_version_file(self):
         # If version file is found its loaded to memory
         # If no version file is found then one is created.
-        json_data = self.db.load(settings.CONFIG_DB_KEY_VERSION_META)
-        if json_data is None:  # pragma: no cover
+        version_data = self.db.load(settings.CONFIG_DB_KEY_VERSION_META)
+        if version_data is None:  # pragma: no cover
             log.warning("Version file not found")
-            json_data = {"updates": {}}
+            version_data = {"updates": {}}
             log.debug("Created new version file")
-        return json_data
+        return version_data
 
     def _load_config(self):
         # Loads config from db if exists.
@@ -292,25 +292,25 @@ class PackageHandler(object):
                 log.debug("No patches found: %s", patches)
 
     @staticmethod
-    def _update_file_list(json_data, package_info):
-        files = json_data[settings.UPDATES_KEY]
-        latest = json_data.get("latest")
+    def _update_file_list(version_data, package_info):
+        files = version_data[settings.UPDATES_KEY]
+        latest = version_data.get("latest")
         if latest is None:
-            json_data["latest"] = {}
+            version_data["latest"] = {}
         filename = files.get(package_info.name)
         if filename is None:
             log.debug("Adding %s to file list", package_info.name)
-            json_data[settings.UPDATES_KEY][package_info.name] = {}
+            version_data[settings.UPDATES_KEY][package_info.name] = {}
 
-        latest_package = json_data["latest"].get(package_info.name)
+        latest_package = version_data["latest"].get(package_info.name)
         if latest_package is None:
-            json_data["latest"][package_info.name] = {}
+            version_data["latest"][package_info.name] = {}
 
-        latest_package = json_data["latest"][package_info.name]
+        latest_package = version_data["latest"][package_info.name]
         latest_channel = latest_package.get(package_info.channel)
         if latest_channel is None:
-            json_data["latest"][package_info.name][package_info.channel] = {}
-        return json_data
+            version_data["latest"][package_info.name][package_info.channel] = {}
+        return version_data
 
     @staticmethod
     def _manifest_to_version_file_compat(package_info):
@@ -330,10 +330,10 @@ class PackageHandler(object):
         return info
 
     @staticmethod
-    def _update_version_meta(json_data, package_manifest):
+    def _update_version_meta(version_data, package_manifest):
         # Adding version metadata from scanned packages to our version manifest
         log.info("Adding package meta-data to version manifest")
-        easy_dict = EasyAccessDict(json_data)
+        easy_dict = EasyAccessDict(version_data)
         for p in package_manifest:
             info = PackageHandler._manifest_to_version_file_compat(p)
 
@@ -348,34 +348,34 @@ class PackageHandler(object):
                 log.debug("Adding new version to file")
 
                 # First version with this package name
-                json_data[settings.UPDATES_KEY][p.name][version_key] = {}
+                version_data[settings.UPDATES_KEY][p.name][version_key] = {}
                 platform_key = "{}*{}*{}*{}".format(
                     settings.UPDATES_KEY, p.name, version_key, "platform"
                 )
 
                 platform = easy_dict.get(platform_key)
                 if platform is None:
-                    _name = json_data[settings.UPDATES_KEY][p.name]
+                    _name = version_data[settings.UPDATES_KEY][p.name]
                     _name[version_key][p.platform] = info
 
             else:
                 # package already present, adding another version to it
                 log.debug("Appending info data to version file")
-                _updates = json_data[settings.UPDATES_KEY]
+                _updates = version_data[settings.UPDATES_KEY]
                 _updates[p.name][version_key][p.platform] = info
 
             # Add each package to latest section separated by release channel
-            json_data["latest"][p.name][p.channel][p.platform] = version_key
-        return json_data
+            version_data["latest"][p.name][p.channel][p.platform] = version_key
+        return version_data
 
-    def _write_version_meta_to_file(self, json_data):
+    def _write_version_meta_to_file(self, version_data):
         # Writes json data to disk
         log.debug("Saving version meta-data")
-        self.db.save(settings.CONFIG_DB_KEY_VERSION_META, json_data)
+        self.db.save(settings.CONFIG_DB_KEY_VERSION_META, version_data)
 
-    def _write_config_to_file(self, json_data):
+    def _write_config_to_file(self, config_data):
         log.debug("Saving config data")
-        self.db.save(settings.CONFIG_DB_KEY_PY_REPO_CONFIG, json_data)
+        self.db.save(settings.CONFIG_DB_KEY_PY_REPO_CONFIG, config_data)
 
     def _move_packages(self, package_manifest):
         if len(package_manifest) < 1:
