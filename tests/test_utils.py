@@ -172,8 +172,9 @@ class TestVersionShim(object):
     @pytest.mark.parametrize(
         ["internal_version", "expected"],
         [
-            ("4.4.3.2.0", "4.4.3.2.0"),
-            ("0.0.0.2.3", "0.0.0.2.3"),
+            ("4.4.3.2.0", "4.4.3"),
+            ("0.0.0.2.3", "0.0.0"),
+            ("0.0.0.3.0", "0.0.0.3.0"),  # not an internal version number
             ("4.4.2.0.5", "4.4.2a5"),
             ("4.4.1.1.0", "4.4.1b0"),
             ("1.2.3a5+something", "1.2.3a5+something"),
@@ -184,7 +185,11 @@ class TestVersionShim(object):
     )
     def test_ensure_pep440_compat(self, internal_version, expected):
         # Note that non-internal versions (including invalid ones) are passed
-        # unmodified, as we leave the actual parsing to packaging.version
+        # unmodified, as we leave the actual parsing to packaging.version.
+        # Note that the trailing ".2.0" must be removed from the internal
+        # version number, otherwise it is interpreted as part of the "stable"
+        # release number, so that e.g. 1.0.0.2.0 > 1.0.0 would return True (
+        # when using internal version numbers, these should be equal)
         assert VersionShim.ensure_pep440_compat(internal_version) == expected
 
     @pytest.mark.parametrize(

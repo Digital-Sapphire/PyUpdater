@@ -523,6 +523,9 @@ class VersionShim(packaging.version.Version):
             if channel < 2:
                 version = re_obj.sub(
                     r"\1" + cls.pyu_channels[channel] + r"\3", version)
+            elif channel == 2:
+                # remove the ".2.0" from the internal version number
+                version = re_obj.sub(r"\1", version)
         return version
 
     def pyu_format(self) -> str:
