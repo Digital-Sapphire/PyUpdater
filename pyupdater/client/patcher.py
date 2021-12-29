@@ -36,6 +36,7 @@ import packaging.version
 
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
+from pyupdater.utils import VersionShim
 from pyupdater.utils.exceptions import PatcherError
 
 log = logging.getLogger(__name__)
@@ -109,9 +110,9 @@ class Patcher(object):
 
         file_info = self._get_info(self.name, self.current_version, option="file")
         if self.current_filename is None:
-            self.current_filename = file_info["filename"]
+            self.current_filename = file_info.get("filename")
         if self.current_file_hash is None:
-            self.current_file_hash = file_info["file_hash"]
+            self.current_file_hash = file_info.get("file_hash")
 
     def start(self):
         """Starts patching process"""
@@ -258,11 +259,13 @@ class Patcher(object):
         # Gathers patch name, hash & URL
         needed_patches = []
         try:
-            # Get list of Version objects initialized with keys
-            # from update manifest
-            version_key = "{}*{}".format(settings.UPDATES_KEY, name)
-            version_info = self.easy_version_data(version_key)
-            versions = [packaging.version.Version(key) for key in version_info.keys()]
+            # Get list of Version objects initialized with keys from update
+            # manifest
+            version_info = self.version_data[settings.UPDATES_KEY].get(name)
+            versions = [
+                packaging.version.Version(VersionShim.ensure_pep440_compat(key))
+                for key in version_info.keys()
+            ]
         except KeyError:  # pragma: no cover
             log.debug("No updates found in updates dict")
             # Will cause error to be thrown in _get_patch_info
@@ -273,7 +276,11 @@ class Patcher(object):
         if self.channel == "stable":
             versions = [v for v in versions if not v.is_prerelease]
         else:
-            versions = [v for v in versions if self.channel.startswith(v.pre[0])]
+            versions = [
+                v
+                for v in versions
+                if self.channel and self.channel.startswith(v.pre[0])
+            ]
 
         log.debug("Getting required patches")
         for _version in versions:
