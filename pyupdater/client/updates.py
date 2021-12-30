@@ -567,8 +567,9 @@ class LibUpdate(object):
                 raise ClientError("Update archive is corrupt")
 
     def _get_file_hash_from_manifest(self):
+        version_key = self.latest_version.pyu_format()
         hash_key = "{}*{}*{}*{}*{}".format(
-            self._updates_key, self.name, self.latest_version, self.platform, "file_hash"
+            self._updates_key, self.name, version_key, self.platform, "file_hash"
         )
         return self.easy_version_data.get(hash_key)
 
