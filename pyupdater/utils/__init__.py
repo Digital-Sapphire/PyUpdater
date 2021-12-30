@@ -255,7 +255,7 @@ def create_asset_archive(name, version: str):
     return output_filename
 
 
-def make_archive(name, target, version: str, archive_format):
+def make_archive(name, target, app_version: str, archive_format):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 
@@ -297,7 +297,7 @@ def make_archive(name, target, version: str, archive_format):
 
     file_dir = os.path.dirname(os.path.abspath(target))
     filename = "{}-{}-{}".format(
-        os.path.splitext(name)[0], system.get_system(), version
+        os.path.splitext(name)[0], system.get_system(), app_version
     )
     # Only use zip on windows.
     # Zip does not preserve file permissions on nix & mac

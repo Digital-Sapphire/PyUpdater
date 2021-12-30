@@ -221,14 +221,14 @@ class Builder(object):  # pragma: no cover
                 app_name = temp_name + ".exe"
             else:
                 app_name = temp_name
-            version = self.args.app_version
+            app_version = self.args.app_version
             log.debug("Temp Name: %s", temp_name)
             log.debug("Appname: %s", app_name)
-            log.debug("Version: %s", version)
+            log.debug("Version: %s", app_version)
 
             # Time for some archive creation!
             filename = make_archive(
-                self.app_name, app_name, version, self.args.archive_format
+                self.app_name, app_name, app_version, self.args.archive_format
             )
             log.debug("Archive name: %s", filename)
             if self.args.keep is False:
