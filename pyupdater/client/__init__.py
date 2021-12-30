@@ -32,7 +32,6 @@ import warnings
 from typing import Optional
 
 import appdirs
-import packaging.version
 from dsdev_utils.app import app_cwd, FROZEN
 from dsdev_utils.helpers import (
     EasyAccessDict,
@@ -51,6 +50,7 @@ from pyupdater.client.updates import (
     LibUpdate,
     UpdateStrategy,
 )
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.encoding import UnpaddedBase64Encoder
 from pyupdater.utils.exceptions import ClientError
@@ -120,7 +120,7 @@ class Client(object):
         self.name = None
 
         # Version of the binary to update
-        self.current_version: Optional[packaging.version.Version] = None
+        self.current_version: Optional[PyuVersion] = None
 
         # Update manifest as dict - set in _get_update_manifest
         self.version_data = None
@@ -243,9 +243,9 @@ class Client(object):
 
             None - No Updates available
         """
-        # Convert version string to Version object (only work with version
-        # objects internally).
-        current_version = packaging.version.Version(version)
+        # Convert version string to Version object (only use version strings
+        # for input and output, use Version objects internally).
+        current_version = PyuVersion(version)
         return self._update_check(name, current_version, channel, strict)
 
     def _gen_file_downloader_options(self):

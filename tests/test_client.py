@@ -231,11 +231,11 @@ class TestGetHighestVersion(object):
     )
     def test_strict(self, channel, expected):
         args = ("Acme", "mac", channel, self.version_data)
-        assert str(get_highest_version(*args, strict=True)) == expected
+        assert get_highest_version(*args, strict=True).pyu_format() == expected
 
     def test_not_strict(self):
         args = ("Acme", "mac", "alpha", self.version_data)
-        assert str(get_highest_version(*args, strict=False)) == "4.4.3.2.0"
+        assert get_highest_version(*args, strict=False).pyu_format() == "4.4.3.2.0"
 
     def test_missing_stable(self):
         data = self.version_data.copy()

@@ -32,11 +32,10 @@ from dsdev_utils.crypto import get_package_hashes
 from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.system import get_system
-import packaging.version
 
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
-from pyupdater.utils import VersionShim
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.exceptions import PatcherError
 
 log = logging.getLogger(__name__)
@@ -204,8 +203,9 @@ class Patcher(object):
         # and file size.
         for version in required_patches:
             info = {}
+            version_key = version.pyu_format()
             platform_key = "{}*{}*{}*{}".format(
-                settings.UPDATES_KEY, self.name, version, self.platform
+                settings.UPDATES_KEY, self.name, version_key, self.platform
             )
             platform_info = self.easy_version_data.get(platform_key)
 
@@ -263,7 +263,7 @@ class Patcher(object):
             # manifest
             version_info = self.version_data[settings.UPDATES_KEY].get(name)
             versions = [
-                packaging.version.Version(VersionShim.ensure_pep440_compat(key))
+                PyuVersion(key)
                 for key in version_info.keys()
             ]
         except KeyError:  # pragma: no cover
@@ -379,17 +379,18 @@ class Patcher(object):
     def _write_update_to_disk(self):  # pragma: no cover
         # Writes updated binary to disk
         log.debug("Writing update to disk")
+        version_key = self.latest_version.pyu_format()
         filename_key = "{}*{}*{}*{}*{}".format(
             settings.UPDATES_KEY,
             self.name,
-            self.latest_version,
+            version_key,
             self.platform,
             "filename",
         )
         filename = self.easy_version_data.get(filename_key)
 
         if filename is None:
-            raise PatcherError("Filename missing in version file")
+            raise PatcherError(f"Filename missing in version file: {version_key}")
 
         with ChDir(self.update_folder):
             try:
@@ -427,8 +428,9 @@ class Patcher(object):
             _size = "patch_size"
 
         # Returns filename and hash for given name and version
+        version_key = version.pyu_format()
         platform_key = "{}*{}*{}*{}".format(
-            settings.UPDATES_KEY, name, version, self.platform
+            settings.UPDATES_KEY, name, version_key, self.platform
         )
         platform_info = self.easy_version_data.get(platform_key)
 

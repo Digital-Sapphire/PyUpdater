@@ -24,11 +24,13 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals, print_function
 import json
+import logging
 import os
 
 import pytest
 
 from pyupdater.client.patcher import Patcher
+from pyupdater.utils import PyuVersion
 
 
 def cb1(status):
@@ -50,15 +52,6 @@ update_data = {
     "platform": "mac",
     "progress_hooks": [cb1, cb2],
 }
-
-
-class TestPatcher(object):
-    def test_current_version(self):
-        data = update_data.copy()
-        data["current_version"] = "4.1.0.0.0"
-        data["current_file_hash"] = "some valid hash"
-        p = Patcher(**data)
-        assert str(p.current_version) == data["current_version"]
 
 
 # noinspection PyStatementEffect,PyStatementEffect

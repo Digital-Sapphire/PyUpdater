@@ -29,13 +29,13 @@ import os
 import pathlib
 
 from dsdev_utils.paths import ChDir
-import packaging.version
 import pytest
 
 from pyupdater import settings
 from pyupdater.core.package_handler import PackageHandler
 from pyupdater.core.package_handler.package import Package
 from pyupdater.core.package_handler.patch import Patch
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.config import Config
 from pyupdater.utils.exceptions import PackageHandlerError
 

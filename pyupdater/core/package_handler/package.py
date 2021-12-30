@@ -32,7 +32,7 @@ from dsdev_utils.paths import ChDir, remove_any
 import packaging.version
 
 from pyupdater import settings
-from pyupdater.utils import parse_archive_name
+from pyupdater.utils import parse_archive_name, PyuVersion
 from pyupdater.utils.exceptions import UtilsError
 
 log = logging.getLogger(__name__)
@@ -112,7 +112,7 @@ class Package(object):
             filename = str(filename)
 
         self.name = None
-        self.version: Optional[packaging.version.Version] = None
+        self.version: Optional[PyuVersion] = None
         self.filename = os.path.basename(filename)
         self.file_hash = None
         self.file_size = None
@@ -176,7 +176,7 @@ class Package(object):
             # Parse PEP440 version string
             # todo: Release notes should mention that Package.version is now a
             #  packaging.version.Version object instead of a string.
-            self.version = packaging.version.Version(parts["version"])
+            self.version = PyuVersion(parts["version"])
             log.debug("Got version info")
         except TypeError:
             msg = "Failed to parse package filename"

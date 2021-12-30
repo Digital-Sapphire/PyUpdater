@@ -32,10 +32,9 @@ import sys
 from dsdev_utils.crypto import get_package_hashes as gph
 from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir
-import packaging.version
 
 from pyupdater import settings
-from pyupdater.utils import get_size_in_bytes as in_bytes
+from pyupdater.utils import PyuVersion, get_size_in_bytes as in_bytes
 from pyupdater.utils.storage import Storage
 
 from .package import remove_previous_versions, Package
@@ -221,7 +220,7 @@ class PackageHandler(object):
             data["package"] = {}
             log.debug("Initializing config for packages")
         # First package with current name so add platform and version
-        version_key = str(p.version)
+        version_key = p.version.pyu_format()
         if p.name not in data["package"].keys():
             data["package"][p.name] = {p.platform: version_key}
             log.debug("Adding new package to config")
@@ -232,7 +231,7 @@ class PackageHandler(object):
                 log.debug("Adding new arch to package-config: %s", p.platform)
             else:
                 # Getting current version for platform
-                current_version = packaging.version.Version(data["package"][p.name][p.platform])
+                current_version = PyuVersion(data["package"][p.name][p.platform])
                 # Updating version if applicable
                 # todo: what about release channels?
                 if p.version > current_version:
@@ -337,7 +336,7 @@ class PackageHandler(object):
         for p in package_manifest:
             info = PackageHandler._manifest_to_version_file_compat(p)
 
-            version_key = str(p.version)
+            version_key = p.version.pyu_format()
             easy_key = "{}*{}*{}".format(settings.UPDATES_KEY, p.name, version_key)
             existing_version = easy_dict.get(easy_key)
             log.debug("Package Info: %s", existing_version or "none")

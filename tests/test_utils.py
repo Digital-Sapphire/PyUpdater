@@ -37,7 +37,7 @@ from pyupdater.utils import (
     PluginManager,
     remove_dot_files,
     run,
-    VersionShim,
+    PyuVersion,
 )
 
 
@@ -190,7 +190,7 @@ class TestVersionShim(object):
         # version number, otherwise it is interpreted as part of the "stable"
         # release number, so that e.g. 1.0.0.2.0 > 1.0.0 would return True (
         # when using internal version numbers, these should be equal)
-        assert VersionShim.ensure_pep440_compat(internal_version) == expected
+        assert PyuVersion.ensure_pep440_compat(internal_version) == expected
 
     @pytest.mark.parametrize(
         ["pep440_version", "expected"],
@@ -204,4 +204,4 @@ class TestVersionShim(object):
         ],
     )
     def test_pyu_format(self, pep440_version, expected):
-        assert VersionShim(pep440_version).pyu_format() == expected
+        assert PyuVersion(pep440_version).pyu_format() == expected

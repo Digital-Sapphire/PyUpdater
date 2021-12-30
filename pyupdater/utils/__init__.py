@@ -467,10 +467,15 @@ class JSONStore(DictMixin):
         return True
 
 
-class VersionShim(packaging.version.Version):
+class PyuVersion(packaging.version.Version):
     """
     Shim for compatibility of packaging.version.Version (PEP440 format) and
     PyUpdater's internal version format, as used in existing version files.
+
+    Basically, this is just a packaging.version.Version that knows how to:
+
+    - interpret a pyupdater internal version string
+    - present itself as a pyupdater internal version string
 
     This is only to ensure backward compatibility with existing version files.
 
@@ -484,24 +489,25 @@ class VersionShim(packaging.version.Version):
 
     def __init__(self, version: str) -> None:
         """
-        Convert PyUpdater's internal version to a PEP440 compatible format so
-        we can feed it into packaging.version.Version.
+        Convert PyUpdater's internal version format to a PEP440 compatible
+        format so we can feed it into packaging.version.Version.
         """
         super().__init__(version=self.ensure_pep440_compat(version))
 
     @classmethod
     def ensure_pep440_compat(cls, version: str) -> str:
         """
-        Convert an internal version string to a PEP440-compatible version
-        string that can be parsed by packaging.version.Version().
+        Convert a pyupdater internal version string to a PEP440-compatible
+        version string that can be parsed by packaging.version.Version().
 
         The pyupdater internal version format is (from dsdev-utils):
 
             <major>.<minor>.<patch>.<release channel>.<release number>
 
-        Although this format meets the PEP440 specification, it is not parsed
-        as expected, because the internal numeric <release channel> is not
-        recognized as such (also "stable" is called final release in PEP440).
+        Note that the N.N.N.N.N format itself is supported by PEP440, and is
+        parsed without errors by packaging.version.Version, but then it is
+        always interpreted as a "final release" (i.e. a "stable" release in
+        pyupdater terms).
 
         The canonical [PEP440 format][1] is defined as follows:
 
@@ -529,7 +535,13 @@ class VersionShim(packaging.version.Version):
         return version
 
     def pyu_format(self) -> str:
-        """ return version string in pyupdater internal version format """
+        """
+        Return a version string in pyupdater internal version format.
+
+        Rather than override __str__, we use a separate method for this,
+        so that it is easy to recognize where the internal version format is
+        actually used.
+        """
         # The release tuple must have length 3 (major, minor, micro), even if
         # the version string is e.g. "1" or "1.2.3.4.5.6"
         release = (self.major, self.minor, self.micro)

@@ -38,12 +38,12 @@ from typing import Optional
 
 from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
 from dsdev_utils.system import get_system
-import packaging.version
 
 from pyupdater import settings
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.exceptions import ClientError
 
 
@@ -117,7 +117,7 @@ def win_run(command, args, admin=False):  # pragma: no cover
         subprocess.Popen([command] + args)
 
 
-def get_highest_version(name, platform, channel, version_data, strict) -> Optional[packaging.version.Version]:
+def get_highest_version(name, platform, channel, version_data, strict) -> Optional[PyuVersion]:
     """
     Parses version file and returns the highest version number.
 
@@ -144,7 +144,7 @@ def get_highest_version(name, platform, channel, version_data, strict) -> Option
     )
 
     version_objects = [
-        packaging.version.Version(version_string)
+        PyuVersion(version_string)
         for version_string in latest_version_strings.values()
     ]
 
@@ -155,7 +155,7 @@ def get_highest_version(name, platform, channel, version_data, strict) -> Option
 
     if version_string is not None:
         log.debug(f"Highest version: {version_string}")
-        return packaging.version.Version(version_string)
+        return PyuVersion(version_string)
     else:
         log.info(f"No updates exist for '{name}' on {platform}")
         return
@@ -494,12 +494,13 @@ class LibUpdate(object):
 
             (str) Filename with extension
         """
+        version_key = version.pyu_format()
         filename_key = "{}*{}*{}*{}*{}".format(
-            settings.UPDATES_KEY, name, version, platform, "filename"
+            settings.UPDATES_KEY, name, version_key, platform, "filename"
         )
         filename = easy_version_data.get(filename_key)
 
-        log.debug("Filename for %s-%s: %s", name, version, filename)
+        log.debug("Filename for %s-%s: %s", name, version_key, filename)
         return filename
 
     def _download(self):
