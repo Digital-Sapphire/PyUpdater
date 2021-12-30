@@ -45,8 +45,9 @@ def cb2(status):
 update_data = {
     "name": "Acme",
     "current_filename": "Acme-mac-4.1.tar.gz",
-    "current_version": "4.1.0.2.0",
-    "latest_version": "4.4.0.2.0",
+    "current_version": PyuVersion("4.1.0"),
+    "latest_version": PyuVersion("4.4.0"),
+    "channel": "stable",
     "update_folder": None,
     "update_urls": ["https://pyu-tester.s3.amazonaws.com/"],
     "platform": "mac",
@@ -65,30 +66,36 @@ class TestFails(object):
         version_data_str = (shared_datadir / "version.json").read_text()
         return json.loads(version_data_str)
 
-    def test_no_base_binary(self, version_data):
+    def test_no_base_binary(self, version_data, caplog):
+        caplog.set_level(logging.DEBUG)
         assert os.listdir(os.getcwd()) == []
         data = update_data.copy()
         data["update_folder"] = os.getcwd()
         data["version_data"] = version_data
         p = Patcher(**data)
         assert p.start() is False
+        assert "cannot find archive to patch" in caplog.text.lower()
 
-    def test_bad_hash_current_version(self, shared_datadir, version_data):
+    def test_bad_hash_current_version(self, shared_datadir, version_data, caplog):
+        caplog.set_level(logging.DEBUG)
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
         data["version_data"] = version_data
         data["current_file_hash"] = "Thisisabadhash"
         p = Patcher(**data)
         assert p.start() is False
+        assert "binary hash mismatch" in caplog.text.lower()
 
     @pytest.mark.run(order=8)
-    def test_missing_version(self, shared_datadir, version_data):
+    def test_missing_version(self, shared_datadir, version_data, caplog):
+        caplog.set_level(logging.DEBUG)
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
         data["version_data"] = version_data
-        data["latest_version"] = "0.0.4.2.0"
+        data["latest_version"] = PyuVersion("0.0.4")
         p = Patcher(**data)
         assert p.start() is False
+        assert "filename missing in version file" in caplog.text.lower()
 
 
 # noinspection PyStatementEffect,PyStatementEffect
@@ -121,7 +128,6 @@ class TestExecution(object):
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
         data["version_data"] = version_data
-        data["channel"] = "stable"
         data["progress_hooks"] = [cb]
         p = Patcher(**data)
         assert p.start() is True
