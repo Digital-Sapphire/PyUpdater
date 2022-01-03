@@ -279,7 +279,7 @@ class Patcher(object):
             versions = [
                 v
                 for v in versions
-                if self.channel and self.channel.startswith(v.pre[0])
+                if v.is_prerelease and self.channel and self.channel.startswith(v.pre[0])
             ]
 
         log.debug("Getting required patches")
