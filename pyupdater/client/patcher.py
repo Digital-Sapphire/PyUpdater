@@ -246,14 +246,7 @@ class Patcher(object):
             else:
                 return True
         else:
-            return Patcher._calc_diff(total_patch_size, latest_file_size)
-
-    @staticmethod
-    def _calc_diff(patch_size, file_size):
-        if patch_size < file_size:
-            return True
-        else:
-            return False
+            return total_patch_size < latest_file_size
 
     def _get_required_patches(self, name):
         # Gathers patch name, hash & URL
