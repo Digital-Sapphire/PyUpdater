@@ -46,7 +46,6 @@ from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.updates import (
     AppUpdate,
-    get_highest_version,
     LibUpdate,
     UpdateStrategy,
 )
@@ -72,6 +71,50 @@ log.debug("PyUpdater Version %s", __version__)
 # Mostly used for testing purposes
 class DefaultClientConfig(object):
     DATA_DIR = tempfile.gettempdir()
+
+
+def get_highest_version(name, platform, channel, version_data, strict) -> Optional[PyuVersion]:
+    """
+    Parses version file and returns the highest version number.
+
+    Args:
+
+         name (str): name of file to search for updates
+
+         platform (str): the platform we are requesting for
+
+         channel (str): the release channel
+
+         version_data (dict): data file to search
+
+         strict (bool): specify whether or not to take the channel
+                        into consideration
+
+    Returns:
+
+        Highest version
+    """
+    latest_version_strings = dict(
+        (_channel, version_strings[platform])
+        for _channel, version_strings in version_data[settings.LATEST_KEY][name].items()
+    )
+
+    version_objects = [
+        PyuVersion(version_string)
+        for version_string in latest_version_strings.values()
+    ]
+
+    if strict is False:
+        return max(version_objects)
+
+    version_string = latest_version_strings.get(channel, None)
+
+    if version_string is not None:
+        log.debug(f"Highest version: {version_string}")
+        return PyuVersion(version_string)
+    else:
+        log.info(f"No updates exist for '{name}' on {platform}")
+        return
 
 
 class Client(object):
@@ -315,6 +358,7 @@ class Client(object):
             "update_urls": self.update_urls,
             "name": self.name,
             "current_version": self.current_version,
+            "latest_version": latest_version,
             "easy_version_data": self.easy_version_data,
             "version_data": self.version_data,
             "data_dir": self.data_dir,

@@ -33,8 +33,7 @@ from dsdev_utils.system import get_system
 from dsdev_utils.paths import ChDir, remove_any
 import pytest
 
-from pyupdater.client import Client
-from pyupdater.client.updates import get_highest_version
+from pyupdater.client import Client, get_highest_version
 from tconfig import TConfig
 
 

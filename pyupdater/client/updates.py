@@ -117,50 +117,6 @@ def win_run(command, args, admin=False):  # pragma: no cover
         subprocess.Popen([command] + args)
 
 
-def get_highest_version(name, platform, channel, version_data, strict) -> Optional[PyuVersion]:
-    """
-    Parses version file and returns the highest version number.
-
-    Args:
-
-         name (str): name of file to search for updates
-
-         platform (str): the platform we are requesting for
-
-         channel (str): the release channel
-
-         version_data (dict): data file to search
-
-         strict (bool): specify whether or not to take the channel
-                        into consideration
-
-    Returns:
-
-        Highest version
-    """
-    latest_version_strings = dict(
-        (_channel, version_strings[platform])
-        for _channel, version_strings in version_data[settings.LATEST_KEY][name].items()
-    )
-
-    version_objects = [
-        PyuVersion(version_string)
-        for version_string in latest_version_strings.values()
-    ]
-
-    if strict is False:
-        return max(version_objects)
-
-    version_string = latest_version_strings.get(channel, None)
-
-    if version_string is not None:
-        log.debug(f"Highest version: {version_string}")
-        return PyuVersion(version_string)
-    else:
-        log.info(f"No updates exist for '{name}' on {platform}")
-        return
-
-
 class UpdateStrategy:  # pragma: no cover
     """Enum representing the update strategies available"""
 
@@ -320,9 +276,6 @@ class LibUpdate(object):
     def __init__(self, data=None):
         if data is None:
             return
-        # A key used in the version meta data dictionary
-        self._updates_key = settings.UPDATES_KEY
-
         # The current directory of the running executable
         self._current_app_dir = os.path.dirname(sys.executable)
 
@@ -354,6 +307,9 @@ class LibUpdate(object):
 
         # The version of the current asset
         self.current_version = data.get("current_version")
+
+        # The latest version available
+        self.latest_version = data.get("latest_version")
 
         # A special dictionary that allows getting nested values by
         # providing a key in the form of "this*is*a*deep*key".
@@ -397,11 +353,6 @@ class LibUpdate(object):
 
         # The update strategy to use
         self.strategy = data.get("strategy", UpdateStrategy.DEFAULT)
-
-        # The latest version available
-        self.latest_version = get_highest_version(
-            self.name, self.platform, self.channel, self.version_data, self.strict
-        )
 
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
@@ -569,7 +520,7 @@ class LibUpdate(object):
     def _get_file_hash_from_manifest(self):
         version_key = self.latest_version.pyu_format()
         hash_key = "{}*{}*{}*{}*{}".format(
-            self._updates_key, self.name, version_key, self.platform, "file_hash"
+            settings.UPDATES_KEY, self.name, version_key, self.platform, "file_hash"
         )
         return self.easy_version_data.get(hash_key)
 
@@ -620,8 +571,6 @@ class LibUpdate(object):
 
         # Initialize Patch object with all required information
         p = Patcher(
-            current_version=self.current_version,
-            latest_version=self.latest_version,
             update_folder=self.update_folder,
             **self.init_data
         )
