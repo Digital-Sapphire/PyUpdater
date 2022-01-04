@@ -38,6 +38,7 @@ from pyupdater.utils import (
     PluginManager,
     remove_dot_files,
     run,
+    PyuVersion,
 )
 
 
@@ -69,14 +70,15 @@ class TestUtils(object):
 
     @pytest.mark.parametrize(
         ["filename", "expected"],
-        [("Acme-mac-4.1.tar.gz", ("Acme", "mac", "4.1", ".tar.gz")),
-         ("with spaces-nix-0.0.1b1.zip", ("with spaces", "nix", "0.0.1b1", ".zip")),
-         ("with spaces-win-0.0.1a2.zip", ("with spaces", "win", "0.0.1a2", ".zip")),
-         ("pyu-win-1.tar.gz", ("pyu", "win", "1", ".tar.gz")),
-         ("pyu-win-0.0.2.xz", None),
-         ("pyu-wi-1.1.tar.gz", None),
-         ("anything", None),
-         ]
+        [
+            ("Acme-mac-4.1.tar.gz", ("Acme", "mac", "4.1", ".tar.gz")),
+            ("with spaces-nix-0.0.1b1.zip", ("with spaces", "nix", "0.0.1b1", ".zip")),
+            ("with spaces-win-0.0.1a2.zip", ("with spaces", "win", "0.0.1a2", ".zip")),
+            ("pyu-win-1.tar.gz", ("pyu", "win", "1", ".tar.gz")),
+            ("pyu-win-0.0.2.xz", None),
+            ("pyu-wi-1.1.tar.gz", None),
+            ("anything", None),
+        ],
     )
     def test_parse_archive_name(self, filename, expected):
         parts = parse_archive_name(filename)
@@ -176,3 +178,42 @@ class TestUtils(object):
 
         p = pm.get_plugin("test", True)
         assert p.bucket == "test_bucket"
+
+
+class TestPyuVersion(object):
+    @pytest.mark.parametrize(
+        ["internal_version", "expected"],
+        [
+            ("4.4.3.2.0", "4.4.3"),
+            ("0.0.0.2.3", "0.0.0"),
+            ("0.0.0.3.0", "0.0.0.3.0"),  # not an internal version number
+            ("4.4.2.0.5", "4.4.2a5"),
+            ("4.4.1.1.0", "4.4.1b0"),
+            ("1.2.3a5+something", "1.2.3a5+something"),
+            ("1.2.3", "1.2.3"),
+            ("v1.2.3", "v1.2.3"),
+            ("invalid", "invalid"),
+        ],
+    )
+    def test_ensure_pep440_compat(self, internal_version, expected):
+        # Note that non-internal versions (including invalid ones) are passed
+        # unmodified, as we leave the actual parsing to packaging.version.
+        # Note that the trailing ".2.0" must be removed from the internal
+        # version number, otherwise it is interpreted as part of the "stable"
+        # release number, so that e.g. 1.0.0.2.0 > 1.0.0 would return True (
+        # when using internal version numbers, these should be equal)
+        assert PyuVersion.ensure_pep440_compat(internal_version) == expected
+
+    @pytest.mark.parametrize(
+        ["pep440_version", "expected"],
+        [
+            ("1", "1.0.0.2.0"),
+            ("1.0", "1.0.0.2.0"),
+            ("1.0.0", "1.0.0.2.0"),
+            ("1.0.0.0", "1.0.0.2.0"),
+            ("1.2.3a5", "1.2.3.0.5"),
+            ("4.5.6beta8", "4.5.6.1.8"),
+        ],
+    )
+    def test_pyu_format(self, pep440_version, expected):
+        assert PyuVersion(pep440_version).pyu_format() == expected

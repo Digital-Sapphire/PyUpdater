@@ -29,13 +29,11 @@ import json
 import os
 import time
 
-from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.system import get_system
 from dsdev_utils.paths import ChDir, remove_any
 import pytest
 
-from pyupdater.client import Client
-from pyupdater.client.updates import gen_user_friendly_version, get_highest_version
+from pyupdater.client import Client, get_highest_version
 from tconfig import TConfig
 
 
@@ -94,7 +92,7 @@ class TestSetup(object):
         filesystem_data = filesystem_data.decode()
         filesystem_data = json.loads(filesystem_data)
         del filesystem_data["signature"]
-        assert client.json_data == filesystem_data
+        assert client.version_data == filesystem_data
 
     def test_url_str_attr(self):
         t_config = TConfig()
@@ -215,16 +213,7 @@ class TestExtract(object):
             assert update.extract() is False
 
 
-class TestGenVersion(object):
-    def test1(self):
-        assert gen_user_friendly_version("1.0.0.2.0") == "1.0"
-        assert gen_user_friendly_version("1.2.2.2.0") == "1.2.2"
-        assert gen_user_friendly_version("2.0.5.0.3") == "2.0.5 Alpha 3"
-        assert gen_user_friendly_version("2.2.1.1.0") == "2.2.1 Beta"
-
-
-class TestChannelStrict(object):
-
+class TestGetHighestVersion(object):
     version_data = {
         "latest": {
             "Acme": {
@@ -235,49 +224,20 @@ class TestChannelStrict(object):
         }
     }
 
-    def test1(self):
-        data = EasyAccessDict(self.version_data)
-        assert (
-            get_highest_version("Acme", "mac", "alpha", data, strict=True)
-            == "4.4.2.0.5"
-        )
-        assert (
-            get_highest_version("Acme", "mac", "beta", data, strict=True) == "4.4.1.1.0"
-        )
-        assert (
-            get_highest_version("Acme", "mac", "stable", data, strict=True)
-            == "4.4.3.2.0"
-        )
+    @pytest.mark.parametrize(
+        ["channel", "expected"],
+        [("alpha", "4.4.2.0.5"), ("beta", "4.4.1.1.0"), ("stable", "4.4.3.2.0")]
+    )
+    def test_strict(self, channel, expected):
+        args = ("Acme", "mac", channel, self.version_data)
+        assert get_highest_version(*args, strict=True).pyu_format() == expected
 
+    def test_not_strict(self):
+        args = ("Acme", "mac", "alpha", self.version_data)
+        assert get_highest_version(*args, strict=False).pyu_format() == "4.4.3.2.0"
 
-class TestChannelLessStrict(object):
-
-    version_data = {
-        "latest": {
-            "Acme": {
-                "stable": {"mac": "4.4.3.2.0"},
-                "beta": {"mac": "4.4.1.1.0"},
-                "alpha": {"mac": "4.4.2.0.5"},
-            }
-        }
-    }
-
-    def test1(self):
-        data = EasyAccessDict(self.version_data)
-        assert (
-            get_highest_version("Acme", "mac", "alpha", data, strict=False)
-            == "4.4.3.2.0"
-        )
-
-
-class TestMissingStable(object):
-
-    version_data = {
-        "latest": {
-            "Acme": {"beta": {"mac": "4.4.1.1.0"}, "alpha": {"mac": "4.4.2.0.5"}}
-        }
-    }
-
-    def test1(self):
-        data = EasyAccessDict(self.version_data)
-        assert get_highest_version("Acme", "mac", "stable", data, strict=True) is None
+    def test_missing_stable(self):
+        data = self.version_data.copy()
+        data["latest"]["Acme"].pop("stable")
+        args = ("Acme", "mac", "stable", data)
+        assert get_highest_version(*args, strict=True) is None

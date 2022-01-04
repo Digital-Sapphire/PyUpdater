@@ -23,6 +23,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 import argparse
+import packaging.version
 
 
 def make_parser():
@@ -83,6 +84,21 @@ def add_archive_parser(subparsers):
     )
 
 
+class VersionCheckAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None, **kwargs):
+        # Check PEP440 compliance
+        try:
+            packaging.version.Version(values)
+        except packaging.version.InvalidVersion:
+            msg = (
+                f"Version string '{values}' is not PEP440 compliant.\n"
+                f"For examples, see https://www.python.org/dev/peps/pep-0440/."
+            )
+            raise argparse.ArgumentError(self, msg)
+        # Store the value, same as "store" action
+        setattr(namespace, self.dest, values)
+
+
 def add_build_parser(subparsers):
     build_parser = subparsers.add_parser(
         "build", help="Compiles script " "or spec file", usage="%(prog)s [opts]<script>"
@@ -97,7 +113,12 @@ def add_build_parser(subparsers):
         "--clean", action="store_true", help="Clean build. Bypass the cache"
     )
 
-    build_parser.add_argument("--app-version", dest="app_version", required=True)
+    build_parser.add_argument(
+        "--app-version",
+        dest="app_version",
+        required=True,
+        action=VersionCheckAction,
+    )
     build_parser.add_argument(
         "-k",
         "--keep",

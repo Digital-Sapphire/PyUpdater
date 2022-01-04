@@ -26,14 +26,16 @@ from __future__ import unicode_literals
 
 import io
 import os
+import pathlib
 
 from dsdev_utils.paths import ChDir
 import pytest
 
 from pyupdater import settings
 from pyupdater.core.package_handler import PackageHandler
-from pyupdater.core.package_handler.package import Package, parse_platform
+from pyupdater.core.package_handler.package import Package
 from pyupdater.core.package_handler.patch import Patch
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.config import Config
 from pyupdater.utils.exceptions import PackageHandlerError
 
@@ -64,20 +66,10 @@ class TestUtils(object):
         p = PackageHandler(config)
         p.process_packages()
 
-    def test_parse_platform(self):
-        assert parse_platform("app-mac-0.1.0.tar.gz") == "mac"
-        assert parse_platform("app-win-1.0.0.zip") == "win"
-        assert parse_platform("Email Parser-mac-0.2.0.tar.gz") == "mac"
-        assert parse_platform("Hangman-nix-0.0.1b1.zip") == "nix"
-
-    def test_parse_platform_fail(self):
-        with pytest.raises(PackageHandlerError):
-            parse_platform("app-nex-1.0.0.tar.gz")
-
 
 @pytest.mark.usefixtures("cleandir", "pyu")
 class TestExecution(object):
-    def test_process_packages(self):
+    def test_process_packages_empty(self):
         data_dir = os.getcwd()
         t_config = TConfig()
         t_config.DATA_DIR = data_dir
@@ -87,6 +79,26 @@ class TestExecution(object):
         p = PackageHandler(config)
         p.process_packages()
 
+    def test_process_packages_new_stable(self):
+        data_dir = pathlib.Path.cwd()
+        t_config = TConfig()
+        t_config.DATA_DIR = str(data_dir)
+        t_config.UPDATE_PATCHES = False
+        config = Config()
+        config.from_object(t_config)
+        p = PackageHandler(config)
+        # create dummy archive file
+        new_archive_version = "4.1"
+        new_archive_name = f"Acme-mac-{new_archive_version}.tar.gz"
+        new_archive_path = pathlib.Path(p.new_dir) / new_archive_name
+        new_archive_path.touch()
+        # process package
+        p.process_packages()
+        deploy_archive_path = pathlib.Path(p.deploy_dir) / new_archive_name
+        assert deploy_archive_path.exists()
+        assert new_archive_name in str(p.version_data[settings.UPDATES_KEY])
+        assert new_archive_version in str(p.version_data[settings.LATEST_KEY])
+
 
 @pytest.mark.usefixtures("cleandir")
 class TestPackage(object):
@@ -95,7 +107,7 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "Acme"
-        assert p1.version == "4.1.0.2.0"
+        assert str(p1.version) == "4.1"
         assert p1.filename == test_file
         assert p1.platform == "mac"
         assert p1.channel == "stable"
@@ -106,7 +118,7 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "with spaces"
-        assert p1.version == "0.0.1.1.1"
+        assert str(p1.version) == "0.0.1b1"
         assert p1.filename == test_file
         assert p1.platform == "nix"
         assert p1.channel == "beta"
@@ -117,7 +129,7 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "with spaces"
-        assert p1.version == "0.0.1.0.2"
+        assert str(p1.version) == "0.0.1a2"
         assert p1.filename == test_file
         assert p1.platform == "win"
         assert p1.channel == "alpha"
@@ -149,7 +161,7 @@ class TestPackage(object):
     def test_package_bad_platform(self, shared_datadir):
         filename = "pyu-wi-1.1.tar.gz"
         p = Package(shared_datadir / filename)
-        out = "filename does not match expected format"
+        out = "failed to parse package filename"
         assert out in p.info["reason"].lower()
 
 
@@ -182,7 +194,7 @@ class TestPatch(object):
             "filename": full_path,
             "files_dir": self.files_dir,
             "new_dir": self.new_dir,
-            "json_data": version_data,
+            "version_data": version_data,
             "pkg_info": pkg,
             "config": config,
             "test": True,

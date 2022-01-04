@@ -36,6 +36,7 @@ import zipfile
 from collections.abc import MutableMapping as DictMixin
 
 import certifi
+import packaging.version
 from dsdev_utils import paths
 from dsdev_utils import system
 from stevedore.extension import ExtensionManager
@@ -219,7 +220,7 @@ def get_size_in_bytes(filename):
     return size
 
 
-def create_asset_archive(name, version):
+def create_asset_archive(name, version: str):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 
@@ -254,7 +255,7 @@ def create_asset_archive(name, version):
     return output_filename
 
 
-def make_archive(name, target, version, archive_format):
+def make_archive(name, target, app_version: str, archive_format):
     """Used to make archives of file or dir. Zip on windows and tar.gz
     on all other platforms
 
@@ -300,7 +301,7 @@ def make_archive(name, target, version, archive_format):
 
     file_dir = os.path.dirname(os.path.abspath(target))
     filename = "{}-{}-{}".format(
-        os.path.splitext(name)[0], system.get_system(), version
+        os.path.splitext(name)[0], system.get_system(), app_version
     )
     # Only use zip on windows.
     # Zip does not preserve file permissions on nix & mac
@@ -328,6 +329,9 @@ def parse_archive_name(filename):
 
     We do not impose any versioning requirements yet, such as defined in
     packaging.version.VERSION_PATTERN.
+
+    todo: Mention that package.parse_platform has been removed,
+     use parse_archive_name instead.
     """
     archive_name_pattern = (
         r"^(?P<app_name>[\w -]+)"
@@ -465,3 +469,88 @@ class JSONStore(DictMixin):
         self._synced_json_kw = json_kw
         self._needs_sync = False
         return True
+
+
+class PyuVersion(packaging.version.Version):
+    """
+    Shim for compatibility of packaging.version.Version (PEP440 format) and
+    PyUpdater's internal version format, as used in existing version files.
+
+    Basically, this is just a packaging.version.Version that knows how to:
+
+    - interpret a pyupdater internal version string
+    - present itself as a pyupdater internal version string
+
+    This is only to ensure backward compatibility with existing version files.
+
+    This replaces dsdev_utils.helpers.Version, which is currently broken.
+
+    todo: Work towards deprecating the internal version format, so we don't
+     need this shim anymore.
+    """
+    internal_version_pattern = r"(^\d+\.\d+\.\d+)\.([012])\.(\d+$)"
+    pyu_channels = "ab"
+
+    def __init__(self, version: str) -> None:
+        """
+        Convert PyUpdater's internal version format to a PEP440 compatible
+        format so we can feed it into packaging.version.Version.
+        """
+        super().__init__(version=self.ensure_pep440_compat(version))
+
+    @classmethod
+    def ensure_pep440_compat(cls, version: str) -> str:
+        """
+        Convert a pyupdater internal version string to a PEP440-compatible
+        version string that can be parsed by packaging.version.Version().
+
+        The pyupdater internal version format is (from dsdev-utils):
+
+            <major>.<minor>.<patch>.<release channel>.<release number>
+
+        Note that the N.N.N.N.N format itself is supported by PEP440, and is
+        parsed without errors by packaging.version.Version, but then it is
+        always interpreted as a "final release" (i.e. a "stable" release in
+        pyupdater terms).
+
+        The canonical [PEP440 format][1] is defined as follows:
+
+            [N!]N(.N)*[{a|b|rc}N][.postN][.devN]
+
+        However, packaging.version.Version() is more forgiving, as it also
+        handles e.g. '1.2.3.alpha.4'.
+
+        Also see [packaging.version.VERSION_PATTERN][2].
+
+        [1]: https://www.python.org/dev/peps/pep-0440/#public-version-identifiers
+        [2]: https://github.com/pypa/packaging/blob/21.3/packaging/version.py#L225
+        """
+        re_obj = re.compile(cls.internal_version_pattern)
+        match = re_obj.match(version)
+        if match:
+            channel = int(match.group(2))
+            # Replace internal pre-release number by a PEP440 compatible value
+            if channel < 2:
+                version = re_obj.sub(
+                    r"\1" + cls.pyu_channels[channel] + r"\3", version)
+            elif channel == 2:
+                # remove the ".2.0" from the internal version number
+                version = re_obj.sub(r"\1", version)
+        return version
+
+    def pyu_format(self) -> str:
+        """
+        Return a version string in pyupdater internal version format.
+
+        Rather than override __str__, we use a separate method for this,
+        so that it is easy to recognize where the internal version format is
+        actually used.
+        """
+        # The release tuple must have length 3 (major, minor, micro), even if
+        # the version string is e.g. "1" or "1.2.3.4.5.6"
+        release = (self.major, self.minor, self.micro)
+        # Assume "stable" channel
+        channel = (2, 0)
+        if self.is_prerelease:
+            channel = (self.pyu_channels.index(self.pre[0]), self.pre[1])
+        return ".".join(str(value) for value in release + channel)

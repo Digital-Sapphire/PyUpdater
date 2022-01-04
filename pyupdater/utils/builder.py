@@ -29,8 +29,6 @@ import os
 import sys
 import time
 
-from dsdev_utils.exceptions import VersionError
-from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.system import get_system
 from PyInstaller.__main__ import run as pyi_build
@@ -171,19 +169,6 @@ class Builder(object):  # pragma: no cover
 
     # Actually creates executable from spec file
     def _build(self, spec_file_path):
-        try:
-            Version(self.args.app_version)
-        except VersionError:
-            log.error("Version format incorrect: %s", self.args.app_version)
-            log.error(
-                """Valid version numbers: 0.10.0, 1.1b, 1.2.1a3
-
-        Visit url for more info:
-
-            http://semver.org/
-                      """
-            )
-            sys.exit(1)
         build_args = []
         if self.args.clean is True:
             build_args.append("--clean")
@@ -236,14 +221,14 @@ class Builder(object):  # pragma: no cover
                 app_name = temp_name + ".exe"
             else:
                 app_name = temp_name
-            version = self.args.app_version
+            app_version = self.args.app_version
             log.debug("Temp Name: %s", temp_name)
             log.debug("Appname: %s", app_name)
-            log.debug("Version: %s", version)
+            log.debug("Version: %s", app_version)
 
             # Time for some archive creation!
             filename = make_archive(
-                self.app_name, app_name, version, self.args.archive_format
+                self.app_name, app_name, app_version, self.args.archive_format
             )
             log.debug("Archive name: %s", filename)
             if self.args.keep is False:
@@ -257,7 +242,7 @@ class Builder(object):  # pragma: no cover
 
 
 class ExternalLib(object):
-    def __init__(self, name, version):
+    def __init__(self, name, version: str):
         self.name = name
         self.version = version
 
