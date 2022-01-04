@@ -168,7 +168,7 @@ class TestUtils(object):
         assert p.bucket == "test_bucket"
 
 
-class TestVersionShim(object):
+class TestPyuVersion(object):
     @pytest.mark.parametrize(
         ["internal_version", "expected"],
         [
