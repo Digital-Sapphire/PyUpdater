@@ -27,6 +27,7 @@ import io
 import logging
 import json
 import os
+import re
 import shutil
 import subprocess
 import tarfile
@@ -314,6 +315,25 @@ def make_archive(name, target, version, archive_format):
 
     log.debug("Archive output filename: %s", output_filename)
     return output_filename
+
+
+def parse_archive_name(filename):
+    """
+    Parse a filename created by make_archive(), to extract app_name, platform,
+    version, and extension strings.
+
+    We do not impose any versioning requirements yet, such as defined in
+    packaging.version.VERSION_PATTERN.
+    """
+    archive_name_pattern = (
+        r"^(?P<app_name>[\w -]+)"
+        r"-"
+        r"(?P<platform>arm(64)?|mac|nix(64)?|win)"
+        r"-"
+        r"(?P<version>.+)"
+        r"(?P<extension>\.zip|\.tar\.gz)$")
+    match = re.search(pattern=archive_name_pattern, string=filename)
+    return match.groupdict() if match else None
 
 
 def remove_dot_files(files):

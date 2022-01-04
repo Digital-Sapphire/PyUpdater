@@ -141,17 +141,16 @@ class TestPackage(object):
             "Not a supported archive format: " "{}".format(test_file_2)
         )
 
-    def test_package_bad_version(self, shared_datadir):
+    def test_package_only_major_version(self, shared_datadir):
         filename = "pyu-win-1.tar.gz"
         p = Package(shared_datadir / filename)
-        out = "Package version not formatted correctly: {}"
-        assert p.info["reason"] == out.format(filename)
+        assert p.info["reason"] == ''
 
     def test_package_bad_platform(self, shared_datadir):
         filename = "pyu-wi-1.1.tar.gz"
         p = Package(shared_datadir / filename)
-        out = "Package platform not formatted correctly"
-        assert p.info["reason"] == out
+        out = "filename does not match expected format"
+        assert out in p.info["reason"].lower()
 
 
 @pytest.mark.usefixtures("cleandir")

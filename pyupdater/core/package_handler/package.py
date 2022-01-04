@@ -32,6 +32,7 @@ from dsdev_utils.exceptions import VersionError
 from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
 
+from pyupdater.utils import parse_archive_name
 from pyupdater.utils.exceptions import PackageHandlerError, UtilsError
 
 log = logging.getLogger(__name__)
@@ -129,10 +130,6 @@ class Package(object):
 
         filename (str): path to update file
     """
-
-    # Used to parse name from archive filename
-    name_regex = re.compile(r"(?P<name>[\w -]+)-[arm|mac|nix|win]")
-
     def __init__(self, filename):
         if sys.version_info[1] == 5:
             filename = str(filename)
@@ -181,48 +178,28 @@ class Package(object):
             log.debug(msg)
             return
 
-        log.debug("Extracting update archive info for: %s", package_basename)
+        log.debug(f"Extracting update archive info for: {package_basename}")
+        parts = parse_archive_name(package_basename)
+        msg = None
+        version = None  # is this necessary?
         try:
-            v = Version(package_basename)
-            self.channel = v.channel
-            self.version = str(v)
+            # parse version
+            version = Version(parts["version"])
+            log.debug("Got version info")
+        except TypeError:
+            msg = "Package filename does not match expected format"
         except VersionError:
-            msg = "Package version not formatted correctly: {}"
-            self.info["reason"] = msg.format(package_basename)
-            log.error(msg)
-            return
-        log.debug("Got version info")
-
-        try:
-            self.platform = parse_platform(package_basename)
-        except PackageHandlerError:
-            msg = "Package platform not formatted correctly"
-            self.info["reason"] = msg
-            log.error(msg)
-            return
-        log.debug("Got platform info")
-
-        self.name = self._parse_package_name(package_basename)
-        assert self.name is not None
-        log.debug("Got name of update: %s", self.name)
+            msg = "dsdev-utils cannot parse package version"
+        except AttributeError:
+            msg = "Package version may not be PEP440 compliant"
+        finally:
+            if msg is not None:
+                self.info["reason"] = f"{msg}: {package_basename}"
+                log.error(msg)
+                return
+        self.name = parts["app_name"]
+        self.platform = parts["platform"]
+        self.channel = version.channel
+        self.version = str(version)
         self.info["status"] = True
         log.debug("Info extraction complete")
-
-    def _parse_package_name(self, package):
-        # Returns package name from update archive name
-        # Changes appname-platform-version to appname
-        #
-        # May need to update regex if support for app names with
-        # hyphens in them are requested. Example "My-App"
-        log.debug("Package name: %s", package)
-        basename = os.path.basename(package)
-
-        r = self.name_regex.search(basename)
-        try:
-            name = r.groupdict()["name"]
-        except Exception as err:
-            self.info["reason"] = str(err)
-            name = None
-
-        log.debug("Regex name: %s", name)
-        return name
