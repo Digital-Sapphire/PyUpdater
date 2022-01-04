@@ -25,6 +25,7 @@
 from __future__ import unicode_literals
 import io
 import os
+import pathlib
 
 import pytest
 
@@ -54,6 +55,17 @@ class TestUtils(object):
 
         assert os.path.exists(filename1)
         assert os.path.exists(filename2)
+
+    def test_make_archive_issue_304(self):
+        target = "win"
+        # create dir and dummy executable
+        target_dir = pathlib.Path(target)
+        target_dir.mkdir()
+        target_exe = target_dir / f"{target}.exe"
+        target_exe.touch()
+        # make archive
+        make_archive(
+            name="name", target=target, version="0.1", archive_format="default")
 
     @pytest.mark.parametrize(
         ["filename", "expected"],
