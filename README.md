@@ -1,3 +1,5 @@
+# [Project Update](https://github.com/Digital-Sapphire/PyUpdater/issues/320)
+
 [![](https://badge.fury.io/py/PyUpdater.svg)](http://badge.fury.io/py/PyUpdater)
 ![](https://github.com/Digital-Sapphire/PyUpdater/actions/workflows/main.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/Digital-Sapphire/PyUpdater/branch/master/graph/badge.svg)](https://codecov.io/gh/JMSwag/PyUpdater)

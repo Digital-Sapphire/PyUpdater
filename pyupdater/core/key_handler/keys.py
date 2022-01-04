@@ -151,7 +151,7 @@ class KeyImporter(object):
 
     @staticmethod
     def _load_keypack():
-        json_data = None
+        key_data = None
         try:
             with io.open(settings.KEYPACK_FILENAME, "r", encoding="utf-8") as f:
                 data = f.read()
@@ -159,10 +159,10 @@ class KeyImporter(object):
             log.debug(err, exc_info=True)
         else:
             try:
-                json_data = json.loads(data)
+                key_data = json.loads(data)
             except Exception as err:
                 log.debug(err, exc_info=True)
-        return json_data
+        return key_data
 
     def start(self):
         found = KeyImporter._look_for_keypack()

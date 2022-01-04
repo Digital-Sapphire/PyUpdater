@@ -34,8 +34,8 @@ import tarfile
 import threading
 import zipfile
 import ctypes
+from typing import Optional
 
-from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, get_mac_dot_app_dir, remove_any
 from dsdev_utils.system import get_system
 
@@ -44,6 +44,7 @@ from pyupdater.cli.options import VALID_CHANNELS
 from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.exceptions import ClientError
 
 
@@ -98,7 +99,6 @@ def win_unhide_file(file):  # pragma: no cover
 
 
 def win_run(command, args, admin=False):  # pragma: no cover
-
     """
     In windows run a command, optionally as admin.
     """
@@ -116,96 +116,6 @@ def win_run(command, args, admin=False):  # pragma: no cover
         )
     else:
         subprocess.Popen([command] + args)
-
-
-def get_highest_version(name, plat, channel, easy_data, strict):
-    # Parses version file and returns the highest version number.
-    #
-    #   Args:
-    #
-    #      name (str): name of file to search for updates
-    #
-    #      plat (str): the platform we are requesting for
-    #
-    #      channel (str): the release channel
-    #
-    #      easy_data (dict): data file to search
-    #
-    #      strict (bool): specify whether or not to take the channel
-    #                     into consideration
-    #
-    #   Returns:
-    #
-    #      (str) Highest version number
-
-    # We grab all keys and return the version corresponding to the
-    # channel passed to this function
-    version_key_alpha = "{}*{}*{}*{}".format(settings.LATEST_KEY, name, "alpha", plat)
-    version_key_beta = "{}*{}*{}*{}".format(settings.LATEST_KEY, name, "beta", plat)
-    version_key_stable = "{}*{}*{}*{}".format(settings.LATEST_KEY, name, "stable", plat)
-    version = None
-
-    version_options = []
-
-    alpha_available = False
-    alpha_str = easy_data.get(version_key_alpha)
-    if alpha_str is not None:
-        log.debug("Alpha str: %s", alpha_str)
-        alpha = Version(alpha_str)
-        version_options.append(alpha)
-        alpha_available = True
-
-    beta_available = False
-    beta_str = easy_data.get(version_key_beta)
-    if beta_str is not None:
-        log.debug("Beta str: %s", beta_str)
-        beta = Version(beta_str)
-        version_options.append(beta)
-        beta_available = True
-
-    stable_str = easy_data.get(version_key_stable)
-    stable_available = False
-    if stable_str is not None:
-        log.debug("Stable str: %s", stable_str)
-        stable = Version(stable_str)
-        version_options.append(stable)
-        stable_available = True
-
-    if strict is False:
-        return str(max(version_options))
-
-    if alpha_available is True and channel == "alpha":
-        version = alpha
-
-    if beta_available is True and channel == "beta":
-        version = beta
-
-    if stable_available is True and channel == "stable":
-        version = stable
-
-    if version is not None:
-        log.debug("Highest version: %s", version)
-        return str(version)
-    else:
-        log.info('No updates for "%s" on %s exists', name, plat)
-        return version
-
-
-def gen_user_friendly_version(internal_version):
-    v = list(map(int, internal_version.split(".")))
-
-    # 1.2
-    version = "{}.{}".format(v[0], v[1])
-    if v[2] != 0:
-        # 1.2.1
-        version += ".{}".format(v[2])
-    if v[3] != 2:
-        # 1.2.1 Alpha
-        version += " {}".format(VALID_CHANNELS[v[3]].capitalize())
-        if v[4] != 0:
-            version += " {}".format(v[4])
-
-    return version
 
 
 class UpdateStrategy:  # pragma: no cover
@@ -367,9 +277,6 @@ class LibUpdate(object):
     def __init__(self, data=None):
         if data is None:
             return
-        # A key used in the version meta data dictionary
-        self._updates_key = settings.UPDATES_KEY
-
         # The current directory of the running executable
         self._current_app_dir = os.path.dirname(sys.executable)
 
@@ -400,14 +307,17 @@ class LibUpdate(object):
         self.app_name = data.get("app_name")
 
         # The version of the current asset
-        self.current_version = data.get("version")
+        self.current_version = data.get("current_version")
+
+        # The latest version available
+        self.latest_version = data.get("latest_version")
 
         # A special dictionary that allows getting nested values by
         # providing a key in the form of "this*is*a*deep*key".
-        self.easy_data = data.get("easy_data")
+        self.easy_version_data = data.get("easy_version_data")
 
-        # Raw form of easy_data
-        self.json_data = data.get("json_data")
+        # Raw form of easy_version_data
+        self.version_data = data.get("version_data")
 
         # The directory used to store files needed for the restart process
         # on windows
@@ -445,22 +355,16 @@ class LibUpdate(object):
         # The update strategy to use
         self.strategy = data.get("strategy", UpdateStrategy.DEFAULT)
 
-        # The latest version available
-        self.latest = get_highest_version(
-            self.name, self.platform, self.channel, self.easy_data, self.strict
-        )
-
         # The name of the current versions update archive.
         # Will be used to check if the current archive is available for a
         # patch update
-        cv = self.current_version
         self._current_archive_name = LibUpdate._get_filename(
-            self.name, cv, self.platform, self.easy_data
+            self.name, self.current_version, self.platform, self.easy_version_data
         )
 
         # Get filename of latest versions update archive
         self.filename = LibUpdate._get_filename(
-            self.name, self.latest, self.platform, self.easy_data
+            self.name, self.latest_version, self.platform, self.easy_version_data
         )
         assert self.filename is not None
 
@@ -474,7 +378,7 @@ class LibUpdate(object):
         ######Returns (str): User friendly version string
         """
         if self._version == "":
-            self._version = gen_user_friendly_version(self.latest)
+            self._version = str(self.latest_version)
         return self._version
 
     def is_downloaded(self):
@@ -527,27 +431,28 @@ class LibUpdate(object):
         return True
 
     @staticmethod
-    def _get_filename(name, version, platform, easy_data):
+    def _get_filename(name, version, platform, easy_version_data):
         """Gets full filename for given name & version combo
 
         Args:
 
             name (str): Name of file
 
-            version (str): Version of file to get full filename for
+            version: Version of file to get full filename for
 
-            easy_data (dict): Data file to search
+            easy_version_data (dict): Data file to search
 
         Returns:
 
             (str) Filename with extension
         """
+        version_key = version.pyu_format()
         filename_key = "{}*{}*{}*{}*{}".format(
-            settings.UPDATES_KEY, name, version, platform, "filename"
+            settings.UPDATES_KEY, name, version_key, platform, "filename"
         )
-        filename = easy_data.get(filename_key)
+        filename = easy_version_data.get(filename_key)
 
-        log.debug("Filename for %s-%s: %s", name, version, filename)
+        log.debug("Filename for %s-%s: %s", name, version_key, filename)
         return filename
 
     def _download(self):
@@ -614,10 +519,11 @@ class LibUpdate(object):
                 raise ClientError("Update archive is corrupt")
 
     def _get_file_hash_from_manifest(self):
+        version_key = self.latest_version.pyu_format()
         hash_key = "{}*{}*{}*{}*{}".format(
-            self._updates_key, self.name, self.latest, self.platform, "file_hash"
+            settings.UPDATES_KEY, self.name, version_key, self.platform, "file_hash"
         )
-        return self.easy_data.get(hash_key)
+        return self.easy_version_data.get(hash_key)
 
     # Must be called from directory where file is located
     def _verify_file_hash(self):
@@ -666,8 +572,6 @@ class LibUpdate(object):
 
         # Initialize Patch object with all required information
         p = Patcher(
-            current_version=self.current_version,
-            latest_version=self.latest,
             update_folder=self.update_folder,
             **self.init_data
         )
