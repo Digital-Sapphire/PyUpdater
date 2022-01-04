@@ -66,7 +66,8 @@ class TestUtils(object):
         target_exe.touch()
         # make archive
         make_archive(
-            name="name", target=target, version="0.1", archive_format="default")
+            name="name", target=target, app_version="0.1", archive_format="default"
+        )
 
     @pytest.mark.parametrize(
         ["filename", "expected"],
