@@ -34,7 +34,6 @@ import appdirs
 from dsdev_utils.app import app_cwd, FROZEN
 from dsdev_utils.helpers import (
     EasyAccessDict as _EAD,
-    gzip_decompress as _gzip_decompress,
     Version as _Version,
 )
 from dsdev_utils.logger import logging_formatter
@@ -66,6 +65,16 @@ if os.path.exists(log_path):  # pragma: no cover
     ch.setFormatter(logging_formatter)
     log.addHandler(ch)
 log.debug("PyUpdater Version %s", __version__)
+
+
+def decompress(compressed_data):
+    if compressed_data is None:
+        raise IOError("Cannot decompress None.")
+    try:
+        return gzip.decompress(compressed_data)
+    except Exception:
+        log.exception("Failed to decompress data.")
+        raise
 
 
 # Mostly used for testing purposes
@@ -420,12 +429,10 @@ class Client(object):
 
             # Attempt the decompress
             try:
-                decompressed_data = _gzip_decompress(data)
-            except Exception as err:
-                log.debug(err)
+                return decompress(data)
+            except Exception:
+                log.exception("Failed to decompress data.")
                 return None
-
-            return decompressed_data
 
     # Downloading the manifest. If successful also writes it to file-system
     def _get_manifest_from_http(self):
@@ -446,13 +453,7 @@ class Client(object):
                         http_timeout=self.http_timeout,
                     )
                 data = fd.download_verify_return()
-                try:
-                    decompressed_data = _gzip_decompress(data)
-                except IOError:
-                    log.debug("Failed to decompress gzip file")
-                    # Will be caught down below.
-                    # Just logging the error
-                    raise
+                decompressed_data = decompress(data)
                 log.debug("Version file download successful")
                 # Writing version file to application data directory
                 self._write_manifest_to_filesystem(decompressed_data, vf)
@@ -480,11 +481,7 @@ class Client(object):
                     http_timeout=self.http_timeout,
                 )
             data = fd.download_verify_return()
-            try:
-                decompressed_data = _gzip_decompress(data)
-            except IOError:
-                log.debug("Failed to decompress gzip file")
-                raise
+            decompressed_data = decompress(data)
             log.debug("Key file download successful")
             # Writing version file to application data directory
             self._write_manifest_to_filesystem(decompressed_data, self.key_file)
