@@ -39,6 +39,7 @@ import pytest
 from pyupdater import settings
 from pyupdater.client import Client, get_highest_version
 from pyupdater.client.updates import LibUpdate
+from pyupdater.utils import PyuVersion
 from tconfig import TConfig
 
 
@@ -268,9 +269,10 @@ class TestLibUpdate(object):
             "name": "Acme",
             "platform": "mac",
             "channel": "alpha",
-            "version": "1.0.0.0.0",
-            "json_data": version_manifest_data,
-            "easy_data": EasyAccessDict(version_manifest_data),
+            "current_version": PyuVersion("1.0.0a0"),
+            "latest_version": PyuVersion("2.0.0a0"),
+            "version_data": version_manifest_data,
+            "easy_version_data": EasyAccessDict(version_manifest_data),
         }
 
         # mock the update methods
