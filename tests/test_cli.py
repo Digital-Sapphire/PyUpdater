@@ -24,6 +24,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 
+import argparse
 import io
 import os
 
@@ -110,6 +111,25 @@ class TestBuilder(object):
         with pytest.raises(SystemExit):
             parser.parse_known_args(["build"])
 
+    def test_build_options_app_version_invalid(self, parser):
+        subparser = make_subparser(parser)
+        add_build_parser(subparser)
+        with pytest.raises(SystemExit):
+            parser.parse_known_args(["build", "--app-version"])
+        with pytest.raises(SystemExit):
+            parser.parse_known_args(["build", "--app-version", "invalid"])
+
+    @pytest.mark.parametrize(
+        "version_string",
+        ["1", "1.0", "1.0.0", "1.2.3a5", "2021.0", "2021.0beta+10-g9cddff1"]
+    )
+    def test_build_options_app_version_valid(self, parser, version_string):
+        subparser = make_subparser(parser)
+        add_build_parser(subparser)
+        args = ["build", "--app-version", version_string]
+        opts, other = parser.parse_known_args(args)
+        assert opts.app_version == args[2]
+
     def test_build_no_arguments(self, parser, pyu):
         pyu.setup()
         subparser = make_subparser(parser)
@@ -120,6 +140,7 @@ class TestBuilder(object):
                 f.write('print("Hello, World!")')
             opts, other = parser.parse_known_args(["build", "app.py"])
             commands._cmd_build(opts, other)
+
 
 
 @pytest.mark.usefixtures("cleandir", "parser")

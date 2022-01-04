@@ -29,12 +29,13 @@ import tempfile
 
 import bsdiff4
 from dsdev_utils.crypto import get_package_hashes
-from dsdev_utils.helpers import EasyAccessDict, Version
+from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir, remove_any
 from dsdev_utils.system import get_system
 
 from pyupdater.client.downloader import FileDownloader
 from pyupdater import settings
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.exceptions import PatcherError
 
 log = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class Patcher(object):
 
         name (str): Name of binary to patch
 
-        json_data (dict): Info dict with all package meta data
+        version_data (dict): Info dict with all package meta data
 
         current_version (str): Version number of currently installed binary
 
@@ -75,9 +76,9 @@ class Patcher(object):
     def __init__(self, **kwargs):
         self.name = kwargs.get("name")
         self.channel = kwargs.get("channel")
-        self.json_data = kwargs.get("json_data")
-        self.star_access_update_data = EasyAccessDict(self.json_data)
-        self.current_version = Version(kwargs.get("current_version"))
+        self.version_data = kwargs.get("version_data")
+        self.easy_version_data = EasyAccessDict(self.version_data)
+        self.current_version = kwargs.get("current_version")
         self.latest_version = kwargs.get("latest_version")
         self.update_folder = kwargs.get("update_folder")
         self.update_urls = kwargs.get("update_urls", [])
@@ -108,9 +109,9 @@ class Patcher(object):
 
         file_info = self._get_info(self.name, self.current_version, option="file")
         if self.current_filename is None:
-            self.current_filename = file_info["filename"]
+            self.current_filename = file_info.get("filename")
         if self.current_file_hash is None:
-            self.current_file_hash = file_info["file_hash"]
+            self.current_file_hash = file_info.get("file_hash")
 
     def start(self):
         """Starts patching process"""
@@ -200,12 +201,13 @@ class Patcher(object):
 
         # Loop through all required patches and get file name, hash
         # and file size.
-        for p in required_patches:
+        for version in required_patches:
             info = {}
+            version_key = version.pyu_format()
             platform_key = "{}*{}*{}*{}".format(
-                settings.UPDATES_KEY, self.name, str(p), self.platform
+                settings.UPDATES_KEY, self.name, version_key, self.platform
             )
-            platform_info = self.star_access_update_data.get(platform_key)
+            platform_info = self.easy_version_data.get(platform_key)
 
             try:
                 info["patch_name"] = platform_info["patch_name"]
@@ -244,24 +246,19 @@ class Patcher(object):
             else:
                 return True
         else:
-            return Patcher._calc_diff(total_patch_size, latest_file_size)
-
-    @staticmethod
-    def _calc_diff(patch_size, file_size):
-        if patch_size < file_size:
-            return True
-        else:
-            return False
+            return total_patch_size < latest_file_size
 
     def _get_required_patches(self, name):
         # Gathers patch name, hash & URL
         needed_patches = []
         try:
-            # Get list of Version objects initialized with keys
-            # from update manifest
-            version_key = "{}*{}".format(settings.UPDATES_KEY, name)
-            version_info = self.star_access_update_data(version_key)
-            versions = map(Version, version_info.keys())
+            # Get list of Version objects initialized with keys from update
+            # manifest
+            version_info = self.version_data[settings.UPDATES_KEY].get(name)
+            versions = [
+                PyuVersion(key)
+                for key in version_info.keys()
+            ]
         except KeyError:  # pragma: no cover
             log.debug("No updates found in updates dict")
             # Will cause error to be thrown in _get_patch_info
@@ -269,12 +266,19 @@ class Patcher(object):
             versions = [1]
 
         # We only care about the current channel
-        versions = [v for v in versions if v.channel == self.channel]
+        if self.channel == "stable":
+            versions = [v for v in versions if not v.is_prerelease]
+        else:
+            versions = [
+                v
+                for v in versions
+                if v.is_prerelease and self.channel and self.channel.startswith(v.pre[0])
+            ]
 
         log.debug("Getting required patches")
-        for i in versions:
-            if i > self.current_version:
-                needed_patches.append(i)
+        for _version in versions:
+            if _version > self.current_version:
+                needed_patches.append(_version)
 
         # Used to guarantee patches are only added once
         needed_patches = list(set(needed_patches))
@@ -368,17 +372,18 @@ class Patcher(object):
     def _write_update_to_disk(self):  # pragma: no cover
         # Writes updated binary to disk
         log.debug("Writing update to disk")
+        version_key = self.latest_version.pyu_format()
         filename_key = "{}*{}*{}*{}*{}".format(
             settings.UPDATES_KEY,
             self.name,
-            self.latest_version,
+            version_key,
             self.platform,
             "filename",
         )
-        filename = self.star_access_update_data.get(filename_key)
+        filename = self.easy_version_data.get(filename_key)
 
         if filename is None:
-            raise PatcherError("Filename missing in version file")
+            raise PatcherError(f"Filename missing in version file: {version_key}")
 
         with ChDir(self.update_folder):
             try:
@@ -416,10 +421,11 @@ class Patcher(object):
             _size = "patch_size"
 
         # Returns filename and hash for given name and version
+        version_key = version.pyu_format()
         platform_key = "{}*{}*{}*{}".format(
-            settings.UPDATES_KEY, name, version, self.platform
+            settings.UPDATES_KEY, name, version_key, self.platform
         )
-        platform_info = self.star_access_update_data.get(platform_key)
+        platform_info = self.easy_version_data.get(platform_key)
 
         info = {}
         if platform_info is not None:

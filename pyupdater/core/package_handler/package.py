@@ -25,39 +25,17 @@
 from __future__ import unicode_literals
 import logging
 import os
-import re
 import sys
+from typing import Optional
 
-from dsdev_utils.exceptions import VersionError
-from dsdev_utils.helpers import Version
 from dsdev_utils.paths import ChDir, remove_any
+import packaging.version
 
-from pyupdater.utils.exceptions import PackageHandlerError, UtilsError
+from pyupdater import settings
+from pyupdater.utils import parse_archive_name, PyuVersion
+from pyupdater.utils.exceptions import UtilsError
 
 log = logging.getLogger(__name__)
-
-
-def parse_platform(name):
-    """Parses platfrom name from given string
-
-    Args:
-
-        name (str): Name to be parsed
-
-    Returns:
-
-        (str): Platform name
-    """
-    log.debug('Parsing "%s" for platform info', name)
-    try:
-        re_str = r"-(?P<platform>arm(64)?|mac|nix(64)?|win)-"
-        data = re.compile(re_str).search(name)
-        platform_name = data.groupdict()["platform"]
-        log.debug("Platform name is: %s", platform_name)
-    except AttributeError:
-        raise PackageHandlerError("Could not parse platform from filename")
-
-    return platform_name
 
 
 def remove_previous_versions(directory, filename):
@@ -77,7 +55,7 @@ def remove_previous_versions(directory, filename):
     try:
         # We set the full path here because Package() checks if filename exists
         package_info = Package(os.path.join(directory, filename))
-    except (UtilsError, VersionError):
+    except (UtilsError, packaging.version.InvalidVersion):
         log.debug("Cleanup Failed: %s - Cannot parse package info.", filename)
         return
 
@@ -129,17 +107,12 @@ class Package(object):
 
         filename (str): path to update file
     """
-
-    # Used to parse name from archive filename
-    name_regex = re.compile(r"(?P<name>[\w -]+)-[arm|mac|nix|win]")
-
     def __init__(self, filename):
         if sys.version_info[1] == 5:
             filename = str(filename)
 
         self.name = None
-        self.channel = None
-        self.version = None
+        self.version: Optional[PyuVersion] = None
         self.filename = os.path.basename(filename)
         self.file_hash = None
         self.file_size = None
@@ -152,6 +125,21 @@ class Package(object):
         self.supported_extensions = [".zip", ".gz", ".bz2"]
         self.ignored_files = [".DS_Store"]
         self.extract_info(filename)
+
+    @property
+    def channel(self):
+        """
+        todo: Release notes should mention that Package.channel is now a
+         property instead of a normal attribute.
+
+        todo: This information is already contained in the Version object,
+         so it may be clearer just to drop the whole channel attribute.
+        """
+        channel_index = 2
+        if self.version.is_prerelease:
+            # alpha or beta
+            channel_index = "ab".index(self.version.pre[0])
+        return settings.VALID_CHANNELS[channel_index]
 
     def extract_info(self, package):
         """Gets version number, platform & hash for package.
@@ -181,48 +169,26 @@ class Package(object):
             log.debug(msg)
             return
 
-        log.debug("Extracting update archive info for: %s", package_basename)
+        log.debug(f"Extracting update archive info for: {package_basename}")
+        parts = parse_archive_name(package_basename)
+        msg = None
         try:
-            v = Version(package_basename)
-            self.channel = v.channel
-            self.version = str(v)
-        except VersionError:
-            msg = "Package version not formatted correctly: {}"
-            self.info["reason"] = msg.format(package_basename)
-            log.error(msg)
-            return
-        log.debug("Got version info")
-
-        try:
-            self.platform = parse_platform(package_basename)
-        except PackageHandlerError:
-            msg = "Package platform not formatted correctly"
-            self.info["reason"] = msg
-            log.error(msg)
-            return
-        log.debug("Got platform info")
-
-        self.name = self._parse_package_name(package_basename)
-        assert self.name is not None
-        log.debug("Got name of update: %s", self.name)
+            # Parse PEP440 version string
+            # todo: Release notes should mention that Package.version is now a
+            #  packaging.version.Version object instead of a string.
+            self.version = PyuVersion(parts["version"])
+            log.debug("Got version info")
+        except TypeError:
+            msg = "Failed to parse package filename"
+        except packaging.version.InvalidVersion:
+            msg = "Package version may not be PEP440 compliant"
+        finally:
+            if msg is not None:
+                reason = f"{msg}: {package_basename}"
+                self.info["reason"] = reason
+                log.error(reason)
+                return
+        self.name = parts["app_name"]
+        self.platform = parts["platform"]
         self.info["status"] = True
         log.debug("Info extraction complete")
-
-    def _parse_package_name(self, package):
-        # Returns package name from update archive name
-        # Changes appname-platform-version to appname
-        #
-        # May need to update regex if support for app names with
-        # hyphens in them are requested. Example "My-App"
-        log.debug("Package name: %s", package)
-        basename = os.path.basename(package)
-
-        r = self.name_regex.search(basename)
-        try:
-            name = r.groupdict()["name"]
-        except Exception as err:
-            self.info["reason"] = str(err)
-            name = None
-
-        log.debug("Regex name: %s", name)
-        return name

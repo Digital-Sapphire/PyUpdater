@@ -24,11 +24,13 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals, print_function
 import json
+import logging
 import os
 
 import pytest
 
 from pyupdater.client.patcher import Patcher
+from pyupdater.utils import PyuVersion
 
 
 def cb1(status):
@@ -43,8 +45,9 @@ def cb2(status):
 update_data = {
     "name": "Acme",
     "current_filename": "Acme-mac-4.1.tar.gz",
-    "current_version": "4.1.0.2.0",
-    "latest_version": "4.4.0.2.0",
+    "current_version": PyuVersion("4.1.0"),
+    "latest_version": PyuVersion("4.4.0"),
+    "channel": "stable",
     "update_folder": None,
     "update_urls": ["https://pyu-tester.s3.amazonaws.com/"],
     "platform": "mac",
@@ -59,34 +62,40 @@ class TestFails(object):
     base_binary = "Acme-mac-4.1.tar.gz"
 
     @pytest.fixture
-    def json_data(self, shared_datadir):
+    def version_data(self, shared_datadir):
         version_data_str = (shared_datadir / "version.json").read_text()
         return json.loads(version_data_str)
 
-    def test_no_base_binary(self, json_data):
+    def test_no_base_binary(self, version_data, caplog):
+        caplog.set_level(logging.DEBUG)
         assert os.listdir(os.getcwd()) == []
         data = update_data.copy()
         data["update_folder"] = os.getcwd()
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         p = Patcher(**data)
         assert p.start() is False
+        assert "cannot find archive to patch" in caplog.text.lower()
 
-    def test_bad_hash_current_version(self, shared_datadir, json_data):
+    def test_bad_hash_current_version(self, shared_datadir, version_data, caplog):
+        caplog.set_level(logging.DEBUG)
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         data["current_file_hash"] = "Thisisabadhash"
         p = Patcher(**data)
         assert p.start() is False
+        assert "binary hash mismatch" in caplog.text.lower()
 
     @pytest.mark.run(order=8)
-    def test_missing_version(self, shared_datadir, json_data):
+    def test_missing_version(self, shared_datadir, version_data, caplog):
+        caplog.set_level(logging.DEBUG)
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
-        data["latest_version"] = "0.0.4.2.0"
+        data["version_data"] = version_data
+        data["latest_version"] = PyuVersion("0.0.4")
         p = Patcher(**data)
         assert p.start() is False
+        assert "filename missing in version file" in caplog.text.lower()
 
 
 # noinspection PyStatementEffect,PyStatementEffect
@@ -96,20 +105,20 @@ class TestExecution(object):
     base_binary = "Acme-mac-4.1.tar.gz"
 
     @pytest.fixture
-    def json_data(self, shared_datadir):
+    def version_data(self, shared_datadir):
         version_data_str = (shared_datadir / "version.json").read_text()
         return json.loads(version_data_str)
 
     @pytest.mark.run(order=7)
-    def test_execution(self, shared_datadir, json_data):
+    def test_execution(self, shared_datadir, version_data):
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
+        data["version_data"] = version_data
         data["channel"] = "stable"
         p = Patcher(**data)
         assert p.start() is True
 
-    def test_execution_callback(self, shared_datadir, json_data):
+    def test_execution_callback(self, shared_datadir, version_data):
         def cb(status):
             assert "downloaded" in status.keys()
             assert "total" in status.keys()
@@ -118,8 +127,7 @@ class TestExecution(object):
 
         data = update_data.copy()
         data["update_folder"] = str(shared_datadir)
-        data["json_data"] = json_data
-        data["channel"] = "stable"
+        data["version_data"] = version_data
         data["progress_hooks"] = [cb]
         p = Patcher(**data)
         assert p.start() is True

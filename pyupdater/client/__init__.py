@@ -29,14 +29,11 @@ import logging
 import os
 import tempfile
 import warnings
+from typing import Optional
 
 import appdirs
 from dsdev_utils.app import app_cwd, FROZEN
-from dsdev_utils.helpers import (
-    EasyAccessDict as _EAD,
-    gzip_decompress as _gzip_decompress,
-    Version as _Version,
-)
+from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.logger import logging_formatter
 from dsdev_utils.paths import ChDir as _ChDir
 from dsdev_utils.system import get_system as _get_system
@@ -46,10 +43,10 @@ from pyupdater import settings, __version__
 from pyupdater.client.downloader import FileDownloader
 from pyupdater.client.updates import (
     AppUpdate,
-    get_highest_version,
     LibUpdate,
     UpdateStrategy,
 )
+from pyupdater.utils import PyuVersion
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.encoding import UnpaddedBase64Encoder
 from pyupdater.utils.exceptions import ClientError
@@ -68,9 +65,63 @@ if os.path.exists(log_path):  # pragma: no cover
 log.debug("PyUpdater Version %s", __version__)
 
 
+def decompress(compressed_data):
+    if compressed_data is None:
+        raise IOError("Cannot decompress None.")
+    try:
+        return gzip.decompress(compressed_data)
+    except Exception:
+        log.exception("Failed to decompress data.")
+        raise
+
+
 # Mostly used for testing purposes
 class DefaultClientConfig(object):
     DATA_DIR = tempfile.gettempdir()
+
+
+def get_highest_version(name, platform, channel, version_data, strict) -> Optional[PyuVersion]:
+    """
+    Parses version file and returns the highest version number.
+
+    Args:
+
+         name (str): name of file to search for updates
+
+         platform (str): the platform we are requesting for
+
+         channel (str): the release channel
+
+         version_data (dict): data file to search
+
+         strict (bool): specify whether or not to take the channel
+                        into consideration
+
+    Returns:
+
+        Highest version
+    """
+    latest_version_strings = dict(
+        (_channel, version_strings[platform])
+        for _channel, version_strings in version_data[settings.LATEST_KEY][name].items()
+    )
+
+    version_objects = [
+        PyuVersion(version_string)
+        for version_string in latest_version_strings.values()
+    ]
+
+    if strict is False:
+        return max(version_objects)
+
+    version_string = latest_version_strings.get(channel, None)
+
+    if version_string is not None:
+        log.debug(f"Highest version: {version_string}")
+        return PyuVersion(version_string)
+    else:
+        log.info(f"No updates exist for '{name}' on {platform}")
+        return
 
 
 class Client(object):
@@ -118,11 +169,11 @@ class Client(object):
         # String: Name of binary to update
         self.name = None
 
-        # String: Version of the binary to update
-        self.version = None
+        # Version of the binary to update
+        self.current_version: Optional[PyuVersion] = None
 
-        # String: Update manifest as json string - set in _get_update_manifest
-        self.json_data = None
+        # Update manifest as dict - set in _get_update_manifest
+        self.version_data = None
 
         # Boolean: Version file verification
         self.verified = False
@@ -217,7 +268,7 @@ class Client(object):
         self._get_signing_key()
         self._get_update_manifest()
 
-    def update_check(self, name, version, channel="stable", strict=True):
+    def update_check(self, name, version: str, channel="stable", strict=True):
         """Checks for available updates
 
         ######Args:
@@ -242,7 +293,10 @@ class Client(object):
 
             None - No Updates available
         """
-        return self._update_check(name, version, channel, strict)
+        # Convert version string to Version object (only use version strings
+        # for input and output, use Version objects internally).
+        current_version = PyuVersion(version)
+        return self._update_check(name, current_version, channel, strict)
 
     def _gen_file_downloader_options(self):
         return {
@@ -253,7 +307,7 @@ class Client(object):
             "verify": self.verify,
         }
 
-    def _update_check(self, name, version, channel, strict):
+    def _update_check(self, name, current_version, channel, strict):
         valid_channels = ["alpha", "beta", "stable"]
         if channel not in valid_channels:
             log.debug("Invalid channel. May need to check spelling")
@@ -261,8 +315,7 @@ class Client(object):
         self.name = name
 
         # Version object used for comparison
-        version = _Version(version)
-        self.version = str(version)
+        self.current_version = current_version
 
         # Will be set to true if we are updating the currently
         # running app and not an app's asset
@@ -287,23 +340,22 @@ class Client(object):
             app = True
 
         log.debug("Checking for %s updates...", name)
-        latest = get_highest_version(
-            name, self.platform, channel, self.easy_data, strict
+        latest_version = get_highest_version(
+            name, self.platform, channel, self.version_data, strict
         )
-        if latest is None:
+        if latest_version is None:
             # If None is returned get_highest_version could
             # not find the supplied name in the version file
             log.debug("Could not find the latest version")
             return None
 
         # Change str to version object for easy comparison
-        latest = _Version(latest)
-        log.debug("Current version: %s", str(version))
-        log.debug("Latest version: %s", str(latest))
+        log.debug("Current version: %s", str(current_version))
+        log.debug("Latest version: %s", str(latest_version))
 
-        update_needed = latest > version
+        update_needed = latest_version > current_version
         log.debug("Update Needed: %s", update_needed)
-        if latest <= version:
+        if latest_version <= current_version:
             log.debug("%s already updated to the latest version", name)
             return None
 
@@ -312,9 +364,10 @@ class Client(object):
             "strict": strict,
             "update_urls": self.update_urls,
             "name": self.name,
-            "version": self.version,
-            "easy_data": self.easy_data,
-            "json_data": self.json_data,
+            "current_version": self.current_version,
+            "latest_version": latest_version,
+            "easy_version_data": self.easy_version_data,
+            "version_data": self.version_data,
             "data_dir": self.data_dir,
             "platform": self.platform,
             "channel": channel,
@@ -420,12 +473,10 @@ class Client(object):
 
             # Attempt the decompress
             try:
-                decompressed_data = _gzip_decompress(data)
-            except Exception as err:
-                log.debug(err)
+                return decompress(data)
+            except Exception:
+                log.exception("Failed to decompress data.")
                 return None
-
-            return decompressed_data
 
     # Downloading the manifest. If successful also writes it to file-system
     def _get_manifest_from_http(self):
@@ -446,13 +497,7 @@ class Client(object):
                         http_timeout=self.http_timeout,
                     )
                 data = fd.download_verify_return()
-                try:
-                    decompressed_data = _gzip_decompress(data)
-                except IOError:
-                    log.debug("Failed to decompress gzip file")
-                    # Will be caught down below.
-                    # Just logging the error
-                    raise
+                decompressed_data = decompress(data)
                 log.debug("Version file download successful")
                 # Writing version file to application data directory
                 self._write_manifest_to_filesystem(decompressed_data, vf)
@@ -480,11 +525,7 @@ class Client(object):
                     http_timeout=self.http_timeout,
                 )
             data = fd.download_verify_return()
-            try:
-                decompressed_data = _gzip_decompress(data)
-            except IOError:
-                log.debug("Failed to decompress gzip file")
-                raise
+            decompressed_data = decompress(data)
             log.debug("Key file download successful")
             # Writing version file to application data directory
             self._write_manifest_to_filesystem(decompressed_data, self.key_file)
@@ -517,7 +558,7 @@ class Client(object):
                 log.debug("Data type: %s", type(data))
                 # If json fails to load self.ready will stay false
                 # which will cause _update_check to exit early
-                self.json_data = json.loads(data.decode("utf-8"))
+                self.version_data = json.loads(data.decode("utf-8"))
 
                 # Ready to check for updates.
                 self.ready = True
@@ -534,12 +575,12 @@ class Client(object):
             log.debug(
                 "Failed to download version file & no " "version file on filesystem"
             )
-            self.json_data = {}
+            self.version_data = {}
 
         # If verified we set self.verified to True.
-        self._verify_sig(self.json_data)
+        self._verify_sig(self.version_data)
 
-        self.easy_data = _EAD(self.json_data)
+        self.easy_version_data = EasyAccessDict(self.version_data)
 
     # Verify the signature of the version manifest.
     def _verify_sig(self, data):
