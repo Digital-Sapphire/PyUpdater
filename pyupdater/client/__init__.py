@@ -29,7 +29,7 @@ import logging
 import os
 import tempfile
 import warnings
-from typing import Optional
+from typing import Optional, Union
 
 import appdirs
 from dsdev_utils.app import app_cwd, FROZEN
@@ -89,19 +89,19 @@ def get_latest_version(
 
     Args:
 
-         name: app name
+         name (str): app name
 
-         platform: the platform we are requesting for
+         platform (str): the platform we are requesting for
 
-         channel: the release channel
+         channel (str): the release channel
 
-         manifest: version manifest
+         manifest (dict): version manifest
 
-         strict: whether or not to take the channel into consideration
+         strict (bool): whether or not to take the channel into consideration
 
     Returns:
 
-        latest version
+        latest_version (Version)
     """
     # obtain all versions from the "updates" object (disregard "latest" object)
     all_versions = [
@@ -275,7 +275,9 @@ class Client(object):
         self._get_signing_key()
         self._get_update_manifest()
 
-    def update_check(self, name, version: str, channel="stable", strict=True):
+    def update_check(
+        self, name: str, version: str, channel: str = "stable", strict: bool = True
+    ) -> Union[LibUpdate, AppUpdate, None]:
         """Checks for available updates
 
         ######Args:
@@ -354,7 +356,6 @@ class Client(object):
             # not find the supplied name in the version file
             return None
 
-        # Change str to version object for easy comparison
         log.debug("Current version: %s", str(current_version))
         log.debug("Latest version: %s", str(latest_version))
 
