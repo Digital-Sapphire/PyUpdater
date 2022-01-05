@@ -308,8 +308,7 @@ class Client(object):
         }
 
     def _update_check(self, name, current_version, channel, strict):
-        valid_channels = ["alpha", "beta", "stable"]
-        if channel not in valid_channels:
+        if channel not in settings.VALID_CHANNELS:
             log.debug("Invalid channel. May need to check spelling")
             channel = "stable"
         self.name = name
