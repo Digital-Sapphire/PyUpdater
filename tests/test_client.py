@@ -247,30 +247,20 @@ class TestGetLatestVersion(object):
         assert get_latest_version(*args, strict=False) == PyuVersion("1.2a0")
 
 
-@pytest.mark.usefixtures("cleandir")
+@pytest.mark.usefixtures("cleandir", "version_manifest")
 class TestLibUpdate(object):
-    def test_download_patch_prerelease_channels(self, monkeypatch):
+    def test_download_patch_prerelease_channels(self, monkeypatch, version_manifest):
         # define test data
         data_dir = pathlib.Path.cwd()
         (data_dir / settings.UPDATE_FOLDER).mkdir()
-        version_manifest_data = {
-            "updates": {
-                "Acme": {
-                    "1.0.0.0.0": {"mac": {"filename": "Acme-mac-1.0a.tar.gz"}},
-                    "2.0.0.0.0": {"mac": {"filename": "Acme-mac-2.0a.tar.gz"}},
-                }
-            },
-            "latest": {"Acme": {"alpha": {"mac": "2.0.0.0.0"}}},
-        }
         data = {
             "data_dir": str(data_dir),
             "name": "Acme",
-            "platform": "mac",
-            "channel": "alpha",
-            "current_version": PyuVersion("1.0.0a0"),
-            "latest_version": PyuVersion("2.0.0a0"),
-            "version_data": version_manifest_data,
-            "easy_version_data": EasyAccessDict(version_manifest_data),
+            "platform": "win",
+            "current_version": PyuVersion("1.0"),
+            "latest_version": PyuVersion("1.2a0"),
+            "version_data": version_manifest,
+            "easy_version_data": EasyAccessDict(version_manifest),
         }
 
         # mock the update methods
