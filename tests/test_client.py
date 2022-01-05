@@ -219,34 +219,32 @@ class TestExtract(object):
             assert update.extract() is False
 
 
+@pytest.mark.usefixtures("version_manifest")
 class TestGetHighestVersion(object):
-    version_data = {
-        "latest": {
-            "Acme": {
-                "stable": {"mac": "4.4.3.2.0"},
-                "beta": {"mac": "4.4.1.1.0"},
-                "alpha": {"mac": "4.4.2.0.5"},
-            }
-        }
-    }
-
     @pytest.mark.parametrize(
         ["channel", "expected"],
-        [("alpha", "4.4.2.0.5"), ("beta", "4.4.1.1.0"), ("stable", "4.4.3.2.0")]
+        [("alpha", "1.2a0"), ("beta", "1.1"), ("stable", "1.1")]
     )
-    def test_strict(self, channel, expected):
-        args = ("Acme", "mac", channel, self.version_data)
-        assert get_highest_version(*args, strict=True).pyu_format() == expected
+    def test_channel(self, version_manifest, channel, expected):
+        args = ("Acme", "win", channel, version_manifest)
+        assert get_highest_version(*args, strict=True) == PyuVersion(expected)
 
-    def test_not_strict(self):
-        args = ("Acme", "mac", "alpha", self.version_data)
-        assert get_highest_version(*args, strict=False).pyu_format() == "4.4.3.2.0"
-
-    def test_missing_stable(self):
-        data = self.version_data.copy()
-        data["latest"]["Acme"].pop("stable")
-        args = ("Acme", "mac", "stable", data)
+    def test_no_eligible_versions(self, version_manifest):
+        # remove all final releases from the manifest
+        version_manifest["updates"]["Acme"].pop("1.0.0.2.0")
+        version_manifest["updates"]["Acme"].pop("1.1.0.2.0")
+        # check only stable versions
+        args = ("Acme", "win", "stable", version_manifest)
         assert get_highest_version(*args, strict=True) is None
+
+    def test_platform_not_available(self, version_manifest):
+        args = ("Acme", "mac", "stable", version_manifest)
+        assert get_highest_version(*args, strict=True) is None
+
+    def test_not_strict(self, version_manifest):
+        # todo: remove this when the strict argument is removed
+        args = ("Acme", "win", "stable", version_manifest)
+        assert get_highest_version(*args, strict=False) == PyuVersion("1.2a0")
 
 
 @pytest.mark.usefixtures("cleandir")
