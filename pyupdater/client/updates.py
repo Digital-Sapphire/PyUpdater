@@ -287,10 +287,6 @@ class LibUpdate(object):
         # set this back to False.
         self._is_downloading = False
 
-        # Used with the version property.
-        # Returns a user friendly version string
-        self._version = ""
-
         # Dictionary of config variables
         self.init_data = data
 
@@ -368,16 +364,6 @@ class LibUpdate(object):
 
         # Used to remove version earlier than the current.
         self.cleanup()
-
-    @property
-    def version(self):
-        """Generates a user friendly version string
-
-        ######Returns (str): User friendly version string
-        """
-        if self._version == "":
-            self._version = str(self.latest_version)
-        return self._version
 
     def is_downloaded(self):
         """Used to check if update has been downloaded.
