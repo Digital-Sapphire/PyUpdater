@@ -80,12 +80,12 @@ class DefaultClientConfig(object):
     DATA_DIR = tempfile.gettempdir()
 
 
-def get_highest_version(
+def get_latest_version(
     name: str, platform: str, channel: str, manifest: dict, strict: bool
 ) -> Optional[PyuVersion]:
     """
-    Returns the highest version number from the version manifest, for the
-    specified channel.
+    Returns the latest version from the version manifest, for the specified
+    release channel.
 
     Args:
 
@@ -101,7 +101,7 @@ def get_highest_version(
 
     Returns:
 
-        highest version
+        latest version
     """
     # obtain all versions from the "updates" object (disregard "latest" object)
     all_versions = [
@@ -123,12 +123,12 @@ def get_highest_version(
             v for v in all_versions if v.is_prerelease and v.pre[0] in included
         )
 
-    # get highest version from eligible versions
-    highest_version = None
+    # get latest version from eligible versions
+    latest_version = None
     if eligible_versions:
-        highest_version = max(eligible_versions)
-    log.debug(f"Highest version: {highest_version or 'not found'}")
-    return highest_version
+        latest_version = max(eligible_versions)
+    log.debug(f"Latest version: {latest_version or 'not found'}")
+    return latest_version
 
 
 class Client(object):
@@ -346,13 +346,12 @@ class Client(object):
             app = True
 
         log.debug("Checking for %s updates...", name)
-        latest_version = get_highest_version(
+        latest_version = get_latest_version(
             name, self.platform, channel, self.version_data, strict
         )
         if latest_version is None:
-            # If None is returned get_highest_version could
+            # If None is returned get_latest_version could
             # not find the supplied name in the version file
-            log.debug("Could not find the latest version")
             return None
 
         # Change str to version object for easy comparison

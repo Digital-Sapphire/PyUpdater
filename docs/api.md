@@ -6,7 +6,7 @@
 
 ### [pyupdater.client](#pyupdaterclient)
 
-* [pyupdater.client.get_highest_version](#pyupdaterclientget_highest_versionname-plat-channel-easy_data-strict)
+* [pyupdater.client.get_latest_version](#pyupdaterclientget_latest_versionname-plat-channel-easy_data-strict)
 * [pyupdater.client.AppUpdate](#pyupdaterclientappupdate)
 * [pyupdater.client.Client](#pyupdaterclientclient)
 * [pyupdater.client.ClientError](#pyupdaterclientclienterror)
@@ -24,7 +24,7 @@
 
 
 
-##### pyupdater.client.get_highest_version(name, plat, channel, easy_data, strict)
+##### pyupdater.client.get_latest_version(name, platform, channel, manifest, strict)
 
 
 
