@@ -80,48 +80,55 @@ class DefaultClientConfig(object):
     DATA_DIR = tempfile.gettempdir()
 
 
-def get_highest_version(name, platform, channel, version_data, strict) -> Optional[PyuVersion]:
+def get_highest_version(
+    name: str, platform: str, channel: str, manifest: dict, strict: bool
+) -> Optional[PyuVersion]:
     """
-    Parses version file and returns the highest version number.
+    Returns the highest version number from the version manifest, for the
+    specified channel.
 
     Args:
 
-         name (str): name of file to search for updates
+         name: app name
 
-         platform (str): the platform we are requesting for
+         platform: the platform we are requesting for
 
-         channel (str): the release channel
+         channel: the release channel
 
-         version_data (dict): data file to search
+         manifest: version manifest
 
-         strict (bool): specify whether or not to take the channel
-                        into consideration
+         strict: whether or not to take the channel into consideration
 
     Returns:
 
-        Highest version
+        highest version
     """
-    latest_version_strings = dict(
-        (_channel, version_strings[platform])
-        for _channel, version_strings in version_data[settings.LATEST_KEY][name].items()
-    )
-
-    version_objects = [
-        PyuVersion(version_string)
-        for version_string in latest_version_strings.values()
+    # obtain all versions from the "updates" object (disregard "latest" object)
+    all_versions = [
+        PyuVersion(key)
+        for key, value in manifest[settings.UPDATES_KEY][name].items()
+        if platform in value.keys()
     ]
 
-    if strict is False:
-        return max(version_objects)
+    # collect eligible versions
+    # todo: remove the strict argument? (always be strict)
+    eligible_versions = all_versions
+    if strict:
+        # by default, only include final releases (a.k.a. "stable")
+        eligible_versions = [v for v in all_versions if not v.is_prerelease]
 
-    version_string = latest_version_strings.get(channel, None)
+        # add pre-releases if requested
+        included = {"stable": [], "beta": ["b"], "alpha": ["b", "a"]}[channel]
+        eligible_versions.extend(
+            v for v in all_versions if v.is_prerelease and v.pre[0] in included
+        )
 
-    if version_string is not None:
-        log.debug(f"Highest version: {version_string}")
-        return PyuVersion(version_string)
-    else:
-        log.info(f"No updates exist for '{name}' on {platform}")
-        return
+    # get highest version from eligible versions
+    highest_version = None
+    if eligible_versions:
+        highest_version = max(eligible_versions)
+    log.debug(f"Highest version: {highest_version or 'not found'}")
+    return highest_version
 
 
 class Client(object):
