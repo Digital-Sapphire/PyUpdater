@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 import io
 import os
 import pathlib
+import platform
 
 import pytest
 
@@ -58,12 +59,15 @@ class TestUtils(object):
         assert os.path.exists(filename2)
 
     def test_make_archive_issue_304(self):
-        target = "win"
+        platform_map = dict(linux="nix", darwin="max", windows="win")
+        target = platform_map.get(platform.system().lower())
         # create dir and dummy executable
         target_dir = pathlib.Path(target)
         target_dir.mkdir()
-        target_exe = target_dir / f"{target}.exe"
-        target_exe.touch()
+        target_file = target_dir / f"{target}"
+        if target == "win":
+            target_file = target_file.with_suffix(".exe")
+        target_file.touch()
         # make archive
         make_archive(
             name="name", target=target, app_version="0.1", archive_format="default"
