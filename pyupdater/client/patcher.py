@@ -26,6 +26,7 @@ from __future__ import print_function, unicode_literals
 import logging
 import os
 import tempfile
+from typing import List
 
 import bsdiff4
 from dsdev_utils.crypto import get_package_hashes
@@ -188,7 +189,7 @@ class Patcher(object):
         log.debug("Getting patch meta-data")
         required_patches = self._get_required_patches(self.name)
 
-        if len(required_patches) == 0:
+        if not required_patches:
             log.debug("No patches to process")
             return False
 
@@ -248,43 +249,31 @@ class Patcher(object):
         else:
             return total_patch_size < latest_file_size
 
-    def _get_required_patches(self, name):
-        # Gathers patch name, hash & URL
-        needed_patches = []
+    def _get_required_patches(self, name: str) -> List[PyuVersion]:
+        """ Collect a list of Versions for which we need to obtain patches. """
+        all_versions = []
         try:
             # Get list of Version objects initialized with keys from update
             # manifest
-            version_info = self.version_data[settings.UPDATES_KEY].get(name)
-            versions = [
-                PyuVersion(key)
-                for key in version_info.keys()
-            ]
+            version_info = self.version_data[settings.UPDATES_KEY][name]
+            all_versions = [PyuVersion(key) for key in version_info.keys()]
         except KeyError:  # pragma: no cover
-            log.debug("No updates found in updates dict")
-            # Will cause error to be thrown in _get_patch_info
-            # which will cause patch update to return False
-            versions = [1]
+            log.debug("No updates found in manifest")
 
-        # We only care about the current channel
-        if self.channel == "stable":
-            versions = [v for v in versions if not v.is_prerelease]
-        else:
-            versions = [
-                v
-                for v in versions
-                if v.is_prerelease and self.channel and self.channel.startswith(v.pre[0])
-            ]
-
-        log.debug("Getting required patches")
-        for _version in versions:
-            if _version > self.current_version:
-                needed_patches.append(_version)
+        # All releases are created equal, as far as patches are concerned.
+        # The release channel only influences the value of latest_version. We
+        # simply need to collect *all* patches between the current release and
+        # the latest release.
+        log.debug("Collecting required patches")
+        required_patch_versions = [
+            v for v in all_versions if self.current_version < v <= self.latest_version
+        ]
 
         # Used to guarantee patches are only added once
-        needed_patches = list(set(needed_patches))
+        required_patch_versions = list(set(required_patch_versions))
 
         # Ensuring we apply patches in correct order
-        return sorted(needed_patches)
+        return sorted(required_patch_versions)
 
     def _download_verify_patches(self):
         # Downloads & verifies all patches
