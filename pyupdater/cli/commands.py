@@ -453,7 +453,7 @@ def _cmd_undo(*args):
     # 5. remove selected files from pyu-data/deploy and pyu-data/files
     for file_path in files_to_be_removed:
         try:
-            file_path.unlink(missing_ok=False)
+            file_path.unlink()
             log.debug(f"File removed: {file_path}")
         except FileNotFoundError:
             log.debug(f"Could not remove file: {file_path} not found")
