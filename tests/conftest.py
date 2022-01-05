@@ -124,3 +124,83 @@ def simpleserver():
                 self._server = None
 
     return Server()
+
+
+@pytest.fixture
+def version_manifest():
+    """
+    This is a contrived example of a version manifest (as e.g. stored in
+    versions.gz and in config.pyu), intended for tests that involve version
+    order, version filtering, patch collection, etc.
+
+    The manifest describes a linear release path for a single app on a single
+    platform, as follows:
+
+    1.0 -> patch0 -> 1.1a0 -> patch1 -> 1.1a1 -> patch2 -> 1.1b0 -> patch3 -> 1.1 -> patch4 -> 1.2a0
+
+    To update from 1.1a1 to 1.1, for example, we need patch2 and patch3.
+    """
+    manifest = {
+        "updates": {
+            "Acme": {
+                "1.0.0.2.0": {  # 1.0
+                    "win": {
+                        "file_hash": "***",
+                        "file_size": 1000,
+                        "filename": "Acme-win-1.0.zip",
+                    }
+                },
+                "1.1.0.0.0": {  # 1.1a0
+                    "win": {
+                        "file_hash": "***",
+                        "file_size": 2000,
+                        "filename": "Acme-win-1.1a0.zip",
+                        "patch_hash": "***",
+                        "patch_name": "Acme-win-0",
+                        "patch_size": 1000,
+                    }
+                },
+                "1.1.0.0.1": {  # 1.1a1
+                    "win": {
+                        "file_hash": "***",
+                        "file_size": 3000,
+                        "filename": "Acme-win-1.1a1.zip",
+                        "patch_hash": "***",
+                        "patch_name": "Acme-win-1",
+                        "patch_size": 1000,
+                    }
+                },
+                "1.1.0.1.0": {  # 1.1b0
+                    "win": {
+                        "file_hash": "***",
+                        "file_size": 4000,
+                        "filename": "Acme-win-1.1b0.zip",
+                        "patch_hash": "***",
+                        "patch_name": "Acme-win-2",
+                        "patch_size": 1000,
+                    }
+                },
+                "1.1.0.2.0": {  # 1.1
+                    "win": {
+                        "file_hash": "***",
+                        "file_size": 5000,
+                        "filename": "Acme-win-1.1.zip",
+                        "patch_hash": "***",
+                        "patch_name": "Acme-win-3",
+                        "patch_size": 1000,
+                    }
+                },
+                "1.2.0.0.0": {  # 1.2a0
+                    "win": {
+                        "file_hash": "***",
+                        "file_size": 6000,
+                        "filename": "Acme-win-1.2a0.zip",
+                        "patch_hash": "***",
+                        "patch_name": "Acme-win-4",
+                        "patch_size": 1000,
+                    }
+                },
+            }
+        }
+    }
+    return manifest
