@@ -29,7 +29,7 @@ import os
 
 import pytest
 
-from pyupdater import settings
+from pyupdater.settings import UPDATES_KEY
 from pyupdater.client.patcher import Patcher
 from pyupdater.utils import PyuVersion
 
@@ -43,157 +43,104 @@ def cb2(status):
     raise IndexError
 
 
-update_data = {
-    "name": "Acme",
-    "current_filename": "Acme-mac-4.1.tar.gz",
-    "current_version": PyuVersion("4.1.0"),
-    "latest_version": PyuVersion("4.4.0"),
-    "channel": "stable",
-    "update_folder": None,
-    "update_urls": ["https://pyu-tester.s3.amazonaws.com/"],
-    "platform": "mac",
-    "progress_hooks": [cb1, cb2],
-}
-
-
 # noinspection PyStatementEffect,PyStatementEffect
 @pytest.mark.usefixtures("cleandir")
-class TestFails(object):
-
-    base_binary = "Acme-mac-4.1.tar.gz"
-
+class TestPatcher(object):
     @pytest.fixture
-    def version_data(self, shared_datadir):
+    def patcher_kwargs(self, shared_datadir):
         version_data_str = (shared_datadir / "version.json").read_text()
-        return json.loads(version_data_str)
+        kwargs = {
+            "name": "Acme",
+            "platform": "mac",
+            "current_version": PyuVersion("4.1.0"),
+            "latest_version": PyuVersion("4.4.0"),
+            "version_data": json.loads(version_data_str),
+            "update_folder": str(shared_datadir),
+            "update_urls": ["https://pyu-tester.s3.amazonaws.com/"],
+            "progress_hooks": [cb1, cb2],
+        }
+        return kwargs
 
-    def test_no_base_binary(self, version_data, caplog):
+    def test_fail_no_base_binary(self, patcher_kwargs, caplog):
         caplog.set_level(logging.DEBUG)
         assert os.listdir(os.getcwd()) == []
-        data = update_data.copy()
-        data["update_folder"] = os.getcwd()
-        data["version_data"] = version_data
-        p = Patcher(**data)
+        patcher_kwargs["update_folder"] = os.getcwd()  # empty folder
+        p = Patcher(**patcher_kwargs)
         assert p.start() is False
         assert "cannot find archive to patch" in caplog.text.lower()
 
-    def test_bad_hash_current_version(self, shared_datadir, version_data, caplog):
+    def test_fail_bad_hash_current_version(self, shared_datadir, patcher_kwargs, caplog):
         caplog.set_level(logging.DEBUG)
-        data = update_data.copy()
-        data["update_folder"] = str(shared_datadir)
-        data["version_data"] = version_data
-        data["current_file_hash"] = "Thisisabadhash"
-        p = Patcher(**data)
+        patcher_kwargs["current_file_hash"] = "Thisisabadhash"
+        p = Patcher(**patcher_kwargs)
         assert p.start() is False
         assert "binary hash mismatch" in caplog.text.lower()
 
     @pytest.mark.run(order=8)
-    def test_missing_version(self, shared_datadir, version_data, caplog):
+    def test_fail_missing_version(self, shared_datadir, patcher_kwargs, caplog):
         caplog.set_level(logging.DEBUG)
-        data = update_data.copy()
-        data["update_folder"] = str(shared_datadir)
-        data["version_data"] = version_data
-        data["latest_version"] = PyuVersion("0.0.4")
-        p = Patcher(**data)
+        patcher_kwargs["latest_version"] = PyuVersion("5.0")
+        p = Patcher(**patcher_kwargs)
         assert p.start() is False
         assert "filename missing in version file" in caplog.text.lower()
 
-
-# noinspection PyStatementEffect,PyStatementEffect
-@pytest.mark.usefixtures("cleandir")
-class TestExecution(object):
-
-    base_binary = "Acme-mac-4.1.tar.gz"
-
-    @pytest.fixture
-    def version_data(self, shared_datadir):
-        version_data_str = (shared_datadir / "version.json").read_text()
-        return json.loads(version_data_str)
-
     @pytest.mark.run(order=7)
-    def test_execution(self, shared_datadir, version_data):
-        data = update_data.copy()
-        data["update_folder"] = str(shared_datadir)
-        data["version_data"] = version_data
-        data["channel"] = "stable"
-        p = Patcher(**data)
+    def test_execution(self, shared_datadir, patcher_kwargs):
+        p = Patcher(**patcher_kwargs)
         assert p.start() is True
 
-    def test_execution_callback(self, shared_datadir, version_data):
+    def test_execution_callback(self, shared_datadir, patcher_kwargs):
         def cb(status):
             assert "downloaded" in status.keys()
             assert "total" in status.keys()
             assert "status" in status.keys()
             assert "percent_complete" in status.keys()
 
-        data = update_data.copy()
-        data["update_folder"] = str(shared_datadir)
-        data["version_data"] = version_data
-        data["progress_hooks"] = [cb]
-        p = Patcher(**data)
+        patcher_kwargs["progress_hooks"] = [cb]
+        p = Patcher(**patcher_kwargs)
         assert p.start() is True
 
 
-@pytest.mark.usefixtures("version_manifest")
-class TestPatcher(object):
-    def test__get_required_patches(self, version_manifest):
+class TestPatcherInternals(object):
+    @pytest.fixture
+    def patcher_kwargs(self, version_manifest):
         kwargs = {
             "name": "Acme",
             "current_version": PyuVersion("1.0"),
             "latest_version": PyuVersion("1.2a0"),
             "version_data": version_manifest,
         }
-        expected = sorted(
-            PyuVersion(key)
-            for key in version_manifest[settings.UPDATES_KEY][kwargs["name"]]
-            if PyuVersion(key) != kwargs["current_version"]
-        )
-        p = Patcher(**kwargs)
-        assert p._get_required_patches() == expected
+        return kwargs
 
-    def test__get_patch_info(self, version_manifest):
-        kwargs = {
-            "name": "Acme",
-            "current_version": PyuVersion("1.0"),
-            "latest_version": PyuVersion("1.2a0"),
-            "version_data": version_manifest,
-        }
-        p = Patcher(**kwargs)
+    def test__get_required_patches(self, patcher_kwargs):
+        manifest = patcher_kwargs["version_data"]
+        expected_versions = sorted(
+            PyuVersion(key)
+            for key in manifest[UPDATES_KEY]["Acme"]
+            if PyuVersion(key) != patcher_kwargs["current_version"]
+        )
+        p = Patcher(**patcher_kwargs)
+        assert p._get_required_patches() == expected_versions
+
+    def test__get_patch_info(self, patcher_kwargs):
+        p = Patcher(**patcher_kwargs)
         assert p._get_patch_info() is True
 
-    def test__get_patch_info_no_versions(self, version_manifest):
-        version_manifest[settings.UPDATES_KEY]["Acme"] = {}
-        kwargs = {
-            "name": "Acme",
-            "current_version": PyuVersion("1.0"),
-            "latest_version": PyuVersion("1.2a0"),
-            "version_data": version_manifest,
-        }
-        p = Patcher(**kwargs)
+    def test__get_patch_info_no_versions(self, patcher_kwargs):
+        patcher_kwargs["version_data"][UPDATES_KEY]["Acme"] = {}
+        p = Patcher(**patcher_kwargs)
         assert p._get_patch_info() is False
 
-    def test__get_patch_info_missing_patch(self, version_manifest):
+    def test__get_patch_info_missing_patch(self, patcher_kwargs):
         for key in ["patch_hash", "patch_name", "patch_size"]:
-            version_manifest[settings.UPDATES_KEY]["Acme"]["1.1.0.1.0"]["win"].pop(key)
-        kwargs = {
-            "name": "Acme",
-            "current_version": PyuVersion("1.0"),
-            "latest_version": PyuVersion("1.2a0"),
-            "version_data": version_manifest,
-        }
-        p = Patcher(**kwargs)
+            patcher_kwargs["version_data"][UPDATES_KEY]["Acme"]["1.1.0.1.0"]["win"].pop(key)
+        p = Patcher(**patcher_kwargs)
         assert p._get_patch_info() is False
 
     @pytest.mark.parametrize("key", ["patch_size", "file_size"])
-    def test__get_patch_info_fall_back(self, version_manifest, key):
-        version_manifest[settings.UPDATES_KEY]["Acme"]["1.2.0.0.0"]["win"][key] = None
-        kwargs = {
-            "name": "Acme",
-            "current_version": PyuVersion("1.0"),
-            "latest_version": PyuVersion("1.2a0"),
-            "version_data": version_manifest,
-        }
-        p = Patcher(**kwargs)
+    def test__get_patch_info_fall_back(self, patcher_kwargs, key):
+        patcher_kwargs["version_data"][UPDATES_KEY]["Acme"]["1.2.0.0.0"]["win"][key] = None
+        p = Patcher(**patcher_kwargs)
         # should return False, as there are more than 4 required patches
         assert len(p._get_required_patches()) > 4
         assert p._get_patch_info() is False
