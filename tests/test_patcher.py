@@ -137,16 +137,16 @@ class TestExecution(object):
 @pytest.mark.usefixtures("version_manifest")
 class TestPatcher(object):
     def test__get_required_patches(self, version_manifest):
-        app_name = "Acme"
         kwargs = {
+            "name": "Acme",
             "current_version": PyuVersion("1.0"),
             "latest_version": PyuVersion("1.2a0"),
             "version_data": version_manifest,
         }
         expected = sorted(
             PyuVersion(key)
-            for key in version_manifest[settings.UPDATES_KEY][app_name]
+            for key in version_manifest[settings.UPDATES_KEY][kwargs["name"]]
             if PyuVersion(key) != kwargs["current_version"]
         )
         p = Patcher(**kwargs)
-        assert p._get_required_patches(name=app_name) == expected
+        assert p._get_required_patches() == expected

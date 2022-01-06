@@ -187,7 +187,7 @@ class Patcher(object):
         # patch data from it. If any loop fails, will return False
         # and start full binary update.
         log.debug("Getting patch meta-data")
-        required_patches = self._get_required_patches(self.name)
+        required_patches = self._get_required_patches()
 
         if not required_patches:
             log.debug("No patches to process")
@@ -246,13 +246,13 @@ class Patcher(object):
         else:
             return total_patch_size < latest_file_size
 
-    def _get_required_patches(self, name: str) -> List[PyuVersion]:
+    def _get_required_patches(self) -> List[PyuVersion]:
         """ Collect a list of Versions for which we need to obtain patches. """
         all_versions = []
         try:
             # Get list of Version objects initialized with keys from update
             # manifest
-            version_info = self.version_data[settings.UPDATES_KEY][name]
+            version_info = self.version_data[settings.UPDATES_KEY][self.name]
             all_versions = [PyuVersion(key) for key in version_info.keys()]
         except KeyError:  # pragma: no cover
             log.debug("No updates found in manifest")
