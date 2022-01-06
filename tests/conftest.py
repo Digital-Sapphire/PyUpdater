@@ -32,7 +32,7 @@ import socketserver as SocketServer
 
 import pytest
 
-from pyupdater import PyUpdater
+from pyupdater import PyUpdater, settings
 from pyupdater.cli.options import make_parser
 from pyupdater.client import Client
 from pyupdater.core.key_handler.keys import Keys
@@ -136,12 +136,12 @@ def version_manifest():
     The manifest describes a linear release path for a single app on a single
     platform, as follows:
 
-    1.0 -> patch0 -> 1.1a0 -> patch1 -> 1.1a1 -> patch2 -> 1.1b0 -> patch3 -> 1.1 -> patch4 -> 1.2a0
+    1.0 <patch0> 1.1a0 <patch1> 1.1a1 <patch2> 1.1b0 <patch3> 1.1 <patch4> 1.2a0
 
     To update from 1.1a1 to 1.1, for example, we need patch2 and patch3.
     """
     manifest = {
-        "updates": {
+        settings.UPDATES_KEY: {
             "Acme": {
                 "1.0.0.2.0": {  # 1.0
                     "win": {
