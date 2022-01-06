@@ -241,11 +241,8 @@ class Patcher(object):
             # compare the total size of all patches to the full update.
             fall_back = True
 
-        if fall_back is True:
-            if len(required_patches) > 4:
-                return False
-            else:
-                return True
+        if fall_back:
+            return len(required_patches) < 5
         else:
             return total_patch_size < latest_file_size
 
