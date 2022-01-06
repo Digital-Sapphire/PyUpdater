@@ -194,7 +194,6 @@ class PackageHandler(object):
                 PackageHandler._update_file_list(self.version_data, new_pkg)
 
                 package_manifest.append(new_pkg)
-                PackageHandler._add_package_to_config(new_pkg, self.config)
 
                 if self.patch_support:
                     data = {
@@ -216,30 +215,6 @@ class PackageHandler(object):
                 log.warning(b.name, b.info["reason"])
 
         return package_manifest, patch_manifest
-
-    @staticmethod
-    def _add_package_to_config(p, data):
-        if "package" not in data.keys():
-            data["package"] = {}
-            log.debug("Initializing config for packages")
-        # First package with current name so add platform and version
-        version_key = p.version.pyu_format()
-        if p.name not in data["package"].keys():
-            data["package"][p.name] = {p.platform: version_key}
-            log.debug("Adding new package to config")
-        else:
-            # Adding platform and version
-            if p.platform not in data["package"][p.name].keys():
-                data["package"][p.name][p.platform] = version_key
-                log.debug("Adding new arch to package-config: %s", p.platform)
-            else:
-                # Getting current version for platform
-                current_version = PyuVersion(data["package"][p.name][p.platform])
-                # Updating version if applicable
-                # todo: what about release channels?
-                if p.version > current_version:
-                    log.debug("Adding new version to package-config")
-                    data["package"][p.name][p.platform] = version_key
 
     @staticmethod
     def _cleanup(patch_manifest):
