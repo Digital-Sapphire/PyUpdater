@@ -219,7 +219,6 @@ class TestExtract(object):
             assert update.extract() is False
 
 
-@pytest.mark.usefixtures("version_manifest")
 class TestGetLatestVersion(object):
     @pytest.mark.parametrize(
         ["channel", "expected"],
@@ -247,7 +246,7 @@ class TestGetLatestVersion(object):
         assert get_latest_version(*args, strict=False) == PyuVersion("1.2a0")
 
 
-@pytest.mark.usefixtures("cleandir", "version_manifest")
+@pytest.mark.usefixtures("cleandir")
 class TestLibUpdate(object):
     def test_download_patch_prerelease_channels(self, monkeypatch, version_manifest):
         # define test data
