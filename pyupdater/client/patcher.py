@@ -101,18 +101,17 @@ class Patcher(object):
         # binary blob of original archive to patch
         self.og_binary = None
 
-        # Used for testing.
         self.platform = kwargs.get("platform", _PLATFORM)
 
         self.current_filename = kwargs.get("current_filename")
 
         self.current_file_hash = kwargs.get("current_file_hash")
 
-        file_info = self._get_info(self.name, self.current_version, option="file")
+        file_info = self._get_info(self.current_version)
         if self.current_filename is None:
             self.current_filename = file_info.get("filename")
         if self.current_file_hash is None:
-            self.current_file_hash = file_info.get("file_hash")
+            self.current_file_hash = file_info.get("file_hash", "")
 
     def start(self):
         """Starts patching process"""
@@ -234,8 +233,7 @@ class Patcher(object):
                 log.debug(err, exc_info=True)
                 return False
 
-        latest_info = self._get_info(self.name, self.latest_version, option="file")
-        latest_file_size = latest_info.get("file_size")
+        latest_file_size = self._get_info(self.latest_version).get("file_size")
         if latest_file_size is None:
             # Since we are missing the full update size we cannot
             # compare the total size of all patches to the full update.
@@ -383,11 +381,8 @@ class Patcher(object):
                 log.debug("Failed to open file for writing")
                 raise PatcherError("Failed to open file for writing")
             else:
-                file_info = self._get_info(
-                    self.name, self.latest_version, option="file"
-                )
-
-                new_file_hash = file_info["file_hash"]
+                file_info = self._get_info(self.latest_version)
+                new_file_hash = file_info.get("file_hash", "")
                 log.debug("checking file hash match")
                 if new_file_hash != get_package_hashes(filename):
                     log.debug("Version file hash: %s", new_file_hash)
@@ -396,33 +391,9 @@ class Patcher(object):
                     remove_any(filename)
                     raise PatcherError("Bad hash on patched file", expected=True)
 
-    def _get_info(self, name, version, option="file"):
-        if option == "file":
-            _name = "filename"
-            _hash = "file_hash"
-            _size = "file_size"
-        else:
-            _name = "patch_name"
-            _hash = "patch_hash"
-            _size = "patch_size"
-
-        # Returns filename and hash for given name and version
+    def _get_info(self, version):
         version_key = version.pyu_format()
         platform_key = "{}*{}*{}*{}".format(
-            settings.UPDATES_KEY, name, version_key, self.platform
+            settings.UPDATES_KEY, self.name, version_key, self.platform
         )
-        platform_info = self.easy_version_data.get(platform_key)
-
-        info = {}
-        if platform_info is not None:
-            filename = platform_info.get(_name)
-            log.debug("Current Info - Filename: %s", filename)
-
-            file_hash = platform_info.get(_hash, "")
-            log.debug("Current Info - File hash: %s", file_hash)
-
-            file_size = platform_info.get(_size)
-            log.debug("Current Info - File size: %s", file_size)
-            _info = dict(filename=filename, file_hash=file_hash, file_size=file_size)
-            info.update(_info)
-        return info
+        return self.easy_version_data.get(platform_key) or {}
