@@ -48,7 +48,7 @@ class PackageHandler(object):
 
     Kwargs:
 
-        app (instance): Config object
+        config (Config): pyupdater client configuration object
     """
 
     def __init__(self, config=None):
@@ -76,6 +76,7 @@ class PackageHandler(object):
         self.deploy_dir = os.path.join(self.data_dir, "deploy")
         self.new_dir = os.path.join(self.data_dir, "new")
         self.config_dir = os.path.join(os.getcwd(), settings.CONFIG_DATA_FOLDER)
+
         self.setup()
 
     def setup(self):
@@ -86,7 +87,7 @@ class PackageHandler(object):
     def _setup(self):
         self._setup_work_dirs()
         if self.config_loaded is False:
-            self.version_data = self._load_version_file()
+            self.version_data = self._load_version_data()
             self.config = self._load_config()
             self.config_loaded = True
 
@@ -118,6 +119,7 @@ class PackageHandler(object):
         self._move_packages(pkg_manifest)
 
     def _setup_work_dirs(self):
+        # TODO: create all directories and files as part of the cli init command, *not* here.
         # Sets up work dirs on dev machine.  Creates the following folder
         #    - Data dir
         # Then inside the data folder it creates 3 more folders
@@ -138,12 +140,13 @@ class PackageHandler(object):
                 log.info("Creating dir: %s", d)
                 os.mkdir(d)
 
-    def _load_version_file(self):
-        # If version file is found its loaded to memory
-        # If no version file is found then one is created.
+    def _load_version_data(self):
+        # If version data is found in the config cache (i.e. config.pyu),
+        # it is loaded into memory. If version data is not found, and empty
+        # dict is created.
         version_data = self.db.load(settings.CONFIG_DB_KEY_VERSION_META)
         if version_data is None:  # pragma: no cover
-            log.warning("Version file not found")
+            log.warning("Version data not found in config cache")
             version_data = {settings.UPDATES_KEY: {}}
             log.debug("Created new version file")
         return version_data
