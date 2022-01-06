@@ -28,13 +28,14 @@ import multiprocessing
 import os
 import shutil
 import sys
+from typing import Optional
 
 from dsdev_utils.crypto import get_package_hashes as gph
 from dsdev_utils.helpers import EasyAccessDict
 from dsdev_utils.paths import ChDir
 
 from pyupdater import settings
-from pyupdater.utils import PyuVersion, get_size_in_bytes as in_bytes
+from pyupdater.utils import get_size_in_bytes as in_bytes
 from pyupdater.utils.storage import Storage
 
 from .package import remove_previous_versions, Package
@@ -48,10 +49,14 @@ class PackageHandler(object):
 
     Kwargs:
 
-        config (Config): pyupdater client configuration object
+        patch_support (bool): whether or not to support patch updates
     """
 
-    def __init__(self, config=None):
+    def __init__(self, patch_support: Optional[bool] = None):
+        if patch_support is None:
+            patch_support = False
+        self.patch_support = patch_support
+
         # Configuration data
         self.config = None
 
@@ -63,12 +68,6 @@ class PackageHandler(object):
 
         # Used to store config information
         self.db = Storage()
-
-        if config:
-            # Support for creating patches
-            self.patch_support = config.get("UPDATE_PATCHES", True) is True
-        else:
-            self.patch_support = False
 
         # References the pyu-data folder in the root of repo
         self.data_dir = os.path.join(os.getcwd(), settings.USER_DATA_FOLDER)

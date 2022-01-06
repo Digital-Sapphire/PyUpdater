@@ -85,15 +85,12 @@ def loader():
 
 @pytest.fixture
 def parser():
-    parser = make_parser()
-    return parser
+    return make_parser()
 
 
 @pytest.fixture
 def pyu():
-    t_config = TConfig()
-    t_config.DATA_DIR = os.getcwd()
-    pyu = PyUpdater(t_config)
+    pyu = PyUpdater(patch_support=True, plugin_configs={})
     return pyu
 
 

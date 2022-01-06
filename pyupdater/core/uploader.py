@@ -48,7 +48,7 @@ class Uploader(object):
             config (instance): config object
     """
 
-    def __init__(self, config, plugins=None):
+    def __init__(self, plugin_configs, plugins=None):
         # Specifies whether to keep a file after uploading
         self.keep = False
 
@@ -62,7 +62,7 @@ class Uploader(object):
         self.files = []
 
         # Extension Manager
-        self.plg_mgr = PluginManager(config, plugins)
+        self.plg_mgr = PluginManager(plugin_configs, plugins)
 
     def _get_files_to_upload(self, files=None):
         if files:

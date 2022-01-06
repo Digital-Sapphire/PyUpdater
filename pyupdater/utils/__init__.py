@@ -31,6 +31,7 @@ import re
 import shutil
 import subprocess
 import tarfile
+from typing import Optional
 import zipfile
 
 from collections.abc import MutableMapping as DictMixin
@@ -52,12 +53,13 @@ class PluginManager(object):
 
     PLUGIN_NAMESPACES = ["pyupdater.plugins.upload", "pyupdater.plugins"]
 
-    def __init__(self, config, plugins=None):
-        if isinstance(plugins, list):
-            _all_plugins = plugins
-        else:
-            _all_plugins = []
+    def __init__(self, plugin_configs: Optional[dict] = None, plugins: Optional[list] = None):
+        if plugin_configs is None:
+            plugin_configs = {}
 
+        _all_plugins = plugins
+        if _all_plugins is None:
+            _all_plugins = []
             for pn in self.PLUGIN_NAMESPACES:
                 try:
                     namespace = ExtensionManager(pn, invoke_on_load=True)
@@ -78,14 +80,8 @@ class PluginManager(object):
         # A list of dicts of all installed plugins.
         # Keys: name author plugin
         self.plugins = []
-        self.configs = PluginManager._get_config(config)
+        self.configs = plugin_configs
         self._load(plugins)
-
-    # Created a function here since we are doing
-    # this in two locations in this class
-    @staticmethod
-    def _get_config(config):
-        return config.get("PLUGIN_CONFIGS")
 
     def _name_check(self, name):
         # We don't use the number 1 when adding the first

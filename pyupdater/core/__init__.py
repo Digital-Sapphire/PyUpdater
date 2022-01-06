@@ -23,13 +23,12 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
-import os
+from typing import Optional
 
 from .key_handler import KeyHandler
 from .key_handler.keys import KeyImporter
 from .package_handler import PackageHandler
 from .uploader import Uploader
-from pyupdater.utils.config import Config
 
 
 class PyUpdater(object):
@@ -37,34 +36,19 @@ class PyUpdater(object):
 
     Kwargs:
 
-        config (obj): config object
+        patch_support (bool): whether or not to support patch updates
+        plugin_configs (dict): plugin configuration
     """
 
-    def __init__(self, config=None):
-        self.config = Config()
-        # Important to keep this before updating config
-        if config is not None:
-            self.update_config(config)
-
-    def update_config(self, config):
-        """Updates internal config
-
-        Args:
-
-            config (obj): config object
-        """
-        if not hasattr(config, "DATA_DIR"):
-            config.DATA_DIR = None
-        if config.DATA_DIR is None:
-            config.DATA_DIR = os.getcwd()
-        self.config.from_object(config)
-        self._update(self.config)
-
-    def _update(self, config):
+    def __init__(self, patch_support: Optional[bool] = None, plugin_configs: Optional[dict] = None):
+        if patch_support is None:
+            patch_support = True
+        if plugin_configs is None:
+            plugin_configs = {}
         self.kh = KeyHandler()
         self.key_importer = KeyImporter()
-        self.ph = PackageHandler(config)
-        self.up = Uploader(config)
+        self.ph = PackageHandler(patch_support=patch_support)
+        self.up = Uploader(plugin_configs=plugin_configs)
 
     def setup(self):
         """Sets up root dir with required PyUpdater folders"""

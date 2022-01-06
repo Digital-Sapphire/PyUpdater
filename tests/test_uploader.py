@@ -29,7 +29,6 @@ from dsdev_utils.paths import ChDir
 import pytest
 
 from pyupdater.core.uploader import BaseUploader, Uploader
-from pyupdater.utils.config import Config
 
 
 class BaseTestUploader(BaseUploader):
@@ -108,7 +107,7 @@ class TestUploader(object):
             os.makedirs(data_dir)
 
         with ChDir(data_dir):
-            uploader = Uploader(config=Config(), plugins=upload_plugins)
+            uploader = Uploader(plugin_configs={}, plugins=upload_plugins)
 
             upload_plugin = upload_plugins[0]
 

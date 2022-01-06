@@ -35,11 +35,6 @@ from pyupdater import settings
 from pyupdater.core.package_handler import PackageHandler
 from pyupdater.core.package_handler.package import Package
 from pyupdater.core.package_handler.patch import Patch
-from pyupdater.utils import PyuVersion
-from pyupdater.utils.config import Config
-from pyupdater.utils.exceptions import PackageHandlerError
-
-from tconfig import TConfig
 
 user_data_dir = settings.USER_DATA_FOLDER
 
@@ -47,46 +42,24 @@ user_data_dir = settings.USER_DATA_FOLDER
 @pytest.mark.usefixtures("cleandir", "pyu")
 class TestUtils(object):
     def test_init(self):
+        p = PackageHandler(patch_support=True)
         data_dir = os.getcwd()
-        t_config = TConfig()
-        t_config.DATA_DIR = data_dir
-        config = Config()
-        config.from_object(t_config)
-        p = PackageHandler(config)
         assert p.files_dir == os.path.join(data_dir, user_data_dir, "files")
         assert p.deploy_dir == os.path.join(data_dir, user_data_dir, "deploy")
 
     def test_no_patch_support(self):
-        data_dir = os.getcwd()
-        t_config = TConfig()
-        t_config.DATA_DIR = data_dir
-        t_config.UPDATE_PATCHES = False
-        config = Config()
-        config.from_object(t_config)
-        p = PackageHandler(config)
+        p = PackageHandler(patch_support=False)
         p.process_packages()
 
 
 @pytest.mark.usefixtures("cleandir", "pyu")
 class TestExecution(object):
     def test_process_packages_empty(self):
-        data_dir = os.getcwd()
-        t_config = TConfig()
-        t_config.DATA_DIR = data_dir
-        t_config.UPDATE_PATCHES = False
-        config = Config()
-        config.from_object(t_config)
-        p = PackageHandler(config)
+        p = PackageHandler(patch_support=False)
         p.process_packages()
 
     def test_process_packages_new_stable(self):
-        data_dir = pathlib.Path.cwd()
-        t_config = TConfig()
-        t_config.DATA_DIR = str(data_dir)
-        t_config.UPDATE_PATCHES = False
-        config = Config()
-        config.from_object(t_config)
-        p = PackageHandler(config)
+        p = PackageHandler(patch_support=False)
         # create dummy archive file
         new_archive_version = "4.1"
         new_archive_name = f"Acme-mac-{new_archive_version}.tar.gz"

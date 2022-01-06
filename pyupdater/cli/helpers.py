@@ -30,12 +30,13 @@ from dsdev_utils import terminal
 
 from pyupdater import settings
 from pyupdater.utils import PluginManager
+from pyupdater.utils.config import Config
 
 log = logging.getLevelName(__name__)
 
 
-def print_plugin_settings(plugin_name, config):  # pragma: no cover
-    pm = PluginManager(config)
+def print_plugin_settings(plugin_name: str, config: Config):  # pragma: no cover
+    pm = PluginManager(plugin_configs=config.get("PLUGIN_CONFIGS"))
     config = pm.get_plugin_settings(plugin_name)
     if len(config.keys()) == 0:
         print("No config found for {}".format(plugin_name))
@@ -44,7 +45,7 @@ def print_plugin_settings(plugin_name, config):  # pragma: no cover
         print(config)
 
 
-def setup_appname(config):  # pragma: no cover
+def setup_appname(config: Config):  # pragma: no cover
     if config.APP_NAME is not None:
         default = config.APP_NAME
     else:
@@ -54,7 +55,7 @@ def setup_appname(config):  # pragma: no cover
     )
 
 
-def setup_client_config_path(config):  # pragma: no cover
+def setup_client_config_path(config: Config):  # pragma: no cover
     _default_dir = os.path.basename(os.path.abspath(os.getcwd()))
     question = (
         "Please enter the path to where pyupdater "
@@ -75,7 +76,7 @@ def setup_client_config_path(config):  # pragma: no cover
         config.CLIENT_CONFIG_PATH = answer
 
 
-def setup_company(config):  # pragma: no cover
+def setup_company(config: Config):  # pragma: no cover
     if config.COMPANY_NAME is not None:
         default = config.COMPANY_NAME
     else:
@@ -86,7 +87,7 @@ def setup_company(config):  # pragma: no cover
     config.COMPANY_NAME = temp
 
 
-def setup_max_download_retries(config):  # pragma: no cover
+def setup_max_download_retries(config: Config):  # pragma: no cover
     default = config.MAX_DOWNLOAD_RETRIES
     while 1:
         temp = terminal.get_correct_answer(
@@ -107,7 +108,7 @@ def setup_max_download_retries(config):  # pragma: no cover
     config.MAX_DOWNLOAD_RETRIES = temp
 
 
-def setup_http_timeout(config):  # pragma: no cover
+def setup_http_timeout(config: Config):  # pragma: no cover
     default = config.HTTP_TIMEOUT
     while 1:
         temp = terminal.get_correct_answer(
@@ -127,13 +128,13 @@ def setup_http_timeout(config):  # pragma: no cover
     config.HTTP_TIMEOUT = temp
 
 
-def setup_patches(config):  # pragma: no cover
+def setup_patches(config: Config):  # pragma: no cover
     question = "Would you like to enable patch updates?"
     config.UPDATE_PATCHES = terminal.ask_yes_no(question, default="yes")
 
 
-def setup_plugin(name, config):  # pragma: no cover
-    pgm = PluginManager(config)
+def setup_plugin(name: str, config: Config):  # pragma: no cover
+    pgm = PluginManager(plugin_configs=config.get("PLUGIN_CONFIGS"))
     plugin = pgm.get_plugin(name)
     if plugin is None:
         sys.exit("Invalid plugin name...")
@@ -141,7 +142,7 @@ def setup_plugin(name, config):  # pragma: no cover
     pgm.config_plugin(name, config)
 
 
-def setup_urls(config):  # pragma: no cover
+def setup_urls(config: Config):  # pragma: no cover
     url = terminal.get_correct_answer("Enter a url to ping for updates.", required=True)
     config.UPDATE_URLS = [url]
     while 1:
@@ -155,7 +156,8 @@ def setup_urls(config):  # pragma: no cover
             break
 
 
-def initial_setup(config):  # pragma: no cover
+def initial_setup() -> Config:  # pragma: no cover
+    config = Config()
     setup_appname(config)
     setup_company(config)
     setup_urls(config)

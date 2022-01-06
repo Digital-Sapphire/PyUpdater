@@ -45,7 +45,7 @@ from pyupdater.cli.helpers import (
 from pyupdater.core.key_handler.keys import Keys, KeyImporter
 from pyupdater.utils import check_repo, get_http_pool, PluginManager
 from pyupdater.utils.builder import Builder, ExternalLib
-from pyupdater.utils.config import Config, ConfigManager
+from pyupdater.utils.config import ConfigManager
 from pyupdater.utils.exceptions import UploaderError, UploaderPluginError
 
 log = logging.getLogger(__name__)
@@ -196,15 +196,15 @@ def _cmd_init(*args):  # pragma: no cover
     if not os.path.exists(
         os.path.join(settings.CONFIG_DATA_FOLDER, settings.CONFIG_FILE_USER)
     ):
-        # Load a basic config.
-        config = Config()
-
         # Run config through all of the setup functions
-        config = initial_setup(config)
+        config = initial_setup()
         log.info("Creating pyu-data dir...")
 
         # Initialize PyUpdater with newly created config
-        pyu = PyUpdater(config)
+        pyu = PyUpdater(
+            patch_support=config.get("UPDATE_PATCHES"),
+            plugin_configs=config.get("PLUGIN_CONFIGS"),
+        )
 
         # Setup repository
         pyu.setup()
@@ -291,8 +291,11 @@ def _cmd_pkg(*args):
     check_repo_ex(exit_on_error=True)
 
     ns = args[0]
-    cm = ConfigManager()
-    pyu = PyUpdater(cm.load_config())
+    config = ConfigManager().load_config()
+    pyu = PyUpdater(
+        patch_support=config.get("UPDATE_PATCHES"),
+        plugin_configs=config.get("PLUGIN_CONFIGS"),
+    )
 
     # Please give pkg something to do
     if ns.process is False and ns.sign is False:
@@ -379,7 +382,7 @@ def _cmd_collect_debug_info(*args):  # pragma: no cover
 
 # Show list of installed upload plugins
 def _cmd_plugins(*args):
-    plug_mgr = PluginManager({})
+    plug_mgr = PluginManager()
     # Doing some basic formatting. Design help here would be appreciated.
     # By the way I just want to thank all the contributors and bug submitters.
     names = ["\n"]
@@ -404,8 +407,11 @@ def _cmd_upload(*args):  # pragma: no cover
         log.error("Must provide service name")
         return
 
-    cm = ConfigManager()
-    pyu = PyUpdater(cm.load_config())
+    config = ConfigManager().load_config()
+    pyu = PyUpdater(
+        patch_support=config.get("UPDATE_PATCHES"),
+        plugin_configs=config.get("PLUGIN_CONFIGS"),
+    )
     try:
         # Configure PyUpdater to use the requested upload plugin
         pyu.set_uploader(upload_service, ns.keep)

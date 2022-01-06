@@ -34,9 +34,6 @@ from dsdev_utils.paths import ChDir, remove_any
 import filelock
 import pytest
 
-from pyupdater import PyUpdater
-from tconfig import TConfig
-
 AUTO_UPDATE_PAUSE = 30
 if sys.platform == "win32":
     AUTO_UPDATE_PAUSE += 10
@@ -48,12 +45,8 @@ APP_NAME = "Acme"
 @pytest.mark.usefixtures("cleandir", "create_keypack", "pyu")
 class TestSetup(object):
     def test_directory_creation(self):
-        data_dir = os.getcwd()
-        pyu_data_dir = os.path.join(data_dir, "pyu-data")
-        t_config = TConfig()
-        t_config.DATA_DIR = data_dir
-        pyu = PyUpdater(t_config)
-        pyu.setup()
+        # directories have been created by the pyu fixture
+        pyu_data_dir = os.path.join(os.getcwd(), "pyu-data")
         assert os.path.exists(pyu_data_dir)
         assert os.path.exists(os.path.join(pyu_data_dir, "deploy"))
         assert os.path.exists(os.path.join(pyu_data_dir, "files"))

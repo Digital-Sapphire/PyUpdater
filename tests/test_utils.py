@@ -30,7 +30,6 @@ import platform
 
 import pytest
 
-from pyupdater.utils.config import Config
 from pyupdater.utils import (
     check_repo,
     create_asset_archive,
@@ -128,7 +127,7 @@ class TestUtils(object):
             name = n
             author = a
 
-        pm = PluginManager(Config(), plugins=[Plugin()])
+        pm = PluginManager(plugins=[Plugin()])
 
         if isinstance(n, str) and isinstance(a, str):
             assert len(pm.plugins) == 1
@@ -136,13 +135,13 @@ class TestUtils(object):
             assert len(pm.plugins) == 0
 
     def test_default_plugin_detection_s3(self):
-        pm = PluginManager(Config())
+        pm = PluginManager()
 
         plugin_names = [n["name"] for n in pm.plugins]
         assert "s3" in plugin_names
 
     def test_default_plugin_detection_scp(self):
-        pm = PluginManager(Config())
+        pm = PluginManager()
 
         plugin_names = [n["name"] for n in pm.plugins]
         assert "scp" in plugin_names
@@ -156,7 +155,7 @@ class TestUtils(object):
             name = "test"
             author = "test2"
 
-        pm = PluginManager(Config(), plugins=[Plugin1(), Plugin2()])
+        pm = PluginManager(plugins=[Plugin1(), Plugin2()])
 
         plugin_names = [n["name"] for n in pm.plugins]
 
@@ -172,11 +171,10 @@ class TestUtils(object):
             def init_config(self, config):
                 self.bucket = config.get("bucket", "bad")
 
-        master_config = Config()
-
-        master_config["PLUGIN_CONFIGS"] = {"test-test1": {"bucket": "test_bucket"}}
-
-        pm = PluginManager(master_config, plugins=[TPlugin()])
+        pm = PluginManager(
+            plugin_configs={"test-test1": {"bucket": "test_bucket"}},
+            plugins=[TPlugin()],
+        )
 
         p = pm.get_plugin("test", False)
         assert p.bucket == ""

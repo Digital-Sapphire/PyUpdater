@@ -24,7 +24,6 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 
-import argparse
 import io
 import os
 
@@ -37,7 +36,6 @@ from pyupdater.cli.options import (
     add_keys_parser,
     add_make_spec_parser,
     add_package_parser,
-    add_upload_parser,
     make_subparser,
 )
 
@@ -142,7 +140,6 @@ class TestBuilder(object):
             commands._cmd_build(opts, other)
 
 
-
 @pytest.mark.usefixtures("cleandir", "parser")
 class TestClean(object):
     def test_no_args(self, parser):
@@ -211,7 +208,6 @@ class TestPkg(object):
     def test_pkg_execution(self, parser, pyu):
         subparser = make_subparser(parser)
         add_package_parser(subparser)
-        pyu.update_config(pyu.config)
         pyu.setup()
         cmd = ["pkg", "-P", "-S"]
         opts, other = parser.parse_known_args(cmd)
@@ -221,7 +217,6 @@ class TestPkg(object):
         subparser = make_subparser(parser)
         add_package_parser(subparser)
 
-        pyu.update_config(pyu.config)
         pyu.setup()
         cmd = ["pkg"]
 
