@@ -150,3 +150,50 @@ class TestPatcher(object):
         )
         p = Patcher(**kwargs)
         assert p._get_required_patches() == expected
+
+    def test__get_patch_info(self, version_manifest):
+        kwargs = {
+            "name": "Acme",
+            "current_version": PyuVersion("1.0"),
+            "latest_version": PyuVersion("1.2a0"),
+            "version_data": version_manifest,
+        }
+        p = Patcher(**kwargs)
+        assert p._get_patch_info() is True
+
+    def test__get_patch_info_no_versions(self, version_manifest):
+        version_manifest[settings.UPDATES_KEY]["Acme"] = {}
+        kwargs = {
+            "name": "Acme",
+            "current_version": PyuVersion("1.0"),
+            "latest_version": PyuVersion("1.2a0"),
+            "version_data": version_manifest,
+        }
+        p = Patcher(**kwargs)
+        assert p._get_patch_info() is False
+
+    def test__get_patch_info_missing_patch(self, version_manifest):
+        for key in ["patch_hash", "patch_name", "patch_size"]:
+            version_manifest[settings.UPDATES_KEY]["Acme"]["1.1.0.1.0"]["win"].pop(key)
+        kwargs = {
+            "name": "Acme",
+            "current_version": PyuVersion("1.0"),
+            "latest_version": PyuVersion("1.2a0"),
+            "version_data": version_manifest,
+        }
+        p = Patcher(**kwargs)
+        assert p._get_patch_info() is False
+
+    @pytest.mark.parametrize("key", ["patch_size", "file_size"])
+    def test__get_patch_info_fall_back(self, version_manifest, key):
+        version_manifest[settings.UPDATES_KEY]["Acme"]["1.2.0.0.0"]["win"][key] = None
+        kwargs = {
+            "name": "Acme",
+            "current_version": PyuVersion("1.0"),
+            "latest_version": PyuVersion("1.2a0"),
+            "version_data": version_manifest,
+        }
+        p = Patcher(**kwargs)
+        # should return False, as there are more than 4 required patches
+        assert len(p._get_required_patches()) > 4
+        assert p._get_patch_info() is False
