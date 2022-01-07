@@ -323,7 +323,6 @@ class Client(object):
             "version_data": self.version_data,
             "data_dir": self.data_dir,
             "platform": self.platform,
-            "channel": channel,
             "app_name": self.app_name,
             "verify": self.verify,
             "max_download_retries": self.max_download_retries,

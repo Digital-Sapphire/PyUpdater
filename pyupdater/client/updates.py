@@ -320,9 +320,6 @@ class LibUpdate(object):
         # The platform we are targeting
         self.platform = data.get("platform")
 
-        # The channel we are targeting
-        self.channel = data.get("channel", "stable")
-
         # Progress callbacks
         self.progress_hooks = data.get("progress_hooks")
 

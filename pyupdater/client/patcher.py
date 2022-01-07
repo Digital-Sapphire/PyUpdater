@@ -76,7 +76,6 @@ class Patcher(object):
 
     def __init__(self, **kwargs):
         self.name = kwargs.get("name")
-        self.channel = kwargs.get("channel")
         self.version_data = kwargs.get("version_data")
         self.easy_version_data = EasyAccessDict(self.version_data)
         self.current_version = kwargs.get("current_version")
