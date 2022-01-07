@@ -39,7 +39,6 @@ CONFIG_FILE_USER = "config.pyu"
 CONFIG_DB_KEY_APP_CONFIG = "app_config"
 CONFIG_DB_KEY_KEYPACK = "keypack"
 CONFIG_DB_KEY_VERSION_META = "version_meta"
-CONFIG_DB_KEY_PY_REPO_CONFIG = "py_repo_config"  # only used for backward compatibility
 
 DEFAULT_CLIENT_CONFIG = ["client_config.py"]
 
@@ -57,7 +56,6 @@ USER_DATA_FOLDER = "pyu-data"
 
 # Key in version file where value are update meta data
 UPDATES_KEY = "updates"
-LATEST_KEY = "latest"
 
 # Folder on client system where updates are stored
 UPDATE_FOLDER = "update"
@@ -78,3 +76,8 @@ VALID_CHANNELS = ["alpha", "beta", "stable"]
 
 # File extensions (suffix, in pathlib terminology)
 PATCH_SUFFIX = ".patch"
+
+# DEPRECATED: only to be used for backward compatibility (if necessary)
+# todo: create command line tools that creates legacy versions.gz for backward compatibility
+LATEST_KEY = "latest"
+CONFIG_DB_KEY_PY_REPO_CONFIG = "py_repo_config"

@@ -66,7 +66,6 @@ class TestPackageHandler(object):
         deploy_archive_path = pathlib.Path(p.deploy_dir) / new_archive_name
         assert deploy_archive_path.exists()
         assert new_archive_name in str(p.version_data[settings.UPDATES_KEY])
-        assert new_archive_version in str(p.version_data[settings.LATEST_KEY])
 
 
 @pytest.mark.usefixtures("cleandir")

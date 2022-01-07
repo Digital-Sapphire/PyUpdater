@@ -170,7 +170,9 @@ class PackageHandler(object):
                 new_pkg.file_hash = gph(new_pkg.filename)
                 new_pkg.file_size = in_bytes(new_pkg.filename)
 
-                PackageHandler._update_file_list(self.version_data, new_pkg)
+                # Add app name key to version_data if missing
+                if new_pkg.name not in self.version_data[settings.UPDATES_KEY]:
+                    self.version_data[settings.UPDATES_KEY][new_pkg.name] = {}
 
                 package_manifest.append(new_pkg)
 
@@ -247,27 +249,6 @@ class PackageHandler(object):
                 log.debug("No patches found: %s", patches)
 
     @staticmethod
-    def _update_file_list(version_data, package_info):
-        files = version_data[settings.UPDATES_KEY]
-        latest = version_data.get(settings.LATEST_KEY)
-        if latest is None:
-            version_data[settings.LATEST_KEY] = {}
-        filename = files.get(package_info.name)
-        if filename is None:
-            log.debug("Adding %s to file list", package_info.name)
-            version_data[settings.UPDATES_KEY][package_info.name] = {}
-
-        latest_package = version_data[settings.LATEST_KEY].get(package_info.name)
-        if latest_package is None:
-            version_data[settings.LATEST_KEY][package_info.name] = {}
-
-        latest_package = version_data[settings.LATEST_KEY][package_info.name]
-        latest_channel = latest_package.get(package_info.channel)
-        if latest_channel is None:
-            version_data[settings.LATEST_KEY][package_info.name][package_info.channel] = {}
-        return version_data
-
-    @staticmethod
     def _manifest_to_version_file_compat(package_info):
         # Converting info to version file format
         info = {
@@ -319,8 +300,6 @@ class PackageHandler(object):
                 _updates = version_data[settings.UPDATES_KEY]
                 _updates[p.name][version_key][p.platform] = info
 
-            # Add each package to latest section separated by release channel
-            version_data[settings.LATEST_KEY][p.name][p.channel][p.platform] = version_key
         return version_data
 
     def _write_version_meta_to_file(self, version_data):
