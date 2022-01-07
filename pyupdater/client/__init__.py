@@ -86,7 +86,7 @@ class Client(object):
 
     ######Args:
 
-    obj (instance): config object
+    client_config (ClientConfig): client config object
 
     ######Kwargs:
 
@@ -101,13 +101,11 @@ class Client(object):
 
     strategy (str): The update strategy to use (default: overwrite).  See the UpdateStrategy enum for options.
 
-    test (bool): Used to initialize a test client
-
     """
 
-    def __init__(self, obj, **kwargs):
-        if obj is None:
-            obj = DefaultClientConfig()
+    def __init__(self, client_config, **kwargs):
+        if client_config is None:
+            client_config = DefaultClientConfig()
 
         refresh = kwargs.get("refresh", False)
         progress_hooks = kwargs.get("progress_hooks")
@@ -146,7 +144,7 @@ class Client(object):
 
         # A super dict used to save config info & be dot accessed
         config = _Config()
-        config.from_object(obj)
+        config.from_object(client_config)
 
         # Boolean: If executing frozen
         self.FROZEN = FROZEN
@@ -166,7 +164,7 @@ class Client(object):
         # Used in testing to force use of the mac archive
         if test:
             # Making platform deterministic for tests.
-            self.data_dir = obj.DATA_DIR
+            self.data_dir = client_config.DATA_DIR
             self.platform = "mac"
         else:  # pragma: no cover
             if data_dir is None:
