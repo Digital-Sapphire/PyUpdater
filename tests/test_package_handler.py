@@ -135,43 +135,35 @@ class TestPackage(object):
 
 @pytest.mark.usefixtures("cleandir")
 class TestPatch(object):
-    new_dir = "pyu-data/new"
-    files_dir = "pyu-data/files"
+    files = [
+        ("pyu-data/files", "Acme-mac-4.1.tar.gz"),
+        ("pyu-data/new", "Acme-mac-4.2.tar.gz"),
+    ]
 
     @pytest.fixture
     def patch_setup(self):
-        os.makedirs(self.new_dir)
-        os.makedirs(self.files_dir)
-
-        with open(os.path.join(self.new_dir, "Acme-mac-4.2.tar.gz"), "w") as f:
-            f.write("v2")
-
-        with open(os.path.join(self.files_dir, "Acme-mac-4.1.tar.gz"), "w") as f:
-            f.write("v1")
+        for folder, filename in self.files:
+            os.makedirs(folder)
+            with open(os.path.join(folder, filename), "w") as f:
+                f.write(filename)
 
     def test_patch(self, patch_setup):
-        filename = "Acme-mac-4.2.tar.gz"
+        files_dir, existing_file = self.files[0]
+        new_dir, new_file = self.files[1]
+        with ChDir(new_dir):
+            new_full_path = os.path.abspath(new_file)
+            pkg = Package(new_full_path)
 
-        with ChDir(self.new_dir):
-            full_path = os.path.abspath(filename)
-            pkg = Package(full_path)
-
-        config = {}
-        version_data = {}
         data = {
-            "filename": full_path,
-            "files_dir": self.files_dir,
-            "new_dir": self.new_dir,
-            "version_data": version_data,
+            "filename": new_full_path,
+            "files_dir": files_dir,
+            "new_dir": new_dir,
+            "version_data": {
+                "updates": {"Acme": {"4.1.0.2.0": {"mac": {"filename": existing_file}}}}
+            },
             "pkg_info": pkg,
-            "config": config,
-            "test": True,
         }
 
         patch = Patch(**data)
-
         assert patch.ok
-        assert config["patches"][pkg.name]
-
-    def test_patch_fail(self):
-        pass
+        assert patch.dst_filename == new_file

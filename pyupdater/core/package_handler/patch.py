@@ -59,7 +59,6 @@ class Patch(object):
         self._files_dir = kwargs.get("files_dir")
         self._new_dir = kwargs.get("new_dir")
         self._version_data = kwargs.get("version_data")
-        self._test = kwargs.get("test")
 
         self.ok = False
         self.src = None
@@ -84,7 +83,6 @@ class Patch(object):
             self.patch_name = os.path.join(self._new_dir, _patch_name)
             self.basename = os.path.basename(self.patch_name)
             self.dst_filename = self._pkg_info.filename
-            self.channel = self._pkg_info.channel
 
     def __str__(self):
         tmpl = "Patch(ok={ok}, patch_name={patch_name}, basename={basename})"
@@ -93,7 +91,10 @@ class Patch(object):
         )
 
     def _check_make_patch(self):
-        """Check to see if previous version is available to make patch updates."""
+        """
+        Check to see if archive file for the current latest version is
+        available, as the basis for patch creation.
+        """
         log.debug("Checking if patch creation is possible")
         if bsdiff4 is None:
             log.warning("Bsdiff is missing. Cannot create patches")
@@ -113,34 +114,31 @@ class Patch(object):
             _name = self._pkg_info.name
             _plat = self._pkg_info.platform
 
-            if not self._test:
-                log.debug("Looking for %s on %s", _name, _plat)
-                latest_version = get_latest_version(
-                    app_name=_name,
-                    platform=_plat,
-                    manifest=self._version_data,
-                    channel=None,  # all channels
-                )
-                if latest_version is None:
-                    log.debug("Cannot find latest version in version meta")
-                    return
-                log.debug(f"Found latest version for patches: {latest_version}")
+            log.debug("Looking for %s on %s", _name, _plat)
+            latest_version = get_latest_version(
+                app_name=_name,
+                platform=_plat,
+                manifest=self._version_data,
+                channel=None,  # all channels
+            )
+            if latest_version is None:
+                log.debug("Cannot find latest version in version meta")
+                return
+            log.debug(f"Found latest version for patches: {latest_version}")
+            try:
+                u_key = settings.UPDATES_KEY
+                version_key = latest_version.pyu_format()
+                latest_platforms = self._version_data[u_key][_name][version_key]
+                log.debug("Found latest platform for patches")
                 try:
-                    u_key = settings.UPDATES_KEY
-                    version_key = latest_version.pyu_format()
-                    latest_platforms = self._version_data[u_key][_name][version_key]
-                    log.debug("Found latest platform for patches")
-                    try:
-                        filename = latest_platforms[_plat]["filename"]
-                        log.debug("Found filename for patches")
-                    except KeyError:
-                        log.error("Could not find filename for patch creation.")
-                        return
-                except Exception as err:
-                    log.debug(err, exc_info=True)
+                    filename = latest_platforms[_plat]["filename"]
+                    log.debug("Found filename for patches")
+                except KeyError:
+                    log.error("Could not find filename for patch creation.")
                     return
-            else:
-                filename = self._filename
+            except Exception as err:
+                log.debug(err, exc_info=True)
+                return
 
             log.debug("Generating src file path")
             self.src = os.path.join(self._files_dir, filename)
