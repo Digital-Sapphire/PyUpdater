@@ -225,7 +225,7 @@ class Client(object):
         self._get_update_manifest()
 
     def update_check(
-        self, name: str, version: str, channel: str = "stable", strict: bool = True
+        self, name: str, version: str, channel: str = "stable"
     ) -> Union[LibUpdate, AppUpdate, None]:
         """Checks for available updates
 
@@ -235,11 +235,7 @@ class Client(object):
 
         version (str): Current version number of file to update
 
-        channel (str): Release channel
-
-        strict (bool):
-            True - Only look for updates on specified channel.
-            False - Look for updates on all channels
+        channel (str, None): Release channel (use None to check all channels)
 
         ######Returns:
 
@@ -254,7 +250,7 @@ class Client(object):
         # Convert version string to Version object (only use version strings
         # for input and output, use Version objects internally).
         current_version = PyuVersion(version)
-        return self._update_check(name, current_version, channel, strict)
+        return self._update_check(name, current_version, channel)
 
     def _gen_file_downloader_options(self):
         return {
@@ -265,7 +261,7 @@ class Client(object):
             "verify": self.verify,
         }
 
-    def _update_check(self, name, current_version, channel, strict):
+    def _update_check(self, name, current_version, channel):
         if channel not in settings.VALID_CHANNELS:
             log.debug("Invalid channel. May need to check spelling")
             channel = "stable"
@@ -298,7 +294,10 @@ class Client(object):
 
         log.debug("Checking for %s updates...", name)
         latest_version = get_latest_version(
-            name, self.platform, channel, self.version_data, strict
+            app_name=name,
+            platform=self.platform,
+            manifest=self.version_data,
+            channel=channel,
         )
         if latest_version is None:
             # If None is returned get_latest_version could
@@ -316,7 +315,6 @@ class Client(object):
 
         # Config data to initialize update object
         data = {
-            "strict": strict,
             "update_urls": self.update_urls,
             "name": self.name,
             "current_version": self.current_version,

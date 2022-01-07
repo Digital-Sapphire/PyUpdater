@@ -553,7 +553,7 @@ class PyuVersion(packaging.version.Version):
 
 
 def get_latest_version(
-    name: str, platform: str, channel: str, manifest: dict, strict: bool
+    app_name: str, platform: str, manifest: dict, channel: Optional[str] = None
 ) -> Optional[PyuVersion]:
     """
     Returns the latest version from the version manifest, for the specified
@@ -561,15 +561,13 @@ def get_latest_version(
 
     Args:
 
-         name (str): app name
+         app_name (str): app name
 
          platform (str): the platform we are requesting for
 
-         channel (str): the release channel
-
          manifest (dict): version manifest
 
-         strict (bool): whether or not to take the channel into consideration
+         channel (str, None): the release channel
 
     Returns:
 
@@ -578,13 +576,13 @@ def get_latest_version(
     # obtain all versions from the "updates" object (disregard "latest" object)
     all_versions = [
         PyuVersion(key)
-        for key, value in manifest[settings.UPDATES_KEY][name].items()
+        for key, value in manifest[settings.UPDATES_KEY][app_name].items()
         if platform in value.keys()
     ]
 
     # collect eligible versions
     eligible_versions = all_versions
-    if strict:
+    if channel is not None:
         # by default, only include final releases (a.k.a. "stable")
         eligible_versions = [v for v in all_versions if not v.is_prerelease]
 

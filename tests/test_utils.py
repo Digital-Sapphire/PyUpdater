@@ -224,26 +224,26 @@ class TestPyuVersion(object):
 
 
 class TestGetLatestVersion(object):
+    @pytest.fixture
+    def kwargs(self, version_manifest):
+        return dict(
+            app_name="Acme", platform="win", manifest=version_manifest, channel="stable"
+        )
+
     @pytest.mark.parametrize(
         ["channel", "expected"],
-        [("alpha", "1.2a0"), ("beta", "1.1"), ("stable", "1.1")]
+        [(None, "1.2a0"), ("alpha", "1.2a0"), ("beta", "1.1"), ("stable", "1.1")],
     )
-    def test_channel(self, version_manifest, channel, expected):
-        args = ("Acme", "win", channel, version_manifest)
-        assert get_latest_version(*args, strict=True) == PyuVersion(expected)
+    def test_channels(self, kwargs, channel, expected):
+        kwargs["channel"] = channel
+        assert get_latest_version(**kwargs) == PyuVersion(expected)
 
-    def test_no_eligible_versions(self, version_manifest):
-        # remove all final releases from the manifest
-        version_manifest["updates"]["Acme"].pop("1.0.0.2.0")
-        version_manifest["updates"]["Acme"].pop("1.1.0.2.0")
-        # check only stable versions
-        args = ("Acme", "win", "stable", version_manifest)
-        assert get_latest_version(*args, strict=True) is None
+    def test_no_eligible_versions(self, kwargs):
+        # remove all final releases from the manifest (and check stable versions)
+        kwargs["manifest"]["updates"]["Acme"].pop("1.0.0.2.0")
+        kwargs["manifest"]["updates"]["Acme"].pop("1.1.0.2.0")
+        assert get_latest_version(**kwargs) is None
 
-    def test_platform_not_available(self, version_manifest):
-        args = ("Acme", "mac", "stable", version_manifest)
-        assert get_latest_version(*args, strict=True) is None
-
-    def test_not_strict(self, version_manifest):
-        args = ("Acme", "win", "stable", version_manifest)
-        assert get_latest_version(*args, strict=False) == PyuVersion("1.2a0")
+    def test_platform_not_available(self, kwargs):
+        kwargs["platform"] = "max"
+        assert get_latest_version(**kwargs) is None

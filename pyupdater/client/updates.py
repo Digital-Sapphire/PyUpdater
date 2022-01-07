@@ -323,9 +323,6 @@ class LibUpdate(object):
         # The channel we are targeting
         self.channel = data.get("channel", "stable")
 
-        # How strict to treat the channel requirement
-        self.strict = data.get("strict")
-
         # Progress callbacks
         self.progress_hooks = data.get("progress_hooks")
 
