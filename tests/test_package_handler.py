@@ -149,7 +149,7 @@ class TestPatch(object):
         new_dir, new_file = self.files[1]
         with ChDir(new_dir):
             new_full_path = os.path.abspath(new_file)
-            pkg = Package(new_full_path)
+            new_pkg = Package(new_full_path)
 
         data = {
             "filename": new_full_path,
@@ -158,7 +158,7 @@ class TestPatch(object):
             "version_data": {
                 "updates": {"Acme": {"4.1.0.2.0": {"mac": {"filename": existing_file}}}}
             },
-            "pkg_info": pkg,
+            "new_pkg": new_pkg,
         }
 
         patch = Patch(**data)

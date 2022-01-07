@@ -54,7 +54,7 @@ def make_patch(patch):
 
 class Patch(object):
     def __init__(self, **kwargs):
-        self._pkg_info = kwargs.get("pkg_info")
+        self._new_pkg = kwargs.get("new_pkg")
         self._filename = kwargs.get("filename")
         self._files_dir = kwargs.get("files_dir")
         self._new_dir = kwargs.get("new_dir")
@@ -75,14 +75,14 @@ class Patch(object):
             # Patch filename should match archive filename, except for suffix
             # todo: use Path().with_suffix() when pathlib becomes available
             _patch_name = "{}-{}-{}{}".format(
-                self._pkg_info.name,
-                self._pkg_info.platform,
-                self._pkg_info.version,
+                self._new_pkg.name,
+                self._new_pkg.platform,
+                self._new_pkg.version,
                 settings.PATCH_SUFFIX,
             )
             self.patch_name = os.path.join(self._new_dir, _patch_name)
             self.basename = os.path.basename(self.patch_name)
-            self.dst_filename = self._pkg_info.filename
+            self.dst_filename = self._new_pkg.filename
 
     def __str__(self):
         tmpl = "Patch(ok={ok}, patch_name={patch_name}, basename={basename})"
@@ -111,8 +111,8 @@ class Patch(object):
                 log.debug("No src file to patch from")
                 return
 
-            _name = self._pkg_info.name
-            _plat = self._pkg_info.platform
+            _name = self._new_pkg.name
+            _plat = self._new_pkg.platform
 
             log.debug("Looking for %s on %s", _name, _plat)
             latest_version = get_latest_version(

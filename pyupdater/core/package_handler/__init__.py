@@ -182,7 +182,7 @@ class PackageHandler(object):
                         "files_dir": self.files_dir,
                         "new_dir": self.new_dir,
                         "version_data": self.version_data,
-                        "pkg_info": new_pkg,
+                        "new_pkg": new_pkg,
                     }
                     _patch = Patch(**data)
 
