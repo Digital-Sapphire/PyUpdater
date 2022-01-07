@@ -37,7 +37,7 @@ from dsdev_utils.paths import ChDir, remove_any
 import pytest
 
 from pyupdater import settings
-from pyupdater.client import Client, get_latest_version
+from pyupdater.client import Client
 from pyupdater.client.updates import LibUpdate
 from pyupdater.utils import PyuVersion
 from tconfig import TConfig
@@ -217,33 +217,6 @@ class TestExtract(object):
                 remove_any(f)
         if get_system() != "win":
             assert update.extract() is False
-
-
-class TestGetLatestVersion(object):
-    @pytest.mark.parametrize(
-        ["channel", "expected"],
-        [("alpha", "1.2a0"), ("beta", "1.1"), ("stable", "1.1")]
-    )
-    def test_channel(self, version_manifest, channel, expected):
-        args = ("Acme", "win", channel, version_manifest)
-        assert get_latest_version(*args, strict=True) == PyuVersion(expected)
-
-    def test_no_eligible_versions(self, version_manifest):
-        # remove all final releases from the manifest
-        version_manifest["updates"]["Acme"].pop("1.0.0.2.0")
-        version_manifest["updates"]["Acme"].pop("1.1.0.2.0")
-        # check only stable versions
-        args = ("Acme", "win", "stable", version_manifest)
-        assert get_latest_version(*args, strict=True) is None
-
-    def test_platform_not_available(self, version_manifest):
-        args = ("Acme", "mac", "stable", version_manifest)
-        assert get_latest_version(*args, strict=True) is None
-
-    def test_not_strict(self, version_manifest):
-        # todo: remove this when the strict argument is removed
-        args = ("Acme", "win", "stable", version_manifest)
-        assert get_latest_version(*args, strict=False) == PyuVersion("1.2a0")
 
 
 @pytest.mark.usefixtures("cleandir")
