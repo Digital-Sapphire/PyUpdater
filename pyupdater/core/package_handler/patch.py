@@ -59,11 +59,9 @@ class Patch(object):
         self._files_dir = kwargs.get("files_dir")
         self._new_dir = kwargs.get("new_dir")
         self._version_data = kwargs.get("version_data")
-        self._config = kwargs.get("config")
-        self._test = kwargs.get("test", False)
+        self._test = kwargs.get("test")
 
         self.ok = False
-        self.patch_num = None
         self.src = None
         self.dst = None
         self.patch_name = None
@@ -75,11 +73,13 @@ class Patch(object):
 
         if self.ok:
             self.dst = os.path.abspath(self._filename)
-            _patch_name = "{}-{}-{}-{}".format(
+            # Patch filename should match archive filename, except for suffix
+            # todo: use Path().with_suffix() when pathlib becomes available
+            _patch_name = "{}-{}-{}{}".format(
                 self._pkg_info.name,
                 self._pkg_info.platform,
-                self._pkg_info.channel,
-                self.patch_num,
+                self._pkg_info.version,
+                settings.PATCH_SUFFIX,
             )
             self.patch_name = os.path.join(self._new_dir, _patch_name)
             self.basename = os.path.basename(self.patch_name)
@@ -94,7 +94,7 @@ class Patch(object):
 
     def _check_make_patch(self):
         # Check to see if previous version is available to
-        # make patch updates. Also calculates patch number
+        # make patch updates.
         if self._version_data.get(settings.LATEST_KEY) is not None:
             log.debug(json.dumps(self._version_data[settings.LATEST_KEY], indent=2))
         log.debug("Checking if patch creation is possible")
@@ -116,7 +116,7 @@ class Patch(object):
             _name = self._pkg_info.name
             _plat = self._pkg_info.platform
             _channel = self._pkg_info.channel
-            if self._test is False:
+            if not self._test:
                 # If latest not available in version file. Exit
                 try:
                     log.debug("Looking for %s on %s", _name, _plat)
@@ -152,20 +152,4 @@ class Patch(object):
                 log.warning("Source path does not exist: %s", filename)
                 return
 
-            try:
-                patch_num = self._config["patches"][_name]
-                log.debug("Found patch number")
-                self._config["patches"][_name] += 1
-            except KeyError:
-                log.debug("Cannot find patch number")
-                # If no patch number we will start at 1
-                patch_num = 1
-                if "patches" not in self._config.keys():
-                    log.debug("Adding patches to version meta")
-                    self._config["patches"] = {}
-                if _name not in self._config["patches"].keys():
-                    log.debug("Adding %s to patches version meta", _name)
-                    self._config["patches"][_name] = patch_num + 1
-            self.patch_num = patch_num + 1
-            log.debug("Patch Number: %s", self.patch_num)
             self.ok = True

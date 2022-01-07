@@ -75,3 +75,6 @@ KEY_FILE_FILENAME = "keys.gz"
 # https://github.com/Digital-Sapphire/PyUpdater/blob/4.0/pyupdater/client/updates.py#L198
 # https://github.com/Digital-Sapphire/PyUpdater/blob/4.0/pyupdater/core/package_handler/package.py#L188
 VALID_CHANNELS = ["alpha", "beta", "stable"]
+
+# File extensions (suffix, in pathlib terminology)
+PATCH_SUFFIX = ".patch"
