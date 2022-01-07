@@ -58,7 +58,7 @@ class TestUtils(object):
         assert os.path.exists(filename2)
 
     def test_make_archive_issue_304(self):
-        platform_map = dict(linux="nix", darwin="max", windows="win")
+        platform_map = dict(linux="nix", darwin="mac", windows="win")
         target = platform_map.get(platform.system().lower())
         # create dir and dummy executable
         target_dir = pathlib.Path(target)

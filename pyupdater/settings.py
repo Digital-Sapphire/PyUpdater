@@ -39,7 +39,7 @@ CONFIG_FILE_USER = "config.pyu"
 CONFIG_DB_KEY_APP_CONFIG = "app_config"
 CONFIG_DB_KEY_KEYPACK = "keypack"
 CONFIG_DB_KEY_VERSION_META = "version_meta"
-CONFIG_DB_KEY_PY_REPO_CONFIG = "py_repo_config"
+CONFIG_DB_KEY_PY_REPO_CONFIG = "py_repo_config"  # only used for backward compatibility
 
 DEFAULT_CLIENT_CONFIG = ["client_config.py"]
 

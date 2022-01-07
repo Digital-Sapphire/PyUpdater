@@ -57,14 +57,8 @@ class PackageHandler(object):
             patch_support = False
         self.patch_support = patch_support
 
-        # Configuration data
-        self.config = None
-
-        # Version manifest file
+        # Version manifest
         self.version_data = None
-
-        # Specifies if the config file needs to be loaded
-        self.config_loaded = False
 
         # Used to store config information
         self.db = Storage()
@@ -81,14 +75,11 @@ class PackageHandler(object):
     def setup(self):
         """Creates working directories & loads json files."""
         if self.data_dir is not None:
-            self._setup()
-
-    def _setup(self):
-        self._setup_work_dirs()
-        if self.config_loaded is False:
+            # TODO: create all directories and files as part of the cli init
+            #  command, do *not* create them automatically when instantiating
+            #  a PackageHandler
+            self._setup_work_dirs()
             self.version_data = self._load_version_data()
-            self.config = self._load_config()
-            self.config_loaded = True
 
     def process_packages(self, report_errors=False):
         """Gets a list of updates to process.  Adds the name of an
@@ -114,11 +105,9 @@ class PackageHandler(object):
         PackageHandler._update_version_meta(self.version_data, pkg_manifest)
 
         self._write_version_meta_to_file(self.version_data)
-        self._write_config_to_file(self.config)
         self._move_packages(pkg_manifest)
 
     def _setup_work_dirs(self):
-        # TODO: create all directories and files as part of the cli init command, *not* here.
         # Sets up work dirs on dev machine.  Creates the following folder
         #    - Data dir
         # Then inside the data folder it creates 3 more folders
@@ -149,15 +138,6 @@ class PackageHandler(object):
             version_data = {settings.UPDATES_KEY: {}}
             log.debug("Created new version file")
         return version_data
-
-    def _load_config(self):
-        # Loads config from db if exists.
-        # If config doesn't exists create new one
-        config = self.db.load(settings.CONFIG_DB_KEY_PY_REPO_CONFIG)
-        if config is None:  # pragma: no cover
-            log.debug("Creating new config file")
-            config = {"patches": {}}
-        return config
 
     def _get_package_list(self, report_errors):
         # Adds compatible packages to internal package manifest
@@ -201,7 +181,6 @@ class PackageHandler(object):
                         "new_dir": self.new_dir,
                         "version_data": self.version_data,
                         "pkg_info": new_pkg,
-                        "config": self.config,
                     }
                     _patch = Patch(**data)
 
@@ -348,10 +327,6 @@ class PackageHandler(object):
         # Writes json data to disk
         log.debug("Saving version meta-data")
         self.db.save(settings.CONFIG_DB_KEY_VERSION_META, version_data)
-
-    def _write_config_to_file(self, config_data):
-        log.debug("Saving config data")
-        self.db.save(settings.CONFIG_DB_KEY_PY_REPO_CONFIG, config_data)
 
     def _move_packages(self, package_manifest):
         if len(package_manifest) < 1:
