@@ -34,7 +34,7 @@ except ImportError:  # pragma: no cover
 from dsdev_utils.paths import ChDir
 
 from pyupdater import settings
-from pyupdater.utils import remove_dot_files
+from pyupdater.utils import remove_dot_files, get_latest_version
 
 
 log = logging.getLogger(__name__)
@@ -93,10 +93,7 @@ class Patch(object):
         )
 
     def _check_make_patch(self):
-        # Check to see if previous version is available to
-        # make patch updates.
-        if self._version_data.get(settings.LATEST_KEY) is not None:
-            log.debug(json.dumps(self._version_data[settings.LATEST_KEY], indent=2))
+        """Check to see if previous version is available to make patch updates."""
         log.debug("Checking if patch creation is possible")
         if bsdiff4 is None:
             log.warning("Bsdiff is missing. Cannot create patches")
@@ -117,27 +114,27 @@ class Patch(object):
             _plat = self._pkg_info.platform
             _channel = self._pkg_info.channel
             if not self._test:
-                # If latest not available in version file. Exit
-                try:
-                    log.debug("Looking for %s on %s", _name, _plat)
-                    latest = self._version_data[settings.LATEST_KEY][_name][_channel][_plat]
-                    log.debug("Found latest version for patches: %s", latest)
-                except KeyError:
+                log.debug("Looking for %s on %s", _name, _plat)
+                latest_version = get_latest_version(
+                    app_name=_name,
+                    platform=_plat,
+                    manifest=self._version_data,
+                    channel=None,  # all channels
+                )
+                if latest_version is None:
                     log.debug("Cannot find latest version in version meta")
                     return
+                log.debug(f"Found latest version for patches: {latest_version}")
                 try:
                     u_key = settings.UPDATES_KEY
-                    latest_platform = self._version_data[u_key][_name][latest]
+                    version_key = latest_version.pyu_format()
+                    latest_platforms = self._version_data[u_key][_name][version_key]
                     log.debug("Found latest platform for patches")
                     try:
-                        filename = latest_platform[_plat]["filename"]
+                        filename = latest_platforms[_plat]["filename"]
                         log.debug("Found filename for patches")
                     except KeyError:
-                        log.error(
-                            "Found old version file. Please read "
-                            "the upgrade section in the docs."
-                        )
-                        log.debug("Found old verison file")
+                        log.error("Could not find filename for patch creation.")
                         return
                 except Exception as err:
                     log.debug(err, exc_info=True)
