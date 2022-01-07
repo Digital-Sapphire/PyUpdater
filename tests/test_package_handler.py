@@ -36,24 +36,19 @@ from pyupdater.core.package_handler import PackageHandler
 from pyupdater.core.package_handler.package import Package
 from pyupdater.core.package_handler.patch import Patch
 
-user_data_dir = settings.USER_DATA_FOLDER
 
-
-@pytest.mark.usefixtures("cleandir", "pyu")
-class TestUtils(object):
+@pytest.mark.usefixtures("cleandir")
+class TestPackageHandler(object):
     def test_init(self):
         p = PackageHandler(patch_support=True)
-        data_dir = os.getcwd()
-        assert p.files_dir == os.path.join(data_dir, user_data_dir, "files")
-        assert p.deploy_dir == os.path.join(data_dir, user_data_dir, "deploy")
+        data_dir = pathlib.Path.cwd() / settings.USER_DATA_FOLDER
+        assert p.files_dir == str(data_dir / "files")
+        assert p.deploy_dir == str(data_dir / "deploy")
 
     def test_no_patch_support(self):
         p = PackageHandler(patch_support=False)
         p.process_packages()
 
-
-@pytest.mark.usefixtures("cleandir", "pyu")
-class TestExecution(object):
     def test_process_packages_empty(self):
         p = PackageHandler(patch_support=False)
         p.process_packages()
@@ -129,7 +124,7 @@ class TestPackage(object):
     def test_package_only_major_version(self, shared_datadir):
         filename = "pyu-win-1.tar.gz"
         p = Package(shared_datadir / filename)
-        assert p.info["reason"] == ''
+        assert p.info["reason"] == ""
 
     def test_package_bad_platform(self, shared_datadir):
         filename = "pyu-wi-1.1.tar.gz"
