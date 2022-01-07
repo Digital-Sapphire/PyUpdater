@@ -46,7 +46,7 @@ from pyupdater.client.updates import (
     LibUpdate,
     UpdateStrategy,
 )
-from pyupdater.utils import PyuVersion
+from pyupdater.utils import PyuVersion, get_latest_version
 from pyupdater.utils.config import Config as _Config
 from pyupdater.utils.encoding import UnpaddedBase64Encoder
 from pyupdater.utils.exceptions import ClientError
@@ -78,57 +78,6 @@ def decompress(compressed_data):
 # Mostly used for testing purposes
 class DefaultClientConfig(object):
     DATA_DIR = tempfile.gettempdir()
-
-
-def get_latest_version(
-    name: str, platform: str, channel: str, manifest: dict, strict: bool
-) -> Optional[PyuVersion]:
-    """
-    Returns the latest version from the version manifest, for the specified
-    release channel.
-
-    Args:
-
-         name (str): app name
-
-         platform (str): the platform we are requesting for
-
-         channel (str): the release channel
-
-         manifest (dict): version manifest
-
-         strict (bool): whether or not to take the channel into consideration
-
-    Returns:
-
-        latest_version (Version)
-    """
-    # obtain all versions from the "updates" object (disregard "latest" object)
-    all_versions = [
-        PyuVersion(key)
-        for key, value in manifest[settings.UPDATES_KEY][name].items()
-        if platform in value.keys()
-    ]
-
-    # collect eligible versions
-    # todo: remove the strict argument? (always be strict)
-    eligible_versions = all_versions
-    if strict:
-        # by default, only include final releases (a.k.a. "stable")
-        eligible_versions = [v for v in all_versions if not v.is_prerelease]
-
-        # add pre-releases if requested
-        included = {"stable": [], "beta": ["b"], "alpha": ["b", "a"]}[channel]
-        eligible_versions.extend(
-            v for v in all_versions if v.is_prerelease and v.pre[0] in included
-        )
-
-    # get latest version from eligible versions
-    latest_version = None
-    if eligible_versions:
-        latest_version = max(eligible_versions)
-    log.debug(f"Latest version: {latest_version or 'not found'}")
-    return latest_version
 
 
 class Client(object):

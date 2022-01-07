@@ -39,6 +39,7 @@ from pyupdater.utils import (
     remove_dot_files,
     run,
     PyuVersion,
+    get_latest_version,
 )
 
 
@@ -220,3 +221,29 @@ class TestPyuVersion(object):
     )
     def test_pyu_format(self, pep440_version, expected):
         assert PyuVersion(pep440_version).pyu_format() == expected
+
+
+class TestGetLatestVersion(object):
+    @pytest.mark.parametrize(
+        ["channel", "expected"],
+        [("alpha", "1.2a0"), ("beta", "1.1"), ("stable", "1.1")]
+    )
+    def test_channel(self, version_manifest, channel, expected):
+        args = ("Acme", "win", channel, version_manifest)
+        assert get_latest_version(*args, strict=True) == PyuVersion(expected)
+
+    def test_no_eligible_versions(self, version_manifest):
+        # remove all final releases from the manifest
+        version_manifest["updates"]["Acme"].pop("1.0.0.2.0")
+        version_manifest["updates"]["Acme"].pop("1.1.0.2.0")
+        # check only stable versions
+        args = ("Acme", "win", "stable", version_manifest)
+        assert get_latest_version(*args, strict=True) is None
+
+    def test_platform_not_available(self, version_manifest):
+        args = ("Acme", "mac", "stable", version_manifest)
+        assert get_latest_version(*args, strict=True) is None
+
+    def test_not_strict(self, version_manifest):
+        args = ("Acme", "win", "stable", version_manifest)
+        assert get_latest_version(*args, strict=False) == PyuVersion("1.2a0")

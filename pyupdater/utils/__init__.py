@@ -550,3 +550,53 @@ class PyuVersion(packaging.version.Version):
         if self.is_prerelease:
             channel = (self.pyu_channels.index(self.pre[0]), self.pre[1])
         return ".".join(str(value) for value in release + channel)
+
+
+def get_latest_version(
+    name: str, platform: str, channel: str, manifest: dict, strict: bool
+) -> Optional[PyuVersion]:
+    """
+    Returns the latest version from the version manifest, for the specified
+    release channel.
+
+    Args:
+
+         name (str): app name
+
+         platform (str): the platform we are requesting for
+
+         channel (str): the release channel
+
+         manifest (dict): version manifest
+
+         strict (bool): whether or not to take the channel into consideration
+
+    Returns:
+
+        latest_version (Version)
+    """
+    # obtain all versions from the "updates" object (disregard "latest" object)
+    all_versions = [
+        PyuVersion(key)
+        for key, value in manifest[settings.UPDATES_KEY][name].items()
+        if platform in value.keys()
+    ]
+
+    # collect eligible versions
+    eligible_versions = all_versions
+    if strict:
+        # by default, only include final releases (a.k.a. "stable")
+        eligible_versions = [v for v in all_versions if not v.is_prerelease]
+
+        # add pre-releases if requested
+        included = {"stable": [], "beta": ["b"], "alpha": ["b", "a"]}[channel]
+        eligible_versions.extend(
+            v for v in all_versions if v.is_prerelease and v.pre[0] in included
+        )
+
+    # get latest version from eligible versions
+    latest_version = None
+    if eligible_versions:
+        latest_version = max(eligible_versions)
+    log.debug(f"Latest version: {latest_version or 'not found'}")
+    return latest_version
