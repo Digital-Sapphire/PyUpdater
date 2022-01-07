@@ -112,7 +112,7 @@ class Patch(object):
 
             _name = self._pkg_info.name
             _plat = self._pkg_info.platform
-            _channel = self._pkg_info.channel
+
             if not self._test:
                 log.debug("Looking for %s on %s", _name, _plat)
                 latest_version = get_latest_version(
