@@ -35,6 +35,7 @@ from pyupdater import settings
 from pyupdater.core.package_handler import PackageHandler
 from pyupdater.core.package_handler.package import Package
 from pyupdater.core.package_handler.patch import Patch
+from pyupdater.utils import PyuVersion
 
 
 @pytest.mark.usefixtures("cleandir")
@@ -75,10 +76,9 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "Acme"
-        assert str(p1.version) == "4.1"
+        assert p1.version == PyuVersion("4.1")
         assert p1.filename == test_file
         assert p1.platform == "mac"
-        assert p1.channel == "stable"
         assert p1.info["status"] is True
 
     def test_package_name_with_spaces(self, shared_datadir):
@@ -86,10 +86,9 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "with spaces"
-        assert str(p1.version) == "0.0.1b1"
+        assert p1.version == PyuVersion("0.0.1b1")
         assert p1.filename == test_file
         assert p1.platform == "nix"
-        assert p1.channel == "beta"
         assert p1.info["status"] is True
 
     def test_package_alpha(self, shared_datadir):
@@ -97,10 +96,9 @@ class TestPackage(object):
         p1 = Package(shared_datadir / test_file)
 
         assert p1.name == "with spaces"
-        assert str(p1.version) == "0.0.1a2"
+        assert p1.version == PyuVersion("0.0.1a2")
         assert p1.filename == test_file
         assert p1.platform == "win"
-        assert p1.channel == "alpha"
         assert p1.info["status"] is True
 
     def test_package_ignored_file(self):

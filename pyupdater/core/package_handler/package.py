@@ -84,9 +84,6 @@ def remove_previous_versions(directory, filename):
                 log.debug("File does not match name of current binary")
                 continue
 
-            if package_info.channel != temp_pkg.channel:
-                continue
-
             log.debug("Found possible match")
             log.debug("Latest name: %s", package_info.filename)
             log.debug("Old name: %s", temp_pkg.filename)
@@ -125,21 +122,6 @@ class Package(object):
         self.supported_extensions = [".zip", ".gz", ".bz2"]
         self.ignored_files = [".DS_Store"]
         self.extract_info(filename)
-
-    @property
-    def channel(self):
-        """
-        todo: Release notes should mention that Package.channel is now a
-         property instead of a normal attribute.
-
-        todo: This information is already contained in the Version object,
-         so it may be clearer just to drop the whole channel attribute.
-        """
-        channel_index = 2
-        if self.version.is_prerelease:
-            # alpha or beta
-            channel_index = "ab".index(self.version.pre[0])
-        return settings.VALID_CHANNELS[channel_index]
 
     def extract_info(self, filename):
         """Gets version number, platform & hash for package.
