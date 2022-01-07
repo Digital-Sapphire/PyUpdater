@@ -141,36 +141,34 @@ class Package(object):
             channel_index = "ab".index(self.version.pre[0])
         return settings.VALID_CHANNELS[channel_index]
 
-    def extract_info(self, package):
+    def extract_info(self, filename):
         """Gets version number, platform & hash for package.
 
         Args:
 
-            package (str): filename
+            filename (str): filename
         """
-        package_basename = os.path.basename(package)
-
-        if not os.path.exists(package):
-            msg = "{} does not exist".format(package)
+        if not os.path.exists(filename):
+            msg = "{} does not exist".format(filename)
             log.debug(msg)
             self.info["reason"] = msg
             return
-        if package_basename in self.ignored_files:
-            msg = "Ignored file: {}".format(package_basename)
+        if self.filename in self.ignored_files:
+            msg = "Ignored file: {}".format(self.filename)
             log.debug(msg)
             self.info["reason"] = msg
             return
         if (
-            os.path.splitext(package_basename)[1].lower()
+            os.path.splitext(self.filename)[1].lower()
             not in self.supported_extensions
         ):
-            msg = "Not a supported archive format: {}".format(package_basename)
+            msg = "Not a supported archive format: {}".format(self.filename)
             self.info["reason"] = msg
             log.debug(msg)
             return
 
-        log.debug(f"Extracting update archive info for: {package_basename}")
-        parts = parse_archive_name(package_basename)
+        log.debug(f"Extracting update archive info for: {self.filename}")
+        parts = parse_archive_name(self.filename)
         msg = None
         try:
             # Parse PEP440 version string
@@ -184,7 +182,7 @@ class Package(object):
             msg = "Package version may not be PEP440 compliant"
         finally:
             if msg is not None:
-                reason = f"{msg}: {package_basename}"
+                reason = f"{msg}: {self.filename}"
                 self.info["reason"] = reason
                 log.error(reason)
                 return
