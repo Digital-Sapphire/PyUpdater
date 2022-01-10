@@ -44,7 +44,7 @@ from pyupdater.client.downloader import FileDownloader, get_hash
 from pyupdater.client.patcher import Patcher
 from pyupdater.core.package_handler.package import remove_previous_versions
 from pyupdater.utils.exceptions import ClientError
-
+from pyupdater.client.s3_header_maker import create_s3_header
 
 log = logging.getLogger(__name__)
 
@@ -434,6 +434,10 @@ class LibUpdate(object):
         # Extra headers
         self.headers = data.get("headers")
 
+        #s3 params (optional)
+
+        self.s3_params = data.get("s3_params")
+
         # The amount of times to retry a url before giving up
         self.max_download_retries = data.get("max_download_retries")
 
@@ -693,6 +697,9 @@ class LibUpdate(object):
                     self.filename, self.update_urls, hexdigest=file_hash
                 )
             else:
+                if self.s3_params:
+                    s3_header = create_s3_header(self.s3_params, self.filename)
+                    self.headers.update(s3_header)
                 fd = FileDownloader(
                     self.filename,
                     self.update_urls,
