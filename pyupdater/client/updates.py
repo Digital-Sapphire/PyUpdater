@@ -500,7 +500,7 @@ class LibUpdate(object):
         if background is True:
             if self._is_downloading is False:
                 self._is_downloading = True
-                threading.Thread(target=self._download).start()
+                threading.Thread(target=self._download, daemon=True).start()
         else:
             if self._is_downloading is False:
                 self._is_downloading = True
