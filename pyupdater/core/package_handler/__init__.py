@@ -208,9 +208,12 @@ class PackageHandler(object):
                         patch_manifest.append(_patch)
 
         if report_errors is True:  # pragma: no cover
-            log.warning("Bad package & reason for being naughty:")
-            for b in bad_packages:
-                log.warning(b.name, b.info["reason"])
+            if not bad_packages:
+                log.warning("No bad packages")
+            else:
+                log.warning("Bad package & reason for being naughty:")
+                for b in bad_packages:
+                    log.warning(b.name, b.info["reason"])
 
         return package_manifest, patch_manifest
 
